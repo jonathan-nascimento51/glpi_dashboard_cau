@@ -1,0 +1,78 @@
+# Codex Prompt Cookbook – GLPI Dashboard 📚
+
+## Como usar
+1. Abra uma sessão **Codex** (ChatGPT code‑interpreter).
+2. Copie o bloco *PROMPT* desejado para o chat.
+3. Revise o diff sugerido; aceite ou ajuste; faça commit.
+4. Repita para cada arquivo.
+
+---
+
+### 1️⃣ Gerar **glpi_api.py**
+```
+Você é um engenheiro Python sênior.
+Crie **glpi_api.py** com:
+- login() que cria sessão e retorna um objeto Session pronto.
+- get_tickets(status=None, limit=100, session=None) → List[dict]
+- Uso de python‑dotenv para ler GLPI_URL, APP_TOKEN, USER_TOKEN
+- Tratamento de erros HTTP com raise_for_status()
+- Type hints e docstrings.
+```
+
+### 2️⃣ Gerar **data_pipeline.py**
+```
+Você é um especialista em ETL.
+Crie data_pipeline.py com:
+- process_raw(data: List[dict]) -> pandas.DataFrame
+- Campos obrigatórios: id, status, group, date_creation, assigned_to
+- Converta datas para datetime, preencha NaN com None
+- Função save_json(df, path="mock/sample_data.json")
+```
+
+### 3️⃣ Gerar **dash_layout.py**
+```
+Você é front‑end Dash.
+Crie dash_layout.py contendo a função build_layout(df) que devolve um objeto html.Div com:
+- H1 título
+- 3 contadores (total, abertos, fechados)
+- Gráfico de barras tickets por status
+- DataTable com id, name, status, technician
+Sem CSS avançado.
+```
+
+### 4️⃣ Atualizar **requirements.txt**
+```
+Adicione/atualize:
+dash>=2.17
+pandas>=2.2
+requests>=2.32
+python-dotenv>=1.0
+pre-commit>=3.7
+```
+
+### 5️⃣ Script **.devcontainer/setup.sh**
+```
+Gere setup.sh:
+- apt-get update && install build-essential
+- pip install -r requirements.txt
+- pre-commit install
+```
+
+### 6️⃣ Criar testes **tests/test_glpi_api.py**
+```
+Use pytest e requests-mock.
+Teste que get_tickets() retorna lista não vazia e lança HTTPError em 500.
+```
+
+### 7️⃣ Refatorar depois
+```
+Reescreva data_pipeline.process_raw para aceitar DataFrame e Series.
+Garanta 100% coverage nos testes.
+```
+
+### 8️⃣ Mensagens de commit (Conventional Commits)
+```
+feat(api): add glpi_api with session support
+fix(api): handle 401 unauthorized
+docs(readme): add local setup guide
+```
