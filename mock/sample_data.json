@@ -1,0 +1,4 @@
+[
+  {"id": 1, "status": "new", "group": "N1", "date_creation": "2024-01-01T00:00:00Z", "assigned_to": "alice", "name": "t1"},
+  {"id": 2, "status": "closed", "group": "N2", "date_creation": "2024-01-02T00:00:00Z", "assigned_to": "bob", "name": "t2"}
+]

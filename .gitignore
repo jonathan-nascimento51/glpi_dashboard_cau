@@ -2,3 +2,7 @@
 .env
 *.env
 *.secret
+# Runtime
+*.sha256
+log.jsonl
+__pycache__/
