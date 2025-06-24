@@ -22,10 +22,10 @@ def test_get_tickets_success(requests_mock):
         json={"session_token": "abc"},
     )
     requests_mock.get(
-        "http://example.com/tickets",
-        json=[{"id": 1}],
+        "http://example.com/search/Ticket",
+        json={"data": [{"id": 1}]},
     )
-    tickets = glpi_api.get_tickets()
+    tickets = glpi_api.get_tickets(status="new")
     assert isinstance(tickets, list) and len(tickets) == 1
 
 
@@ -36,8 +36,15 @@ def test_get_tickets_http_error(requests_mock):
         json={"session_token": "abc"},
     )
     requests_mock.get(
-        "http://example.com/tickets",
+        "http://example.com/search/Ticket",
         status_code=500,
     )
     with pytest.raises(requests.HTTPError):
         glpi_api.get_tickets()
+
+
+def test_login_unauthorized(requests_mock):
+    setup_env()
+    requests_mock.get("http://example.com/initSession", status_code=401)
+    with pytest.raises(glpi_api.UnauthorizedError):
+        glpi_api.login()
