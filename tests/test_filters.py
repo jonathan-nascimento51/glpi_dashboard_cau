@@ -6,6 +6,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from scripts import filters  # noqa: E402
 
+
 def sample_df():
     return pd.DataFrame([
         {"id": 1, "status": "new", "group": "N1", "assigned_to": "alice"},
