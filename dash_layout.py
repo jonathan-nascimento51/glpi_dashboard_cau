@@ -19,10 +19,7 @@ def build_layout(df: pd.DataFrame) -> html.Div:
     table = dash_table.DataTable(
         id="ticket-table",
         data=df[["id", "name", "status", "assigned_to"]].to_dict("records"),
-        columns=[
-            {"name": c, "id": c}
-            for c in ["id", "name", "status", "assigned_to"]
-        ],
+        columns=[{"name": c, "id": c} for c in ["id", "name", "status", "assigned_to"]],
         page_size=10,
     )
 
