@@ -55,3 +55,8 @@ Lint checks can be run manually:
 black --check .
 flake8 .
 ```
+
+## License
+
+This project is released under the [MIT License](LICENSE).
+
