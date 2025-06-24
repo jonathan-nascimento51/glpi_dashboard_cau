@@ -11,7 +11,12 @@ def sample_df():
     return pd.DataFrame(
         [
             {"id": 1, "status": "new", "group": "N1", "assigned_to": "alice"},
-            {"id": 2, "status": "assigned", "group": "N2", "assigned_to": "bob"},
+            {
+                "id": 2,
+                "status": "assigned",
+                "group": "N2",
+                "assigned_to": "bob",
+            },
         ]
     )
 

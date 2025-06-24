@@ -19,6 +19,7 @@ The goal is to inspect backlog, ticket status and productivity metrics without a
 ```bash
 python -m pip install --upgrade pip
 pip install -r requirements.txt
+pre-commit install
 ```
 
 ## Running the Dash app
