@@ -8,10 +8,12 @@ from scripts import filters  # noqa: E402
 
 
 def sample_df():
-    return pd.DataFrame([
-        {"id": 1, "status": "new", "group": "N1", "assigned_to": "alice"},
-        {"id": 2, "status": "assigned", "group": "N2", "assigned_to": "bob"},
-    ])
+    return pd.DataFrame(
+        [
+            {"id": 1, "status": "new", "group": "N1", "assigned_to": "alice"},
+            {"id": 2, "status": "assigned", "group": "N2", "assigned_to": "bob"},
+        ]
+    )
 
 
 def test_by_status():

@@ -1,6 +1,5 @@
 """Compute SHA‑256 hash of a JSON file and write <file>.sha256."""
 
-
 import argparse
 import hashlib
 import pathlib
@@ -16,9 +15,7 @@ def sha256sum(path: pathlib.Path) -> str:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Generate SHA‑256 for JSON dump."
-    )
+    parser = argparse.ArgumentParser(description="Generate SHA‑256 for JSON dump.")
     parser.add_argument(
         "json_file",
         type=pathlib.Path,
