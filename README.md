@@ -61,9 +61,15 @@ The service exposes three endpoints:
 Some scripts require a few variables set in a `.env` file. Copy `.env.example` and fill in your API credentials:
 
 ```bash
-GLPI_URL=http://seu-glpi-url/api
-APP_TOKEN=your_app_token_here
-USER_TOKEN=your_user_token_here
+GLPI_URL=https://seu-endpoint/apirest.php
+GLPI_APP_TOKEN=<token_app>
+GLPI_USER_TOKEN=<token_usuario>
+
+## Tickets & groups ETL
+
+Run the pipeline to fetch assignments:
+```bash
+python -m cli.tickets_groups --since 2025-06-01 --until 2025-06-30 --outfile datasets/tickets_groups.parquet
 ```
 
 ## Tests and linting
