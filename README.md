@@ -32,6 +32,23 @@ python main.py
 
 The app will be available at <http://127.0.0.1:8050>.
 
+## Worker API
+
+`worker_api.py` expõe os tickets em endpoints REST e GraphQL usando **FastAPI**.
+Ele pode ler o *dump* JSON offline ou coletar dados diretamente do GLPI.
+
+### Executar API
+
+```bash
+python worker_api.py  # padrão porta 8000
+```
+
+Endpoints básicos:
+
+- `GET /tickets` – lista de tickets normalizados
+- `GET /metrics` – total, abertos e fechados
+- `POST /graphql` – interface GraphQL (query `tickets` e `metrics`)
+
 ## Environment variables
 
 Some scripts require a few variables set in a `.env` file. Copy `.env.example` and fill in your API credentials:
