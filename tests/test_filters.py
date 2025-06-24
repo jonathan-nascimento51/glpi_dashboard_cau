@@ -3,8 +3,8 @@ import sys
 import pandas as pd
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-from scripts import filters
 
+from scripts import filters  # noqa: E402
 
 def sample_df():
     return pd.DataFrame([

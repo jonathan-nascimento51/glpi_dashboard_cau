@@ -2,14 +2,16 @@
 
 from __future__ import annotations
 
-from typing import Iterable, List, Union
+from typing import List, Union
 
 import pandas as pd
+
+TicketData = Union[List[dict], pd.DataFrame, pd.Series]
 
 REQUIRED_FIELDS = ["id", "status", "group", "date_creation", "assigned_to"]
 
 
-def _ensure_dataframe(data: Union[List[dict], pd.DataFrame, pd.Series]) -> pd.DataFrame:
+def _ensure_dataframe(data: TicketData) -> pd.DataFrame:
     if isinstance(data, pd.DataFrame):
         return data.copy()
     if isinstance(data, pd.Series):
@@ -17,7 +19,7 @@ def _ensure_dataframe(data: Union[List[dict], pd.DataFrame, pd.Series]) -> pd.Da
     return pd.DataFrame(list(data))
 
 
-def process_raw(data: Union[List[dict], pd.DataFrame, pd.Series]) -> pd.DataFrame:
+def process_raw(data: TicketData) -> pd.DataFrame:
     """Normalize raw ticket data.
 
     Parameters
@@ -35,8 +37,13 @@ def process_raw(data: Union[List[dict], pd.DataFrame, pd.Series]) -> pd.DataFram
     if missing:
         raise KeyError(f"Missing required fields: {missing}")
 
-    df = df[REQUIRED_FIELDS + [c for c in df.columns if c not in REQUIRED_FIELDS]]
-    df["date_creation"] = pd.to_datetime(df["date_creation"], errors="coerce")
+    df = df[
+        REQUIRED_FIELDS
+        + [c for c in df.columns if c not in REQUIRED_FIELDS]
+    ]
+    df["date_creation"] = pd.to_datetime(
+        df["date_creation"], errors="coerce"
+    )
     df = df.where(pd.notna(df), None)
     return df
 

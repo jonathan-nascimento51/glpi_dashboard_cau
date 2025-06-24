@@ -16,8 +16,14 @@ def sha256sum(path: pathlib.Path) -> str:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Generate SHA‑256 for JSON dump.")
-    parser.add_argument("json_file", type=pathlib.Path, help="Path to JSON file")
+    parser = argparse.ArgumentParser(
+        description="Generate SHA‑256 for JSON dump."
+    )
+    parser.add_argument(
+        "json_file",
+        type=pathlib.Path,
+        help="Path to JSON file",
+    )
     args = parser.parse_args()
 
     if not args.json_file.exists():

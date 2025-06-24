@@ -9,9 +9,21 @@ import uuid
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Log execution details.")
-    parser.add_argument("--source", required=True, help="Source JSON file used")
-    parser.add_argument("--user", default=os.getenv("USER", "unknown"), help="Executor")
-    parser.add_argument("--logfile", default="log.jsonl", help="Log output file")
+    parser.add_argument(
+        "--source",
+        required=True,
+        help="Source JSON file used",
+    )
+    parser.add_argument(
+        "--user",
+        default=os.getenv("USER", "unknown"),
+        help="Executor",
+    )
+    parser.add_argument(
+        "--logfile",
+        default="log.jsonl",
+        help="Log output file",
+    )
     args = parser.parse_args()
 
     entry = {

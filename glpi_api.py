@@ -32,7 +32,10 @@ def login() -> Session:
     session = requests.Session()
     resp = session.get(
         f"{url}/initSession",
-        headers={"App-Token": app_token, "Authorization": f"user_token {user_token}"},
+        headers={
+            "App-Token": app_token,
+            "Authorization": f"user_token {user_token}",
+        },
     )
     if resp.status_code == 401:
         raise UnauthorizedError("Invalid tokens", response=resp)
@@ -49,7 +52,9 @@ def login() -> Session:
 
 
 def get_tickets(
-    status: Optional[str] = None, limit: int = 100, session: Optional[Session] = None
+    status: Optional[str] = None,
+    limit: int = 100,
+    session: Optional[Session] = None,
 ) -> List[dict]:
     """Retrieve tickets from GLPI.
 
