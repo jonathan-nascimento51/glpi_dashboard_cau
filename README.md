@@ -32,29 +32,29 @@ python main.py
 
 The app will be available at <http://127.0.0.1:8050>.
 
-## Worker API
+## Running the Worker API
 
 `worker_api.py` provides a lightweight FastAPI service that exposes the same
 ticket data for other applications. It can read from the JSON dump or fetch
 directly from GLPI when the `--use-api` flag is supplied.
 
-Example using the dump:
+Run with the sample JSON dump:
 
 ```bash
-python worker_api.py
+python worker_api.py            # uses mock/sample_data.json
 ```
 
 Fetch live data instead:
 
 ```bash
-python worker_api.py --use-api
+python worker_api.py --use-api  # fetches from GLPI API
 ```
 
 The service exposes three endpoints:
 
 - `/tickets` – full list of tickets in JSON format.
 - `/metrics` – summary with `total`, `opened` and `closed` counts.
-- `/graphql` – GraphQL API providing the same information.
+- `/graphql/` – GraphQL API providing the same information.
 
 ## Environment variables
 
