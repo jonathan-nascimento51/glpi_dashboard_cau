@@ -14,8 +14,10 @@ from strawberry.fastapi import GraphQLRouter
 from strawberry.types import Info
 import uvicorn
 
-from glpi_api import get_tickets
+from glpi_api import get_tickets, login
 from data_pipeline import process_raw
+from requests import Session
+
 
 DEFAULT_FILE = Path("mock/sample_data.json")
 
@@ -40,11 +42,15 @@ class Metrics:
     closed: int
 
 
-def _load_tickets(use_api: bool, data_file: Path) -> pd.DataFrame:
+def _load_tickets(
+    use_api: bool,
+    data_file: Path,
+    session: Session | None = None,
+) -> pd.DataFrame:
     """Return processed ticket data from API or JSON file."""
     if use_api:
         try:
-            data = get_tickets()
+            data = get_tickets(session=session)
         except Exception as exc:  # pragma: no cover - network errors
             raise HTTPException(status_code=500, detail=str(exc)) from exc
     else:
@@ -52,7 +58,9 @@ def _load_tickets(use_api: bool, data_file: Path) -> pd.DataFrame:
             with data_file.open() as f:
                 data = json.load(f)
         except FileNotFoundError as exc:
-            raise HTTPException(status_code=404, detail="File not found") from exc
+            raise HTTPException(
+                status_code=404, detail="File not found"
+            ) from exc
     return process_raw(data)
 
 
@@ -62,12 +70,20 @@ class Query:
     def tickets(
         self, info: Info
     ) -> List[Ticket]:  # pragma: no cover - simple wrapper
-        df = _load_tickets(info.context["use_api"], info.context["data_file"])
+        df = _load_tickets(
+            info.context["use_api"],
+            info.context["data_file"],
+            session=info.context.get("session"),
+        )
         return [Ticket(**r) for r in df.to_dict("records")]
 
     @strawberry.field
     def metrics(self, info: Info) -> Metrics:
-        df = _load_tickets(info.context["use_api"], info.context["data_file"])
+        df = _load_tickets(
+            info.context["use_api"],
+            info.context["data_file"],
+            session=info.context.get("session"),
+        )
         total = len(df)
         closed = df[df["status"].str.lower() == "closed"].shape[0]
         opened = total - closed
@@ -80,14 +96,18 @@ def create_app(
     """Create FastAPI app with REST and GraphQL routes."""
     app = FastAPI(title="GLPI Worker API")
 
+    session: Session | None = None
+    if use_api:
+        session = login()
+
     @app.get("/tickets")
     def tickets() -> list[dict]:
-        df = _load_tickets(use_api, data_file)
+        df = _load_tickets(use_api, data_file, session=session)
         return df.to_dict(orient="records")
 
     @app.get("/metrics")
     def metrics() -> dict:
-        df = _load_tickets(use_api, data_file)
+        df = _load_tickets(use_api, data_file, session=session)
         total = len(df)
         closed = df[df["status"].str.lower() == "closed"].shape[0]
         opened = total - closed
@@ -97,7 +117,11 @@ def create_app(
     graphql = GraphQLRouter(
         schema,
         path="/",
-        context_getter=lambda r: {"use_api": use_api, "data_file": data_file},
+        context_getter=lambda r: {
+            "use_api": use_api,
+            "data_file": data_file,
+            "session": session,
+        },
     )
     app.include_router(graphql, prefix="/graphql")
     return app
@@ -123,5 +147,3 @@ def main() -> None:  # pragma: no cover - manual run
 
 if __name__ == "__main__":  # pragma: no cover - manual run
     main()
-
-

@@ -1,11 +1,10 @@
 import os
 import sys
 
-from fastapi.testclient import TestClient
-
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-from pathlib import Path
+from fastapi.testclient import TestClient  # noqa: E402
+from pathlib import Path  # noqa: E402
 from worker_api import create_app  # noqa: E402
 
 
@@ -37,3 +36,37 @@ def test_missing_file():
     client = TestClient(create_app(data_file=Path("nonexistent.json")))
     resp = client.get("/tickets")
     assert resp.status_code == 404
+
+
+def test_session_reused(monkeypatch):
+    sessions = []
+
+    def fake_login():
+        sess = object()
+        sessions.append(sess)
+        return sess
+
+    called_sessions = []
+
+    def fake_get_tickets(status=None, limit=100, session=None):
+        called_sessions.append(session)
+        return [
+            {
+                "id": 1,
+                "status": "new",
+                "group": "N1",
+                "date_creation": "2024-01-01",
+                "assigned_to": "alice",
+                "name": "t1",
+            }
+        ]
+
+    monkeypatch.setattr("worker_api.login", fake_login)
+    monkeypatch.setattr("worker_api.get_tickets", fake_get_tickets)
+
+    client = TestClient(create_app(use_api=True))
+    client.get("/tickets")
+    client.get("/metrics")
+
+    assert len(sessions) == 1
+    assert called_sessions == [sessions[0], sessions[0]]
