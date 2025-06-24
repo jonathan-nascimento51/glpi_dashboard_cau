@@ -3,11 +3,11 @@
 from __future__ import annotations
 
 import os
-from typing import List, Optional
+from typing import Iterable, List, Optional
 
 import requests
-from requests import Session
 from dotenv import load_dotenv
+from requests import Session
 
 
 class UnauthorizedError(requests.HTTPError):
@@ -54,32 +54,71 @@ def login() -> Session:
 def get_tickets(
     status: Optional[str] = None,
     limit: int = 100,
+    criteria: Iterable[dict] | None = None,
     session: Optional[Session] = None,
 ) -> List[dict]:
-    """Retrieve tickets from GLPI.
+    """Retrieve tickets via ``/search/Ticket`` endpoint.
 
     Parameters
     ----------
     status : str, optional
-        Filter by status, by default ``None``.
+        Status filter added as a search criterion.
     limit : int, optional
-        Maximum number of tickets, by default ``100``.
+        Maximum number of results.
+    criteria : Iterable[dict], optional
+        Additional GLPI search criteria.
     session : Session, optional
-        Existing session; if ``None`` a new one is created.
+        Existing session; created when ``None``.
 
     Returns
     -------
-    List[dict]
-        Ticket objects from the API.
+    list[dict]
+        Ticket objects returned by the API.
     """
     load_dotenv()
     url = os.getenv("GLPI_URL")
     if session is None:
         session = login()
 
-    params = {"limit": limit}
+    params: dict[str, object] = {"range": f"0-{limit - 1}"}
+    all_criteria = list(criteria or [])
     if status is not None:
-        params["status"] = status
-    resp = session.get(f"{url}/tickets", params=params)
+        all_criteria.append(
+            {"field": "status", "searchtype": "equals", "value": status}
+        )
+
+    for idx, crit in enumerate(all_criteria):
+        params[f"criteria[{idx}][field]"] = crit["field"]
+        params[f"criteria[{idx}][searchtype]"] = crit.get(
+            "searchtype", "equals"
+        )
+        params[f"criteria[{idx}][value]"] = crit["value"]
+
+    resp = session.get(f"{url}/search/Ticket", params=params)
     resp.raise_for_status()
-    return list(resp.json())
+    data = resp.json()
+    return list(data.get("data", data))
+
+
+def create_ticket(data: dict, session: Session | None = None) -> dict:
+    """Create a ticket using ``POST /Ticket``."""
+    load_dotenv()
+    url = os.getenv("GLPI_URL")
+    if session is None:
+        session = login()
+    resp = session.post(f"{url}/Ticket", json=data)
+    resp.raise_for_status()
+    return dict(resp.json())
+
+
+def update_ticket(
+    ticket_id: int, data: dict, session: Session | None = None
+) -> dict:
+    """Update a ticket using ``PUT /Ticket/<id>``."""
+    load_dotenv()
+    url = os.getenv("GLPI_URL")
+    if session is None:
+        session = login()
+    resp = session.put(f"{url}/Ticket/{ticket_id}", json=data)
+    resp.raise_for_status()
+    return dict(resp.json())
