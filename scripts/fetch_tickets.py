@@ -1,22 +1,40 @@
 import argparse
 from pathlib import Path
 
-from src.api.glpi_api import GLPIClient
+import asyncio
+from glpi_session import GLPISession, Credentials
+from config import (
+    GLPI_BASE_URL,
+    GLPI_APP_TOKEN,
+    GLPI_USERNAME,
+    GLPI_PASSWORD,
+    GLPI_USER_TOKEN,
+)
 from data_pipeline import process_raw, save_json
 
 
-def fetch_and_save(
+async def fetch_and_save(
     output: Path = Path("mock/sample_data.json"),
     status: str | None = None,
     limit: int = 100,
 ) -> None:
     """Fetch tickets from GLPI and save them to a JSON file."""
-    client = GLPIClient()
-    client.start_session()
+    creds = Credentials(
+        app_token=GLPI_APP_TOKEN,
+        user_token=GLPI_USER_TOKEN,
+        username=GLPI_USERNAME,
+        password=GLPI_PASSWORD,
+    )
+    session = GLPISession(GLPI_BASE_URL, creds)
     criteria = []
     if status is not None:
         criteria.append({"field": "status", "searchtype": "equals", "value": status})
-    tickets = client.search("Ticket", criteria=criteria, range_=f"0-{limit-1}")
+    async with session as client:
+        tickets = await client.get(
+            "search/Ticket",
+            params={"criteria": criteria, "range": f"0-{limit-1}"},
+        )
+    tickets = tickets.get("data", tickets)
     df = process_raw(tickets)
     save_json(df, str(output))
 
@@ -38,7 +56,7 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    fetch_and_save(output=args.output, status=args.status, limit=args.limit)
+    asyncio.run(fetch_and_save(output=args.output, status=args.status, limit=args.limit))
     print(f"✔ Saved tickets to {args.output}")
 
 

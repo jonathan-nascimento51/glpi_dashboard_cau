@@ -6,6 +6,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from fastapi.testclient import TestClient  # noqa: E402
 from pathlib import Path  # noqa: E402
 from worker_api import create_app  # noqa: E402
+import pytest
 
 
 def test_rest_endpoints():
@@ -41,26 +42,20 @@ def test_missing_file():
 def test_client_reused(monkeypatch):
     instances = []
 
-    class FakeClient:
+    class FakeSession:
         def __init__(self):
             instances.append(self)
 
-        def start_session(self):
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, exc_type, exc, tb):
             pass
 
-        def search(self, entity, criteria=None, range_="0-99"):
-            return [
-                {
-                    "id": 1,
-                    "status": "new",
-                    "group": "N1",
-                    "date_creation": "2024-01-01",
-                    "assigned_to": "alice",
-                    "name": "t1",
-                }
-            ]
+        async def get(self, *args, **kwargs):
+            return {"data": [{"id": 1}]}
 
-    monkeypatch.setattr("worker_api.GLPIClient", FakeClient)
+    monkeypatch.setattr("worker_api.GLPISession", lambda *a, **k: FakeSession())
 
     client = TestClient(create_app(use_api=True))
     client.get("/tickets")
