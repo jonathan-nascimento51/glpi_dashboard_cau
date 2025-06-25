@@ -10,6 +10,20 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: glpi_dashboard
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U user"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=5
     strategy:
       matrix:
         python-version: ["3.10", "3.12"]
@@ -24,6 +38,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install pytest flake8 black pre-commit
+      - name: Init DB
+        run: python scripts/init_db.py
       - name: Pre-commit
         run: pre-commit run --color always --show-diff-on-failure --all-files
       - name: Run tests
