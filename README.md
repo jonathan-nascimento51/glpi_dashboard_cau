@@ -56,6 +56,18 @@ The service exposes three endpoints:
 - `/metrics` – summary with `total`, `opened` and `closed` counts.
 - `/graphql/` – GraphQL API providing the same information.
 
+## Collecting ticket/group assignments
+
+Use the helper CLI to dump assignments into a Parquet dataset:
+
+```bash
+python -m cli.tickets_groups --since 2025-06-01 --until 2025-06-30 \
+    --outfile datasets/tickets_groups.parquet
+```
+
+Adjust the dates and destination file as needed. The command prints the
+resulting path after completion.
+
 ## Environment variables
 
 Some scripts require a few variables set in a `.env` file. You can copy the
