@@ -4,27 +4,27 @@ from __future__ import annotations
 
 import argparse
 import json
-from pathlib import Path
 import os
+from pathlib import Path
 from typing import List, Optional
 
 import pandas as pd
-from fastapi import FastAPI, HTTPException
 import strawberry
+import uvicorn
+from fastapi import FastAPI, HTTPException
 from strawberry.fastapi import GraphQLRouter
 from strawberry.types import Info
-import uvicorn
 
-from glpi_session import GLPISession, Credentials
 from config import (
-    GLPI_BASE_URL,
     GLPI_APP_TOKEN,
-    GLPI_USERNAME,
+    GLPI_BASE_URL,
     GLPI_PASSWORD,
     GLPI_USER_TOKEN,
+    GLPI_USERNAME,
 )
 from data_pipeline import process_raw
-
+from glpi_session import Credentials, GLPISession
+from redis_client import redis_client
 
 DEFAULT_FILE = Path(os.getenv("KNOWLEDGE_BASE_FILE", "mock/sample_data.json"))
 
@@ -54,7 +54,12 @@ async def _load_tickets(
     data_file: Path,
     client: Optional[GLPISession] = None,
 ) -> pd.DataFrame:
-    """Return processed ticket data from API or JSON file."""
+    """Return processed ticket data from API or JSON file with caching."""
+    cache_key = "tickets_api" if use_api else f"tickets_file:{data_file}"
+    cached = redis_client.get(cache_key)
+    if cached is not None:
+        return process_raw(cached)
+
     if use_api:
         try:
             if client is None:
@@ -78,6 +83,10 @@ async def _load_tickets(
                 status_code=404,
                 detail="File not found",
             ) from exc
+
+    if isinstance(data, dict):
+        data = data.get("data", data)
+    redis_client.set(cache_key, data)
     return process_raw(data)
 
 
@@ -134,6 +143,10 @@ def create_app(
         closed = df[df["status"].str.lower() == "closed"].shape[0]
         opened = total - closed
         return {"total": total, "opened": opened, "closed": closed}
+
+    @app.get("/cache-metrics")
+    async def cache_metrics() -> dict:
+        return redis_client.get_cache_metrics()
 
     schema = strawberry.Schema(Query)
     graphql = GraphQLRouter(
