@@ -5,7 +5,7 @@ from src.api.glpi_api import GLPIClient
 
 
 def setup_env():
-    os.environ["GLPI_URL"] = "http://example.com/apirest.php"
+    os.environ["GLPI_BASE_URL"] = "http://example.com/apirest.php"
     os.environ["GLPI_APP_TOKEN"] = "app"
     os.environ["GLPI_USER_TOKEN"] = "user"
 

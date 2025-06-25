@@ -19,7 +19,7 @@ class GLPIClient:
 
     def __init__(self) -> None:
         load_dotenv()
-        self.base_url = os.getenv("GLPI_URL")
+        self.base_url = os.getenv("GLPI_BASE_URL")
         self.app_token = os.getenv("GLPI_APP_TOKEN")
         self.user_token = os.getenv("GLPI_USER_TOKEN")
         if not all([self.base_url, self.app_token, self.user_token]):
