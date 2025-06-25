@@ -1,6 +1,7 @@
 import pytest
 import asyncio as aio
 from unittest.mock import AsyncMock, MagicMock, patch
+from typing import Optional
 from glpi_session import (
     GLPISession, Credentials, GLPIAPIError, GLPIUnauthorizedError,
     GLPIBadRequestError, GLPIForbiddenError, GLPINotFoundError,
