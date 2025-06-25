@@ -59,7 +59,8 @@ def _load_tickets(
                 data = json.load(f)
         except FileNotFoundError as exc:
             raise HTTPException(
-                status_code=404, detail="File not found"
+                status_code=404,
+                detail="File not found",
             ) from exc
     return process_raw(data)
 
@@ -67,9 +68,7 @@ def _load_tickets(
 @strawberry.type
 class Query:
     @strawberry.field
-    def tickets(
-        self, info: Info
-    ) -> List[Ticket]:  # pragma: no cover - simple wrapper
+    def tickets(self, info: Info) -> List[Ticket]:  # pragma: no cover
         df = _load_tickets(
             info.context["use_api"],
             info.context["data_file"],
@@ -91,7 +90,8 @@ class Query:
 
 
 def create_app(
-    use_api: bool = False, data_file: Path = DEFAULT_FILE
+    use_api: bool = False,
+    data_file: Path = DEFAULT_FILE,
 ) -> FastAPI:
     """Create FastAPI app with REST and GraphQL routes."""
     app = FastAPI(title="GLPI Worker API")

@@ -37,9 +37,8 @@ def process_raw(data: TicketData) -> pd.DataFrame:
     if missing:
         raise KeyError(f"Missing required fields: {missing}")
 
-    df = df[
-        REQUIRED_FIELDS + [c for c in df.columns if c not in REQUIRED_FIELDS]
-    ]
+    extra_cols = [c for c in df.columns if c not in REQUIRED_FIELDS]
+    df = df[REQUIRED_FIELDS + extra_cols]
     df["date_creation"] = pd.to_datetime(df["date_creation"], errors="coerce")
     df = df.where(pd.notna(df), None)
     return df

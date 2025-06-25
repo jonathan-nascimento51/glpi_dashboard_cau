@@ -17,6 +17,8 @@ def test_search_returns_items(requests_mock) -> None:
         json={"session_token": "abc"},
     )
     requests_mock.get(
+        "http://example.com/search/Ticket",
+        json={"data": [{"id": 1}]},
 <<<<<<< ours
 <<<<<<< ours
 <<<<<<< ours
@@ -38,6 +40,7 @@ def test_search_returns_items(requests_mock) -> None:
         "http://example.com/search/Ticket",
         json={"data": [{"id": 1}]},
     )
+    tickets = glpi_api.get_tickets(status="new")
     tickets = glpi_api.get_tickets(status="new")
 <<<<<<< ours
     tickets = glpi_api.get_tickets(status="new")
@@ -73,6 +76,8 @@ def test_kill_session(requests_mock) -> None:
         "http://example.com/apirest.php/initSession",
         json={"session_token": "zzz"},
     )
+    requests_mock.get(
+        "http://example.com/search/Ticket",
     requests_mock.post(
         "http://example.com/apirest.php/killSession",
         status_code=200,
@@ -92,6 +97,13 @@ def test_kill_session(requests_mock) -> None:
     )
     with pytest.raises(requests.HTTPError):
         glpi_api.get_tickets()
+
+
+def test_login_unauthorized(requests_mock):
+    setup_env()
+    requests_mock.get("http://example.com/initSession", status_code=401)
+    with pytest.raises(glpi_api.UnauthorizedError):
+        glpi_api.login()
 
 
 def test_login_unauthorized(requests_mock):

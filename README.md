@@ -23,6 +23,8 @@ pre-commit install
 ```
 This project also uses the `rich-click` library for colored CLI output. It is included in `requirements.txt`.
 
+This project also uses the `rich-click` library for colored CLI output. It is included in `requirements.txt`.
+
 
 ## Running the Dash app
 
@@ -80,6 +82,14 @@ python scripts/setup_env.py  # creates .env from .env.example
 ```
 
 Then edit the file and fill in your API credentials:
+Some scripts require a few variables set in a `.env` file. You can copy the
+template manually or run the helper script:
+
+```bash
+python scripts/setup_env.py  # creates .env from .env.example
+```
+
+Then edit the file and fill in your API credentials:
 
 ```bash
 docker-compose up
@@ -111,6 +121,35 @@ Use `docker-compose` for convenience:
 ```bash
 docker-compose up
 ```
+
+### Fetching ticket data
+
+After setting up the environment file you can download tickets from GLPI and
+store them locally:
+
+```bash
+python scripts/fetch_tickets.py --output mock/sample_data.json
+```
+
+This JSON file can be used by both the Dash app and the worker API when running
+without the `--use-api` flag.
+
+## Docker deployment
+
+Build the image and run the worker API:
+
+```bash
+docker build -t glpi-dashboard .
+docker run --env-file .env -p 8000:8000 glpi-dashboard
+```
+
+Use `docker-compose` for convenience:
+
+```bash
+docker-compose up
+```
+
+
 
 
 
