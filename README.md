@@ -21,6 +21,8 @@ python -m pip install --upgrade pip
 pip install -r requirements.txt
 pre-commit install
 ```
+This project also uses the `rich-click` library for colored CLI output. It is included in `requirements.txt`.
+
 
 ## Running the Dash app
 
