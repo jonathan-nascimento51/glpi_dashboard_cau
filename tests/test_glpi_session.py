@@ -108,6 +108,25 @@ def mock_client_session(mock_response):
         mock_session_cls.return_value = mock_session_instance
         yield mock_session_instance
 
+
+def test_credentials_require_auth(app_token):
+    """Credentials without user_token or username/password should raise."""
+    with pytest.raises(ValueError):
+        Credentials(app_token=app_token)
+
+
+def test_credentials_prioritize_user_token(app_token):
+    """If both auth methods are provided, user_token wins."""
+    creds = Credentials(
+        app_token=app_token,
+        user_token="tok",
+        username="user",
+        password="pw",
+    )
+    assert creds.user_token == "tok"
+    assert creds.username is None
+    assert creds.password is None
+
 @pytest.mark.asyncio
 async def test_glpi_session_context_manager_user_token_auth(base_url, app_token, user_token, mock_client_session, mock_response):
     """
@@ -415,3 +434,32 @@ async def test_proactive_refresh_loop_username_password(base_url, app_token, use
 
     # Check that post was called for init + two refreshes
     assert mock_client_session.post.call_count == 3
+
+
+@pytest.mark.asyncio
+async def test_kill_session_no_token(base_url, app_token, mock_client_session):
+    """_kill_session should do nothing if no token is set."""
+    creds = Credentials(app_token=app_token, user_token="tok")
+    session = GLPISession(base_url, creds)
+    session._session = mock_client_session
+    session._session_token = None
+    await session._kill_session()
+    mock_client_session.get.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_kill_session_success(base_url, app_token, user_token, mock_client_session, mock_response):
+    """_kill_session should call the endpoint and clear the token."""
+    creds = Credentials(app_token=app_token, user_token=user_token)
+    session = GLPISession(base_url, creds)
+    session._session = mock_client_session
+    session._session_token = user_token
+    mock_client_session.get.return_value = mock_response(200, {})
+    await session._kill_session()
+    mock_client_session.get.assert_called_once_with(
+        f"{base_url}/killSession",
+        headers={"Content-Type": "application/json", "Session-Token": user_token, "App-Token": app_token},
+        proxy=None,
+        timeout=300,
+    )
+    assert session._session_token is None

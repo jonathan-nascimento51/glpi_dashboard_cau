@@ -1,6 +1,7 @@
 import os
 import pytest
 from src.api.glpi_api import GLPIClient
+import json
 
 
 def setup_env() -> None:
@@ -31,3 +32,22 @@ def test_start_session_unauthorized(requests_mock) -> None:
     client = GLPIClient()
     with pytest.raises(Exception):
         client.start_session()
+
+
+def test_kill_session(requests_mock) -> None:
+    """Starting and killing a session clears the stored token."""
+    setup_env()
+    requests_mock.post(
+        "http://example.com/initSession",
+        json={"session_token": "tok"},
+    )
+    requests_mock.post(
+        "http://example.com/killSession",
+        status_code=200,
+    )
+    client = GLPIClient()
+    client.start_session()
+    assert client.session_token == "tok"
+    client.kill_session()
+    assert client.session_token is None
+    assert "Session-Token" not in client.session.headers
