@@ -72,15 +72,6 @@ resulting path after completion.
 
 Some scripts require a few variables set in a `.env` file. You can copy the
 template manually or run the helper script:
-<<<<<<< ours
-=======
-
-```bash
-python scripts/setup_env.py  # creates .env from .env.example
-```
-
-Then edit the file and fill in your API credentials:
->>>>>>> theirs
 
 ```bash
 python scripts/setup_env.py  # creates .env from .env.example
@@ -89,16 +80,20 @@ python scripts/setup_env.py  # creates .env from .env.example
 Then edit the file and fill in your API credentials:
 
 ```bash
-GLPI_URL=https://seu-endpoint/apirest.php
-GLPI_APP_TOKEN=<token_app>
-GLPI_USER_TOKEN=<token_usuario>
-
-## Tickets & groups ETL
-
-Run the pipeline to fetch assignments:
-```bash
-python -m cli.tickets_groups --since 2025-06-01 --until 2025-06-30 --outfile datasets/tickets_groups.parquet
+docker-compose up
 ```
+
+### Fetching ticket data
+
+After setting up the environment file you can download tickets from GLPI and
+store them locally:
+
+```bash
+python scripts/fetch_tickets.py --output mock/sample_data.json
+```
+
+This JSON file can be used by both the Dash app and the worker API when running
+without the `--use-api` flag.
 
 ## Docker deployment
 

@@ -36,6 +36,7 @@ def test_search_returns_items(requests_mock) -> None:
         json={"data": [{"id": 1}]},
     )
     tickets = glpi_api.get_tickets(status="new")
+    tickets = glpi_api.get_tickets(status="new")
     assert isinstance(tickets, list) and len(tickets) == 1
 >>>>>>> theirs
 
