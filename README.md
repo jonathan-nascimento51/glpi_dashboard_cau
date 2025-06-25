@@ -21,7 +21,11 @@ python -m pip install --upgrade pip
 pip install -r requirements.txt
 pre-commit install
 ```
+<<<<<<< ours
+=======
 
+This project also uses the `rich-click` library for colored CLI output. It is included in `requirements.txt`.
+>>>>>>> theirs
 
 ## Running the Dash app
 
@@ -69,8 +73,12 @@ Adjust the dates and destination file as needed. The command prints the resultin
 ## Environment variables
 
 <<<<<<< ours
+<<<<<<< ours
 Some scripts require a few variables set in a `.env` file. You can copy the
 template manually or run the helper script:
+=======
+Some scripts require variables set in a `.env` file. You can copy the template manually or run the helper script:
+>>>>>>> theirs
 =======
 Some scripts require variables set in a `.env` file. You can copy the template manually or run the helper script:
 >>>>>>> theirs
@@ -81,11 +89,32 @@ python scripts/setup_env.py  # creates .env from .env.example
 
 Then edit the file and fill in your API credentials.
 <<<<<<< ours
+<<<<<<< ours
+=======
 =======
 
 The template also defines `KNOWLEDGE_BASE_FILE` pointing to the JSON dump used
 by the dashboard and API. Change it if you keep the knowledge base elsewhere.
 
+### Fetching ticket data
+
+After setting up the environment file you can download tickets from GLPI and store them locally:
+
+```bash
+python scripts/fetch_tickets.py --output mock/sample_data.json
+```
+
+This JSON file can be used by both the Dash app and the worker API when running without the `--use-api` flag.
+
+## Docker deployment
+
+Build the image and run the worker API:
+>>>>>>> theirs
+
+The template also defines `KNOWLEDGE_BASE_FILE` pointing to the JSON dump used
+by the dashboard and API. Change it if you keep the knowledge base elsewhere.
+
+<<<<<<< ours
 ### Fetching ticket data
 
 After setting up the environment file you can download tickets from GLPI and store them locally:
@@ -112,6 +141,8 @@ docker-compose up
 ```
 >>>>>>> theirs
 
+=======
+>>>>>>> theirs
 ## Tests and linting
 
 Execute the unit tests with:
