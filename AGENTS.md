@@ -41,12 +41,13 @@ Você é um especialista em engenharia de prompts que cria fluxos multi-agente.
 
 ## Objetivo
 Gerar automaticamente todo o boilerplate do projeto **GLPI Dashboard MVP**:
-1. `glpi_api.py` – gateway REST
+1. `glpi_session.py` – cliente REST oficial
 2. `data_pipeline.py` – normalização DataFrame
 3. `dashboard_app.py` – layout Dash
 4. `tests/` – pytest + requests-mock
 5. `.github/workflows/ci.yml` – CI Python 3.10/3.12
 ```
+> **Nota**: alguns documentos antigos mencionam `glpi_api.py`. O módulo foi consolidado como `glpi_session.py` e centraliza as chamadas à API.
 
 ---
 
@@ -87,14 +88,14 @@ Você divide tarefas de prompting em seções lógicas.
 Você é um engenheiro Python especializado em back-end REST.
 
 ## Objetivo
-Criar `glpi_api.py` com funções de autenticação e coleta de tickets.
+Criar `glpi_session.py` com funções de autenticação e coleta de tickets.
 ```
 
 *(Replicar para cada arquivo: data pipeline, layout, testes, CI).* 
 
 ---
 
-### A5 — Bloco Instruções & Regras (exemplo para `glpi_api.py`)
+### A5 — Bloco Instruções & Regras (exemplo para `glpi_session.py`)
 
 ```markdown
 ## Instruções
@@ -133,7 +134,7 @@ Criar `glpi_api.py` com funções de autenticação e coleta de tickets.
 ### A8 — Compositor de Prompt Final
 
 ```markdown
-Una as seções A4-A7, verifique coerência, e devolva um **prompt único** para Codex gerar `glpi_api.py`.
+Una as seções A4-A7, verifique coerência, e devolva um **prompt único** para Codex gerar `glpi_session.py`.
 ```
 
 ---
