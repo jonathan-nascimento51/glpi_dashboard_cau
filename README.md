@@ -8,7 +8,7 @@ The goal is to inspect backlog, ticket status and productivity metrics without a
 
 ## Main modules
 
-- **`glpi_api.py`** – wrapper for the GLPI REST API that handles authentication and ticket retrieval.
+- **`src/api/glpi_api.py`** – wrapper for the GLPI REST API that handles authentication and ticket retrieval.
 - **`data_pipeline.py`** – normalizes raw ticket data into a `pandas.DataFrame` and exports JSON.
 - **`dash_layout.py`** – defines tables and charts for the Dash UI.
 - **`main.py`** – starts the Dash server using data from `mock/`.

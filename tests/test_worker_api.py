@@ -38,35 +38,32 @@ def test_missing_file():
     assert resp.status_code == 404
 
 
-def test_session_reused(monkeypatch):
-    sessions = []
+def test_client_reused(monkeypatch):
+    instances = []
 
-    def fake_login():
-        sess = object()
-        sessions.append(sess)
-        return sess
+    class FakeClient:
+        def __init__(self):
+            instances.append(self)
 
-    called_sessions = []
+        def start_session(self):
+            pass
 
-    def fake_get_tickets(status=None, limit=100, session=None):
-        called_sessions.append(session)
-        return [
-            {
-                "id": 1,
-                "status": "new",
-                "group": "N1",
-                "date_creation": "2024-01-01",
-                "assigned_to": "alice",
-                "name": "t1",
-            }
-        ]
+        def search(self, entity, criteria=None, range_="0-99"):
+            return [
+                {
+                    "id": 1,
+                    "status": "new",
+                    "group": "N1",
+                    "date_creation": "2024-01-01",
+                    "assigned_to": "alice",
+                    "name": "t1",
+                }
+            ]
 
-    monkeypatch.setattr("worker_api.login", fake_login)
-    monkeypatch.setattr("worker_api.get_tickets", fake_get_tickets)
+    monkeypatch.setattr("worker_api.GLPIClient", FakeClient)
 
     client = TestClient(create_app(use_api=True))
     client.get("/tickets")
     client.get("/metrics")
 
-    assert len(sessions) == 1
-    assert called_sessions == [sessions[0], sessions[0]]
+    assert len(instances) == 1

@@ -8,19 +8,23 @@ import scripts.fetch_tickets as fetch_tickets  # noqa: E402
 
 
 def test_fetch_and_save(monkeypatch, tmp_path):
-    def fake_get_tickets(status=None, limit=100):
-        return [
-            {
-                "id": 1,
-                "status": "new",
-                "group": "N1",
-                "date_creation": "2024-01-01",
-                "assigned_to": "alice",
-                "name": "t1",
-            }
-        ]
+    class FakeClient:
+        def start_session(self):
+            pass
 
-    monkeypatch.setattr(fetch_tickets, "get_tickets", fake_get_tickets)
+        def search(self, entity, criteria=None, range_="0-99"):
+            return [
+                {
+                    "id": 1,
+                    "status": "new",
+                    "group": "N1",
+                    "date_creation": "2024-01-01",
+                    "assigned_to": "alice",
+                    "name": "t1",
+                }
+            ]
+
+    monkeypatch.setattr(fetch_tickets, "GLPIClient", FakeClient)
     out = tmp_path / "data.json"
     fetch_tickets.fetch_and_save(output=out)
     with out.open() as f:
