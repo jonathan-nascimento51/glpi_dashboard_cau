@@ -24,8 +24,8 @@ def login() -> Session:
     """
     load_dotenv()
     url = os.getenv("GLPI_URL")
-    app_token = os.getenv("APP_TOKEN")
-    user_token = os.getenv("USER_TOKEN")
+    app_token = os.getenv("GLPI_APP_TOKEN")
+    user_token = os.getenv("GLPI_USER_TOKEN")
     if not all([url, app_token, user_token]):
         raise ValueError("Missing GLPI environment variables")
 

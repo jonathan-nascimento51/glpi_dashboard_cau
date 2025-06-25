@@ -38,7 +38,7 @@ class GLPIAPIError(Exception):
         message: A descriptive error message.
         response_data: Optional dictionary containing the raw response data from the API.
     """
-    def __init__(self, status_code: int, message: str, response_data: Optional] = None):
+    def __init__(self, status_code: int, message: str, response_data: Optional[dict] = None):
         self.status_code = status_code
         self.message = message
         self.response_data = response_data
@@ -69,7 +69,7 @@ class GLPIInternalServerError(GLPIAPIError):
     pass
 
 # Mapping HTTP status codes to custom exception classes
-HTTP_STATUS_ERROR_MAP: Dict] = {
+HTTP_STATUS_ERROR_MAP: Dict[int, Type[GLPIAPIError]] = {
     GlpiHttpError.BAD_REQUEST.value: GLPIBadRequestError,
     GlpiHttpError.UNAUTHORIZED.value: GLPIUnauthorizedError,
     GlpiHttpError.FORBIDDEN.value: GLPIForbiddenError,

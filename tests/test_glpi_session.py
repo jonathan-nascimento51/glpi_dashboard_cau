@@ -47,8 +47,8 @@ def mock_response():
         mock_resp.status = status
         mock_resp.json = AsyncMock(return_value=json_data if json_data is not None else {})
         mock_resp.text = AsyncMock(return_value=str(json_data) if json_data is not None else "")
-        mock_resp.request_info = MagicMock() # Required for ClientResponseError
-        mock_resp.history = # Required for ClientResponseError
+        mock_resp.request_info = MagicMock()  # Required for ClientResponseError
+        mock_resp.history = tuple()  # Required for ClientResponseError
 
         if raise_for_status_exc:
             mock_resp.raise_for_status.side_effect = aio.http.ClientResponseError(
@@ -196,8 +196,8 @@ async def test_post_request_success(base_url, app_token, username, password, moc
     glpi_session = GLPISession(base_url, credentials)
 
     # Mock initSession call and then the actual POST request
-    mock_client_session.post.side_effect =
-    mock_client_session.request.return_value = mock_response(201, {"id": 1}) # For actual POST request
+    mock_client_session.post.return_value = mock_response(200, {"session_token": "initial_session_token"})
+    mock_client_session.request.return_value = mock_response(201, {"id": 1})  # For actual POST request
 
     async with glpi_session as session:
         payload = {"name": "New Ticket", "content": "Issue description"}
