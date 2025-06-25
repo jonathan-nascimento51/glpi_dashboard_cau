@@ -24,7 +24,11 @@ def test_collect_basic(requests_mock):
     mock_common(requests_mock)
     requests_mock.get(
         re.compile(r"http://example.com/apirest.php/search/Ticket.*"),
-        json={"data": [{"id": 1, "name": "t", "status": 1, "date": "2024-01-01"}]},
+        json={
+            "data": [
+                {"id": 1, "name": "t", "status": 1, "date": "2024-01-01"}
+            ]
+        },
         headers={"Content-Range": "0-0/1"},
     )
     requests_mock.get(
