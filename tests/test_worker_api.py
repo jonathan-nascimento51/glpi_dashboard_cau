@@ -3,10 +3,47 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-from fastapi.testclient import TestClient  # noqa: E402
 from pathlib import Path  # noqa: E402
-from worker_api import create_app  # noqa: E402
+
 import pytest
+from fastapi.testclient import TestClient  # noqa: E402
+
+import worker_api
+from worker_api import create_app  # noqa: E402
+
+
+class DummyCache:
+    def __init__(self):
+        self.data = {}
+        self.hits = 0
+        self.misses = 0
+
+    def get(self, key):
+        if key in self.data:
+            self.hits += 1
+            return self.data[key]
+        self.misses += 1
+        return None
+
+    def set(self, key, data, ttl_seconds=None):
+        self.data[key] = data
+
+    def get_cache_metrics(self):
+        total = self.hits + self.misses
+        hit_rate = (self.hits / total * 100) if total else 0.0
+        return {
+            "hits": self.hits,
+            "misses": self.misses,
+            "total": total,
+            "hit_rate": hit_rate,
+        }
+
+
+@pytest.fixture(autouse=True)
+def patch_cache(monkeypatch):
+    cache = DummyCache()
+    monkeypatch.setattr(worker_api, "redis_client", cache)
+    return cache
 
 
 def test_rest_endpoints():
@@ -62,3 +99,13 @@ def test_client_reused(monkeypatch):
     client.get("/metrics")
 
     assert len(instances) == 1
+
+
+def test_cache_metrics_endpoint():
+    client = TestClient(create_app())
+    client.get("/tickets")
+    resp = client.get("/cache-metrics")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["misses"] == 1
+    assert data["hits"] == 0
