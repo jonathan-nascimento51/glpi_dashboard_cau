@@ -6,7 +6,7 @@ import argparse
 import json
 from pathlib import Path
 import os
-from typing import List
+from typing import List, Optional
 
 import pandas as pd
 from fastapi import FastAPI, HTTPException
@@ -15,7 +15,14 @@ from strawberry.fastapi import GraphQLRouter
 from strawberry.types import Info
 import uvicorn
 
-from src.api.glpi_api import GLPIClient
+from glpi_session import GLPISession, Credentials
+from config import (
+    GLPI_BASE_URL,
+    GLPI_APP_TOKEN,
+    GLPI_USERNAME,
+    GLPI_PASSWORD,
+    GLPI_USER_TOKEN,
+)
 from data_pipeline import process_raw
 
 
@@ -42,18 +49,24 @@ class Metrics:
     closed: int
 
 
-def _load_tickets(
+async def _load_tickets(
     use_api: bool,
     data_file: Path,
-    client: GLPIClient | None = None,
+    client: Optional[GLPISession] = None,
 ) -> pd.DataFrame:
     """Return processed ticket data from API or JSON file."""
     if use_api:
         try:
             if client is None:
-                client = GLPIClient()
-                client.start_session()
-            data = client.search("Ticket")
+                creds = Credentials(
+                    app_token=GLPI_APP_TOKEN,
+                    user_token=GLPI_USER_TOKEN,
+                    username=GLPI_USERNAME,
+                    password=GLPI_PASSWORD,
+                )
+                client = GLPISession(GLPI_BASE_URL, creds)
+            async with client as session:
+                data = await session.get("search/Ticket")
         except Exception as exc:  # pragma: no cover - network errors
             raise HTTPException(status_code=500, detail=str(exc)) from exc
     else:
@@ -71,8 +84,8 @@ def _load_tickets(
 @strawberry.type
 class Query:
     @strawberry.field
-    def tickets(self, info: Info) -> List[Ticket]:  # pragma: no cover
-        df = _load_tickets(
+    async def tickets(self, info: Info) -> List[Ticket]:  # pragma: no cover
+        df = await _load_tickets(
             info.context["use_api"],
             info.context["data_file"],
             client=info.context.get("client"),
@@ -80,8 +93,8 @@ class Query:
         return [Ticket(**r) for r in df.to_dict("records")]
 
     @strawberry.field
-    def metrics(self, info: Info) -> Metrics:
-        df = _load_tickets(
+    async def metrics(self, info: Info) -> Metrics:
+        df = await _load_tickets(
             info.context["use_api"],
             info.context["data_file"],
             client=info.context.get("client"),
@@ -99,19 +112,24 @@ def create_app(
     """Create FastAPI app with REST and GraphQL routes."""
     app = FastAPI(title="GLPI Worker API")
 
-    client: GLPIClient | None = None
+    client: Optional[GLPISession] = None
     if use_api:
-        client = GLPIClient()
-        client.start_session()
+        creds = Credentials(
+            app_token=GLPI_APP_TOKEN,
+            user_token=GLPI_USER_TOKEN,
+            username=GLPI_USERNAME,
+            password=GLPI_PASSWORD,
+        )
+        client = GLPISession(GLPI_BASE_URL, creds)
 
     @app.get("/tickets")
-    def tickets() -> list[dict]:
-        df = _load_tickets(use_api, data_file, client=client)
+    async def tickets() -> list[dict]:
+        df = await _load_tickets(use_api, data_file, client=client)
         return df.to_dict(orient="records")
 
     @app.get("/metrics")
-    def metrics() -> dict:
-        df = _load_tickets(use_api, data_file, client=client)
+    async def metrics() -> dict:
+        df = await _load_tickets(use_api, data_file, client=client)
         total = len(df)
         closed = df[df["status"].str.lower() == "closed"].shape[0]
         opened = total - closed

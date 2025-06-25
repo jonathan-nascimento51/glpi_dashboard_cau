@@ -1,32 +1,29 @@
 import json
 import os
 import sys
+import pytest
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))  # noqa: E402
 
+import asyncio
 import scripts.fetch_tickets as fetch_tickets  # noqa: E402
 
 
-def test_fetch_and_save(monkeypatch, tmp_path):
-    class FakeClient:
-        def start_session(self):
+@pytest.mark.asyncio
+async def test_fetch_and_save(monkeypatch, tmp_path):
+    class FakeSession:
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, exc_type, exc, tb):
             pass
 
-        def search(self, entity, criteria=None, range_="0-99"):
-            return [
-                {
-                    "id": 1,
-                    "status": "new",
-                    "group": "N1",
-                    "date_creation": "2024-01-01",
-                    "assigned_to": "alice",
-                    "name": "t1",
-                }
-            ]
+        async def get(self, *args, **kwargs):
+            return {"data": [{"id": 1}]}
 
-    monkeypatch.setattr(fetch_tickets, "GLPIClient", FakeClient)
+    monkeypatch.setattr(fetch_tickets, "GLPISession", lambda *a, **k: FakeSession())
     out = tmp_path / "data.json"
-    fetch_tickets.fetch_and_save(output=out)
+    await fetch_tickets.fetch_and_save(output=out)
     with out.open() as f:
         data = json.load(f)
     assert data and data[0]["id"] == 1
