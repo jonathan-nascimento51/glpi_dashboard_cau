@@ -5,7 +5,7 @@ import json
 
 
 def setup_env() -> None:
-    os.environ["GLPI_URL"] = "http://example.com"
+    os.environ["GLPI_BASE_URL"] = "http://example.com"
     os.environ["GLPI_APP_TOKEN"] = "app"
     os.environ["GLPI_USER_TOKEN"] = "user"
 
