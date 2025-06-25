@@ -18,6 +18,7 @@ def test_search_returns_items(requests_mock) -> None:
     )
     requests_mock.get(
 <<<<<<< ours
+<<<<<<< ours
         re.compile(r"http://example.com/apirest.php/search/Ticket.*"),
         json={"data": [{"id": 1}]},
         headers={"Content-Range": "0-0/1"},
@@ -26,6 +27,8 @@ def test_search_returns_items(requests_mock) -> None:
     data = client.search("Ticket")
     assert isinstance(data, list) and len(data) == 1
 =======
+=======
+>>>>>>> theirs
         "http://example.com/search/Ticket",
         json={"data": [{"id": 1}]},
     )
@@ -43,6 +46,7 @@ def test_retry_on_unauthorized(requests_mock) -> None:
     matcher = re.compile(r"http://example.com/apirest.php/search/Ticket.*")
     requests_mock.get(matcher, status_code=401)
     requests_mock.get(
+<<<<<<< ours
 <<<<<<< ours
         matcher, json={"data": [{"id": 2}]}, headers={"Content-Range": "0-0/1"}
     )
@@ -65,6 +69,8 @@ def test_kill_session(requests_mock) -> None:
     client.kill_session()
     assert client.session_token is None
 =======
+=======
+>>>>>>> theirs
         "http://example.com/search/Ticket",
         status_code=500,
     )
@@ -77,4 +83,7 @@ def test_login_unauthorized(requests_mock):
     requests_mock.get("http://example.com/initSession", status_code=401)
     with pytest.raises(glpi_api.UnauthorizedError):
         glpi_api.login()
+<<<<<<< ours
+>>>>>>> theirs
+=======
 >>>>>>> theirs

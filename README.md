@@ -58,7 +58,14 @@ The service exposes three endpoints:
 
 ## Environment variables
 
-Some scripts require a few variables set in a `.env` file. Copy `.env.example` and fill in your API credentials:
+Some scripts require a few variables set in a `.env` file. You can copy the
+template manually or run the helper script:
+
+```bash
+python scripts/setup_env.py  # creates .env from .env.example
+```
+
+Then edit the file and fill in your API credentials:
 
 ```bash
 GLPI_URL=https://seu-endpoint/apirest.php
