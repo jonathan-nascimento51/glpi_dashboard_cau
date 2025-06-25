@@ -317,8 +317,8 @@ class GLPISession:
     async def get(
         self,
         endpoint: str,
-        params: Optional]]]] = None,
-        headers: Optional] = None
+        params: Optional[Dict[str, Any]] = None,
+        headers: Optional[Dict[str, str]] = None
     ) -> Dict[str, Any]:
         """
         Performs a GET request to the GLPI API.

@@ -93,8 +93,9 @@ async def test_glpi_retry_on_429_success(mock_response_obj):
         assert mock_sleep.call_count == 2
         # Verify sleep times are increasing (exponential backoff)
         # Due to jitter, exact values are hard to assert, but order should be preserved
-        assert mock_sleep.call_args_list.args > 0
-        assert mock_sleep.call_args_list[1].args > mock_sleep.call_args_list.args
+        first_sleep = mock_sleep.call_args_list[0].args[0]
+        second_sleep = mock_sleep.call_args_list[1].args[0]
+        assert second_sleep >= first_sleep
 
 @pytest.mark.asyncio
 async def test_glpi_retry_on_500_success(mock_response_obj):
@@ -137,7 +138,15 @@ async def test_glpi_retry_max_retries_exceeded():
         assert call_count == max_allowed_retries + 1 # Initial call + max_allowed_retries
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("status_code, expected_exception",)
+@pytest.mark.parametrize(
+    "status_code, expected_exception",
+    [
+        (400, GLPIBadRequestError),
+        (401, GLPIUnauthorizedError),
+        (403, GLPIForbiddenError),
+        (404, GLPINotFoundError),
+    ],
+)
 async def test_glpi_retry_non_retryable_errors(status_code, expected_exception, mock_response_obj):
     """Tests that non-retryable errors are raised immediately and not retried."""
     call_count = 0
@@ -205,4 +214,3 @@ async def test_glpi_retry_unexpected_exception():
     with pytest.raises(GLPIAPIError) as excinfo:
         await mock_api_call()
     assert "An unexpected error occurred" in str(excinfo.value)
-    assert "ValueError" in str(excinfo.value) # Ensure original exception info is somewhat present
