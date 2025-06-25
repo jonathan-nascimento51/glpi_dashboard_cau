@@ -123,12 +123,12 @@ def glpi_retry(
                     return await func(*args, **kwargs)
                 except GLPIAPIError as e:
                     # Check if the raised GLPIAPIError is retryable
-                    if e.status in retry_on_status and attempt < max_retries:
+                    if e.status_code in retry_on_status and attempt < max_retries:
                         delay = base_delay * (2 ** attempt)
                         jitter = random.uniform(0, delay)
                         sleep_time = delay + jitter
                         logger.warning(
-                            f"API call failed with status {e.status} ({e.message}). "
+                            f"API call failed with status {e.status_code} ({e.message}). "
                             f"Retrying in {sleep_time:.2f} seconds (attempt {attempt + 1}/{max_retries})."
                         )
                         await asyncio.sleep(sleep_time)

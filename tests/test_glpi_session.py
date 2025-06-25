@@ -2,6 +2,7 @@ import pytest
 import asyncio as aio
 from unittest.mock import AsyncMock, MagicMock, patch
 from typing import Optional
+from contextlib import asynccontextmanager
 from glpi_session import (
     GLPISession, Credentials, GLPIAPIError, GLPIUnauthorizedError,
     GLPIBadRequestError, GLPIForbiddenError, GLPINotFoundError,
@@ -53,12 +54,14 @@ def mock_response():
         mock_resp.history = tuple()  # Required for ClientResponseError
 
         if raise_for_status_exc:
-            mock_resp.raise_for_status.side_effect = aiohttp.ClientResponseError(
+            err = aiohttp.ClientResponseError(
                 request_info=mock_resp.request_info,
                 history=mock_resp.history,
                 status=status,
                 message="Simulated HTTP Error"
             )
+            err.response = mock_resp
+            mock_resp.raise_for_status.side_effect = err
         else:
             mock_resp.raise_for_status.return_value = None
         
@@ -74,21 +77,33 @@ def mock_client_session(mock_response):
     Fixture to mock aiohttp.ClientSession and its HTTP methods.
     Patches aiohttp.ClientSession globally for tests.
     """
-    with patch('aiohttp.ClientSession') as mock_session_cls:
-        mock_session_instance = MagicMock(spec=aiohttp.ClientSession)
-        mock_session_instance.closed = False # Assume not closed initially
-        
-        # Mock HTTP methods
-        mock_session_instance.post = AsyncMock(return_value=mock_response(200, {"session_token": "mock_session_token"}))
-        mock_session_instance.get = AsyncMock(return_value=mock_response(200, {}))
-        mock_session_instance.put = AsyncMock(return_value=mock_response(200, {}))
-        mock_session_instance.delete = AsyncMock(return_value=mock_response(200, {}))
-        mock_session_instance.request = AsyncMock(return_value=mock_response(200, {}))
+    with patch('glpi_session.ClientSession') as mock_session_cls:
+        mock_session_instance = MagicMock()
+        mock_session_instance.closed = False  # Assume not closed initially
+
+        @asynccontextmanager
+        async def default_post():
+            yield mock_response(200, {"session_token": "mock_session_token"})
+
+        @asynccontextmanager
+        async def default_request():
+            yield mock_response(200, {})
+
+        # Mock HTTP methods to return async context managers
+        mock_session_instance.post = MagicMock(return_value=default_post())
+        mock_session_instance.get = MagicMock(return_value=default_request())
+        mock_session_instance.put = MagicMock(return_value=default_request())
+        mock_session_instance.delete = MagicMock(return_value=default_request())
+        mock_session_instance.request = MagicMock(return_value=default_request())
 
         # Mocking async context manager for session
         mock_session_instance.__aenter__ = AsyncMock(return_value=mock_session_instance)
         mock_session_instance.__aexit__ = AsyncMock(return_value=None)
-        mock_session_instance.close = AsyncMock() # Mock the close method
+
+        async def close():
+            mock_session_instance.closed = True
+
+        mock_session_instance.close = AsyncMock(side_effect=close)
 
         mock_session_cls.return_value = mock_session_instance
         yield mock_session_instance
@@ -273,7 +288,17 @@ async def test_delete_request_success(base_url, app_token, user_token, mock_clie
         )
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("status_code, expected_exception",)
+@pytest.mark.parametrize(
+    "status_code, expected_exception",
+    [
+        (400, GLPIBadRequestError),
+        (401, GLPIUnauthorizedError),
+        (403, GLPIForbiddenError),
+        (404, GLPINotFoundError),
+        (429, GLPITooManyRequestsError),
+        (500, GLPIInternalServerError),
+    ],
+)
 async def test_api_error_handling(base_url, app_token, user_token, mock_client_session, mock_response, status_code, expected_exception):
     """
     Tests that custom exceptions are raised for various HTTP error status codes.
@@ -311,7 +336,10 @@ async def test_session_refresh_on_401_success(base_url, app_token, username, pas
     # Configure side_effect for mock_client_session.request:
     # 1. First request attempt gets 401
     # 2. Second request attempt (after refresh) gets 200
-    mock_client_session.request.side_effect =
+    mock_client_session.request.side_effect = [
+        mock_response(401, {"error": "Unauthorized"}, raise_for_status_exc=True),
+        mock_response(200, {"data": "refreshed_data"})
+    ]
 
     async with glpi_session as session:
         # Verify initial session token
@@ -330,12 +358,12 @@ async def test_session_refresh_on_401_success(base_url, app_token, username, pas
         assert mock_client_session.request.call_count == 2
 
         # Verify the first request used the expired token
-        first_request_call_args = mock_client_session.request.call_args_list
-        assert first_request_call_args.kwargs['headers'] == "expired_session_token"
+        first_request_call = mock_client_session.request.call_args_list[0]
+        assert first_request_call.kwargs["headers"]["Session-Token"] == "expired_session_token"
 
         # Verify the second request used the refreshed token
-        second_request_call_args = mock_client_session.request.call_args_list[1]
-        assert second_request_call_args.kwargs['headers'] == "refreshed_session_token"
+        second_request_call = mock_client_session.request.call_args_list[1]
+        assert second_request_call.kwargs["headers"]["Session-Token"] == "refreshed_session_token"
 
 @pytest.mark.asyncio
 async def test_session_refresh_on_401_failure(base_url, app_token, username, password, mock_client_session, mock_response):
@@ -346,7 +374,10 @@ async def test_session_refresh_on_401_failure(base_url, app_token, username, pas
     glpi_session = GLPISession(base_url, credentials)
 
     # Initial initSession call succeeds, but refresh attempt fails
-    mock_client_session.post.side_effect =
+    mock_client_session.post.side_effect = [
+        mock_response(200, {"session_token": "expired_session_token"}),
+        mock_response(401, {"error": "Unauthorized"}, raise_for_status_exc=True),
+    ]
     
     # First request attempt gets 401
     mock_client_session.request.return_value = mock_response(401, {"error": "Unauthorized"}, raise_for_status_exc=True)
@@ -377,9 +408,10 @@ async def test_proactive_refresh_loop_username_password(base_url, app_token, use
 
     async with glpi_session as session:
         assert session._session_token == "initial_token"
-        await aio.sleep(0.15) # Wait for first proactive refresh to trigger
+        await aio.sleep(0.15)  # Wait for first proactive refresh
         assert session._session_token == "proactive_token_1"
-        await aio.sleep(0.15) # Wait for second proactive refresh to trigger
+        await aio.sleep(0.15)  # Wait for second proactive refresh
         assert session._session_token == "proactive_token_2"
-    
-    # Check that post was called for
+
+    # Check that post was called for init + two refreshes
+    assert mock_client_session.post.call_count == 3
