@@ -91,6 +91,17 @@ python scripts/fetch_tickets.py --output mock/sample_data.json
 
 This JSON file can be used by both the Dash app and the worker API when running without the `--use-api` flag.
 
+## Database setup
+
+Run migrations to create the PostgreSQL tables defined in `schema.sql`:
+
+```bash
+make init-db
+```
+
+Pass `--drop-all` to recreate everything from scratch.
+
+
 ## Docker deployment
 
 Build the image and run the worker API:
