@@ -2,6 +2,7 @@ import pytest
 import asyncio
 import random
 from unittest.mock import AsyncMock, MagicMock, patch
+from typing import Optional
 import aiohttp
 import logging
 

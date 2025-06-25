@@ -1,7 +1,7 @@
 import argparse
 from pathlib import Path
 
-from glpi_api import get_tickets
+from src.api.glpi_api import GLPIClient
 from data_pipeline import process_raw, save_json
 
 
@@ -11,7 +11,12 @@ def fetch_and_save(
     limit: int = 100,
 ) -> None:
     """Fetch tickets from GLPI and save them to a JSON file."""
-    tickets = get_tickets(status=status, limit=limit)
+    client = GLPIClient()
+    client.start_session()
+    criteria = []
+    if status is not None:
+        criteria.append({"field": "status", "searchtype": "equals", "value": status})
+    tickets = client.search("Ticket", criteria=criteria, range_=f"0-{limit-1}")
     df = process_raw(tickets)
     save_json(df, str(output))
 

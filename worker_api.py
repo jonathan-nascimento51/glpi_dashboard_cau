@@ -15,9 +15,8 @@ from strawberry.fastapi import GraphQLRouter
 from strawberry.types import Info
 import uvicorn
 
-from glpi_api import get_tickets, login
+from src.api.glpi_api import GLPIClient
 from data_pipeline import process_raw
-from requests import Session
 
 
 DEFAULT_FILE = Path(os.getenv("KNOWLEDGE_BASE_FILE", "mock/sample_data.json"))
@@ -46,12 +45,15 @@ class Metrics:
 def _load_tickets(
     use_api: bool,
     data_file: Path,
-    session: Session | None = None,
+    client: GLPIClient | None = None,
 ) -> pd.DataFrame:
     """Return processed ticket data from API or JSON file."""
     if use_api:
         try:
-            data = get_tickets(session=session)
+            if client is None:
+                client = GLPIClient()
+                client.start_session()
+            data = client.search("Ticket")
         except Exception as exc:  # pragma: no cover - network errors
             raise HTTPException(status_code=500, detail=str(exc)) from exc
     else:
@@ -73,7 +75,7 @@ class Query:
         df = _load_tickets(
             info.context["use_api"],
             info.context["data_file"],
-            session=info.context.get("session"),
+            client=info.context.get("client"),
         )
         return [Ticket(**r) for r in df.to_dict("records")]
 
@@ -82,7 +84,7 @@ class Query:
         df = _load_tickets(
             info.context["use_api"],
             info.context["data_file"],
-            session=info.context.get("session"),
+            client=info.context.get("client"),
         )
         total = len(df)
         closed = df[df["status"].str.lower() == "closed"].shape[0]
@@ -97,18 +99,19 @@ def create_app(
     """Create FastAPI app with REST and GraphQL routes."""
     app = FastAPI(title="GLPI Worker API")
 
-    session: Session | None = None
+    client: GLPIClient | None = None
     if use_api:
-        session = login()
+        client = GLPIClient()
+        client.start_session()
 
     @app.get("/tickets")
     def tickets() -> list[dict]:
-        df = _load_tickets(use_api, data_file, session=session)
+        df = _load_tickets(use_api, data_file, client=client)
         return df.to_dict(orient="records")
 
     @app.get("/metrics")
     def metrics() -> dict:
-        df = _load_tickets(use_api, data_file, session=session)
+        df = _load_tickets(use_api, data_file, client=client)
         total = len(df)
         closed = df[df["status"].str.lower() == "closed"].shape[0]
         opened = total - closed
@@ -121,7 +124,7 @@ def create_app(
         context_getter=lambda r: {
             "use_api": use_api,
             "data_file": data_file,
-            "session": session,
+            "client": client,
         },
     )
     app.include_router(graphql, prefix="/graphql")

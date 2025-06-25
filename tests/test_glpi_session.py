@@ -7,6 +7,7 @@ from glpi_session import (
     GLPITooManyRequestsError, GLPIInternalServerError
 )
 import logging
+import aiohttp
 
 # Configure minimal logging for tests to see output
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -43,7 +44,7 @@ def mock_response():
     Allows setting status, JSON data, and simulating raise_for_status() exceptions.
     """
     def _mock_response(status: int, json_data: Optional[dict] = None, raise_for_status_exc: bool = False):
-        mock_resp = MagicMock(spec=aio.http.ClientResponse)
+        mock_resp = MagicMock(spec=aiohttp.ClientResponse)
         mock_resp.status = status
         mock_resp.json = AsyncMock(return_value=json_data if json_data is not None else {})
         mock_resp.text = AsyncMock(return_value=str(json_data) if json_data is not None else "")
@@ -51,7 +52,7 @@ def mock_response():
         mock_resp.history = tuple()  # Required for ClientResponseError
 
         if raise_for_status_exc:
-            mock_resp.raise_for_status.side_effect = aio.http.ClientResponseError(
+            mock_resp.raise_for_status.side_effect = aiohttp.ClientResponseError(
                 request_info=mock_resp.request_info,
                 history=mock_resp.history,
                 status=status,
@@ -73,7 +74,7 @@ def mock_client_session(mock_response):
     Patches aiohttp.ClientSession globally for tests.
     """
     with patch('aiohttp.ClientSession') as mock_session_cls:
-        mock_session_instance = MagicMock(spec=aio.http.ClientSession)
+        mock_session_instance = MagicMock(spec=aiohttp.ClientSession)
         mock_session_instance.closed = False # Assume not closed initially
         
         # Mock HTTP methods
