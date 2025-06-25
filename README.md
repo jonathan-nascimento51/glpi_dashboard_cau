@@ -21,8 +21,6 @@ python -m pip install --upgrade pip
 pip install -r requirements.txt
 pre-commit install
 ```
-This project also uses the `rich-click` library for colored CLI output. It is included in `requirements.txt`.
-
 
 
 ## Running the Dash app
@@ -37,9 +35,7 @@ The app will be available at <http://127.0.0.1:8050>.
 
 ## Running the Worker API
 
-`worker_api.py` provides a lightweight FastAPI service that exposes the same
-ticket data for other applications. It can read from the JSON dump or fetch
-directly from GLPI when the `--use-api` flag is supplied.
+`worker_api.py` provides a lightweight FastAPI service that exposes the same ticket data for other applications. It can read from the JSON dump or fetch directly from GLPI when the `--use-api` flag is supplied.
 
 Run with the sample JSON dump:
 
@@ -68,31 +64,37 @@ python -m cli.tickets_groups --since 2025-06-01 --until 2025-06-30 \
     --outfile datasets/tickets_groups.parquet
 ```
 
-Adjust the dates and destination file as needed. The command prints the
-resulting path after completion.
+Adjust the dates and destination file as needed. The command prints the resulting path after completion.
 
 ## Environment variables
 
+<<<<<<< ours
 Some scripts require a few variables set in a `.env` file. You can copy the
 template manually or run the helper script:
+=======
+Some scripts require variables set in a `.env` file. You can copy the template manually or run the helper script:
+>>>>>>> theirs
 
 ```bash
 python scripts/setup_env.py  # creates .env from .env.example
 ```
 
 Then edit the file and fill in your API credentials.
+<<<<<<< ours
+=======
+
+The template also defines `KNOWLEDGE_BASE_FILE` pointing to the JSON dump used
+by the dashboard and API. Change it if you keep the knowledge base elsewhere.
 
 ### Fetching ticket data
 
-After setting up the environment file you can download tickets from GLPI and
-store them locally:
+After setting up the environment file you can download tickets from GLPI and store them locally:
 
 ```bash
 python scripts/fetch_tickets.py --output mock/sample_data.json
 ```
 
-This JSON file can be used by both the Dash app and the worker API when running
-without the `--use-api` flag.
+This JSON file can be used by both the Dash app and the worker API when running without the `--use-api` flag.
 
 ## Docker deployment
 
@@ -108,10 +110,7 @@ Use `docker-compose` for convenience:
 ```bash
 docker-compose up
 ```
-
-
-
-
+>>>>>>> theirs
 
 ## Tests and linting
 
