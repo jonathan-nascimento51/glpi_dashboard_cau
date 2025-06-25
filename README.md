@@ -60,6 +60,15 @@ The service exposes three endpoints:
 
 Some scripts require a few variables set in a `.env` file. You can copy the
 template manually or run the helper script:
+<<<<<<< ours
+=======
+
+```bash
+python scripts/setup_env.py  # creates .env from .env.example
+```
+
+Then edit the file and fill in your API credentials:
+>>>>>>> theirs
 
 ```bash
 python scripts/setup_env.py  # creates .env from .env.example
@@ -78,6 +87,23 @@ Run the pipeline to fetch assignments:
 ```bash
 python -m cli.tickets_groups --since 2025-06-01 --until 2025-06-30 --outfile datasets/tickets_groups.parquet
 ```
+
+## Docker deployment
+
+Build the image and run the worker API:
+
+```bash
+docker build -t glpi-dashboard .
+docker run --env-file .env -p 8000:8000 glpi-dashboard
+```
+
+Use `docker-compose` for convenience:
+
+```bash
+docker-compose up
+```
+
+
 
 ## Tests and linting
 
