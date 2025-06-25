@@ -21,6 +21,15 @@ def build_layout(df: pd.DataFrame) -> html.Div:
         data=df[["id", "name", "status", "assigned_to"]].to_dict("records"),
         columns=[
             {"name": c, "id": c}
+            for c in [
+                "id",
+                "name",
+                "status",
+                "assigned_to",
+            ]
+        ],
+        columns=[
+            {"name": c, "id": c}
             for c in ["id", "name", "status", "assigned_to"]
         ],
         page_size=10,

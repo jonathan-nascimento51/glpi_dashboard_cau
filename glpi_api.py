@@ -90,7 +90,8 @@ def get_tickets(
     for idx, crit in enumerate(all_criteria):
         params[f"criteria[{idx}][field]"] = crit["field"]
         params[f"criteria[{idx}][searchtype]"] = crit.get(
-            "searchtype", "equals"
+            "searchtype",
+            "equals",
         )
         params[f"criteria[{idx}][value]"] = crit["value"]
 
@@ -112,7 +113,9 @@ def create_ticket(data: dict, session: Session | None = None) -> dict:
 
 
 def update_ticket(
-    ticket_id: int, data: dict, session: Session | None = None
+    ticket_id: int,
+    data: dict,
+    session: Session | None = None,
 ) -> dict:
     """Update a ticket using ``PUT /Ticket/<id>``."""
     load_dotenv()
