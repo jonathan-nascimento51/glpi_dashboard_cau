@@ -22,7 +22,7 @@ Entregar um **dashboard mínimo viável (MVP)** que:
 glpi_dashboard/
 ├── .env.example
 ├── requirements.txt
-├── glpi_api.py
+├── glpi_session.py
 ├── data_pipeline.py
 ├── dash_layout.py
 ├── main.py
@@ -41,13 +41,15 @@ glpi_dashboard/
 └── README.md
 ```
 
+> **Nota**: versões anteriores deste plano citavam `glpi_api.py` como gateway REST. O módulo foi renomeado para `glpi_session.py` e concentra as funções de autenticação e chamadas à API.
+
 ---
 
 ## 3 Roadmap de Etapas
 
 | Fase                     | Ambiente | Entregáveis-chave                            |
 |--------------------------|----------|----------------------------------------------|
-| **1. Backend (API)**     | Intra    | `glpi_api.py`, `data_pipeline.py`, `hash_data.py` |
+| **1. Backend (API)**     | Intra    | `glpi_session.py`, `data_pipeline.py`, `hash_data.py` |
 | **2. Frontend Offline**  | Externo  | `dash_layout.py`, `main.py`, `mock/*.json`   |
 | **3. Refino & Deploy**   | Ambos    | CSS, refresh automático, `ci_mock.yml`       |
 
