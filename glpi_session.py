@@ -232,9 +232,9 @@ class GLPISession:
         self,
         method: str,
         endpoint: str,
-        headers: Optional] = None,
-        json_data: Optional] = None,
-        params: Optional]]]] = None,
+        headers: Optional[Dict[str, str]] = None,
+        json_data: Optional[Dict[str, Any]] = None,
+        params: Optional[Dict[str, Union[str, int, float]]] = None,
         retry_on_401: bool = True,
         max_401_retries: int = 1 # One retry after initial 401
     ) -> Dict[str, Any]:
@@ -268,7 +268,7 @@ class GLPISession:
             "App-Token": self.credentials.app_token,
         }
         if self._session_token:
-            request_headers = self._session_token # Correctly add Session-Token
+            request_headers["Session-Token"] = self._session_token
         if headers:
             request_headers.update(headers)
 
@@ -286,8 +286,8 @@ class GLPISession:
                     if response.status == 401 and retry_on_401 and attempt < max_401_retries:
                         logger.warning("Received 401 Unauthorized. Attempting to refresh session token...")
                         await self._refresh_session_token()
-                        if self._session_token: # Update header for retry
-                            request_headers = self._session_token # Update for retry
+                        if self._session_token:  # Update header for retry
+                            request_headers["Session-Token"] = self._session_token
                         continue # Retry the request
                     
                     response.raise_for_status() # Raises aiohttp.ClientResponseError for 4xx/5xx
@@ -336,12 +336,46 @@ class GLPISession:
     async def post(
         self,
         endpoint: str,
-        json_data: Optional] = None,
-        headers: Optional] = None
+        json_data: Optional[Dict[str, Any]] = None,
+        headers: Optional[Dict[str, str]] = None
     ) -> Dict[str, Any]:
         """
         Performs a POST request to the GLPI API.
 
         Args:
             endpoint: The API endpoint (e.g., "Ticket/").
-            json_data:
+            json_data: JSON payload to send in the request body.
+            headers: Additional headers for the request.
+        """
+        return await self._request("POST", endpoint, headers=headers, json_data=json_data)
+
+    async def put(
+        self,
+        endpoint: str,
+        json_data: Optional[Dict[str, Any]] = None,
+        headers: Optional[Dict[str, str]] = None
+    ) -> Dict[str, Any]:
+        """
+        Performs a PUT request to the GLPI API.
+
+        Args:
+            endpoint: The API endpoint (e.g., "Ticket/123").
+            json_data: JSON payload to send in the request body.
+            headers: Additional headers for the request.
+        """
+        return await self._request("PUT", endpoint, headers=headers, json_data=json_data)
+
+    async def delete(
+        self,
+        endpoint: str,
+        headers: Optional[Dict[str, str]] = None
+    ) -> Dict[str, Any]:
+        """
+        Performs a DELETE request to the GLPI API.
+
+        Args:
+            endpoint: The API endpoint (e.g., "Ticket/123").
+            headers: Additional headers for the request.
+        """
+        return await self._request("DELETE", endpoint, headers=headers)
+
