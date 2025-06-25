@@ -101,6 +101,8 @@ def save_parquet(df: pd.DataFrame, path: Path | str) -> Path:
 
 def pipeline(start: str, end: str, outfile: Optional[str] = None) -> Path:
     """Collect data and persist to ``datasets`` directory."""
-    outfile = outfile or (f"datasets/tickets_groups_{dt.date.today():%Y%m%d}.parquet")
+    outfile = outfile or (
+        f"datasets/tickets_groups_{dt.date.today():%Y%m%d}.parquet"
+    )
     df = collect_tickets_with_groups(start, end)
     return save_parquet(df, outfile)
