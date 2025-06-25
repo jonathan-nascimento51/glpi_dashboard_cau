@@ -8,7 +8,7 @@ The goal is to inspect backlog, ticket status and productivity metrics without a
 
 ## Main modules
 
-- **`glpi_session.py`** – asynchronous client for the GLPI REST API used by the worker and ETL modules.
+- **`glpi_session.py`** – asynchronous client for the GLPI REST API used by the worker and ETL modules. This file replaces the former `glpi_api.py` referenced in early docs.
 - **`data_pipeline.py`** – normalizes raw ticket data into a `pandas.DataFrame` and exports JSON.
 - **`dash_layout.py`** – defines tables and charts for the Dash UI.
 - **`main.py`** – starts the Dash server using data from `mock/`.
