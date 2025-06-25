@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
+import os
 from typing import List
 
 import pandas as pd
@@ -19,7 +20,7 @@ from data_pipeline import process_raw
 from requests import Session
 
 
-DEFAULT_FILE = Path("mock/sample_data.json")
+DEFAULT_FILE = Path(os.getenv("KNOWLEDGE_BASE_FILE", "mock/sample_data.json"))
 
 
 @strawberry.type
