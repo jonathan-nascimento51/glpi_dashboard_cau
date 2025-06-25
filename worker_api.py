@@ -136,7 +136,10 @@ def main() -> None:  # pragma: no cover - manual run
         help="Fetch from GLPI instead of JSON dump",
     )
     parser.add_argument(
-        "--file", type=Path, default=DEFAULT_FILE, help="Path to JSON dump"
+        "--file",
+        type=Path,
+        default=DEFAULT_FILE,
+        help="Path to JSON dump",
     )
     parser.add_argument("--port", type=int, default=8000, help="Port to bind")
     args = parser.parse_args()
