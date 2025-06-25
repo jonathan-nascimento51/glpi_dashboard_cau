@@ -62,7 +62,7 @@ class GLPIClient:
 
     # ------------------------------------------------------------------
     def _request(self, method: str, path: str, **kwargs) -> requests.Response:
-        url = f"{self.base_url}/{path.lstrip('/') }"
+        url = f"{self.base_url}/{path.lstrip('/')}"
         resp = self.session.request(method, url, **kwargs)
         if resp.status_code in (401, 403):
             log.info("Session expired, restarting")

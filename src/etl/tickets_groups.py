@@ -5,11 +5,11 @@ from __future__ import annotations
 import datetime as dt
 import logging
 from pathlib import Path
-from typing import Iterable, Optional
+from typing import Optional
 
 import pandas as pd
 
-from api.glpi_api import GLPIClient
+from src.api.glpi_api import GLPIClient
 
 log = logging.getLogger(__name__)
 
@@ -31,7 +31,9 @@ def collect_tickets_with_groups(
     ]
     forcedisplay = [1, 2, 12, 15]
     tickets = client.search(
-        "Ticket", criteria=criteria, forcedisplay_ids=forcedisplay
+        "Ticket",
+        criteria=criteria,
+        forcedisplay_ids=forcedisplay,
     )
 
     rows: list[dict] = []
@@ -73,7 +75,8 @@ def collect_tickets_with_groups(
                     "ticket_id": tid,
                     "title": t.get("name"),
                     "status": STATUS.get(
-                        int(t.get("status", 0)), str(t.get("status"))
+                        int(t.get("status", 0)),
+                        str(t.get("status")),
                     ),
                     "opened_at": t.get("date"),
                     "group_id": group_id,
@@ -98,8 +101,6 @@ def save_parquet(df: pd.DataFrame, path: Path | str) -> Path:
 
 def pipeline(start: str, end: str, outfile: Optional[str] = None) -> Path:
     """Collect data and persist to ``datasets`` directory."""
-    outfile = (
-        outfile or f"datasets/tickets_groups_{dt.date.today():%Y%m%d}.parquet"
-    )
+    outfile = outfile or (f"datasets/tickets_groups_{dt.date.today():%Y%m%d}.parquet")
     df = collect_tickets_with_groups(start, end)
     return save_parquet(df, outfile)
