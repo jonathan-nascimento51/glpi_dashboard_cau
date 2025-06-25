@@ -75,7 +75,7 @@ Some scripts require a few variables set in a `.env` file. Copy the template and
 python scripts/setup_env.py  # copies .env.example to .env
 ```
 
-Open `.env` and set `GLPI_URL`, `APP_TOKEN` and `USER_TOKEN`. The template also defines `KNOWLEDGE_BASE_FILE` pointing to the JSON dump used by the dashboard and API.
+Open `.env` and set `GLPI_URL`, `GLPI_APP_TOKEN` and `GLPI_USER_TOKEN`. The template also defines `KNOWLEDGE_BASE_FILE` pointing to the JSON dump used by the dashboard and API.
 
 After configuring the environment file you can download tickets from GLPI:
 

@@ -5,8 +5,8 @@ import glpi_api
 
 def setup_env() -> None:
     os.environ["GLPI_URL"] = "http://example.com"
-    os.environ["APP_TOKEN"] = "app"
-    os.environ["USER_TOKEN"] = "user"
+    os.environ["GLPI_APP_TOKEN"] = "app"
+    os.environ["GLPI_USER_TOKEN"] = "user"
 
 
 def test_get_tickets_success(requests_mock) -> None:
