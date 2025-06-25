@@ -1,8 +1,14 @@
 import argparse
-from pathlib import Path
-
 import asyncio
+import json
+from datetime import datetime
+import sys
+from pathlib import Path
 from glpi_session import GLPISession, Credentials
+
+if sys.platform == "win32":
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
 from config import (
     GLPI_BASE_URL,
     GLPI_APP_TOKEN,

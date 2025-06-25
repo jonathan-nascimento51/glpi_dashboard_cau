@@ -75,13 +75,22 @@ Some scripts require a few variables set in a `.env` file. Copy the template and
 python scripts/setup_env.py  # copies .env.example to .env
 ```
 
-Open `.env` and set the GLPI credentials:
+Open `.env` and set the required values:
 
 - `GLPI_BASE_URL` – base URL of the GLPI API (e.g. `https://glpi.company.com/apirest.php`)
 - `GLPI_APP_TOKEN` – your application token
 - `GLPI_USERNAME` / `GLPI_PASSWORD` – login credentials (optional if using a user token)
 - `GLPI_USER_TOKEN` – API token for a specific user (optional)
 - `KNOWLEDGE_BASE_FILE` – path to the JSON dump used by the dashboard and API
+- `DB_HOST` – PostgreSQL host
+- `DB_PORT` – PostgreSQL port
+- `DB_NAME` – database name
+- `DB_USER` – database username
+- `DB_PASSWORD` – database password
+- `REDIS_HOST` – Redis host
+- `REDIS_PORT` – Redis port
+- `REDIS_DB` – Redis database number
+- `REDIS_TTL_SECONDS` – TTL for cached responses in seconds
 
 After configuring the environment file you can download tickets from GLPI:
 
