@@ -93,7 +93,7 @@ async def test_glpi_retry_on_429_success(mock_response_obj):
         # Verify sleep times are increasing (exponential backoff)
         # Due to jitter, exact values are hard to assert, but order should be preserved
         assert mock_sleep.call_args_list.args > 0
-        assert mock_sleep.call_args_list.[1]args > mock_sleep.call_args_list.args
+        assert mock_sleep.call_args_list[1].args > mock_sleep.call_args_list.args
 
 @pytest.mark.asyncio
 async def test_glpi_retry_on_500_success(mock_response_obj):

@@ -1,5 +1,5 @@
 import pytest
-import asyncio
+import asyncio as aio
 from unittest.mock import AsyncMock, MagicMock, patch
 from glpi_session import (
     GLPISession, Credentials, GLPIAPIError, GLPIUnauthorizedError,
@@ -43,7 +43,7 @@ def mock_response():
     Allows setting status, JSON data, and simulating raise_for_status() exceptions.
     """
     def _mock_response(status: int, json_data: Optional[dict] = None, raise_for_status_exc: bool = False):
-        mock_resp = MagicMock(spec=aiohttp.ClientResponse)
+        mock_resp = MagicMock(spec=aio.http.ClientResponse)
         mock_resp.status = status
         mock_resp.json = AsyncMock(return_value=json_data if json_data is not None else {})
         mock_resp.text = AsyncMock(return_value=str(json_data) if json_data is not None else "")
@@ -51,7 +51,7 @@ def mock_response():
         mock_resp.history = # Required for ClientResponseError
 
         if raise_for_status_exc:
-            mock_resp.raise_for_status.side_effect = aiohttp.ClientResponseError(
+            mock_resp.raise_for_status.side_effect = aio.http.ClientResponseError(
                 request_info=mock_resp.request_info,
                 history=mock_resp.history,
                 status=status,
@@ -73,7 +73,7 @@ def mock_client_session(mock_response):
     Patches aiohttp.ClientSession globally for tests.
     """
     with patch('aiohttp.ClientSession') as mock_session_cls:
-        mock_session_instance = MagicMock(spec=aiohttp.ClientSession)
+        mock_session_instance = MagicMock(spec=aio.http.ClientSession)
         mock_session_instance.closed = False # Assume not closed initially
         
         # Mock HTTP methods
@@ -375,9 +375,9 @@ async def test_proactive_refresh_loop_username_password(base_url, app_token, use
 
     async with glpi_session as session:
         assert session._session_token == "initial_token"
-        await asyncio.sleep(0.15) # Wait for first proactive refresh to trigger
+        await aio.sleep(0.15) # Wait for first proactive refresh to trigger
         assert session._session_token == "proactive_token_1"
-        await asyncio.sleep(0.15) # Wait for second proactive refresh to trigger
+        await aio.sleep(0.15) # Wait for second proactive refresh to trigger
         assert session._session_token == "proactive_token_2"
     
     # Check that post was called for
