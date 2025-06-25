@@ -17,6 +17,7 @@ from config import (
     GLPI_USERNAME,
     GLPI_PASSWORD,
     GLPI_USER_TOKEN,
+    FETCH_PAGE_SIZE,
 )
 
 log = logging.getLogger(__name__)
@@ -45,64 +46,72 @@ async def collect_tickets_with_groups(
             {"field": "date", "searchtype": "lessthan", "value": end},
         ]
         forcedisplay = [1, 2, 12, 15]
-        tickets = await session.get(
-            "search/Ticket",
-            params={"criteria": criteria, "forcedisplay": forcedisplay},
-        )
-        tickets = tickets.get("data", tickets)
-
         rows: list[dict] = []
-        for t in tickets:
-            tid = int(t["id"])
-            ticket_assigns = await session.get(
-                "search/Ticket_User",
-                params={
-                    "criteria": [
-                        {"field": "tickets_id", "value": tid},
-                        {"link": "AND"},
-                        {"field": "type", "value": 2},
-                    ]
-                },
-            )
-            ticket_assigns = ticket_assigns.get("data", ticket_assigns)
-            for assign in ticket_assigns:
-                group_id = assign.get("groups_id")
-                user_id = assign.get("users_id")
-                group_name = None
-                user_name = None
-                if group_id:
-                    g = await session.get(
-                        f"Group/{group_id}",
-                        params={"forcedisplay[0]": "completename"},
-                    )
-                    group_name = g.get("completename")
-                elif user_id:
-                    u = await session.get(
-                        f"User/{user_id}", params={"forcedisplay[0]": "name"}
-                    )
-                    user_name = u.get("name")
-                    group_id = u.get("groups_id")
+        offset = 0
+        while True:
+            params = {
+                "criteria": criteria,
+                "forcedisplay": forcedisplay,
+                "range": f"{offset}-{offset + FETCH_PAGE_SIZE - 1}",
+            }
+            tickets = await session.get("search/Ticket", params=params)
+            tickets = tickets.get("data", tickets)
+            if not tickets:
+                break
+            for t in tickets:
+                tid = int(t["id"])
+                ticket_assigns = await session.get(
+                    "search/Ticket_User",
+                    params={
+                        "criteria": [
+                            {"field": "tickets_id", "value": tid},
+                            {"link": "AND"},
+                            {"field": "type", "value": 2},
+                        ]
+                    },
+                )
+                ticket_assigns = ticket_assigns.get("data", ticket_assigns)
+                for assign in ticket_assigns:
+                    group_id = assign.get("groups_id")
+                    user_id = assign.get("users_id")
+                    group_name = None
+                    user_name = None
                     if group_id:
                         g = await session.get(
                             f"Group/{group_id}",
                             params={"forcedisplay[0]": "completename"},
                         )
                         group_name = g.get("completename")
-                rows.append(
-                    {
-                        "ticket_id": tid,
-                        "title": t.get("name"),
-                        "status": STATUS.get(
-                            int(t.get("status", 0)),
-                            str(t.get("status")),
-                        ),
-                        "opened_at": t.get("date"),
-                        "group_id": group_id,
-                        "group_name": group_name,
-                        "user_id": user_id,
-                        "user_name": user_name,
-                    }
-                )
+                    elif user_id:
+                        u = await session.get(
+                            f"User/{user_id}", params={"forcedisplay[0]": "name"}
+                        )
+                        user_name = u.get("name")
+                        group_id = u.get("groups_id")
+                        if group_id:
+                            g = await session.get(
+                                f"Group/{group_id}",
+                                params={"forcedisplay[0]": "completename"},
+                            )
+                            group_name = g.get("completename")
+                    rows.append(
+                        {
+                            "ticket_id": tid,
+                            "title": t.get("name"),
+                            "status": STATUS.get(
+                                int(t.get("status", 0)),
+                                str(t.get("status")),
+                            ),
+                            "opened_at": t.get("date"),
+                            "group_id": group_id,
+                            "group_name": group_name,
+                            "user_id": user_id,
+                            "user_name": user_name,
+                        }
+                    )
+            if len(tickets) < FETCH_PAGE_SIZE:
+                break
+            offset += FETCH_PAGE_SIZE
     df = pd.DataFrame(rows)
     if not df.empty:
         df["opened_at"] = pd.to_datetime(df["opened_at"], errors="coerce")

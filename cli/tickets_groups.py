@@ -2,23 +2,13 @@
 
 from __future__ import annotations
 
-import datetime as dt
 import logging
 from pathlib import Path
 
 import rich_click as click
 from dotenv import load_dotenv
 
-import asyncio
-from glpi_session import GLPISession, Credentials
-from config import (
-    GLPI_BASE_URL,
-    GLPI_APP_TOKEN,
-    GLPI_USERNAME,
-    GLPI_PASSWORD,
-    GLPI_USER_TOKEN,
-)
-from src.etl.tickets_groups import collect_tickets_with_groups
+from src.etl.tickets_groups import pipeline
 
 
 @click.command()
@@ -35,20 +25,9 @@ def main(since: str, until: str, outfile: Path | None, log_level: str) -> None:
     )
     load_dotenv()
 
-    creds = Credentials(
-        app_token=GLPI_APP_TOKEN,
-        user_token=GLPI_USER_TOKEN,
-        username=GLPI_USERNAME,
-        password=GLPI_PASSWORD,
-    )
-    client = GLPISession(GLPI_BASE_URL, creds)
-    df = asyncio.run(collect_tickets_with_groups(since, until, client=client))
-    if outfile is None:
-        ts = dt.date.today().strftime("%Y%m%d")
-        outfile = Path("datasets") / f"tickets_groups_{ts}.parquet"
-    outfile.parent.mkdir(parents=True, exist_ok=True)
-    df.to_parquet(outfile, index=False)
-    logging.info("Saved %s", outfile)
+    outfile_str = str(outfile) if outfile else None
+    path = pipeline(since, until, outfile_str)
+    logging.info("Saved %s", path)
 
 
 if __name__ == "__main__":  # pragma: no cover
