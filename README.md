@@ -105,6 +105,9 @@ python scripts/profile_dash.py
 
 The app will be available at <http://127.0.0.1:8050>.
 
+For an OS-specific walkthrough including virtual environment commands, see
+[docs/run_local.md](docs/run_local.md).
+
 ## Running the Worker API
 
 `worker_api.py` provides a lightweight FastAPI service that exposes the same ticket data for other applications. It can read from the JSON dump or fetch directly from GLPI when the `--use-api` flag is supplied.
@@ -198,6 +201,10 @@ python scripts/init_db.py --drop-all
 ```
 
 For a MySQL-specific walkthrough, see [docs/first_use_mysql.md](docs/first_use_mysql.md) which lists all required environment variables and setup steps.
+<<<<<<< ours
+=======
+
+>>>>>>> theirs
 
 ## Docker deployment
 
