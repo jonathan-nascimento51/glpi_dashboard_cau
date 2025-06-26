@@ -139,9 +139,12 @@ def create_app(
             response = await call_next(request)
             if response.status_code == 200:
 <<<<<<< ours
+<<<<<<< ours
                 data = json.loads(response.body)
                 redis_client.set("resp:tickets", data)
 =======
+=======
+>>>>>>> theirs
                 body = b""
                 async for chunk in response.body_iterator:
                     body += chunk
@@ -155,6 +158,9 @@ def create_app(
                     redis_client.set("resp:tickets", data)
                 except json.JSONDecodeError:
                     pass
+<<<<<<< ours
+>>>>>>> theirs
+=======
 >>>>>>> theirs
             return response
         return await call_next(request)

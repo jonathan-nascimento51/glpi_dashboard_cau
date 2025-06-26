@@ -6,3 +6,5 @@
 *.sha256
 log.jsonl
 __pycache__/
+.coverage
+htmlcov/

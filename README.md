@@ -1,5 +1,7 @@
 # GLPI Dashboard CAU
 
+![Coverage](https://img.shields.io/badge/coverage-90%25-brightgreen.svg)
+
 This project provides a minimal dashboard to visualize service desk tickets from GLPI. Data can be retrieved from the GLPI REST API and stored locally in JSON for offline exploration with [Dash](https://dash.plotly.com/).
 
 ## Purpose
@@ -204,10 +206,10 @@ This exposes the worker API on port `8000` and the dashboard on port `8050`.
 
 ## Tests and linting
 
-Execute the unit tests with:
+Execute the unit tests with coverage:
 
 ```bash
-pytest
+pytest --cov=./
 ```
 
 Lint checks can be run manually:
