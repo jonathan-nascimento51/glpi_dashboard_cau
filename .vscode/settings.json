@@ -1,4 +1,9 @@
 {
     "terminal.integrated.allowChords": false,
     "CodeGPT.apiKey": "CODEGPT_PLUS_API_KEY",
+    "python.testing.pytestArgs": [
+        "test"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true,
 }
