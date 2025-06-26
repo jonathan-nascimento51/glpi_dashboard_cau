@@ -68,6 +68,16 @@ async def test_collect_basic(requests_mock):
                 ]
             }
 
+<<<<<<< ours
+=======
+    session = FakeSession()
+    df = await tickets_groups.collect_tickets_with_groups(
+        "2024-01-01", "2024-01-02", client=session
+    )
+    assert len(df) == 1
+    assert df.iloc[0]["group_name"] == "N1"
+
+>>>>>>> theirs
 
 def test_pipeline_default(monkeypatch, tmp_path):
     """Default output name should include today's date."""
