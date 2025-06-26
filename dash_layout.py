@@ -15,6 +15,18 @@ def _status_fig(df: pd.DataFrame) -> go.Figure:
     return px.bar(counts, x="status", y="count")
 
 
+def compute_ticket_stats(df: pd.DataFrame) -> list[html.Div]:
+    """Return aggregated ticket statistics as ready-to-render divs."""
+    total = len(df)
+    closed = df[df["status"].str.lower() == "closed"].shape[0]
+    opened = total - closed
+    return [
+        html.Div(f"Total: {total}"),
+        html.Div(f"Abertos: {opened}"),
+        html.Div(f"Fechados: {closed}"),
+    ]
+
+
 def build_layout(df: pd.DataFrame) -> html.Div:
     """Build dashboard layout with lazy loading."""
     return html.Div(
@@ -44,12 +56,5 @@ def register_callbacks(app, df: pd.DataFrame) -> None:
     )
     def load_data(_):
         fig = _status_fig(df)
-        total = len(df)
-        closed = df[df["status"].str.lower() == "closed"].shape[0]
-        opened = total - closed
-        stats = [
-            html.Div(f"Total: {total}"),
-            html.Div(f"Abertos: {opened}"),
-            html.Div(f"Fechados: {closed}"),
-        ]
+        stats = compute_ticket_stats(df)
         return df.to_dict("records"), fig, stats
