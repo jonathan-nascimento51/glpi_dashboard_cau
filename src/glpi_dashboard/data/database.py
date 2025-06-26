@@ -9,7 +9,7 @@ from sqlalchemy.orm import declarative_base
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.exc import SQLAlchemyError
 
-from config import DATABASE_URL
+from glpi_dashboard.config.settings import DATABASE_URL
 
 logger = logging.getLogger(__name__)
 

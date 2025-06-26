@@ -3,10 +3,16 @@ import asyncio as aio
 from unittest.mock import AsyncMock, MagicMock, patch
 from typing import Optional
 from contextlib import asynccontextmanager
-from glpi_session import (
-    GLPISession, Credentials, GLPIAPIError, GLPIUnauthorizedError,
-    GLPIBadRequestError, GLPIForbiddenError, GLPINotFoundError,
-    GLPITooManyRequestsError, GLPIInternalServerError
+from glpi_dashboard.data.glpi_client import (
+    GLPISession,
+    Credentials,
+    GLPIAPIError,
+    GLPIUnauthorizedError,
+    GLPIBadRequestError,
+    GLPIForbiddenError,
+    GLPINotFoundError,
+    GLPITooManyRequestsError,
+    GLPIInternalServerError,
 )
 import logging
 import aiohttp
@@ -77,7 +83,7 @@ def mock_client_session(mock_response):
     Fixture to mock aiohttp.ClientSession and its HTTP methods.
     Patches aiohttp.ClientSession globally for tests.
     """
-    with patch('glpi_session.ClientSession') as mock_session_cls:
+    with patch('glpi_dashboard.data.glpi_client.ClientSession') as mock_session_cls:
         mock_session_instance = MagicMock()
         mock_session_instance.closed = False  # Assume not closed initially
 

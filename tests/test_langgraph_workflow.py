@@ -2,7 +2,7 @@ import os
 import sys
 import pytest
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))  # noqa: E402
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src"))  # noqa: E402
 
 from src import langgraph_workflow
 

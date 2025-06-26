@@ -10,8 +10,8 @@ from typing import Optional
 import pandas as pd
 
 import asyncio
-from glpi_session import GLPISession, Credentials
-from config import (
+from glpi_dashboard.data.glpi_client import GLPISession, Credentials
+from glpi_dashboard.config.settings import (
     GLPI_BASE_URL,
     GLPI_APP_TOKEN,
     GLPI_USERNAME,

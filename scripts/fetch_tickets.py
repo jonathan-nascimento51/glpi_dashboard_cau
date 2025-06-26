@@ -3,19 +3,19 @@ import asyncio
 import json
 import sys
 from pathlib import Path
-from glpi_session import GLPISession, Credentials
+from glpi_dashboard.data.glpi_client import GLPISession, Credentials
 
 if sys.platform == "win32":
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
-from config import (
+from glpi_dashboard.config.settings import (
     GLPI_BASE_URL,
     GLPI_APP_TOKEN,
     GLPI_USERNAME,
     GLPI_PASSWORD,
     GLPI_USER_TOKEN,
 )
-from data_pipeline import process_raw, save_json
+from glpi_dashboard.data.pipeline import process_raw, save_json
 
 
 async def fetch_and_save(
