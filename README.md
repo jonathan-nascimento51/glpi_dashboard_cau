@@ -110,12 +110,18 @@ make init-db
 
 Pass `--drop-all` to recreate everything from scratch.
 
+The script can also be invoked directly:
+
+```bash
+python scripts/init_db.py --drop-all
+```
+
 
 ## Docker deployment
 
 You can run the entire stack with Docker. The compose file includes
-`postgres`, `redis`, a FastAPI **worker** and the Dash dashboard. Run
-`docker-compose up` to build the image and start all services:
+`postgres`, `redis`, an `initdb` service, a FastAPI **worker** and the Dash dashboard.
+Running `docker-compose up` will build the image, initialize the database and start all services:
 
 ```bash
 docker-compose up

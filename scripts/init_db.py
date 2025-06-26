@@ -1,5 +1,7 @@
 import argparse
 import asyncio
+import logging
+import sys
 
 from database import init_db
 
@@ -19,8 +21,15 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    asyncio.run(_run(drop_all=args.drop_all))
+    logging.basicConfig(level=logging.INFO)
+    try:
+        asyncio.run(_run(drop_all=args.drop_all))
+    except Exception as e:  # noqa: BLE001
+        logging.error(e)
+        sys.exit(1)
+
     print("\u2714 Database initialized")
+    sys.exit(0)
 
 
 if __name__ == "__main__":

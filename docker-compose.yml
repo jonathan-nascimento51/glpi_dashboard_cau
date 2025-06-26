@@ -31,6 +31,14 @@ services:
       timeout: 5s
       retries: 5
 
+  initdb:
+    build: .
+    command: python scripts/init_db.py
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+
   worker:
     build: .
     command: python worker_api.py
@@ -39,7 +47,7 @@ services:
     ports:
       - "8000:8000"
     depends_on:
-      - postgres
+      - initdb
       - redis
 
   dash:
@@ -50,7 +58,7 @@ services:
     ports:
       - "8050:8050"
     depends_on:
-      - postgres
+      - initdb
       - redis
 
 volumes:
