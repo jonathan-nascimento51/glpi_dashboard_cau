@@ -78,7 +78,7 @@ local `mock` JSON file. More details on the multi-agent workflow can be found in
 
 ```bash
 python -m pip install --upgrade pip
-pip install -r requirements.txt
+pip install -r requirements.txt -r requirements-dev.txt
 pre-commit install
 ```
 
@@ -215,6 +215,7 @@ This exposes the worker API on port `8000` and the dashboard on port `8050`.
 Execute the unit tests with coverage:
 
 ```bash
+pip install -r requirements.txt -r requirements-dev.txt
 pytest --cov=./
 ```
 
