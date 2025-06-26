@@ -97,6 +97,12 @@ After configuring the environment file you can download tickets from GLPI:
 ```bash
 python scripts/fetch_tickets.py --output mock/sample_data.json
 ```
+Alternatively generate mock tickets offline:
+
+```bash
+python scripts/gen_mock_data.py --count 100 --null-rate 0.1
+```
+
 
 This JSON file can be used by both the Dash app and the worker API when running without the `--use-api` flag.
 
