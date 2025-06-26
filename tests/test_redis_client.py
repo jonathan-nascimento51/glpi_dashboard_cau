@@ -41,15 +41,7 @@ def test_delete(monkeypatch):
     mock_redis = MagicMock()
     monkeypatch.setattr(client, "_connect", lambda: mock_redis)
     client.delete("k")
-<<<<<<< ours
-<<<<<<< ours
-    mock_redis.delete.assert_called_once_with("k")
-=======
-    mock_redis.delete.assert_called_once()
->>>>>>> theirs
-=======
-    mock_redis.delete.assert_called_once()
->>>>>>> theirs
+    mock_redis.delete.assert_called_once_with("glpi:k")
 
 
 def test_get_ttl(monkeypatch):

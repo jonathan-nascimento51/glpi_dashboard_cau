@@ -138,18 +138,11 @@ def create_app(
                 return JSONResponse(content=cached)
             response = await call_next(request)
             if response.status_code == 200:
-<<<<<<< ours
-<<<<<<< ours
-                data = json.loads(response.body)
-                redis_client.set("resp:tickets", data)
-=======
-=======
->>>>>>> theirs
                 body = b""
                 async for chunk in response.body_iterator:
                     body += chunk
 
-                async def new_iter():
+                async def new_iter() -> bytes:
                     yield body
 
                 response.body_iterator = new_iter()
@@ -158,10 +151,6 @@ def create_app(
                     redis_client.set("resp:tickets", data)
                 except json.JSONDecodeError:
                     pass
-<<<<<<< ours
->>>>>>> theirs
-=======
->>>>>>> theirs
             return response
         return await call_next(request)
 
