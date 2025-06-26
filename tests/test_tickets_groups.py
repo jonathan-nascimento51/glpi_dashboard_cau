@@ -56,23 +56,7 @@ async def test_collect_basic(requests_mock):
         async def get(self, *args, **kwargs):
             return {"data": [{"id": 1}]}
 
-            if "search/Ticket_User" in args[0]:
-                return {"data": [{"users_id": 2, "groups_id": 3}]}
-            if "User/2" in args[0]:
-                return {"id": 2, "name": "Alice", "groups_id": 3}
-            if "Group/3" in args[0]:
-                return {"id": 3, "completename": "N1"}
-            return {
-                "data": [
-                    {"id": 1, "name": "t", "status": 1, "date": "2024-01-01"}
-                ]
-            }
 
-<<<<<<< ours
-<<<<<<< ours
-=======
-=======
->>>>>>> theirs
     session = FakeSession()
     df = await tickets_groups.collect_tickets_with_groups(
         "2024-01-01", "2024-01-02", client=session
@@ -80,9 +64,8 @@ async def test_collect_basic(requests_mock):
     assert len(df) == 1
     assert df.iloc[0]["group_name"] == "N1"
 
->>>>>>> theirs
 
-def test_pipeline_default(monkeypatch, tmp_path):
+def test_pipeline_default(monkeypatch: pytest.MonkeyPatch, tmp_path: tickets_groups.Path):
     """Default output name should include today's date."""
     import pandas as pd
     from pathlib import Path
