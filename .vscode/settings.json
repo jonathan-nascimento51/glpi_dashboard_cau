@@ -1,6 +1,6 @@
 {
     "terminal.integrated.allowChords": false,
-    "CodeGPT.apiKey": "CODEGPT_PLUS_API_KEY",
+    "CodeGPT.apiKey": "CodeGPT Plus Beta",
     "python.testing.pytestArgs": [
         "test"
     ],
