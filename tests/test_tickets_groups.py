@@ -69,7 +69,10 @@ async def test_collect_basic(requests_mock):
             }
 
 <<<<<<< ours
+<<<<<<< ours
 =======
+=======
+>>>>>>> theirs
     session = FakeSession()
     df = await tickets_groups.collect_tickets_with_groups(
         "2024-01-01", "2024-01-02", client=session
