@@ -11,7 +11,8 @@ from typing import List, Optional
 import pandas as pd
 import strawberry
 import uvicorn
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import JSONResponse
 from strawberry.fastapi import GraphQLRouter
 from strawberry.types import Info
 
@@ -121,6 +122,19 @@ def create_app(
     """Create FastAPI app with REST and GraphQL routes."""
     app = FastAPI(title="GLPI Worker API")
 
+    @app.middleware("http")
+    async def cache_tickets(request: Request, call_next):
+        if request.method == "GET" and request.url.path == "/tickets":
+            cached = redis_client.get("resp:tickets")
+            if cached is not None:
+                return JSONResponse(content=cached)
+            response = await call_next(request)
+            if response.status_code == 200:
+                data = json.loads(response.body)
+                redis_client.set("resp:tickets", data)
+            return response
+        return await call_next(request)
+
     client: Optional[GLPISession] = None
     if use_api:
         creds = Credentials(
@@ -144,7 +158,11 @@ def create_app(
         opened = total - closed
         return {"total": total, "opened": opened, "closed": closed}
 
-    @app.get("/cache-metrics")
+    @app.get("/cache/stats")
+    async def cache_stats() -> dict:
+        return redis_client.get_cache_metrics()
+
+    @app.get("/cache-metrics")  # legacy name
     async def cache_metrics() -> dict:
         return redis_client.get_cache_metrics()
 
