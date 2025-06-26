@@ -1,4 +1,4 @@
 {
     "terminal.integrated.allowChords": false,
-    "CodeGPT.apiKey": "CodeGPT Plus Beta"
+    "CodeGPT.apiKey": "CODEGPT_PLUS_API_KEY",
 }
