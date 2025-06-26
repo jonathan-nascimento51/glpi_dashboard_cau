@@ -106,6 +106,15 @@ class GLPISession:
         self._last_refresh_time: float = 0.0
         self._refresh_lock = asyncio.Lock()
 
+    def _resolve_timeout(self) -> int:
+        """Return the timeout as plain seconds for aiohttp calls."""
+        # aiohttp expects either an int or ``ClientTimeout``. Tests often
+        # compare this value directly, so we normalize to ``int`` even when a
+        # ``ClientTimeout`` object is provided.
+        if isinstance(self.timeout, aiohttp.ClientTimeout):
+            return int(self.timeout.total or 0)
+        return int(self.timeout)
+
     async def _init_aiohttp_session(self) -> None:
         """Initializes the aiohttp ClientSession if it's not already open."""
         if self._session is None or self._session.closed:
@@ -151,7 +160,26 @@ class GLPISession:
                     proxy=self.proxy,
                     timeout=self._resolve_timeout(),
                 ) as response:
-                    response.raise_for_status()  # Raises aiohttp.ClientResponseError for 4xx/5xx
+                    try:
+                        response.raise_for_status()  # Raises aiohttp.ClientResponseError for 4xx/5xx
+                    except aiohttp.ClientResponseError as e:
+                        response_data = {}
+                        try:
+                            response_data = await response.json()
+                        except (aiohttp.ContentTypeError, ValueError):
+                            pass  # Not a JSON response
+
+                        error_resp = getattr(e, "response", response)
+                        error_class = HTTP_STATUS_ERROR_MAP.get(e.status, GLPIAPIError)
+                        if self._session and not self._session.closed:
+                            await self._session.close()
+                            logger.info("aiohttp ClientSession closed due to init failure.")
+                        raise error_class(
+                            e.status,
+                            parse_error(error_resp, response_data),
+                            response_data,
+                        )
+
                     data = await response.json()
                     self._session_token = data.get("session_token")
                     if not self._session_token:
@@ -254,7 +282,7 @@ class GLPISession:
         except aiohttp.ClientResponseError as e:
             error_resp = getattr(e, "response", None)
             logger.error(
-                f"Failed to kill session: {e.status} - {parse_error(e.response)}"
+                f"Failed to kill session: {e.status} - {parse_error(error_resp)}"
             )
         except aiohttp.ClientError as e:
             logger.error(f"Network or client error during session termination: {e}")
@@ -323,7 +351,7 @@ class GLPISession:
                     json=json_data,
                     params=params,
                     proxy=self.proxy,
-                    timeout=self.timeout,
+                    timeout=self._resolve_timeout(),
                 ) as response:
                     if (
                         response.status == 401
