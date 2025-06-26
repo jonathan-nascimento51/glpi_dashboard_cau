@@ -165,12 +165,18 @@ class GLPISession:
                     pass  # Not a JSON response
 
                 error_class = HTTP_STATUS_ERROR_MAP.get(e.status, GLPIAPIError)
+                if self._session and not self._session.closed:
+                    await self._session.close()
+                    logger.info("aiohttp ClientSession closed due to init failure.")
                 raise error_class(
                     e.status,
                     parse_error(e.response, response_data),
                     response_data,  # noqa: E501  # noqa: E501
                 )  # Use parse_error
             except aiohttp.ClientError as e:
+                if self._session and not self._session.closed:
+                    await self._session.close()
+                    logger.info("aiohttp ClientSession closed due to init failure.")
                 raise GLPIAPIError(
                     0, f"Network or client error during session initiation: {e}"
                 )
