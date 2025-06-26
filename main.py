@@ -8,6 +8,11 @@ from dash import Dash
 from flask import Flask
 from flask_compress import Compress
 import logging
+<<<<<<< ours
+=======
+
+logging.basicConfig(level=logging.INFO)
+>>>>>>> theirs
 
 logging.basicConfig(level=logging.INFO)
 
