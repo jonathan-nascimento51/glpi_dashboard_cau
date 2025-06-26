@@ -8,8 +8,8 @@ from contextlib import asynccontextmanager
 import aiohttp
 from aiohttp import ClientSession, TCPConnector
 
-# Import custom exceptions and decorator from glpi_errors
-from glpi_errors import (
+# Import custom exceptions and decorator from sibling module
+from .exceptions import (
     GLPIAPIError,
     GLPIBadRequestError,
     GLPIUnauthorizedError,
