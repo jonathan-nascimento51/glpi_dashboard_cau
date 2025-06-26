@@ -7,6 +7,9 @@ import pandas as pd
 from dash import Dash
 from flask import Flask
 from flask_compress import Compress
+import logging
+
+logging.basicConfig(level=logging.INFO)
 
 from glpi_dashboard.config.settings import (
     GLPI_APP_TOKEN,
@@ -34,15 +37,21 @@ async def _fetch_api_data() -> pd.DataFrame:
         username=GLPI_USERNAME,
         password=GLPI_PASSWORD,
     )
-    async with GLPISession(GLPI_BASE_URL, creds) as client:
-        data = await client.get("search/Ticket")
+    try:
+        async with GLPISession(GLPI_BASE_URL, creds) as client:
+            data = await client.get("search/Ticket")
+    except Exception as exc:  # Broad catch logs unexpected failures
+        logging.error("Failed to fetch data from GLPI API: %s", exc)
+        raise
     return process_raw(data.get("data", data))
 
 
 def load_data(path: Path = DATA_FILE) -> pd.DataFrame:
     """Load ticket data from JSON or the API depending on USE_MOCK."""
     if USE_MOCK:
+        logging.info("Loading ticket data from local JSON: %s", path)
         return load_mock_data(path)
+    logging.info("Fetching ticket data from GLPI API")
     return asyncio.run(_fetch_api_data())
 
 
