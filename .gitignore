@@ -8,4 +8,5 @@ log.jsonl
 __pycache__/
 .coverage
 htmlcov/
+.venv/
 venv/
