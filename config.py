@@ -28,3 +28,6 @@ REDIS_TTL_SECONDS = int(os.getenv("REDIS_TTL_SECONDS", "3600")) # 1 hour TTL for
 # Pipeline Configuration
 FETCH_PAGE_SIZE = int(os.getenv("FETCH_PAGE_SIZE", "50")) # Default GLPI range is 0-50 [5]
 MV_REFRESH_INTERVAL_MINUTES = int(os.getenv("MV_REFRESH_INTERVAL_MINUTES", "5")) # [6]
+
+# Toggle between offline mock data and live API calls
+USE_MOCK = os.getenv("USE_MOCK", "true").lower() == "true"
