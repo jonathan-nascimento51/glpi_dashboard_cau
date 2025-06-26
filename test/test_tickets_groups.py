@@ -1,2 +1,5 @@
-import pytest
-from cli.tickets_groups import *  # Importing all from the source module
+import importlib
+
+def test_import_cli_groups():
+    module = importlib.import_module("cli.tickets_groups")
+    assert module is not None

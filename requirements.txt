@@ -16,3 +16,4 @@ SQLAlchemy==2.0.30
 asyncpg
 redis
 flask-compress
+langgraph>=0.0.22
