@@ -6,15 +6,15 @@ from typing import List, Optional, TypedDict
 import pandas as pd
 from langgraph.graph import END, StateGraph
 
-from config import (
+from glpi_dashboard.config.settings import (
     GLPI_APP_TOKEN,
     GLPI_BASE_URL,
     GLPI_PASSWORD,
     GLPI_USER_TOKEN,
     GLPI_USERNAME,
 )
-from data_pipeline import process_raw
-from glpi_session import Credentials, GLPISession
+from glpi_dashboard.data.pipeline import process_raw
+from glpi_dashboard.data.glpi_client import Credentials, GLPISession
 
 
 class AgentState(TypedDict, total=False):

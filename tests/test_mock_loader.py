@@ -1,11 +1,11 @@
 import os
 import sys
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))  # noqa: E402
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src"))  # noqa: E402
 
 import pandas as pd  # noqa: E402
-from mock_loader import load_mock_data  # noqa: E402
-from config import USE_MOCK  # noqa: E402
+from glpi_dashboard.data.mock_loader import load_mock_data  # noqa: E402
+from glpi_dashboard.config.settings import USE_MOCK  # noqa: E402
 
 
 def test_load_mock_data():

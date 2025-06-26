@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from data_pipeline import process_raw
+from .pipeline import process_raw
 
 
 def load_mock_data(path: str | Path) -> pd.DataFrame:

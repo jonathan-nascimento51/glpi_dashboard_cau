@@ -3,7 +3,7 @@ import asyncio
 import logging
 import sys
 
-from database import init_db
+from glpi_dashboard.data.database import init_db
 
 
 async def _run(drop_all: bool) -> None:

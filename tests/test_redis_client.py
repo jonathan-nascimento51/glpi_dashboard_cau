@@ -1,7 +1,7 @@
 import json
 from unittest.mock import MagicMock
 
-from redis_client import RedisClient
+from glpi_dashboard.utils.redis_client import RedisClient
 
 
 def test_set(monkeypatch):

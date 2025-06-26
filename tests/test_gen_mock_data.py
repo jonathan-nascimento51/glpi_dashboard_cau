@@ -2,7 +2,7 @@ import os
 import sys
 import random
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))  # noqa: E402
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src"))  # noqa: E402
 
 from scripts.gen_mock_data import generate_tickets, paginate  # noqa: E402
 

@@ -8,7 +8,7 @@ from dash import Dash
 from flask import Flask
 from flask_compress import Compress
 
-from config import (
+from glpi_dashboard.config.settings import (
     GLPI_APP_TOKEN,
     GLPI_BASE_URL,
     GLPI_PASSWORD,
@@ -16,10 +16,11 @@ from config import (
     GLPI_USERNAME,
     USE_MOCK,
 )
-from data_pipeline import process_raw
-from glpi_session import Credentials, GLPISession
-from mock_loader import load_mock_data
-from dash_layout import build_layout, register_callbacks
+from glpi_dashboard.data.pipeline import process_raw
+from glpi_dashboard.data.glpi_client import Credentials, GLPISession
+from glpi_dashboard.data.mock_loader import load_mock_data
+from glpi_dashboard.dashboard.layout import build_layout
+from glpi_dashboard.dashboard.callbacks import register_callbacks
 
 
 DATA_FILE = Path("mock/sample_data.json")

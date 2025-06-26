@@ -4,7 +4,7 @@ import re
 import datetime as dt
 import pytest
 
-from glpi_session import GLPISession
+from glpi_dashboard.data.glpi_client import GLPISession
 from src.etl import tickets_groups
 
 

@@ -7,7 +7,12 @@ from typing import Any, Dict, Optional
 
 import redis
 
-from config import REDIS_DB, REDIS_HOST, REDIS_PORT, REDIS_TTL_SECONDS
+from glpi_dashboard.config.settings import (
+    REDIS_DB,
+    REDIS_HOST,
+    REDIS_PORT,
+    REDIS_TTL_SECONDS,
+)
 
 logger = logging.getLogger(__name__)
 
