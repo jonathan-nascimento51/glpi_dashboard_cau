@@ -42,12 +42,10 @@ def register_callbacks(app, df: pd.DataFrame) -> None:
         Output("stats", "children"),
         Input("init-load", "n_intervals"),
     )
-<<<<<<< ours
-=======
+
     # Dash callbacks must be regular functions that return a tuple of outputs.
     # Using async def would yield a coroutine and trigger a
     # SchemaTypeValidationError.
->>>>>>> theirs
     def load_data(_):
         fig = _status_fig(df)
         total = len(df)
