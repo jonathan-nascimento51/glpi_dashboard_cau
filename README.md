@@ -107,11 +107,9 @@ The app will be available at <http://127.0.0.1:8050>.
 
 For an OS-specific walkthrough including virtual environment commands, see
 [docs/run_local.md](docs/run_local.md).
-<<<<<<< ours
-=======
+
 If you encounter issues during the first run, consult
 [docs/error_map.md](docs/error_map.md) for troubleshooting tips.
->>>>>>> theirs
 
 ## Running the Worker API
 
@@ -206,18 +204,6 @@ python scripts/init_db.py --drop-all
 ```
 
 For a MySQL-specific walkthrough, see [docs/first_use_mysql.md](docs/first_use_mysql.md) which lists all required environment variables and setup steps.
-<<<<<<< ours
-<<<<<<< ours
-<<<<<<< ours
-=======
-
->>>>>>> theirs
-=======
-
->>>>>>> theirs
-=======
-
->>>>>>> theirs
 
 ## Docker deployment
 
