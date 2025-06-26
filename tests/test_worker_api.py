@@ -8,6 +8,7 @@ sys.path.insert(
     0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src")
 )
 
+from src.glpi_dashboard.services.glpi_session import Credentials, GLPISession
 import worker_api  # noqa: E402
 from worker_api import create_app  # noqa: E402
 
@@ -40,16 +41,26 @@ class DummyCache:
 
 
 @pytest.fixture(autouse=True)
-def patch_cache(monkeypatch):
+def patch_cache(monkeypatch: pytest.MonkeyPatch):
     cache = DummyCache()
     monkeypatch.setattr(worker_api, "redis_client", cache)
     monkeypatch.setattr(
-        "glpi_dashboard.services.worker_api.redis_client", cache
+        "src.glpi_dashboard.services.worker_api.redis_client", cache
     )
     return cache
 
 
-class FakeSession:
+class FakeSession(GLPISession):
+    def __init__(self):
+        super().__init__(
+            base_url="http://example.com/apirest.php",
+            credentials=Credentials(
+                app_token="dummy_app_token",
+                username="test",
+                password="test"
+            )
+        )
+
     async def __aenter__(self):
         return self
 
@@ -58,7 +69,6 @@ class FakeSession:
 
     async def get(self, *args, **kwargs):
         return {"data": [{"id": 1}]}
-
 
 def test_rest_endpoints():
     client = TestClient(create_app(client=FakeSession()))
@@ -72,7 +82,7 @@ def test_rest_endpoints():
 
 def test_graphql_metrics():
     app = create_app(client=FakeSession())
-    paths = [r.path for r in app.router.routes]
+    paths = [getattr(r, "path", None) for r in app.router.routes if hasattr(r, "path")]
     assert "/graphql/" in paths
 
 
@@ -84,7 +94,7 @@ def test_graphql_query():
     assert resp.json()["data"]["metrics"]["total"] >= 0
 
 
-def test_client_reused(monkeypatch):
+def test_client_reused(monkeypatch: pytest.MonkeyPatch):
     instances = []
 
     class RecordingSession(FakeSession):
@@ -92,7 +102,7 @@ def test_client_reused(monkeypatch):
             instances.append(self)
 
     monkeypatch.setattr(
-        "glpi_dashboard.services.worker_api.GLPISession",
+        "src.glpi_dashboard.services.worker_api.GLPISession",
         lambda *a, **k: RecordingSession(),
     )
 
