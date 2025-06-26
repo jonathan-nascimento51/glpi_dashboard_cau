@@ -78,7 +78,7 @@ LEFT JOIN
 LEFT JOIN
     glpi_priorities gp ON t.priority = gp.id
 LEFT JOIN
-    gzip_groups gg ON t.assignee_id = gg.id -- Simplified: assuming assignee_id maps to a group ID
+    glpi_groups gg ON t.assignee_id = gg.id -- Simplified: assuming assignee_id maps to a group ID
 WITH NO DATA; -- Create empty initially
 
 -- Create a unique index on the materialized view for CONCURRENTLY refreshes [3]

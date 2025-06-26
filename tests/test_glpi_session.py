@@ -1,8 +1,12 @@
+import os
+import sys
 import pytest
 import asyncio as aio
 from unittest.mock import AsyncMock, MagicMock, patch
 from typing import Optional
 from contextlib import asynccontextmanager
+
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src"))  # noqa: E402
 from glpi_dashboard.services.glpi_session import (
     GLPISession,
     Credentials,
