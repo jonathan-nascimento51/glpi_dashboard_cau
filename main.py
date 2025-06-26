@@ -72,4 +72,4 @@ def profile_startup() -> None:
 if __name__ == "__main__":
     df = load_data()
     app = create_app(df)
-    app.run_server(debug=True)
+    app.run(debug=True)
