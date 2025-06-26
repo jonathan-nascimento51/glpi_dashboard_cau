@@ -1,23 +1,44 @@
-import logging
-import json
-import redis
-from typing import Optional, Dict, Any
+"""Redis helper wrapping common operations with metrics."""
 
-from config import REDIS_HOST, REDIS_PORT, REDIS_DB, REDIS_TTL_SECONDS
+from __future__ import annotations
+
+import json
+import logging
+from dataclasses import dataclass
+from typing import Any, Dict, Optional
+
+import redis
+
+from config import REDIS_DB, REDIS_HOST, REDIS_PORT, REDIS_TTL_SECONDS
 
 logger = logging.getLogger(__name__)
 
 
-class RedisClient:
-    """
-    A client for interacting with Redis, supporting caching with TTL.
-    Tracks cache hit/miss ratio.
-    """
+@dataclass
+class CacheMetrics:
+    """Simple structure to expose cache statistics."""
 
-    def __init__(self):
-        self._client: Optional = None
-        self._cache_hits = 0
-        self._cache_misses = 0
+    hits: int = 0
+    misses: int = 0
+
+    def as_dict(self) -> Dict[str, float]:
+        total = self.hits + self.misses
+        hit_rate = (self.hits / total) * 100 if total else 0.0
+        return {
+            "hits": self.hits,
+            "misses": self.misses,
+            "total": total,
+            "hit_rate": hit_rate,
+        }
+
+
+class RedisClient:
+    """Wraps Redis operations and tracks metrics."""
+
+    def __init__(self, prefix: str = "glpi"):  # [A]
+        self._client: Optional[redis.Redis] = None
+        self._prefix = prefix
+        self.metrics = CacheMetrics()
 
     def _connect(self) -> redis.Redis:
         """Establishes a connection to Redis if not already connected."""
@@ -38,34 +59,25 @@ class RedisClient:
                 raise
         return self._client
 
+    def _format_key(self, key: str) -> str:
+        return f"{self._prefix}:{key}"
+
     def get_cache_metrics(self) -> Dict[str, float]:
-        """Returns current cache hit rate and total requests."""
-        total_requests = self._cache_hits + self._cache_misses
-        if total_requests == 0:
-            hit_rate = 0.0
-        else:
-            hit_rate = (self._cache_hits / total_requests) * 100
-        return {
-            "hits": self._cache_hits,
-            "misses": self._cache_misses,
-            "total": total_requests,
-            "hit_rate": hit_rate,
-        }
+        """Return current cache metrics."""
+        return self.metrics.as_dict()
 
     def get(self, key: str) -> Optional[Dict[str, Any]]:
-        """
-        Retrieves data from Redis cache.
-        Logs cache hit/miss.
-        """
+        """Retrieve data and register hit/miss."""
         try:
             client = self._connect()
-            cached_data = client.get(key)
+            redis_key = self._format_key(key)
+            cached_data = client.get(redis_key)
             if cached_data:
-                self._cache_hits += 1
+                self.metrics.hits += 1
                 logger.debug(f"Cache HIT for key: {key}")
                 return json.loads(cached_data)
             else:
-                self._cache_misses += 1
+                self.metrics.misses += 1
                 logger.debug(f"Cache MISS for key: {key}")
                 return None
         except redis.exceptions.ConnectionError as e:
@@ -101,9 +113,14 @@ class RedisClient:
             if ttl_seconds is None:
                 ttl_seconds = REDIS_TTL_SECONDS
 
+            redis_key = self._format_key(key)
             # Use setex for atomic set with expiry [4]
-            client.setex(key, ttl_seconds, json.dumps(data))
-            logger.debug(f"Cache SET for key: {key} with TTL: {ttl_seconds}s")
+            client.setex(redis_key, ttl_seconds, json.dumps(data))
+            logger.debug(
+                "Cache SET for key %s with TTL %s",
+                redis_key,
+                ttl_seconds,
+            )
         except redis.exceptions.ConnectionError as e:
             logger.error("Redis connection error during SET: %s", e)
             self._client = None
@@ -118,8 +135,9 @@ class RedisClient:
         """Deletes a key from Redis."""
         try:
             client = self._connect()
-            client.delete(key)
-            logger.debug(f"Cache DELETE for key: {key}")
+            redis_key = self._format_key(key)
+            client.delete(redis_key)
+            logger.debug(f"Cache DELETE for key: {redis_key}")
         except redis.exceptions.ConnectionError as e:
             logger.error("Redis connection error during DELETE: %s", e)
             self._client = None
@@ -129,6 +147,24 @@ class RedisClient:
                 key,
                 e,
             )
+
+    def get_ttl(self, key: str) -> int:
+        """Return remaining TTL for a key in seconds or -2 if not found."""
+        try:
+            client = self._connect()
+            redis_key = self._format_key(key)
+            return client.ttl(redis_key)
+        except redis.exceptions.ConnectionError as e:
+            logger.error("Redis connection error during TTL: %s", e)
+            self._client = None
+            return -2
+        except Exception as e:
+            logger.error(
+                "Unexpected error during Redis TTL for key %s: %s",
+                key,
+                e,
+            )
+            return -2
 
 
 # Global Redis client instance

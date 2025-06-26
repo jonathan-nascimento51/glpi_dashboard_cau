@@ -108,11 +108,12 @@ Fetch live data instead:
 python worker_api.py --use-api  # fetches from GLPI API
 ```
 
-The service exposes three endpoints:
+The service exposes four endpoints:
 
 - `/tickets` – full list of tickets in JSON format.
 - `/metrics` – summary with `total`, `opened` and `closed` counts.
 - `/graphql/` – GraphQL API providing the same information.
+- `/cache/stats` – returns cache hit/miss metrics.
 
 ## Collecting ticket/group assignments
 

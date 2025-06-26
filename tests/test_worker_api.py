@@ -5,10 +5,10 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from pathlib import Path  # noqa: E402
 
-import pytest
+import pytest  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402
 
-import worker_api
+import worker_api  # noqa: E402
 from worker_api import create_app  # noqa: E402
 
 
@@ -92,7 +92,10 @@ def test_client_reused(monkeypatch):
         async def get(self, *args, **kwargs):
             return {"data": [{"id": 1}]}
 
-    monkeypatch.setattr("worker_api.GLPISession", lambda *a, **k: FakeSession())
+    monkeypatch.setattr(
+        "worker_api.GLPISession",
+        lambda *a, **k: FakeSession(),
+    )
 
     client = TestClient(create_app(use_api=True))
     client.get("/tickets")
@@ -101,11 +104,21 @@ def test_client_reused(monkeypatch):
     assert len(instances) == 1
 
 
-def test_cache_metrics_endpoint():
+def test_cache_stats_endpoint():
     client = TestClient(create_app())
     client.get("/tickets")
-    resp = client.get("/cache-metrics")
+    resp = client.get("/cache/stats")
     assert resp.status_code == 200
     data = resp.json()
     assert data["misses"] == 1
     assert data["hits"] == 0
+
+
+def test_cache_middleware():
+    client = TestClient(create_app())
+    client.get("/tickets")
+    client.get("/tickets")
+    resp = client.get("/cache/stats")
+    data = resp.json()
+    assert data["hits"] == 1
+    assert data["misses"] == 1

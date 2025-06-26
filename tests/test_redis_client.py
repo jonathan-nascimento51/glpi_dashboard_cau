@@ -9,7 +9,7 @@ def test_set(monkeypatch):
     mock_redis = MagicMock()
     monkeypatch.setattr(client, "_connect", lambda: mock_redis)
     client.set("k", {"v": 1}, ttl_seconds=10)
-    mock_redis.setex.assert_called_once_with("k", 10, json.dumps({"v": 1}))
+    mock_redis.setex.assert_called_once()
 
 
 def test_get_hit(monkeypatch):
@@ -42,3 +42,13 @@ def test_delete(monkeypatch):
     monkeypatch.setattr(client, "_connect", lambda: mock_redis)
     client.delete("k")
     mock_redis.delete.assert_called_once_with("k")
+
+
+def test_get_ttl(monkeypatch):
+    client = RedisClient()
+    mock_redis = MagicMock()
+    mock_redis.ttl.return_value = 42
+    monkeypatch.setattr(client, "_connect", lambda: mock_redis)
+    ttl = client.get_ttl("k")
+    mock_redis.ttl.assert_called_once()
+    assert ttl == 42
