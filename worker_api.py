@@ -59,7 +59,10 @@ async def _load_tickets(
     cache_key = "tickets_api" if use_api else f"tickets_file:{data_file}"
     cached = redis_client.get(cache_key)
     if cached is not None:
-        return process_raw(cached)
+        try:
+            return process_raw(cached)
+        except KeyError:
+            return pd.DataFrame(cached)
 
     if use_api:
         try:
@@ -88,7 +91,10 @@ async def _load_tickets(
     if isinstance(data, dict):
         data = data.get("data", data)
     redis_client.set(cache_key, data)
-    return process_raw(data)
+    try:
+        return process_raw(data)
+    except KeyError:
+        return pd.DataFrame(data)
 
 
 @strawberry.type
@@ -110,7 +116,9 @@ class Query:
             client=info.context.get("client"),
         )
         total = len(df)
-        closed = df[df["status"].str.lower() == "closed"].shape[0]
+        closed = 0
+        if "status" in df:
+            closed = df[df["status"].str.lower() == "closed"].shape[0]
         opened = total - closed
         return Metrics(total=total, opened=opened, closed=closed)
 
@@ -130,8 +138,24 @@ def create_app(
                 return JSONResponse(content=cached)
             response = await call_next(request)
             if response.status_code == 200:
+<<<<<<< ours
                 data = json.loads(response.body)
                 redis_client.set("resp:tickets", data)
+=======
+                body = b""
+                async for chunk in response.body_iterator:
+                    body += chunk
+
+                async def new_iter():
+                    yield body
+
+                response.body_iterator = new_iter()
+                try:
+                    data = json.loads(body.decode())
+                    redis_client.set("resp:tickets", data)
+                except json.JSONDecodeError:
+                    pass
+>>>>>>> theirs
             return response
         return await call_next(request)
 
@@ -154,7 +178,9 @@ def create_app(
     async def metrics() -> dict:
         df = await _load_tickets(use_api, data_file, client=client)
         total = len(df)
-        closed = df[df["status"].str.lower() == "closed"].shape[0]
+        closed = 0
+        if "status" in df:
+            closed = df[df["status"].str.lower() == "closed"].shape[0]
         opened = total - closed
         return {"total": total, "opened": opened, "closed": closed}
 

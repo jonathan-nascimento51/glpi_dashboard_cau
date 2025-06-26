@@ -90,6 +90,14 @@ Ensure there is a ticket dump in `mock/sample_data.json` or a file of your choic
 python main.py
 ```
 
+The Dash server uses gzip compression via `flask-compress` and loads data lazily on first render.
+
+Profile startup time with:
+
+```bash
+python scripts/profile_dash.py
+```
+
 The app will be available at <http://127.0.0.1:8050>.
 
 ## Running the Worker API

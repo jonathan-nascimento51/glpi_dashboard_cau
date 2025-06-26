@@ -2,7 +2,12 @@
 
 Example:
 <<<<<<< ours
+<<<<<<< ours
     python scripts/gen_mock_data.py --count 50 --null-rate 0.1 --error-rate 0.05
+=======
+    python scripts/gen_mock_data.py --count 50 \
+        --null-rate 0.1 --error-rate 0.05
+>>>>>>> theirs
 =======
     python scripts/gen_mock_data.py --count 50 \
         --null-rate 0.1 --error-rate 0.05
@@ -27,13 +32,19 @@ def _maybe_null(value: Any, null_rate: float) -> Any:
 
 
 <<<<<<< ours
+<<<<<<< ours
 def _generate_ticket(idx: int, null_rate: float, error_rate: float) -> Dict[str, Any]:
 =======
+=======
+>>>>>>> theirs
 def _generate_ticket(
     idx: int,
     null_rate: float,
     error_rate: float,
 ) -> Dict[str, Any]:
+<<<<<<< ours
+>>>>>>> theirs
+=======
 >>>>>>> theirs
     ticket = {
         "id": idx,
@@ -46,14 +57,20 @@ def _generate_ticket(
         "name": f"ticket-{idx}",
         "priority": random.choice(PRIORITIES),
 <<<<<<< ours
+<<<<<<< ours
         "watchers": [random.choice(USERS) for _ in range(random.randint(0, 2))],
 =======
+=======
+>>>>>>> theirs
         # fmt: off
         "watchers": [
             random.choice(USERS)
             for _ in range(random.randint(0, 2))
         ],
         # fmt: on
+<<<<<<< ours
+>>>>>>> theirs
+=======
 >>>>>>> theirs
     }
 
@@ -74,14 +91,20 @@ def generate_tickets(
 ) -> List[Dict[str, Any]]:
     """Return a list of fake GLPI tickets."""
 <<<<<<< ours
+<<<<<<< ours
     return [_generate_ticket(i + 1, null_rate, error_rate) for i in range(count)]
 =======
+=======
+>>>>>>> theirs
     # fmt: off
     return [
         _generate_ticket(i + 1, null_rate, error_rate)
         for i in range(count)
     ]
     # fmt: on
+<<<<<<< ours
+>>>>>>> theirs
+=======
 >>>>>>> theirs
 
 
@@ -96,7 +119,11 @@ def paginate(
             {
                 "page": page,
 <<<<<<< ours
+<<<<<<< ours
                 "tickets": tickets[start : start + page_size],
+=======
+                "tickets": tickets[start : start + page_size],  # noqa: E203
+>>>>>>> theirs
 =======
                 "tickets": tickets[start : start + page_size],  # noqa: E203
 >>>>>>> theirs
@@ -108,14 +135,20 @@ def paginate(
 def main() -> None:
     parser = argparse.ArgumentParser(description="Generate mock GLPI tickets")
 <<<<<<< ours
+<<<<<<< ours
     parser.add_argument("--count", type=int, default=100, help="Number of records")
 =======
+=======
+>>>>>>> theirs
     parser.add_argument(
         "--count",
         type=int,
         default=100,
         help="Number of records",
     )
+<<<<<<< ours
+>>>>>>> theirs
+=======
 >>>>>>> theirs
     parser.add_argument(
         "--null-rate",
