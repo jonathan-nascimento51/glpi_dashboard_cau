@@ -42,7 +42,11 @@ def test_delete(monkeypatch):
     monkeypatch.setattr(client, "_connect", lambda: mock_redis)
     client.delete("k")
 <<<<<<< ours
+<<<<<<< ours
     mock_redis.delete.assert_called_once_with("k")
+=======
+    mock_redis.delete.assert_called_once()
+>>>>>>> theirs
 =======
     mock_redis.delete.assert_called_once()
 >>>>>>> theirs

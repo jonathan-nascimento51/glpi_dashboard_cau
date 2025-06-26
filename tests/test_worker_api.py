@@ -122,7 +122,11 @@ def test_cache_middleware():
     data = resp.json()
     assert data["hits"] == 1
 <<<<<<< ours
+<<<<<<< ours
     assert data["misses"] == 1
+=======
+    assert data["misses"] == 2
+>>>>>>> theirs
 =======
     assert data["misses"] == 2
 >>>>>>> theirs

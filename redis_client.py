@@ -36,7 +36,11 @@ class RedisClient:
     """Wraps Redis operations and tracks metrics."""
 
 <<<<<<< ours
+<<<<<<< ours
     def __init__(self, prefix: str = "glpi"):  # [A]
+=======
+    def __init__(self, prefix: str = "glpi"):
+>>>>>>> theirs
 =======
     def __init__(self, prefix: str = "glpi"):
 >>>>>>> theirs
@@ -116,7 +120,11 @@ class RedisClient:
 
             redis_key = self._format_key(key)
 <<<<<<< ours
+<<<<<<< ours
             # Use setex for atomic set with expiry [4]
+=======
+            # Use setex for atomic set with expiry
+>>>>>>> theirs
 =======
             # Use setex for atomic set with expiry
 >>>>>>> theirs
