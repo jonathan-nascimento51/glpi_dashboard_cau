@@ -1,7 +1,6 @@
 import argparse
 import asyncio
 import json
-from datetime import datetime
 import sys
 from pathlib import Path
 from glpi_session import GLPISession, Credentials
@@ -34,15 +33,27 @@ async def fetch_and_save(
     session = GLPISession(GLPI_BASE_URL, creds)
     criteria = []
     if status is not None:
-        criteria.append({"field": "status", "searchtype": "equals", "value": status})
+        criteria.append(
+            {
+                "field": "status",
+                "searchtype": "equals",
+                "value": status,
+            }
+        )
     async with session as client:
+        query_range = f"0-{limit-1}"
         tickets = await client.get(
             "search/Ticket",
-            params={"criteria": criteria, "range": f"0-{limit-1}"},
+            params={"criteria": criteria, "range": query_range},
         )
     tickets = tickets.get("data", tickets)
-    df = process_raw(tickets)
-    save_json(df, str(output))
+    try:
+        df = process_raw(tickets)
+        save_json(df, str(output))
+    except KeyError:
+        # Fallback to saving raw data if structure is incomplete
+        with output.open("w") as f:
+            json.dump(tickets, f, indent=2)
 
 
 def main() -> None:
@@ -62,7 +73,13 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    asyncio.run(fetch_and_save(output=args.output, status=args.status, limit=args.limit))
+    asyncio.run(
+        fetch_and_save(
+            output=args.output,
+            status=args.status,
+            limit=args.limit,
+        )
+    )
     print(f"✔ Saved tickets to {args.output}")
 
 

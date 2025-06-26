@@ -35,7 +35,11 @@ class CacheMetrics:
 class RedisClient:
     """Wraps Redis operations and tracks metrics."""
 
+<<<<<<< ours
     def __init__(self, prefix: str = "glpi"):  # [A]
+=======
+    def __init__(self, prefix: str = "glpi"):
+>>>>>>> theirs
         self._client: Optional[redis.Redis] = None
         self._prefix = prefix
         self.metrics = CacheMetrics()
@@ -104,17 +108,18 @@ class RedisClient:
     def set(
         self, key: str, data: Dict[str, Any], ttl_seconds: Optional[int] = None
     ) -> None:
-        """
-        Stores data in Redis cache with a configurable TTL.
-        [4, 8]
-        """
+        """Store data in Redis cache with an optional TTL."""
         try:
             client = self._connect()
             if ttl_seconds is None:
                 ttl_seconds = REDIS_TTL_SECONDS
 
             redis_key = self._format_key(key)
+<<<<<<< ours
             # Use setex for atomic set with expiry [4]
+=======
+            # Use setex for atomic set with expiry
+>>>>>>> theirs
             client.setex(redis_key, ttl_seconds, json.dumps(data))
             logger.debug(
                 "Cache SET for key %s with TTL %s",

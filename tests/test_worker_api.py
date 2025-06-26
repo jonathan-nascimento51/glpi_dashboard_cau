@@ -110,7 +110,7 @@ def test_cache_stats_endpoint():
     resp = client.get("/cache/stats")
     assert resp.status_code == 200
     data = resp.json()
-    assert data["misses"] == 1
+    assert data["misses"] == 2
     assert data["hits"] == 0
 
 
@@ -121,4 +121,8 @@ def test_cache_middleware():
     resp = client.get("/cache/stats")
     data = resp.json()
     assert data["hits"] == 1
+<<<<<<< ours
     assert data["misses"] == 1
+=======
+    assert data["misses"] == 2
+>>>>>>> theirs
