@@ -31,6 +31,7 @@ if __name__ == "__main__":
 
 # Tabela de Boas Práticas
 <<<<<<< ours
+<<<<<<< ours
 | Aspecto | Recomendação |
 |---------|--------------|
 | Nomenclatura de nós | Utilize nomes autoexplicativos (ex.: `Planner`, `TestRunner`). |
@@ -38,12 +39,21 @@ if __name__ == "__main__":
 | Observabilidade | Ative logs estruturados por nó para facilitar debugging. |
 | Testes automatizados | Valide cada nó isoladamente com mocks e cenários reais. |
 =======
+=======
+>>>>>>> theirs
 | Categoria | Prática Recomendada | Descrição Funcional |
 |-----------|--------------------|---------------------|
 | Serialização de estado | Persistir snapshots de contexto em estruturas imutáveis | Permite replay determinístico e simplifica testes |
 | Segurança de loops | Definir contador de ciclos ou TTL para cada fluxo | Evita loops infinitos e controla consumo de tokens |
 | Visualização de fluxo | Executar `print_ascii()` após configurar o grafo | Inspeciona a topologia e valida dependências |
+<<<<<<< ours
 >>>>>>> theirs
 
 # Conclusão
 O Supervisor pattern em LangGraph simplifica a orquestração de múltiplos agentes de IA. Com estados bem definidos e acoplamento mínimo entre nós, a solução se torna robusta para aplicações corporativas que exigem rastreabilidade e fácil manutenção.
+=======
+
+# Conclusão
+O Supervisor pattern em LangGraph simplifica a orquestração de múltiplos agentes de IA. Com estados bem definidos e acoplamento mínimo entre nós, a solução se torna robusta para aplicações corporativas que exigem rastreabilidade e fácil manutenção.
+Para padronizar os nomes de nós e chaves, consulte [naming_conventions_langgraph.md](naming_conventions_langgraph.md).
+>>>>>>> theirs
