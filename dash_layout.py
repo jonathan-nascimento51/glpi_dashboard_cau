@@ -7,10 +7,10 @@ from functools import lru_cache
 
 from dash import dash_table, dcc, html, callback, Output, Input
 import plotly.express as px
+import plotly.graph_objs as go
 
 
-@lru_cache(maxsize=1)
-def _status_fig(df: pd.DataFrame) -> px.bar:
+def _status_fig(df: pd.DataFrame) -> go.Figure:
     counts = df.groupby("status").size().reset_index(name="count")
     return px.bar(counts, x="status", y="count")
 
@@ -42,10 +42,6 @@ def register_callbacks(app, df: pd.DataFrame) -> None:
         Output("stats", "children"),
         Input("init-load", "n_intervals"),
     )
-
-    # Dash callbacks must be regular functions that return a tuple of outputs.
-    # Using async def would yield a coroutine and trigger a
-    # SchemaTypeValidationError.
     def load_data(_):
         fig = _status_fig(df)
         total = len(df)
