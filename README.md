@@ -202,6 +202,10 @@ python scripts/init_db.py --drop-all
 
 For a MySQL-specific walkthrough, see [docs/first_use_mysql.md](docs/first_use_mysql.md) which lists all required environment variables and setup steps.
 <<<<<<< ours
+<<<<<<< ours
+=======
+
+>>>>>>> theirs
 =======
 
 >>>>>>> theirs
