@@ -113,18 +113,15 @@ Pass `--drop-all` to recreate everything from scratch.
 
 ## Docker deployment
 
-Build the image and run the worker API:
-
-```bash
-docker build -t glpi-dashboard .
-docker run --env-file .env -p 8000:8000 glpi-dashboard
-```
-
-Use `docker-compose` for convenience:
+You can run the entire stack with Docker. The compose file includes
+`postgres`, `redis`, a FastAPI **worker** and the Dash dashboard. Run
+`docker-compose up` to build the image and start all services:
 
 ```bash
 docker-compose up
 ```
+
+This exposes the worker API on port `8000` and the dashboard on port `8050`.
 
 ## Tests and linting
 
