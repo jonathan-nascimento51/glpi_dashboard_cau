@@ -89,7 +89,10 @@ This project also uses the `rich-click` library for colored CLI output. It is in
 Ensure there is a ticket dump in `mock/sample_data.json` or a file of your choice, then run:
 
 ```bash
-python main.py
+python main.py  # uses mock data by default
+
+# fetch live data instead
+USE_MOCK=false python main.py
 ```
 
 The Dash server uses gzip compression via `flask-compress` and loads data lazily on first render.
@@ -110,6 +113,9 @@ Run with the sample JSON dump:
 
 ```bash
 python worker_api.py            # uses mock/sample_data.json
+
+# fetch live data instead
+USE_MOCK=false python worker_api.py --use-api
 ```
 
 Fetch live data instead:

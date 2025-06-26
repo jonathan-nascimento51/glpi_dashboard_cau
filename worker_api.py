@@ -22,6 +22,7 @@ from config import (
     GLPI_PASSWORD,
     GLPI_USER_TOKEN,
     GLPI_USERNAME,
+    USE_MOCK,
 )
 from data_pipeline import process_raw
 from glpi_session import Credentials, GLPISession
@@ -124,7 +125,7 @@ class Query:
 
 
 def create_app(
-    use_api: bool = False,
+    use_api: bool = not USE_MOCK,
     data_file: Path = DEFAULT_FILE,
 ) -> FastAPI:
     """Create FastAPI app with REST and GraphQL routes."""
@@ -207,6 +208,7 @@ def main() -> None:  # pragma: no cover - manual run
     parser.add_argument(
         "--use-api",
         action="store_true",
+        default=not USE_MOCK,
         help="Fetch from GLPI instead of JSON dump",
     )
     parser.add_argument(
