@@ -106,23 +106,6 @@ class GLPISession:
         self._last_refresh_time: float = 0.0
         self._refresh_lock = asyncio.Lock()
 
-<<<<<<< ours
-    def _resolve_timeout(self) -> aiohttp.ClientTimeout:
-        """Returns timeout value as a ClientTimeout for aiohttp calls."""
-        if isinstance(self.timeout, aiohttp.ClientTimeout):
-            return self.timeout
-        return aiohttp.ClientTimeout(total=float(self.timeout))
-=======
-    def _resolve_timeout(self) -> int:
-        """Return the timeout as plain seconds for aiohttp calls."""
-        # aiohttp expects either an int or ``ClientTimeout``. Tests often
-        # compare this value directly, so we normalize to ``int`` even when a
-        # ``ClientTimeout`` object is provided.
-        if isinstance(self.timeout, aiohttp.ClientTimeout):
-            return int(self.timeout.total or 0)
-        return int(self.timeout)
->>>>>>> theirs
-
     async def _init_aiohttp_session(self) -> None:
         """Initializes the aiohttp ClientSession if it's not already open."""
         if self._session is None or self._session.closed:
@@ -168,73 +151,7 @@ class GLPISession:
                     proxy=self.proxy,
                     timeout=self._resolve_timeout(),
                 ) as response:
-                    try:
-                        response.raise_for_status()  # Raises aiohttp.ClientResponseError for 4xx/5xx
-                    except aiohttp.ClientResponseError as e:
-<<<<<<< ours
-                        error_resp = getattr(e, "response", None)
-                        if error_resp:
-                            error_data = await error_resp.json()
-                            logger.error(
-                                f"Failed to initiate session: {e.status} - {parse_error(error_data)}"
-                            )
-                        else:
-                            logger.error(f"Failed to initiate session: {e}")
-                        # Map specific errors to custom exceptions
-                        if e.status == 400:
-                            raise GLPIBadRequestError(
-                                e.status, "Bad request during session initiation", error_data
-                            )
-                        elif e.status == 401:
-                            raise GLPIUnauthorizedError(
-                                e.status, "Unauthorized access during session initiation", error_data
-                            )
-                        elif e.status == 403:
-                            raise GLPIForbiddenError(
-                                e.status, "Forbidden access during session initiation", error_data
-                            )
-                        elif e.status == 404:
-                            raise GLPINotFoundError(
-                                e.status, "Endpoint not found during session initiation", error_data
-                            )
-                        elif e.status == 429:
-                            raise GLPITooManyRequestsError(
-                                e.status, "Too many requests during session initiation", error_data
-                            )
-                        elif e.status >= 500:
-                            raise GLPIInternalServerError(
-                                e.status, "Internal server error during session initiation", error_data
-                            )
-                        else:
-                            raise GLPIAPIError(
-                                e.status, "Unexpected error during session initiation", error_data
-                            )
-                    logger.debug("Session initiation response status: %s", response.status)
-                    if response.status != 200:
-                        raise GLPIAPIError(
-                            response.status,
-                            "Failed to initiate GLPI session",
-                            await response.json(),
-                        )
-=======
-                        response_data = {}
-                        try:
-                            response_data = await response.json()
-                        except (aiohttp.ContentTypeError, ValueError):
-                            pass  # Not a JSON response
-
-                        error_resp = getattr(e, "response", response)
-                        error_class = HTTP_STATUS_ERROR_MAP.get(e.status, GLPIAPIError)
-                        if self._session and not self._session.closed:
-                            await self._session.close()
-                            logger.info("aiohttp ClientSession closed due to init failure.")
-                        raise error_class(
-                            e.status,
-                            parse_error(error_resp, response_data),
-                            response_data,
-                        )
-
->>>>>>> theirs
+                    response.raise_for_status()  # Raises aiohttp.ClientResponseError for 4xx/5xx
                     data = await response.json()
                     self._session_token = data.get("session_token")
                     if not self._session_token:
@@ -337,11 +254,7 @@ class GLPISession:
         except aiohttp.ClientResponseError as e:
             error_resp = getattr(e, "response", None)
             logger.error(
-<<<<<<< ours
-                f"Failed to kill session: {e.status} - {parse_error(error_resp or response)}"
-=======
-                f"Failed to kill session: {e.status} - {parse_error(error_resp)}"
->>>>>>> theirs
+                f"Failed to kill session: {e.status} - {parse_error(e.response)}"
             )
         except aiohttp.ClientError as e:
             logger.error(f"Network or client error during session termination: {e}")
@@ -410,11 +323,7 @@ class GLPISession:
                     json=json_data,
                     params=params,
                     proxy=self.proxy,
-<<<<<<< ours
-                    timeout=timeout_obj,
-=======
-                    timeout=self._resolve_timeout(),
->>>>>>> theirs
+                    timeout=self.timeout,
                 ) as response:
                     if (
                         response.status == 401
