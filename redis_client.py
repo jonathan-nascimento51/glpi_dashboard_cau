@@ -1,5 +1,3 @@
-"""Redis helper wrapping common operations with metrics."""
-
 from __future__ import annotations
 
 import json
@@ -35,34 +33,25 @@ class CacheMetrics:
 class RedisClient:
     """Wraps Redis operations and tracks metrics."""
 
-<<<<<<< ours
-<<<<<<< ours
-    def __init__(self, prefix: str = "glpi"):  # [A]
-=======
-    def __init__(self, prefix: str = "glpi"):
->>>>>>> theirs
-=======
-    def __init__(self, prefix: str = "glpi"):
->>>>>>> theirs
+    def __init__(self, prefix: str = "glpi") -> None:
         self._client: Optional[redis.Redis] = None
         self._prefix = prefix
         self.metrics = CacheMetrics()
 
     def _connect(self) -> redis.Redis:
-        """Establishes a connection to Redis if not already connected."""
+        """Establish a connection to Redis if not already connected."""
         if self._client is None:
+            self._client = redis.Redis(
+                host=REDIS_HOST,
+                port=REDIS_PORT,
+                db=REDIS_DB,
+                decode_responses=True,
+            )
             try:
-                self._client = redis.Redis(
-                    host=REDIS_HOST,
-                    port=REDIS_PORT,
-                    db=REDIS_DB,
-                    decode_responses=True,  # decode to Python strings
-                )
-                self._client.ping()  # Test connection
+                self._client.ping()
                 logger.info("Successfully connected to Redis.")
             except redis.exceptions.ConnectionError as e:
-                logger.error(f"Could not connect to Redis: {e}")
-                # Reset client on failed connection
+                logger.error("Could not connect to Redis: %s", e)
                 self._client = None
                 raise
         return self._client
@@ -82,84 +71,49 @@ class RedisClient:
             cached_data = client.get(redis_key)
             if cached_data:
                 self.metrics.hits += 1
-                logger.debug(f"Cache HIT for key: {key}")
+                logger.debug("Cache HIT for key: %s", key)
                 return json.loads(cached_data)
-            else:
-                self.metrics.misses += 1
-                logger.debug(f"Cache MISS for key: {key}")
-                return None
+            self.metrics.misses += 1
+            logger.debug("Cache MISS for key: %s", key)
+            return None
         except redis.exceptions.ConnectionError as e:
             logger.error("Redis connection error during GET: %s", e)
-            self._client = None  # Reset client to force re-connection
+            self._client = None
             return None
         except json.JSONDecodeError as e:
-            logger.error(
-                "Error decoding JSON from Redis for key %s: %s",
-                key,
-                e,
-            )
-            # Optionally delete corrupted cache entry
+            logger.error("Error decoding JSON for key %s: %s", key, e)
             self.delete(key)
             return None
         except Exception as e:
-            logger.error(
-                "Unexpected error during Redis GET for key %s: %s",
-                key,
-                e,
-            )
+            logger.error("Unexpected error during Redis GET for key %s: %s", key, e)
             return None
 
-    def set(
-        self, key: str, data: Dict[str, Any], ttl_seconds: Optional[int] = None
-    ) -> None:
+    def set(self, key: str, data: Dict[str, Any], ttl_seconds: Optional[int] = None) -> None:
         """Store data in Redis cache with an optional TTL."""
         try:
             client = self._connect()
-            if ttl_seconds is None:
-                ttl_seconds = REDIS_TTL_SECONDS
-
+            ttl = ttl_seconds or REDIS_TTL_SECONDS
             redis_key = self._format_key(key)
-<<<<<<< ours
-<<<<<<< ours
-            # Use setex for atomic set with expiry [4]
-=======
-            # Use setex for atomic set with expiry
->>>>>>> theirs
-=======
-            # Use setex for atomic set with expiry
->>>>>>> theirs
-            client.setex(redis_key, ttl_seconds, json.dumps(data))
-            logger.debug(
-                "Cache SET for key %s with TTL %s",
-                redis_key,
-                ttl_seconds,
-            )
+            client.setex(redis_key, ttl, json.dumps(data))
+            logger.debug("Cache SET for key %s with TTL %s", redis_key, ttl)
         except redis.exceptions.ConnectionError as e:
             logger.error("Redis connection error during SET: %s", e)
             self._client = None
         except Exception as e:
-            logger.error(
-                "Unexpected error during Redis SET for key %s: %s",
-                key,
-                e,
-            )
+            logger.error("Unexpected error during Redis SET for key %s: %s", key, e)
 
     def delete(self, key: str) -> None:
-        """Deletes a key from Redis."""
+        """Delete a key from Redis."""
         try:
             client = self._connect()
             redis_key = self._format_key(key)
             client.delete(redis_key)
-            logger.debug(f"Cache DELETE for key: {redis_key}")
+            logger.debug("Cache DELETE for key: %s", redis_key)
         except redis.exceptions.ConnectionError as e:
             logger.error("Redis connection error during DELETE: %s", e)
             self._client = None
         except Exception as e:
-            logger.error(
-                "Unexpected error during Redis DELETE for key %s: %s",
-                key,
-                e,
-            )
+            logger.error("Unexpected error during Redis DELETE for key %s: %s", key, e)
 
     def get_ttl(self, key: str) -> int:
         """Return remaining TTL for a key in seconds or -2 if not found."""
@@ -172,11 +126,7 @@ class RedisClient:
             self._client = None
             return -2
         except Exception as e:
-            logger.error(
-                "Unexpected error during Redis TTL for key %s: %s",
-                key,
-                e,
-            )
+            logger.error("Unexpected error during Redis TTL for key %s: %s", key, e)
             return -2
 
 

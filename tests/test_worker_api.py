@@ -1,12 +1,6 @@
-import os
-import sys
-
-sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-
-from pathlib import Path  # noqa: E402
-
-import pytest  # noqa: E402
+import pytest
 from fastapi.testclient import TestClient  # noqa: E402
+from pathlib import Path
 
 import worker_api  # noqa: E402
 from worker_api import create_app  # noqa: E402
@@ -121,12 +115,4 @@ def test_cache_middleware():
     resp = client.get("/cache/stats")
     data = resp.json()
     assert data["hits"] == 1
-<<<<<<< ours
-<<<<<<< ours
-    assert data["misses"] == 1
-=======
     assert data["misses"] == 2
->>>>>>> theirs
-=======
-    assert data["misses"] == 2
->>>>>>> theirs

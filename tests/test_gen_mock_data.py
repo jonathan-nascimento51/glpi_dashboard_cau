@@ -3,19 +3,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))  # noqa: E402
 
-<<<<<<< ours
-<<<<<<< ours
-<<<<<<< ours
-from scripts.gen_mock_data import generate_tickets, paginate
-=======
 from scripts.gen_mock_data import generate_tickets, paginate  # noqa: E402
->>>>>>> theirs
-=======
-from scripts.gen_mock_data import generate_tickets, paginate  # noqa: E402
->>>>>>> theirs
-=======
-from scripts.gen_mock_data import generate_tickets, paginate  # noqa: E402
->>>>>>> theirs
 
 
 def test_generate_count():
