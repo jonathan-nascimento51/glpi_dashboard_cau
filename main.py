@@ -1,6 +1,5 @@
 """Offline Dash app using JSON dump."""
 
-import json
 import asyncio
 from pathlib import Path
 
