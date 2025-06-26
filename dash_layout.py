@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import pandas as pd
-import asyncio
 from functools import lru_cache
 
 from dash import dash_table, dcc, html, callback, Output, Input
@@ -43,8 +42,7 @@ def register_callbacks(app, df: pd.DataFrame) -> None:
         Output("stats", "children"),
         Input("init-load", "n_intervals"),
     )
-    async def load_data(_):
-        await asyncio.sleep(0)
+    def load_data(_):
         fig = _status_fig(df)
         total = len(df)
         closed = df[df["status"].str.lower() == "closed"].shape[0]
