@@ -11,7 +11,7 @@ import logging
 
 logging.basicConfig(level=logging.INFO)
 
-from glpi_dashboard.config.settings import (
+from src.glpi_dashboard.config.settings import (
     GLPI_APP_TOKEN,
     GLPI_BASE_URL,
     GLPI_PASSWORD,
@@ -19,11 +19,11 @@ from glpi_dashboard.config.settings import (
     GLPI_USERNAME,
     USE_MOCK,
 )
-from glpi_dashboard.data.pipeline import process_raw
-from glpi_dashboard.data.glpi_client import Credentials, GLPISession
-from glpi_dashboard.data.mock_loader import load_mock_data
-from glpi_dashboard.dashboard.layout import build_layout
-from glpi_dashboard.dashboard.callbacks import register_callbacks
+from src.glpi_dashboard.data.pipeline import process_raw
+from src.glpi_dashboard.data.glpi_client import Credentials, GLPISession
+from src.glpi_dashboard.data.mock_loader import load_mock_data
+from src.glpi_dashboard.dashboard.layout import build_layout
+from src.glpi_dashboard.dashboard.callbacks import register_callbacks
 
 
 DATA_FILE = Path("mock/sample_data.json")

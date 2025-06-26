@@ -55,6 +55,14 @@ DB_PORT=3306
 DB_NAME=glpi_dashboard
 DB_USER=dashboard
 DB_PASSWORD=senhaSegura
+KNOWLEDGE_BASE_FILE=mock/sample_data.json
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_DB=0
+REDIS_TTL_SECONDS=3600
+CODEGPT_PLUS_API_KEY=<seu_token>  # opcional
+
+Para detalhes completos sobre cada variável, consulte a seção "Environment variables" do README.md.
 
 USE_MOCK=true       # "false" para consumir a API do GLPI
 ```
