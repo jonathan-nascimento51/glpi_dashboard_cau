@@ -6,13 +6,71 @@ This project provides a minimal dashboard to visualize service desk tickets from
 
 The goal is to inspect backlog, ticket status and productivity metrics without a live GLPI connection. Data is fetched via the API and normalized into JSON that the Dash app loads on startup.
 
+## Getting Started
+
+Install dependencies and prepare the environment:
+
+```bash
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+pip install -r requirements-dev.txt
+pre-commit install
+```
+
+Create a `.env` file from the template and set PostgreSQL/Redis credentials:
+
+```bash
+python scripts/setup_env.py  # copies .env.example
+```
+
+Initialize the database then generate sample tickets:
+
+```bash
+python scripts/init_db.py --drop-all
+python scripts/gen_mock_data.py --count 100 --null-rate 0.1
+```
+
+Run the dashboard:
+
+```bash
+python main.py
+```
+
+Open <http://127.0.0.1:8050> in your browser.
+
+## Dependencies
+
+- Python 3.10+
+- PostgreSQL and Redis instances running locally (or update the `.env` file)
+- Node or Docker are **not** required for development
+
+Set the connection details in `.env` using the keys `DB_*` and `REDIS_*`.
+
+## Architecture
+
+```
+         +---------+      +-------------+
+         |  GLPI   +----->+  Worker API |
+         +---------+      +-------------+
+                |                |
+                v                v
+         +-----------+     +-----------+
+         | PostgreSQL |     |  Redis    |
+         +-----------+     +-----------+
+```
+
+The dashboard reads data produced by the worker and stored in PostgreSQL or the
+local `mock` JSON file. More details on the multi-agent workflow can be found in
+[AGENTS.md](AGENTS.md).
+
 ## Main modules
 
 - **`glpi_session.py`** – asynchronous client for the GLPI REST API used by the worker and ETL modules. This file replaces the former `glpi_api.py` referenced in early docs.
 - **`data_pipeline.py`** – normalizes raw ticket data into a `pandas.DataFrame` and exports JSON.
 - **`dash_layout.py`** – defines tables and charts for the Dash UI.
 - **`main.py`** – starts the Dash server using data from `mock/`.
-- **`scripts/`** – helper utilities like `filters.py`, `hash_data.py` and `log_exec.py`.
+- **`scripts/`** – helper utilities like `filters.py`, `hash_data.py`, `log_exec.py`
+  and the `gen_mock_data.py` generator.
 
 ## Installation
 
@@ -149,6 +207,12 @@ Lint checks can be run manually:
 black --check .
 flake8 .
 ```
+
+## CI
+
+Continuous integration runs on GitHub Actions using `.github/workflows/ci_mock.yml`.
+It installs dependencies, initializes the database and executes pre-commit hooks
+and the test suite for Python 3.10 and 3.12.
 
 ## License
 
