@@ -1,5 +1,6 @@
 import os
 import sys
+import random
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))  # noqa: E402
 
@@ -18,6 +19,7 @@ def test_null_fields():
 
 
 def test_error_injection():
+    random.seed(42)
     tickets = generate_tickets(5, error_rate=1.0)
     assert any("id" not in t or "status" not in t for t in tickets)
 
