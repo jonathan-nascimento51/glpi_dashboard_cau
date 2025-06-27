@@ -4,6 +4,8 @@ import datetime as dt
 import pytest
 
 from src.etl import tickets_groups
+from src.glpi_dashboard.services import glpi_session
+from src.glpi_dashboard.services.worker_api import Credentials  # Adjust import as needed
 
 
 def setup_env() -> None:
@@ -64,7 +66,16 @@ async def test_collect_basic(requests_mock):
                 ]
             }
 
-    session = FakeSession()
+    credentials = Credentials(
+        app_token="dummy_app_token",
+        username="test",
+        password="test"
+    )
+
+    session = glpi_session.GLPISession(
+        base_url="http://example.com/apirest.php",
+        credentials=credentials
+    )
     df = await tickets_groups.collect_tickets_with_groups(
         "2024-01-01", "2024-01-02", client=session
     )

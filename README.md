@@ -182,7 +182,6 @@ PYTHONPATH=$(pwd) python scripts/init_db.py --drop-all
 
 For a MySQL-specific walkthrough, see [docs/first_use_mysql.md](docs/first_use_mysql.md) which lists all required environment variables and setup steps.
 
-
 ## Docker deployment
 
 You can run the entire stack with Docker. The compose file includes
@@ -216,16 +215,6 @@ To gather the current warnings and generate a debugging prompt for other LLMs:
 ```bash
 python scripts/generate_bug_prompt.py --output bug_prompt.md
 ```
-
-### Error logging
-
-Record runtime errors with the helper script:
-
-```bash
-some_command 2>&1 | python scripts/error_logger.py --agent worker
-```
-
-The JSON log is stored at `logs/errors_log.json`.
 
 ## CI
 
