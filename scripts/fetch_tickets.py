@@ -3,7 +3,7 @@ import asyncio
 import json
 import sys
 from pathlib import Path
-from glpi_dashboard.data.glpi_client import GLPISession, Credentials
+from glpi_dashboard.services.glpi_session import GLPISession, Credentials
 
 if sys.platform == "win32":
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())

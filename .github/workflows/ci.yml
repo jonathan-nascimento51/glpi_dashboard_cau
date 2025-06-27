@@ -38,9 +38,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install pytest flake8 black pre-commit pytest-cov pytest-asyncio
+      - name: Set PYTHONPATH
+        run: echo "PYTHONPATH=$(pwd)" >> "$GITHUB_ENV"
       - name: Init DB
         run: python scripts/init_db.py
       - name: Pre-commit
         run: pre-commit run --color always --show-diff-on-failure --all-files
+      - name: Check merge conflicts
+        run: python scripts/check_merge_conflicts.py
       - name: Run tests
         run: pytest --cov=./ --cov-report=xml --cov-report=term --cov-fail-under=90

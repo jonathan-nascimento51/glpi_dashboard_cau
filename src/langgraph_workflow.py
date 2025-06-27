@@ -1,4 +1,5 @@
 """LangGraph workflow for GLPI data operations."""
+
 from __future__ import annotations
 
 from typing import List, Optional, TypedDict
@@ -14,7 +15,7 @@ from glpi_dashboard.config.settings import (
     GLPI_USERNAME,
 )
 from glpi_dashboard.data.pipeline import process_raw
-from glpi_dashboard.data.glpi_client import Credentials, GLPISession
+from glpi_dashboard.services.glpi_session import Credentials, GLPISession
 
 
 class AgentState(TypedDict, total=False):
@@ -27,6 +28,7 @@ class AgentState(TypedDict, total=False):
 
 
 # --------------------------- Specialist Nodes ---------------------------
+
 
 def supervisor(state: AgentState) -> AgentState:
     """Route to the next specialist based on the last message."""
@@ -79,6 +81,7 @@ def fallback(state: AgentState) -> AgentState:
 
 
 # --------------------------- Workflow Builder ---------------------------
+
 
 def build_workflow() -> StateGraph:
     """Create LangGraph workflow with supervisor and workers."""

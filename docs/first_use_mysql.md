@@ -2,8 +2,7 @@
 
 Este documento descreve como preparar o ambiente e executar o dashboard GLPI
 utilizando um banco de dados **MySQL** para armazenar os dados processados.
-A aplicação pode operar tanto em modo **offline** (utilizando arquivos JSON) quanto
-em modo **online** (consultando a API do GLPI).
+Todas as operações são realizadas online, consumindo diretamente a API do GLPI.
 
 ## 1. Pré‑requisitos
 
@@ -55,7 +54,6 @@ DB_PORT=3306
 DB_NAME=glpi_dashboard
 DB_USER=dashboard
 DB_PASSWORD=senhaSegura
-KNOWLEDGE_BASE_FILE=mock/sample_data.json
 REDIS_HOST=localhost
 REDIS_PORT=6379
 REDIS_DB=0
@@ -64,7 +62,7 @@ CODEGPT_PLUS_API_KEY=<seu_token>  # opcional
 
 Para detalhes completos sobre cada variável, consulte a seção "Environment variables" do README.md.
 
-USE_MOCK=true       # "false" para consumir a API do GLPI
+
 ```
 
 ## 4. Inicialização do esquema de banco
@@ -79,25 +77,13 @@ O script lê `schema.sql` e cria as tabelas necessárias em seu servidor MySQL.
 
 ## 5. Execução do aplicativo
 
-### Modo offline (dados mock)
+Execute a aplicação conectando diretamente na API GLPI:
 
 ```bash
 python main.py
 ```
 
-Por padrão, `USE_MOCK=true` carrega o arquivo JSON definido em
-`KNOWLEDGE_BASE_FILE` no `.env`.
-
-### Modo online (API GLPI)
-
-Defina `USE_MOCK=false` para ativar a coleta em tempo real:
-
-```bash
-USE_MOCK=false python main.py
-```
-
-O aplicativo utilizará as credenciais GLPI definidas e registrará eventuais
-falhas de autenticação no console.
+O aplicativo utilizará as credenciais GLPI definidas no `.env` e registrará eventuais falhas de autenticação no console.
 
 ## 6. Verificação
 
@@ -122,5 +108,4 @@ arquivo `.env`.
 
 ---
 
-Com esses passos você terá o dashboard rodando com persistência em MySQL,
-possibilitando alternar facilmente entre o modo offline e online.
+Com esses passos você terá o dashboard rodando com persistência em MySQL e consumindo dados em tempo real da API GLPI.
