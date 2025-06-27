@@ -227,3 +227,5 @@ and the test suite for Python 3.10 and 3.12.
 
 This project is released under the [MIT License](LICENSE).
 
+
+For CI/CD governance guidelines, see [docs/governanca_tecnica_prompt.md](docs/governanca_tecnica_prompt.md).
