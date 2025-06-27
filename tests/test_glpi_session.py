@@ -550,10 +550,7 @@ async def test_proactive_refresh_loop_username_password(
         assert session._session_token == "proactive_token_2"
 
     # Check that post was called for init + two refreshes
-    assert (
-        mock_client_session.post.call_count == 3
-        or mock_client_session.post.call_count == 4
-    )
+    assert mock_client_session.post.call_count in [3, 4]
 
 
 @pytest.mark.asyncio
