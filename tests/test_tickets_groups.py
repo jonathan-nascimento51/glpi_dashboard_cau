@@ -29,9 +29,7 @@ async def test_collect_basic(requests_mock):
     mock_common(requests_mock)
     requests_mock.get(
         re.compile(r"http://example.com/apirest.php/search/Ticket.*"),
-        json={
-            "data": [{"id": 1, "name": "t", "status": 1, "date": "2024-01-01"}]
-        },
+        json={"data": [{"id": 1, "name": "t", "status": 1, "date": "2024-01-01"}]},
         headers={"Content-Range": "0-0/1"},
     )
     requests_mock.get(
@@ -48,7 +46,6 @@ async def test_collect_basic(requests_mock):
         json={"id": 3, "completename": "N1"},
     )
 
-
     class FakeSession:
         async def __aenter__(self):
             return self
@@ -58,7 +55,6 @@ async def test_collect_basic(requests_mock):
 
         async def get(self, *args, **kwargs):
             return {"data": [{"id": 1}]}
-
 
     session = FakeSession()
     df = await tickets_groups.collect_tickets_with_groups(
@@ -79,9 +75,7 @@ def test_pipeline_default(monkeypatch: pytest.MonkeyPatch, tmp_path: tickets_gro
     def fake_save(df: pd.DataFrame, path: Path | str) -> Path:
         return tmp_path / Path(path).name
 
-    monkeypatch.setattr(
-        tickets_groups, "collect_tickets_with_groups", fake_collect
-    )
+    monkeypatch.setattr(tickets_groups, "collect_tickets_with_groups", fake_collect)
     monkeypatch.setattr(tickets_groups, "save_parquet", fake_save)
 
     result = tickets_groups.pipeline("2024-01-01", "2024-01-02")

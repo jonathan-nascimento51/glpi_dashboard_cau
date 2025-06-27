@@ -11,17 +11,30 @@ import logging
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src"))  # noqa: E402
 
 from glpi_dashboard.services.exceptions import (
-    GlpiHttpError, GLPIAPIError, GLPIBadRequestError, GLPIUnauthorizedError,
-    GLPIForbiddenError, GLPINotFoundError, GLPITooManyRequestsError,
-    GLPIInternalServerError, glpi_retry, parse_error, HTTP_STATUS_ERROR_MAP
+    GlpiHttpError,
+    GLPIAPIError,
+    GLPIBadRequestError,
+    GLPIUnauthorizedError,
+    GLPIForbiddenError,
+    GLPINotFoundError,
+    GLPITooManyRequestsError,
+    GLPIInternalServerError,
+    glpi_retry,
+    parse_error,
+    HTTP_STATUS_ERROR_MAP,
 )
 
 # Configure minimal logging for tests to see output
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
+
 
 @pytest.fixture
 def mock_response_obj():
     """Fixture to create a mock aiohttp ClientResponse object."""
+
     def _mock_response_obj(status: int, reason: str = "OK", json_data: Optional[dict] = None):
         mock_resp = MagicMock(spec=aiohttp.ClientResponse)
         mock_resp.status = status
@@ -31,7 +44,9 @@ def mock_response_obj():
         mock_resp.request_info = MagicMock()  # Required for ClientResponseError
         mock_resp.history = tuple()  # Required for ClientResponseError
         return mock_resp
+
     return _mock_response_obj
+
 
 def test_glpi_http_error_enum():
     """Tests the GlpiHttpError enum values and string representation."""
@@ -41,6 +56,7 @@ def test_glpi_http_error_enum():
     assert str(GlpiHttpError.TOO_MANY_REQUESTS) == "429 Too Many Requests"
     assert GlpiHttpError.INTERNAL_SERVER_ERROR.value == 500
     assert str(GlpiHttpError.INTERNAL_SERVER_ERROR) == "500 Internal Server Error"
+
 
 def test_parse_error(mock_response_obj):
     """Tests the parse_error function with various response types."""
@@ -64,9 +80,11 @@ def test_parse_error(mock_response_obj):
     msg = parse_error(mock_resp_unknown)
     assert msg == "HTTP 999: Custom Error"
 
+
 @pytest.mark.asyncio
 async def test_glpi_retry_success():
     """Tests that the decorator returns the result on the first successful attempt."""
+
     @glpi_retry(max_retries=3)
     async def mock_api_call():
         return {"status": "success"}
@@ -74,12 +92,13 @@ async def test_glpi_retry_success():
     result = await mock_api_call()
     assert result == {"status": "success"}
 
+
 @pytest.mark.asyncio
 async def test_glpi_retry_on_429_success(mock_response_obj):
     """Tests retry on 429 Too Many Requests with eventual success."""
     call_count = 0
-    
-    @glpi_retry(max_retries=3, base_delay=0.01) # Short delay for testing
+
+    @glpi_retry(max_retries=3, base_delay=0.01)  # Short delay for testing
     async def mock_api_call():
         nonlocal call_count
         call_count += 1
@@ -89,7 +108,7 @@ async def test_glpi_retry_on_429_success(mock_response_obj):
         return {"status": "success after retry"}
 
     # Patch asyncio.sleep to avoid actual delays in tests, but still track calls
-    with patch('asyncio.sleep', new=AsyncMock()) as mock_sleep:
+    with patch("asyncio.sleep", new=AsyncMock()) as mock_sleep:
         result = await mock_api_call()
         assert result == {"status": "success after retry"}
         assert call_count == 3
@@ -101,11 +120,12 @@ async def test_glpi_retry_on_429_success(mock_response_obj):
         second_sleep = mock_sleep.call_args_list[1].args[0]
         assert second_sleep >= first_sleep
 
+
 @pytest.mark.asyncio
 async def test_glpi_retry_on_500_success(mock_response_obj):
     """Tests retry on 500 Internal Server Error with eventual success."""
     call_count = 0
-    
+
     @glpi_retry(max_retries=3, base_delay=0.01)
     async def mock_api_call():
         nonlocal call_count
@@ -115,17 +135,18 @@ async def test_glpi_retry_on_500_success(mock_response_obj):
             raise GLPIInternalServerError(500, parse_error(mock_resp), {"error": "server error"})
         return {"status": "success after 500 retry"}
 
-    with patch('asyncio.sleep', new=AsyncMock()) as mock_sleep:
+    with patch("asyncio.sleep", new=AsyncMock()) as mock_sleep:
         result = await mock_api_call()
         assert result == {"status": "success after 500 retry"}
         assert call_count == 2
         assert mock_sleep.call_count == 1
 
+
 @pytest.mark.asyncio
 async def test_glpi_retry_max_retries_exceeded():
     """Tests that GLPIAPIError is raised if max retries are exceeded for retryable errors."""
     call_count = 0
-    max_allowed_retries = 2 # Total attempts = 3 (initial + 2 retries)
+    max_allowed_retries = 2  # Total attempts = 3 (initial + 2 retries)
 
     @glpi_retry(max_retries=max_allowed_retries, base_delay=0.01)
     async def mock_api_call():
@@ -135,11 +156,12 @@ async def test_glpi_retry_max_retries_exceeded():
         mock_resp.json = AsyncMock(return_value={"error": "rate limit"})
         raise GLPITooManyRequestsError(429, parse_error(mock_resp), {"error": "rate limit"})
 
-    with patch('asyncio.sleep', new=AsyncMock()):
+    with patch("asyncio.sleep", new=AsyncMock()):
         with pytest.raises(GLPITooManyRequestsError) as excinfo:
             await mock_api_call()
         assert excinfo.value.status_code == 429
-        assert call_count == max_allowed_retries + 1 # Initial call + max_allowed_retries
+        assert call_count == max_allowed_retries + 1  # Initial call + max_allowed_retries
+
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
@@ -163,12 +185,13 @@ async def test_glpi_retry_non_retryable_errors(status_code, expected_exception, 
         error_class = HTTP_STATUS_ERROR_MAP.get(status_code, GLPIAPIError)
         raise error_class(status_code, parse_error(mock_resp), {"error": "test"})
 
-    with patch('asyncio.sleep', new=AsyncMock()) as mock_sleep:
+    with patch("asyncio.sleep", new=AsyncMock()) as mock_sleep:
         with pytest.raises(expected_exception) as excinfo:
             await mock_api_call()
         assert excinfo.value.status_code == status_code
-        assert call_count == 1 # Should not retry
+        assert call_count == 1  # Should not retry
         mock_sleep.assert_not_called()
+
 
 @pytest.mark.asyncio
 async def test_glpi_retry_network_error_success():
@@ -183,11 +206,12 @@ async def test_glpi_retry_network_error_success():
             raise aiohttp.ClientConnectionError("Simulated network issue")
         return {"status": "network fixed"}
 
-    with patch('asyncio.sleep', new=AsyncMock()) as mock_sleep:
+    with patch("asyncio.sleep", new=AsyncMock()) as mock_sleep:
         result = await mock_api_call()
         assert result == {"status": "network fixed"}
         assert call_count == 2
         assert mock_sleep.call_count == 1
+
 
 @pytest.mark.asyncio
 async def test_glpi_retry_network_error_failure():
@@ -201,16 +225,18 @@ async def test_glpi_retry_network_error_failure():
         call_count += 1
         raise aiohttp.ClientConnectionError("Simulated persistent network issue")
 
-    with patch('asyncio.sleep', new=AsyncMock()):
+    with patch("asyncio.sleep", new=AsyncMock()):
         with pytest.raises(GLPIAPIError) as excinfo:
             await mock_api_call()
         assert "Network error after" in str(excinfo.value)
-        assert excinfo.value.status_code == 0 # Custom error for network issues
+        assert excinfo.value.status_code == 0  # Custom error for network issues
         assert call_count == max_allowed_retries + 1
+
 
 @pytest.mark.asyncio
 async def test_glpi_retry_unexpected_exception():
     """Tests that unexpected exceptions are wrapped in GLPIAPIError."""
+
     @glpi_retry(max_retries=1)
     async def mock_api_call():
         raise ValueError("Something unexpected happened")
