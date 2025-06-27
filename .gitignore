@@ -11,3 +11,6 @@ __pycache__/
 htmlcov/
 .venv/
 venv/
+.vscode/
+log.jsonl
+logs/
