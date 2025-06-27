@@ -8,9 +8,11 @@ from pathlib import Path
 from typing import Optional
 
 import pandas as pd
+import os
 
 import asyncio
 from glpi_dashboard.services.glpi_session import GLPISession, Credentials
+import requests
 from glpi_dashboard.config.settings import (
     GLPI_BASE_URL,
     GLPI_APP_TOKEN,
@@ -30,16 +32,49 @@ async def collect_tickets_with_groups(
 ) -> pd.DataFrame:
     """Return a dataframe with ticket/group/user assignments."""
 
+    base_url = os.getenv("GLPI_BASE_URL", GLPI_BASE_URL)
+    app_token = os.getenv("GLPI_APP_TOKEN", GLPI_APP_TOKEN)
+    user_token = os.getenv("GLPI_USER_TOKEN", GLPI_USER_TOKEN)
+    username = os.getenv("GLPI_USERNAME", GLPI_USERNAME)
+    password = os.getenv("GLPI_PASSWORD", GLPI_PASSWORD)
+
     if client is None:
         creds = Credentials(
-            app_token=GLPI_APP_TOKEN,
-            user_token=GLPI_USER_TOKEN,
-            username=GLPI_USERNAME,
-            password=GLPI_PASSWORD,
+            app_token=app_token,
+            user_token=user_token,
+            username=username,
+            password=password,
         )
-        client = GLPISession(GLPI_BASE_URL, creds)
+        client = GLPISession(base_url, creds)
 
     async with client as session:
+
+        async def fetch(endpoint: str, params: Optional[dict] = None) -> dict:
+            data = await session.get(endpoint, params=params)
+            if isinstance(data, dict):
+                inner = data.get("data")
+                if (
+                    isinstance(inner, list)
+                    and inner
+                    and not any(
+                        k in inner[0]
+                        for k in [
+                            "name",
+                            "completename",
+                            "users_id",
+                            "groups_id",
+                        ]
+                    )
+                ):
+                    resp = requests.get(
+                        f"{base_url}/{endpoint}",
+                        params=params,
+                        headers={"App-Token": app_token},
+                    )
+                    if resp.ok:
+                        data = resp.json()
+            return data
+
         criteria = [
             {"field": "date", "searchtype": "morethan", "value": start},
             {"link": "AND"},
@@ -54,13 +89,13 @@ async def collect_tickets_with_groups(
                 "forcedisplay": forcedisplay,
                 "range": f"{offset}-{offset + FETCH_PAGE_SIZE - 1}",
             }
-            tickets = await session.get("search/Ticket", params=params)
+            tickets = await fetch("search/Ticket", params=params)
             tickets = tickets.get("data", tickets)
             if not tickets:
                 break
             for t in tickets:
                 tid = int(t["id"])
-                ticket_assigns = await session.get(
+                ticket_assigns = await fetch(
                     "search/Ticket_User",
                     params={
                         "criteria": [
@@ -77,20 +112,20 @@ async def collect_tickets_with_groups(
                     group_name = None
                     user_name = None
                     if group_id:
-                        g = await session.get(
+                        g = await fetch(
                             f"Group/{group_id}",
                             params={"forcedisplay[0]": "completename"},
                         )
                         group_name = g.get("completename")
                     elif user_id:
-                        u = await session.get(
+                        u = await fetch(
                             f"User/{user_id}",
                             params={"forcedisplay[0]": "name"},
                         )
                         user_name = u.get("name")
                         group_id = u.get("groups_id")
                         if group_id:
-                            g = await session.get(
+                            g = await fetch(
                                 f"Group/{group_id}",
                                 params={"forcedisplay[0]": "completename"},
                             )
@@ -129,8 +164,6 @@ def save_parquet(df: pd.DataFrame, path: Path | str) -> Path:
 
 def pipeline(start: str, end: str, outfile: Optional[str] = None) -> Path:
     """Collect data and persist to ``datasets`` directory."""
-    outfile = outfile or (
-        f"datasets/tickets_groups_{dt.date.today():%Y%m%d}.parquet"
-    )
+    outfile = outfile or (f"datasets/tickets_groups_{dt.date.today():%Y%m%d}.parquet")
     df = asyncio.run(collect_tickets_with_groups(start, end))
     return save_parquet(df, outfile)
