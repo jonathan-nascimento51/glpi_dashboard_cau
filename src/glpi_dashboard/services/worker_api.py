@@ -4,8 +4,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
-from pathlib import Path
 from typing import List, Optional
 
 import pandas as pd
@@ -22,13 +20,10 @@ from glpi_dashboard.config.settings import (
     GLPI_PASSWORD,
     GLPI_USER_TOKEN,
     GLPI_USERNAME,
-    USE_MOCK,
 )
 from glpi_dashboard.data.pipeline import process_raw
-from glpi_dashboard.data.glpi_client import Credentials, GLPISession
+from glpi_dashboard.services.glpi_session import Credentials, GLPISession
 from glpi_dashboard.utils.redis_client import redis_client
-
-DEFAULT_FILE = Path(os.getenv("KNOWLEDGE_BASE_FILE", "mock/sample_data.json"))
 
 
 @strawberry.type
@@ -51,13 +46,9 @@ class Metrics:
     closed: int
 
 
-async def _load_tickets(
-    use_api: bool,
-    data_file: Path,
-    client: Optional[GLPISession] = None,
-) -> pd.DataFrame:
-    """Return processed ticket data from API or JSON file with caching."""
-    cache_key = "tickets_api" if use_api else f"tickets_file:{data_file}"
+async def _load_tickets(client: Optional[GLPISession] = None) -> pd.DataFrame:
+    """Return processed ticket data from the API with caching."""
+    cache_key = "tickets_api"
     cached = redis_client.get(cache_key)
     if cached is not None:
         try:
@@ -65,29 +56,19 @@ async def _load_tickets(
         except KeyError:
             return pd.DataFrame(cached)
 
-    if use_api:
-        try:
-            if client is None:
-                creds = Credentials(
-                    app_token=GLPI_APP_TOKEN,
-                    user_token=GLPI_USER_TOKEN,
-                    username=GLPI_USERNAME,
-                    password=GLPI_PASSWORD,
-                )
-                client = GLPISession(GLPI_BASE_URL, creds)
-            async with client as session:
-                data = await session.get("search/Ticket")
-        except Exception as exc:  # pragma: no cover - network errors
-            raise HTTPException(status_code=500, detail=str(exc)) from exc
-    else:
-        try:
-            with data_file.open() as f:
-                data = json.load(f)
-        except FileNotFoundError as exc:
-            raise HTTPException(
-                status_code=404,
-                detail="File not found",
-            ) from exc
+    try:
+        if client is None:
+            creds = Credentials(
+                app_token=GLPI_APP_TOKEN,
+                user_token=GLPI_USER_TOKEN,
+                username=GLPI_USERNAME,
+                password=GLPI_PASSWORD,
+            )
+            client = GLPISession(GLPI_BASE_URL, creds)
+        async with client as session:
+            data = await session.get("search/Ticket")
+    except Exception as exc:  # pragma: no cover - network errors
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
 
     if isinstance(data, dict):
         data = data.get("data", data)
@@ -102,20 +83,12 @@ async def _load_tickets(
 class Query:
     @strawberry.field
     async def tickets(self, info: Info) -> List[Ticket]:  # pragma: no cover
-        df = await _load_tickets(
-            info.context["use_api"],
-            info.context["data_file"],
-            client=info.context.get("client"),
-        )
+        df = await _load_tickets(client=info.context.get("client"))
         return [Ticket(**r) for r in df.to_dict("records")]
 
     @strawberry.field
     async def metrics(self, info: Info) -> Metrics:
-        df = await _load_tickets(
-            info.context["use_api"],
-            info.context["data_file"],
-            client=info.context.get("client"),
-        )
+        df = await _load_tickets(client=info.context.get("client"))
         total = len(df)
         closed = 0
         if "status" in df:
@@ -124,10 +97,7 @@ class Query:
         return Metrics(total=total, opened=opened, closed=closed)
 
 
-def create_app(
-    use_api: bool = not USE_MOCK,
-    data_file: Path = DEFAULT_FILE,
-) -> FastAPI:
+def create_app(client: Optional[GLPISession] = None) -> FastAPI:
     """Create FastAPI app with REST and GraphQL routes."""
     app = FastAPI(title="GLPI Worker API")
 
@@ -155,8 +125,7 @@ def create_app(
             return response
         return await call_next(request)
 
-    client: Optional[GLPISession] = None
-    if use_api:
+    if client is None:
         creds = Credentials(
             app_token=GLPI_APP_TOKEN,
             user_token=GLPI_USER_TOKEN,
@@ -167,12 +136,12 @@ def create_app(
 
     @app.get("/tickets")
     async def tickets() -> list[dict]:
-        df = await _load_tickets(use_api, data_file, client=client)
+        df = await _load_tickets(client=client)
         return df.to_dict(orient="records")
 
     @app.get("/metrics")
     async def metrics() -> dict:
-        df = await _load_tickets(use_api, data_file, client=client)
+        df = await _load_tickets(client=client)
         total = len(df)
         closed = 0
         if "status" in df:
@@ -192,11 +161,7 @@ def create_app(
     graphql = GraphQLRouter(
         schema,
         path="/",
-        context_getter=lambda r: {
-            "use_api": use_api,
-            "data_file": data_file,
-            "client": client,
-        },
+        context_getter=lambda r: {"client": client},
     )
     app.include_router(graphql, prefix="/graphql")
     return app
@@ -205,22 +170,10 @@ def create_app(
 def main() -> None:  # pragma: no cover - manual run
     """CLI for running the worker API."""
     parser = argparse.ArgumentParser(description="Run GLPI worker API")
-    parser.add_argument(
-        "--use-api",
-        action="store_true",
-        default=not USE_MOCK,
-        help="Fetch from GLPI instead of JSON dump",
-    )
-    parser.add_argument(
-        "--file",
-        type=Path,
-        default=DEFAULT_FILE,
-        help="Path to JSON dump",
-    )
     parser.add_argument("--port", type=int, default=8000, help="Port to bind")
     args = parser.parse_args()
 
-    app = create_app(use_api=args.use_api, data_file=args.file)
+    app = create_app()
     uvicorn.run(app, host="0.0.0.0", port=args.port)
 
 
