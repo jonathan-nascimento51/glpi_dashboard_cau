@@ -1,7 +1,6 @@
-"""Offline Dash app using JSON dump."""
+"""Dash app using live GLPI data."""
 
 import asyncio
-from pathlib import Path
 
 import pandas as pd
 from dash import Dash
@@ -17,16 +16,13 @@ from src.glpi_dashboard.config.settings import (
     GLPI_PASSWORD,
     GLPI_USER_TOKEN,
     GLPI_USERNAME,
-    USE_MOCK,
 )
 from src.glpi_dashboard.data.pipeline import process_raw
-from src.glpi_dashboard.data.glpi_client import Credentials, GLPISession
-from src.glpi_dashboard.data.mock_loader import load_mock_data
+from src.glpi_dashboard.services.glpi_session import Credentials, GLPISession
 from src.glpi_dashboard.dashboard.layout import build_layout
 from src.glpi_dashboard.dashboard.callbacks import register_callbacks
 
-
-DATA_FILE = Path("mock/sample_data.json")
+logging.basicConfig(level=logging.INFO)
 
 
 async def _fetch_api_data() -> pd.DataFrame:
@@ -46,11 +42,8 @@ async def _fetch_api_data() -> pd.DataFrame:
     return process_raw(data.get("data", data))
 
 
-def load_data(path: Path = DATA_FILE) -> pd.DataFrame:
-    """Load ticket data from JSON or the API depending on USE_MOCK."""
-    if USE_MOCK:
-        logging.info("Loading ticket data from local JSON: %s", path)
-        return load_mock_data(path)
+def load_data() -> pd.DataFrame:
+    """Always fetch ticket data from the GLPI API."""
     logging.info("Fetching ticket data from GLPI API")
     return asyncio.run(_fetch_api_data())
 

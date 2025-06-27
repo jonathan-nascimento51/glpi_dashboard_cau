@@ -20,8 +20,13 @@ def scan_file(path: Path) -> list[int]:
         with path.open("r", encoding="utf-8", errors="ignore") as fh:
             for idx, line in enumerate(fh, 1):
                 stripped = line.lstrip()
-                if any(stripped.startswith(marker) for marker in MERGE_MARKERS):
+                # fmt: off
+                if any(
+                    stripped.startswith(marker)
+                    for marker in MERGE_MARKERS
+                ):
                     lines.append(idx)
+                # fmt: on
     except Exception as exc:  # RESOLVIDO: robust file handling
         print(f"Failed to read {path}: {exc}", file=sys.stderr)
     return lines
