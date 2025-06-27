@@ -4,9 +4,7 @@ import sys
 import pytest
 from fastapi.testclient import TestClient  # noqa: E402
 
-sys.path.insert(
-    0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src")
-)
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src"))
 
 from src.glpi_dashboard.services.glpi_session import Credentials, GLPISession
 import worker_api  # noqa: E402
@@ -44,9 +42,7 @@ class DummyCache:
 def patch_cache(monkeypatch: pytest.MonkeyPatch):
     cache = DummyCache()
     monkeypatch.setattr(worker_api, "redis_client", cache)
-    monkeypatch.setattr(
-        "src.glpi_dashboard.services.worker_api.redis_client", cache
-    )
+    monkeypatch.setattr("src.glpi_dashboard.services.worker_api.redis_client", cache)
     return cache
 
 
@@ -54,11 +50,7 @@ class FakeSession(GLPISession):
     def __init__(self):
         super().__init__(
             base_url="http://example.com/apirest.php",
-            credentials=Credentials(
-                app_token="dummy_app_token",
-                username="test",
-                password="test"
-            )
+            credentials=Credentials(app_token="dummy_app_token", username="test", password="test"),
         )
 
     async def __aenter__(self):
@@ -69,6 +61,7 @@ class FakeSession(GLPISession):
 
     async def get(self, *args, **kwargs):
         return {"data": [{"id": 1}]}
+
 
 def test_rest_endpoints():
     client = TestClient(create_app(client=FakeSession()))

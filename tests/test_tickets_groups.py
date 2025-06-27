@@ -3,8 +3,11 @@ import re
 import datetime as dt
 import pytest
 import asyncio
+import sys
 
-from src.etl import tickets_groups
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src"))  # noqa: E402
+
+from etl import tickets_groups
 
 
 def setup_env() -> None:
@@ -26,9 +29,7 @@ async def test_collect_basic(requests_mock):
     mock_common(requests_mock)
     requests_mock.get(
         re.compile(r"http://example.com/apirest.php/search/Ticket.*"),
-        json={
-            "data": [{"id": 1, "name": "t", "status": 1, "date": "2024-01-01"}]
-        },
+        json={"data": [{"id": 1, "name": "t", "status": 1, "date": "2024-01-01"}]},
         headers={"Content-Range": "0-0/1"},
     )
     requests_mock.get(
@@ -45,7 +46,6 @@ async def test_collect_basic(requests_mock):
         json={"id": 3, "completename": "N1"},
     )
 
-
     class FakeSession:
         async def __aenter__(self):
             return self
@@ -56,20 +56,15 @@ async def test_collect_basic(requests_mock):
         async def get(self, *args, **kwargs):
             return {"data": [{"id": 1}]}
 
-            if "search/Ticket_User" in args[0]:
-                return {"data": [{"users_id": 2, "groups_id": 3}]}
-            if "User/2" in args[0]:
-                return {"id": 2, "name": "Alice", "groups_id": 3}
-            if "Group/3" in args[0]:
-                return {"id": 3, "completename": "N1"}
-            return {
-                "data": [
-                    {"id": 1, "name": "t", "status": 1, "date": "2024-01-01"}
-                ]
-            }
+    session = FakeSession()
+    df = await tickets_groups.collect_tickets_with_groups(
+        "2024-01-01", "2024-01-02", client=session
+    )
+    assert len(df) == 1
+    assert df.iloc[0]["group_name"] == "N1"
 
 
-def test_pipeline_default(monkeypatch, tmp_path):
+def test_pipeline_default(monkeypatch: pytest.MonkeyPatch, tmp_path: tickets_groups.Path):
     """Default output name should include today's date."""
     import pandas as pd
     from pathlib import Path
@@ -80,9 +75,7 @@ def test_pipeline_default(monkeypatch, tmp_path):
     def fake_save(df: pd.DataFrame, path: Path | str) -> Path:
         return tmp_path / Path(path).name
 
-    monkeypatch.setattr(
-        tickets_groups, "collect_tickets_with_groups", fake_collect
-    )
+    monkeypatch.setattr(tickets_groups, "collect_tickets_with_groups", fake_collect)
     monkeypatch.setattr(tickets_groups, "save_parquet", fake_save)
 
     result = tickets_groups.pipeline("2024-01-01", "2024-01-02")
