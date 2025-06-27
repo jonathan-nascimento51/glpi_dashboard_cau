@@ -10,7 +10,7 @@ from typing import Optional
 import pandas as pd
 
 import asyncio
-from glpi_dashboard.data.glpi_client import GLPISession, Credentials
+from glpi_dashboard.services.glpi_session import GLPISession, Credentials
 from glpi_dashboard.config.settings import (
     GLPI_BASE_URL,
     GLPI_APP_TOKEN,
@@ -84,7 +84,8 @@ async def collect_tickets_with_groups(
                         group_name = g.get("completename")
                     elif user_id:
                         u = await session.get(
-                            f"User/{user_id}", params={"forcedisplay[0]": "name"}
+                            f"User/{user_id}",
+                            params={"forcedisplay[0]": "name"},
                         )
                         user_name = u.get("name")
                         group_id = u.get("groups_id")
