@@ -5,6 +5,7 @@
 # Runtime
 *.sha256
 log.jsonl
+logs/
 __pycache__/
 .coverage
 htmlcov/
