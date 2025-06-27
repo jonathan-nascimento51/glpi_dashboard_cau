@@ -8,8 +8,6 @@ from flask import Flask
 from flask_compress import Compress
 import logging
 
-logging.basicConfig(level=logging.INFO)
-
 from src.glpi_dashboard.config.settings import (
     GLPI_APP_TOKEN,
     GLPI_BASE_URL,
