@@ -8,8 +8,8 @@ from contextlib import asynccontextmanager
 import aiohttp
 from aiohttp import ClientSession, TCPConnector
 
-# Import custom exceptions and decorator from glpi_errors
-from glpi_errors import (
+# Import custom exceptions and decorator from sibling module
+from .exceptions import (
     GLPIAPIError,
     GLPIBadRequestError,
     GLPIUnauthorizedError,
@@ -272,7 +272,7 @@ class GLPISession:
                 timeout_obj = aiohttp.ClientTimeout(total=float(timeout))
 
             async with self._session.get(
-                url = "http://example.com/api/endpoint",  # Replace with your actual URL
+                kill_session_url,
                 headers=headers,
                 proxy=self.proxy,
                 timeout=self._resolve_timeout(),
@@ -345,8 +345,9 @@ class GLPISession:
                 if self._session is None:
                     self._session = aiohttp.ClientSession()
 
-                async with self._session.post(
-                    full_url,  # URL goes here
+                async with self._session.request(
+                    method,
+                    full_url,
                     headers=current_headers,
                     json=json_data,
                     params=params,

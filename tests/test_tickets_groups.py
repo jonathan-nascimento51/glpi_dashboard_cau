@@ -3,8 +3,11 @@ import re
 import datetime as dt
 import pytest
 import asyncio
+import sys
 
-from src.etl import tickets_groups
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src"))  # noqa: E402
+
+from etl import tickets_groups
 
 
 def setup_env() -> None:
