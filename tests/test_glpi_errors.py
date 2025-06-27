@@ -1,3 +1,5 @@
+import os
+import sys
 import pytest
 import asyncio
 import random
@@ -6,7 +8,9 @@ from typing import Optional
 import aiohttp
 import logging
 
-from glpi_errors import (
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src"))  # noqa: E402
+
+from glpi_dashboard.services.exceptions import (
     GlpiHttpError, GLPIAPIError, GLPIBadRequestError, GLPIUnauthorizedError,
     GLPIForbiddenError, GLPINotFoundError, GLPITooManyRequestsError,
     GLPIInternalServerError, glpi_retry, parse_error, HTTP_STATUS_ERROR_MAP
