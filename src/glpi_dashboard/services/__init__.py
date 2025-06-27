@@ -27,3 +27,4 @@ __all__ = [
     "HTTP_STATUS_ERROR_MAP",
     "glpi_retry",
     "parse_error",
+]

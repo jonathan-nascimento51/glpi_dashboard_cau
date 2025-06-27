@@ -48,12 +48,23 @@ async def collect_tickets_with_groups(
         client = GLPISession(base_url, creds)
 
     async with client as session:
+
         async def fetch(endpoint: str, params: Optional[dict] = None) -> dict:
             data = await session.get(endpoint, params=params)
             if isinstance(data, dict):
                 inner = data.get("data")
-                if isinstance(inner, list) and inner and not any(
-                    k in inner[0] for k in ["name", "completename", "users_id", "groups_id"]
+                if (
+                    isinstance(inner, list)
+                    and inner
+                    and not any(
+                        k in inner[0]
+                        for k in [
+                            "name",
+                            "completename",
+                            "users_id",
+                            "groups_id",
+                        ]
+                    )
                 ):
                     resp = requests.get(
                         f"{base_url}/{endpoint}",
@@ -63,6 +74,7 @@ async def collect_tickets_with_groups(
                     if resp.ok:
                         data = resp.json()
             return data
+
         criteria = [
             {"field": "date", "searchtype": "morethan", "value": start},
             {"link": "AND"},
@@ -152,8 +164,6 @@ def save_parquet(df: pd.DataFrame, path: Path | str) -> Path:
 
 def pipeline(start: str, end: str, outfile: Optional[str] = None) -> Path:
     """Collect data and persist to ``datasets`` directory."""
-    outfile = outfile or (
-        f"datasets/tickets_groups_{dt.date.today():%Y%m%d}.parquet"
-    )
+    outfile = outfile or (f"datasets/tickets_groups_{dt.date.today():%Y%m%d}.parquet")
     df = asyncio.run(collect_tickets_with_groups(start, end))
     return save_parquet(df, outfile)
