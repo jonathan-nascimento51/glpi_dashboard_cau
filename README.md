@@ -2,7 +2,7 @@
 
 ![Coverage](https://img.shields.io/badge/coverage-90%25-brightgreen.svg)
 
-This project provides a minimal dashboard to visualize service desk tickets from GLPI. Data can be retrieved from the GLPI REST API and stored locally in JSON for offline exploration with [Dash](https://dash.plotly.com/).
+This project provides a minimal dashboard to visualize service desk tickets from GLPI using a live connection to the REST API.
 
 ## Purpose
 
@@ -25,11 +25,10 @@ Create a `.env` file from the template and set PostgreSQL/Redis credentials:
 python scripts/setup_env.py  # copies .env.example
 ```
 
-Initialize the database then generate sample tickets:
+Initialize the database:
 
 ```bash
-python scripts/init_db.py --drop-all
-python scripts/gen_mock_data.py --count 100 --null-rate 0.1
+PYTHONPATH=$(pwd) python scripts/init_db.py --drop-all
 ```
 
 Run the dashboard:
@@ -61,8 +60,7 @@ Set the connection details in `.env` using the keys `DB_*` and `REDIS_*`.
          +-----------+     +-----------+
 ```
 
-The dashboard reads data produced by the worker and stored in PostgreSQL or the
-local `mock` JSON file. More details on the multi-agent workflow can be found in
+The dashboard reads data produced by the worker and stored in PostgreSQL. More details on the multi-agent workflow can be found in
 [AGENTS.md](AGENTS.md).
 
 ## Main modules
@@ -70,9 +68,8 @@ local `mock` JSON file. More details on the multi-agent workflow can be found in
 - **`glpi_session.py`** – asynchronous client for the GLPI REST API used by the worker and ETL modules. This file replaces the former `glpi_api.py` referenced in early docs.
 - **`data_pipeline.py`** – normalizes raw ticket data into a `pandas.DataFrame` and exports JSON.
 - **`dash_layout.py`** – defines tables and charts for the Dash UI.
-- **`main.py`** – starts the Dash server using data from `mock/`.
-- **`scripts/`** – helper utilities like `filters.py`, `hash_data.py`, `log_exec.py`
-  and the `gen_mock_data.py` generator.
+- **`main.py`** – starts the Dash server.
+- **`scripts/`** – helper utilities like `filters.py`, `hash_data.py`, `log_exec.py`.
 
 ## Installation
 
@@ -86,13 +83,10 @@ This project also uses the `rich-click` library for colored CLI output. It is in
 
 ## Running the Dash app
 
-Ensure there is a ticket dump in `mock/sample_data.json` or a file of your choice, then run:
+Start the dashboard pointing to your GLPI instance:
 
 ```bash
-python main.py  # uses mock data by default
-
-# fetch live data instead
-USE_MOCK=false python main.py
+python main.py
 ```
 
 The Dash server uses gzip compression via `flask-compress` and loads data lazily on first render.
@@ -107,29 +101,18 @@ The app will be available at <http://127.0.0.1:8050>.
 
 For an OS-specific walkthrough including virtual environment commands, see
 [docs/run_local.md](docs/run_local.md).
-<<<<<<< ours
-=======
+
 If you encounter issues during the first run, consult
 [docs/error_map.md](docs/error_map.md) for troubleshooting tips.
->>>>>>> theirs
 
 ## Running the Worker API
 
-`worker_api.py` provides a lightweight FastAPI service that exposes the same ticket data for other applications. It can read from the JSON dump or fetch directly from GLPI when the `--use-api` flag is supplied.
+`worker_api.py` provides a lightweight FastAPI service that exposes ticket data for other applications. It always retrieves information from the GLPI API.
 
-Run with the sample JSON dump:
-
-```bash
-python worker_api.py            # uses mock/sample_data.json
-
-# fetch live data instead
-USE_MOCK=false python worker_api.py --use-api
-```
-
-Fetch live data instead:
+Run the service:
 
 ```bash
-python worker_api.py --use-api  # fetches from GLPI API
+python worker_api.py
 ```
 
 The service exposes four endpoints:
@@ -175,19 +158,11 @@ Open `.env` and set the required values:
 - `REDIS_DB` – Redis database number
 - `REDIS_TTL_SECONDS` – TTL for cached responses in seconds
 
-After configuring the environment file you can download tickets from GLPI:
+After configuring the environment file you can optionally download a JSON dump of tickets:
 
 ```bash
-python scripts/fetch_tickets.py --output mock/sample_data.json
+python scripts/fetch_tickets.py --output tickets_dump.json
 ```
-Alternatively generate mock tickets offline:
-
-```bash
-python scripts/gen_mock_data.py --count 100 --null-rate 0.1
-```
-
-
-This JSON file can be used by both the Dash app and the worker API when running without the `--use-api` flag.
 
 ## Database setup
 
@@ -202,22 +177,11 @@ Pass `--drop-all` to recreate everything from scratch.
 The script can also be invoked directly:
 
 ```bash
-python scripts/init_db.py --drop-all
+PYTHONPATH=$(pwd) python scripts/init_db.py --drop-all
 ```
 
 For a MySQL-specific walkthrough, see [docs/first_use_mysql.md](docs/first_use_mysql.md) which lists all required environment variables and setup steps.
-<<<<<<< ours
-<<<<<<< ours
-<<<<<<< ours
-=======
 
->>>>>>> theirs
-=======
-
->>>>>>> theirs
-=======
-
->>>>>>> theirs
 
 ## Docker deployment
 
@@ -247,9 +211,25 @@ black --check .
 flake8 .
 ```
 
+To gather the current warnings and generate a debugging prompt for other LLMs:
+
+```bash
+python scripts/generate_bug_prompt.py --output bug_prompt.md
+```
+
+### Error logging
+
+Record runtime errors with the helper script:
+
+```bash
+some_command 2>&1 | python scripts/error_logger.py --agent worker
+```
+
+The JSON log is stored at `logs/errors_log.json`.
+
 ## CI
 
-Continuous integration runs on GitHub Actions using `.github/workflows/ci_mock.yml`.
+Continuous integration runs on GitHub Actions using `.github/workflows/ci.yml`.
 It installs dependencies, initializes the database and executes pre-commit hooks
 and the test suite for Python 3.10 and 3.12.
 
@@ -257,3 +237,5 @@ and the test suite for Python 3.10 and 3.12.
 
 This project is released under the [MIT License](LICENSE).
 
+
+For CI/CD governance guidelines, see [docs/governanca_tecnica_prompt.md](docs/governanca_tecnica_prompt.md).

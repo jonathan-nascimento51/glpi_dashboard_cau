@@ -35,43 +35,32 @@ Generate the `.env` file then edit it with your values:
 
 ```bash
 python scripts/setup_env.py
-# then open .env and set tokens, database credentials and USE_MOCK
+# then open .env and set tokens and database credentials
 ```
-
-If you plan to use the offline mode, ensure `USE_MOCK=true` and that the
-`KNOWLEDGE_BASE_FILE` path points to a valid JSON file. To fetch real data from
-GLPI, set `USE_MOCK=false` and provide your API tokens.
 
 ## 4. Prepare the data
 
-### Offline
-```bash
-python scripts/gen_mock_data.py --count 100 --null-rate 0.1
-```
+Optionally download a JSON dump from GLPI:
 
-### Online
 ```bash
-python scripts/fetch_tickets.py --output mock/sample_data.json
+python scripts/fetch_tickets.py --output tickets_dump.json
 ```
 
 ## 5. Start the Dash server
 
 ### Linux / macOS
 ```bash
-python main.py                        # uses mock data
-USE_MOCK=false python main.py         # fetch from API
+python main.py
 ```
 
 ### Windows (CMD)
 ```bat
-python main.py                        & rem uses mock data
-set USE_MOCK=false && python main.py  & rem fetch from API
+python main.py
 ```
 
 ### Windows (PowerShell)
 ```powershell
-python main.py                        # uses mock data
-$env:USE_MOCK="false"; python main.py  # fetch from API
+python main.py
 ```
 
 The application will start at <http://127.0.0.1:8050>. Check the logs for any

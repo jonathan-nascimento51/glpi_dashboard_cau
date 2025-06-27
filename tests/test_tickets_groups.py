@@ -1,10 +1,8 @@
 import os
-import os
 import re
 import datetime as dt
 import pytest
 
-from glpi_dashboard.data.glpi_client import GLPISession
 from src.etl import tickets_groups
 
 
@@ -28,9 +26,7 @@ async def test_collect_basic(requests_mock):
     requests_mock.get(
         re.compile(r"http://example.com/apirest.php/search/Ticket.*"),
         json={
-            "data": [
-                {"id": 1, "name": "t", "status": 1, "date": "2024-01-01"}
-            ]
+            "data": [{"id": 1, "name": "t", "status": 1, "date": "2024-01-01"}]
         },
         headers={"Content-Range": "0-0/1"},
     )
@@ -47,6 +43,7 @@ async def test_collect_basic(requests_mock):
         "http://example.com/apirest.php/Group/3",
         json={"id": 3, "completename": "N1"},
     )
+
     class FakeSession:
         async def __aenter__(self):
             return self
@@ -61,7 +58,11 @@ async def test_collect_basic(requests_mock):
                 return {"id": 2, "name": "Alice", "groups_id": 3}
             if "Group/3" in args[0]:
                 return {"id": 3, "completename": "N1"}
-            return {"data": [{"id": 1, "name": "t", "status": 1, "date": "2024-01-01"}]}
+            return {
+                "data": [
+                    {"id": 1, "name": "t", "status": 1, "date": "2024-01-01"}
+                ]
+            }
 
     session = FakeSession()
     df = await tickets_groups.collect_tickets_with_groups(

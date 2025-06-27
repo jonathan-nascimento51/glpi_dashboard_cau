@@ -1,11 +1,12 @@
 import os
 import sys
-from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient  # noqa: E402
 
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src"))
+sys.path.insert(
+    0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src")
+)
 
 import worker_api  # noqa: E402
 from worker_api import create_app  # noqa: E402
@@ -42,12 +43,25 @@ class DummyCache:
 def patch_cache(monkeypatch):
     cache = DummyCache()
     monkeypatch.setattr(worker_api, "redis_client", cache)
-    monkeypatch.setattr("glpi_dashboard.services.worker_api.redis_client", cache)
+    monkeypatch.setattr(
+        "glpi_dashboard.services.worker_api.redis_client", cache
+    )
     return cache
 
 
+class FakeSession:
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, exc_type, exc, tb):
+        pass
+
+    async def get(self, *args, **kwargs):
+        return {"data": [{"id": 1}]}
+
+
 def test_rest_endpoints():
-    client = TestClient(create_app())
+    client = TestClient(create_app(client=FakeSession()))
     resp = client.get("/tickets")
     assert resp.status_code == 200
     assert isinstance(resp.json(), list)
@@ -57,47 +71,32 @@ def test_rest_endpoints():
 
 
 def test_graphql_metrics():
-    app = create_app()
+    app = create_app(client=FakeSession())
     paths = [r.path for r in app.router.routes]
     assert "/graphql/" in paths
 
 
 def test_graphql_query():
-    client = TestClient(create_app())
+    client = TestClient(create_app(client=FakeSession()))
     query = "{ metrics { total } }"
     resp = client.post("/graphql/", params={"r": ""}, json={"query": query})
     assert resp.status_code == 200
     assert resp.json()["data"]["metrics"]["total"] >= 0
 
 
-def test_missing_file():
-    client = TestClient(create_app(data_file=Path("nonexistent.json")))
-    resp = client.get("/tickets")
-    assert resp.status_code == 404
-
-
 def test_client_reused(monkeypatch):
     instances = []
 
-    class FakeSession:
+    class RecordingSession(FakeSession):
         def __init__(self):
             instances.append(self)
 
-        async def __aenter__(self):
-            return self
-
-        async def __aexit__(self, exc_type, exc, tb):
-            pass
-
-        async def get(self, *args, **kwargs):
-            return {"data": [{"id": 1}]}
-
     monkeypatch.setattr(
         "glpi_dashboard.services.worker_api.GLPISession",
-        lambda *a, **k: FakeSession(),
+        lambda *a, **k: RecordingSession(),
     )
 
-    client = TestClient(create_app(use_api=True))
+    client = TestClient(create_app(client=RecordingSession()))
     client.get("/tickets")
     client.get("/metrics")
 
@@ -105,7 +104,7 @@ def test_client_reused(monkeypatch):
 
 
 def test_cache_stats_endpoint():
-    client = TestClient(create_app())
+    client = TestClient(create_app(client=FakeSession()))
     client.get("/tickets")
     resp = client.get("/cache/stats")
     assert resp.status_code == 200
@@ -115,7 +114,7 @@ def test_cache_stats_endpoint():
 
 
 def test_cache_middleware():
-    client = TestClient(create_app())
+    client = TestClient(create_app(client=FakeSession()))
     client.get("/tickets")
     client.get("/tickets")
     resp = client.get("/cache/stats")
