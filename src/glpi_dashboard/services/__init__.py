@@ -28,7 +28,3 @@ __all__ = [
     "glpi_retry",
     "parse_error",
 ]
-<<<<<<< ours
-=======
-
->>>>>>> theirs
