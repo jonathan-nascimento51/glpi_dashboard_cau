@@ -248,6 +248,16 @@ function buildCriteria(filter: TicketFilter): any {
     criterionIndex++;
   }
 
+
   if (filter.assigneeId) {
     criteria.push({
-      link: criterionIndex === 0? 'AND
+      link: criterionIndex === 0 ? 'AND' : 'AND',
+      field: GLPI_FIELD_IDS.TICKET_ASSIGNED_TO,
+      searchtype: 'equals',
+      value: filter.assigneeId.toString(),
+    });
+    criterionIndex++;
+  }
+
+  return criteria;
+}
