@@ -1,11 +1,11 @@
 """Convenience wrapper for the worker API entrypoint."""
 
-from src.glpi_dashboard.services.worker import (
+from src.glpi_dashboard.services.worker_api import (
     create_app,
     main as _main,
     redis_client,
 )
-from src.glpi_dashboard.services.worker import GLPISession
+from src.glpi_dashboard.services.worker_api import GLPISession
 
 __all__ = ["create_app", "redis_client", "GLPISession", "main"]
 
