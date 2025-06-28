@@ -56,10 +56,11 @@ const GLPI_FIELD_IDS = {
 
 // --- API Client Configuration ---
 
-const API_BASE_URL = process.env.GLPI_API_BASE_URL |
-| 'https://your-glpi-instance/apirest.php';
-const APP_TOKEN = process.env.GLPI_APP_TOKEN |
-| 'YOUR_APP_TOKEN'; // Replace with your actual App-Token [12, 13]
+const API_BASE_URL =
+  process.env.GLPI_API_BASE_URL ||
+  'https://your-glpi-instance/apirest.php';
+const APP_TOKEN =
+  process.env.GLPI_APP_TOKEN || 'YOUR_APP_TOKEN'; // Replace with your actual App-Token [12, 13]
 const SESSION_TOKEN_KEY = 'glpi-session-token'; // Key for storing session token (e.g., in localStorage or a global state)
 
 let currentSessionToken: string | null = null;
