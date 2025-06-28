@@ -3,7 +3,9 @@ import os
 import sys
 import pytest
 
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src"))  # noqa: E402
+sys.path.insert(
+    0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src")
+)  # noqa: E402
 
 import asyncio
 import scripts.fetch_tickets as fetch_tickets  # noqa: E402

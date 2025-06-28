@@ -50,7 +50,9 @@ class FakeSession(GLPISession):
     def __init__(self):
         super().__init__(
             base_url="http://example.com/apirest.php",
-            credentials=Credentials(app_token="dummy_app_token", username="test", password="test"),
+            credentials=Credentials(
+                app_token="dummy_app_token", username="test", password="test"
+            ),
         )
 
     async def __aenter__(self):

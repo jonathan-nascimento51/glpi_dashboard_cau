@@ -2,7 +2,9 @@ import os
 import sys
 import pytest
 
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src"))  # noqa: E402
+sys.path.insert(
+    0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src")
+)  # noqa: E402
 
 from src import langgraph_workflow
 
@@ -29,7 +31,9 @@ async def test_workflow_fetch(monkeypatch):
                 ]
             }
 
-    monkeypatch.setattr(langgraph_workflow, "GLPISession", lambda *a, **k: FakeSession())
+    monkeypatch.setattr(
+        langgraph_workflow, "GLPISession", lambda *a, **k: FakeSession()
+    )
 
     workflow = langgraph_workflow.build_workflow().compile()
     state = {"messages": ["fetch"], "next_agent": "", "iteration_count": 0}
