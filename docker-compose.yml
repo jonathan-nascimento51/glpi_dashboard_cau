@@ -41,7 +41,7 @@ services:
 
   worker:
     build: .
-    command: python worker_api.py
+    command: python worker.py
     env_file:
       - .env
     ports:

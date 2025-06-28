@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from typing import Any, Dict, Optional
 
 import redis
+import redis.exceptions
 
 from glpi_dashboard.config.settings import (
     REDIS_DB,
@@ -93,7 +94,10 @@ class RedisClient:
             logger.error("Unexpected error during Redis GET for key %s: %s", key, e)
             return None
 
-    def set(self, key: str, data: Dict[str, Any], ttl_seconds: Optional[int] = None) -> None:
+    def set(
+        self, key: str, data: Dict[str, Any], ttl_seconds: Optional[int] = None
+    ) -> None:
+
         """Store data in Redis cache with an optional TTL."""
         try:
             client = self._connect()
@@ -114,7 +118,7 @@ class RedisClient:
             redis_key = self._format_key(key)
             client.delete(redis_key)
             logger.debug("Cache DELETE for key: %s", redis_key)
-        except redis.exceptions.ConnectionError as e:
+        except redis.exceptions.AuthenticationError as e:
             logger.error("Redis connection error during DELETE: %s", e)
             self._client = None
         except Exception as e:
@@ -126,7 +130,7 @@ class RedisClient:
             client = self._connect()
             redis_key = self._format_key(key)
             return client.ttl(redis_key)
-        except redis.exceptions.ConnectionError as e:
+        except redis.exceptions.AuthenticationError as e:
             logger.error("Redis connection error during TTL: %s", e)
             self._client = None
             return -2

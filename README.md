@@ -107,12 +107,12 @@ If you encounter issues during the first run, consult
 
 ## Running the Worker API
 
-`worker_api.py` provides a lightweight FastAPI service that exposes ticket data for other applications. It always retrieves information from the GLPI API.
+`worker.py` provides a lightweight FastAPI service that exposes ticket data for other applications. It always retrieves information from the GLPI API.
 
 Run the service:
 
 ```bash
-python worker_api.py
+python worker.py
 ```
 
 The service exposes four endpoints:
@@ -143,7 +143,8 @@ python scripts/setup_env.py  # copies .env.example to .env
 
 Open `.env` and set the required values:
 
-- `GLPI_BASE_URL` – base URL of the GLPI API (e.g. `https://glpi.company.com/apirest.php`)
+- `GLPI_BASE_URL` – base URL of the GLPI API (e.g. `https://glpi.company.com/apirest.php`).
+  Using HTTPS is recommended for deployments.
 - `GLPI_APP_TOKEN` – your application token
 - `GLPI_USERNAME` / `GLPI_PASSWORD` – login credentials (optional if using a user token)
 - `GLPI_USER_TOKEN` – API token for a specific user (optional)
@@ -228,3 +229,5 @@ This project is released under the [MIT License](LICENSE).
 
 
 For CI/CD governance guidelines, see [docs/governanca_tecnica_prompt.md](docs/governanca_tecnica_prompt.md).
+Guidance on connecting the API to Copilot Studio is available in
+[docs/copilot_integration.md](docs/copilot_integration.md).

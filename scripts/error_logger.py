@@ -58,9 +58,7 @@ def append_log(entry: dict[str, object], log_path: Path) -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument(
-        "--text", help="Error text. If omitted, read from stdin"
-    )
+    parser.add_argument("--text", help="Error text. If omitted, read from stdin")
     parser.add_argument("--agent", help="Originating agent", default=None)
     parser.add_argument(
         "--logfile",

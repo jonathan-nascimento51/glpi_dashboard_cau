@@ -26,7 +26,9 @@ class Ticket(Base):
     raw_data = Column(JSONB, nullable=False)
     status = Column(Integer, nullable=False)
     priority = Column(Integer, nullable=False)
-    assignee_id = Column(Integer, nullable=True)  # Assuming this maps to a user/group ID
+    assignee_id = Column(
+        Integer, nullable=True
+    )  # Assuming this maps to a user/group ID
     opened_at = Column(DateTime(timezone=True), nullable=False)
     ingested_at = Column(DateTime(timezone=True), default=datetime.now)
 
@@ -39,7 +41,9 @@ class Ticket(Base):
 
 # Async engine for SQLAlchemy 2.0
 engine = create_async_engine(DATABASE_URL, echo=False)
-AsyncSessionLocal = async_sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
+AsyncSessionLocal = async_sessionmaker(
+    engine, expire_on_commit=False, class_=AsyncSession
+)
 
 
 async def init_db(drop_all: bool = False) -> None:
@@ -51,7 +55,9 @@ async def init_db(drop_all: bool = False) -> None:
         if drop_all:
             logger.info("Dropping all existing tables and materialized views...")
             # Drop materialized view first due to potential dependencies
-            await conn.execute(text("DROP MATERIALIZED VIEW IF EXISTS mv_ticket_summary CASCADE;"))
+            await conn.execute(
+                text("DROP MATERIALIZED VIEW IF EXISTS mv_ticket_summary CASCADE;")
+            )
             await conn.run_sync(Base.metadata.drop_all)
             logger.info("All tables dropped.")
 
@@ -96,7 +102,9 @@ async def insert_tickets(tickets_data: List[Dict[str, Any]]) -> None:
                 assignee_id = ticket_dict.get("users_id_assign")
                 # GLPI date_creation is ISO 8601 datetime string
                 opened_at_str = ticket_dict.get("date_creation")
-                opened_at = datetime.fromisoformat(opened_at_str) if opened_at_str else None
+                opened_at = (
+                    datetime.fromisoformat(opened_at_str) if opened_at_str else None
+                )
 
                 if not all([glpi_ticket_id, status, priority, opened_at]):
                     logger.warning(
@@ -153,12 +161,18 @@ async def refresh_materialized_view() -> float:
     start_time = time.monotonic()
     async with AsyncSessionLocal() as session:
         try:
-            logger.info("Refreshing materialized view mv_ticket_summary CONCURRENTLY...")
-            await session.execute(text("REFRESH MATERIALIZED VIEW CONCURRENTLY mv_ticket_summary;"))
+            logger.info(
+                "Refreshing materialized view mv_ticket_summary CONCURRENTLY..."
+            )
+            await session.execute(
+                text("REFRESH MATERIALIZED VIEW CONCURRENTLY mv_ticket_summary;")
+            )
             await session.commit()
             end_time = time.monotonic()
             refresh_duration = end_time - start_time
-            logger.info(f"Materialized view refreshed in {refresh_duration:.2f} seconds.")
+            logger.info(
+                f"Materialized view refreshed in {refresh_duration:.2f} seconds."
+            )
             return refresh_duration
         except SQLAlchemyError as e:
             await session.rollback()
@@ -166,5 +180,7 @@ async def refresh_materialized_view() -> float:
             raise
         except Exception as e:
             await session.rollback()
-            logger.error(f"An unexpected error occurred during materialized view refresh: {e}")
+            logger.error(
+                f"An unexpected error occurred during materialized view refresh: {e}"
+            )
             raise

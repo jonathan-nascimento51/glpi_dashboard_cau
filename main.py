@@ -8,17 +8,17 @@ from flask import Flask
 from flask_compress import Compress
 import logging
 
-from src.glpi_dashboard.config.settings import (
+from glpi_dashboard.config.settings import (
     GLPI_APP_TOKEN,
     GLPI_BASE_URL,
     GLPI_PASSWORD,
     GLPI_USER_TOKEN,
     GLPI_USERNAME,
 )
-from src.glpi_dashboard.data.pipeline import process_raw
-from src.glpi_dashboard.services.glpi_session import Credentials, GLPISession
-from src.glpi_dashboard.dashboard.layout import build_layout
-from src.glpi_dashboard.dashboard.callbacks import register_callbacks
+from glpi_dashboard.data.pipeline import process_raw
+from glpi_dashboard.services.glpi_session import Credentials, GLPISession
+from glpi_dashboard.dashboard.layout import build_layout
+from glpi_dashboard.dashboard.callbacks import register_callbacks
 
 logging.basicConfig(level=logging.INFO)
 
