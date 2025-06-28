@@ -1,0 +1,4 @@
+#!/bin/bash
+# Run lint and tests via pre-commit
+set -e
+pre-commit run --color always --show-diff-on-failure

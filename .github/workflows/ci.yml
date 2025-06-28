@@ -40,6 +40,15 @@ jobs:
           pip install pytest flake8 black pre-commit pytest-cov pytest-asyncio
       - name: Set PYTHONPATH
         run: echo "PYTHONPATH=$(pwd)" >> "$GITHUB_ENV"
+      - name: Check if branch is up-to-date with main
+        run: |
+          git fetch origin main
+          ahead_behind=$(git rev-list --left-right --count HEAD...origin/main)
+          behind=$(echo "$ahead_behind" | awk '{print $1}')
+          if [ "$behind" != "0" ]; then
+            echo "Branch desatualizada. Por favor faça rebase com a main."
+            exit 1
+          fi
       - name: Init DB
         run: python scripts/init_db.py
       - name: Pre-commit
