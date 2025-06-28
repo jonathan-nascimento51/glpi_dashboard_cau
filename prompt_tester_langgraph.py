@@ -5,7 +5,7 @@ from pathlib import Path
 from langgraph.graph import StateGraph
 
 # Carregamento externo dos templates
-TEMPLATE_PATH = Path("prompt_templates.json")
+TEMPLATE_PATH = Path("prompt_template.json")
 if not TEMPLATE_PATH.exists():
     raise FileNotFoundError(f"Arquivo de templates não encontrado: {TEMPLATE_PATH}")
 
