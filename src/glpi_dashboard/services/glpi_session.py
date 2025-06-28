@@ -145,7 +145,9 @@ class GLPISession:
             elif self.credentials.username and self.credentials.password:
                 payload["login"] = self.credentials.username
                 payload["password"] = self.credentials.password
-                logger.info("Attempting to initiate GLPI session with username/password...")
+                logger.info(
+                    "Attempting to initiate GLPI session with username/password..."
+                )
             else:
                 raise ValueError(
                     "No valid authentication method (user_token or username/password) provided."
@@ -175,7 +177,9 @@ class GLPISession:
                         error_class = HTTP_STATUS_ERROR_MAP.get(e.status, GLPIAPIError)
                         if self._session and not self._session.closed:
                             await self._session.close()
-                            logger.info("aiohttp ClientSession closed due to init failure.")
+                            logger.info(
+                                "aiohttp ClientSession closed due to init failure."
+                            )
                         raise error_class(
                             e.status,
                             parse_error(error_resp, response_data),
@@ -287,7 +291,9 @@ class GLPISession:
                 logger.info("GLPI session killed successfully.")
         except aiohttp.ClientResponseError as e:
             error_resp = getattr(e, "response", None)
-            logger.error(f"Failed to kill session: {e.status} - {parse_error(error_resp)}")
+            logger.error(
+                f"Failed to kill session: {e.status} - {parse_error(error_resp)}"
+            )
         except aiohttp.ClientError as e:
             logger.error(f"Network or client error during session termination: {e}")
         finally:
@@ -358,7 +364,11 @@ class GLPISession:
                     proxy=self.proxy,
                     timeout=self._resolve_timeout(),
                 ) as response:
-                    if response.status == 401 and retry_on_401 and attempt < max_401_retries:
+                    if (
+                        response.status == 401
+                        and retry_on_401
+                        and attempt < max_401_retries
+                    ):
                         logger.warning(
                             "Received 401 Unauthorized. Attempting to refresh session token..."
                         )
@@ -393,7 +403,9 @@ class GLPISession:
             except aiohttp.ClientError as e:
                 # This catches network-level errors before an HTTP status is received
                 # The @glpi_retry decorator will handle retries for these as well
-                raise GLPIAPIError(0, f"Network or client error during API request: {e}")
+                raise GLPIAPIError(
+                    0, f"Network or client error during API request: {e}"
+                )
             except Exception as e:
                 if isinstance(e, GLPIAPIError):
                     raise
@@ -401,7 +413,9 @@ class GLPISession:
                 raise GLPIAPIError(0, f"An unexpected error occurred: {e}")
 
         # If all 401 retries fail
-        raise GLPIUnauthorizedError(401, "Failed to authenticate after multiple 401 retries.")
+        raise GLPIUnauthorizedError(
+            401, "Failed to authenticate after multiple 401 retries."
+        )
 
     async def get(
         self,
@@ -436,7 +450,9 @@ class GLPISession:
             json_data: JSON payload to send in the request body.
             headers: Additional headers for the request.
         """
-        return await self._request("POST", endpoint, headers=headers, json_data=json_data)
+        return await self._request(
+            "POST", endpoint, headers=headers, json_data=json_data
+        )
 
     async def put(
         self,
@@ -452,7 +468,9 @@ class GLPISession:
             json_data: JSON payload to send in the request body.
             headers: Additional headers for the request.
         """
-        return await self._request("PUT", endpoint, headers=headers, json_data=json_data)
+        return await self._request(
+            "PUT", endpoint, headers=headers, json_data=json_data
+        )
 
     async def delete(
         self, endpoint: str, headers: Optional[Dict[str, str]] = None

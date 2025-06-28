@@ -2,12 +2,13 @@ import os
 import re
 import datetime as dt
 import pytest
-import asyncio
 import sys
 
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src"))  # noqa: E402
+sys.path.insert(
+    0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src")
+)  # noqa: E402
 
-from etl import tickets_groups
+from glpi_dashboard.data import tickets_groups  # noqa: E402
 
 
 def setup_env() -> None:
@@ -64,7 +65,9 @@ async def test_collect_basic(requests_mock):
     assert df.iloc[0]["group_name"] == "N1"
 
 
-def test_pipeline_default(monkeypatch: pytest.MonkeyPatch, tmp_path: tickets_groups.Path):
+def test_pipeline_default(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: tickets_groups.Path
+):
     """Default output name should include today's date."""
     import pandas as pd
     from pathlib import Path

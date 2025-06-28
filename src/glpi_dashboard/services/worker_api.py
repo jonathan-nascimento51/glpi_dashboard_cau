@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
-from typing import List, Optional
+from typing import List, Optional, AsyncGenerator
 
 import pandas as pd
 import strawberry
@@ -52,9 +52,11 @@ async def _load_tickets(client: Optional[GLPISession] = None) -> pd.DataFrame:
     cached = redis_client.get(cache_key)
     if cached is not None:
         try:
-            return process_raw(cached)
+            # Extract the actual ticket list if cached is a dict
+            data = cached.get("data", cached) if isinstance(cached, dict) else cached
+            return process_raw(data)
         except KeyError:
-            return pd.DataFrame(cached)
+            return pd.DataFrame(data)
 
     try:
         if client is None:
@@ -84,7 +86,7 @@ class Query:
     @strawberry.field
     async def tickets(self, info: Info) -> List[Ticket]:  # pragma: no cover
         df = await _load_tickets(client=info.context.get("client"))
-        return [Ticket(**r) for r in df.to_dict("records")]
+        return [Ticket(**{str(k): v for k, v in r.items()}) for r in df.to_dict("records")]
 
     @strawberry.field
     async def metrics(self, info: Info) -> Metrics:
@@ -113,7 +115,7 @@ def create_app(client: Optional[GLPISession] = None) -> FastAPI:
                 async for chunk in response.body_iterator:
                     body += chunk
 
-                async def new_iter() -> bytes:
+                async def new_iter() -> AsyncGenerator[bytes, None]:
                     yield body
 
                 response.body_iterator = new_iter()

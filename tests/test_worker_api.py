@@ -4,11 +4,11 @@ import sys
 import pytest
 from fastapi.testclient import TestClient  # noqa: E402
 
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src"))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src"))  # noqa: E402
 
-from src.glpi_dashboard.services.glpi_session import Credentials, GLPISession
-import worker_api  # noqa: E402
-from worker_api import create_app  # noqa: E402
+from glpi_dashboard.services.glpi_session import Credentials, GLPISession
+import worker  # noqa: E402
+from worker import create_app  # noqa: E402
 
 
 class DummyCache:
@@ -41,8 +41,7 @@ class DummyCache:
 @pytest.fixture(autouse=True)
 def patch_cache(monkeypatch: pytest.MonkeyPatch):
     cache = DummyCache()
-    monkeypatch.setattr(worker_api, "redis_client", cache)
-    monkeypatch.setattr("src.glpi_dashboard.services.worker_api.redis_client", cache)
+    monkeypatch.setattr(worker, "redis_client", cache)
     return cache
 
 
@@ -95,7 +94,8 @@ def test_client_reused(monkeypatch: pytest.MonkeyPatch):
             instances.append(self)
 
     monkeypatch.setattr(
-        "src.glpi_dashboard.services.worker_api.GLPISession",
+        "glpi_dashboard.services.worker.GLPISession",
+        "src.glpi_dashboard.services.worker.GLPISession",
         lambda *a, **k: RecordingSession(),
     )
 
