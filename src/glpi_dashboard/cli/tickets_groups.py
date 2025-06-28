@@ -8,7 +8,7 @@ from pathlib import Path
 import rich_click as click
 from dotenv import load_dotenv
 
-from src.etl.tickets_groups import pipeline
+from glpi_dashboard.data.tickets_groups import pipeline
 
 
 @click.command()

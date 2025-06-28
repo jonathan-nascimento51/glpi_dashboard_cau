@@ -107,12 +107,12 @@ If you encounter issues during the first run, consult
 
 ## Running the Worker API
 
-`worker_api.py` provides a lightweight FastAPI service that exposes ticket data for other applications. It always retrieves information from the GLPI API.
+`worker.py` provides a lightweight FastAPI service that exposes ticket data for other applications. It always retrieves information from the GLPI API.
 
 Run the service:
 
 ```bash
-python worker_api.py
+python worker.py
 ```
 
 The service exposes four endpoints:

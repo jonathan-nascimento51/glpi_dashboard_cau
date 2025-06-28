@@ -2,14 +2,13 @@ import os
 import re
 import datetime as dt
 import pytest
-import asyncio
 import sys
 
 sys.path.insert(
     0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src")
 )  # noqa: E402
 
-from etl import tickets_groups
+from glpi_dashboard.data import tickets_groups  # noqa: E402
 
 
 def setup_env() -> None:
