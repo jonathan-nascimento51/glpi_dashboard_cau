@@ -229,3 +229,5 @@ This project is released under the [MIT License](LICENSE).
 
 
 For CI/CD governance guidelines, see [docs/governanca_tecnica_prompt.md](docs/governanca_tecnica_prompt.md).
+Guidance on connecting the API to Copilot Studio is available in
+[docs/copilot_integration.md](docs/copilot_integration.md).
