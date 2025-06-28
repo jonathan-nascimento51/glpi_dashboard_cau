@@ -14,7 +14,10 @@ def build_layout(df: pd.DataFrame) -> html.Div:
             dcc.Graph(id="status-graph"),
             dash_table.DataTable(
                 id="ticket-table",
-                columns=[{"name": c, "id": c} for c in ["id", "name", "status", "assigned_to"]],
+                columns=[
+                    {"name": c, "id": c}
+                    for c in ["id", "name", "status", "assigned_to"]
+                ],
                 page_size=10,
             ),
         ]
