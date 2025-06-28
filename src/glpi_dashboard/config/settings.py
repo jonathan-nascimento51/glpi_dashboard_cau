@@ -4,7 +4,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # GLPI API Configuration
-GLPI_BASE_URL = os.getenv("GLPI_BASE_URL", "http://localhost/glpi/apirest.php")
+GLPI_BASE_URL = os.getenv(
+    "GLPI_BASE_URL", "https://localhost/glpi/apirest.php"
+)
 GLPI_APP_TOKEN = os.getenv("GLPI_APP_TOKEN", "your_app_token")
 GLPI_USERNAME = os.getenv("GLPI_USERNAME", "glpi_user")
 GLPI_PASSWORD = os.getenv("GLPI_PASSWORD", "glpi_password")

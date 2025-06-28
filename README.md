@@ -143,7 +143,8 @@ python scripts/setup_env.py  # copies .env.example to .env
 
 Open `.env` and set the required values:
 
-- `GLPI_BASE_URL` – base URL of the GLPI API (e.g. `https://glpi.company.com/apirest.php`)
+- `GLPI_BASE_URL` – base URL of the GLPI API (e.g. `https://glpi.company.com/apirest.php`).
+  Using HTTPS is recommended for deployments.
 - `GLPI_APP_TOKEN` – your application token
 - `GLPI_USERNAME` / `GLPI_PASSWORD` – login credentials (optional if using a user token)
 - `GLPI_USER_TOKEN` – API token for a specific user (optional)
