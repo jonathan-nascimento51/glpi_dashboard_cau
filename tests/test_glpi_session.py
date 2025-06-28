@@ -90,7 +90,6 @@ def mock_response():
                 status=status,
                 message="Simulated HTTP Error",
             )
-            err.response = mock_resp
             mock_resp.raise_for_status.side_effect = err
         else:
             mock_resp.raise_for_status.return_value = None
