@@ -1,8 +1,9 @@
 import sys
-import importlib
+import importlib.util
 import json
 from pathlib import Path
 from langgraph.graph import StateGraph
+from typing import TypedDict, Optional
 
 # Carregamento externo dos templates
 TEMPLATE_PATH = Path("prompt_template.json")
@@ -17,7 +18,7 @@ def verificar_ambiente():
     pacotes = ["langgraph"]
     erros = []
     for pacote in pacotes:
-        if importlib.utils.find_spec(pacote) is None:
+        if importlib.util.find_spec(pacote) is None:
             erros.append(pacote)
     if erros:
         print("[Erro] Pacotes ausentes:", ", ".join(erros))
@@ -34,8 +35,12 @@ def gerar_prompt(tipo, meta, contexto):
 
 
 # Define o estado compartilhado do agente
-class PromptState(dict):
-    pass
+class PromptState(TypedDict, total=False):
+    tipo: str
+    meta: str
+    contexto: str
+    prompt: Optional[str]
+    next_node: Optional[str]
 
 
 def supervisor(state):
