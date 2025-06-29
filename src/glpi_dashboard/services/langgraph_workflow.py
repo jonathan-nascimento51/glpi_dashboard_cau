@@ -3,22 +3,22 @@
 from __future__ import annotations
 
 from typing import List, Optional, TypedDict
-
 import pandas as pd
+
 from langgraph.graph import END, StateGraph
 
-from glpi_dashboard.config.settings import (
+from src.glpi_dashboard.config.settings import (
     GLPI_APP_TOKEN,
     GLPI_BASE_URL,
     GLPI_PASSWORD,
     GLPI_USER_TOKEN,
     GLPI_USERNAME,
 )
-from glpi_dashboard.data.pipeline import process_raw
+from src.glpi_dashboard.data.pipeline import process_raw
 from .glpi_session import Credentials, GLPISession
 
 
-class AgentState(TypedDict, total=False):
+class AgentState(TypedDict):
     """Simple state container shared across agents."""
 
     messages: List[str]
