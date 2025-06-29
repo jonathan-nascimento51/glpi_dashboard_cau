@@ -1,0 +1,12 @@
+.git
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+tests/
+docs/
+*.md
+*.png
+*.jpg
+.idea/
+.vscode/
