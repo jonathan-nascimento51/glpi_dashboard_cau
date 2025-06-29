@@ -278,17 +278,6 @@ class GLPISession:
                 response.raise_for_status()
                 logger.info("GLPI session killed successfully.")
         except aiohttp.ClientResponseError as e:
-            response_data = {}
-            try:
-                response_data = await response.json()
-            except (aiohttp.ContentTypeError, ValueError):
-                pass  # Not a JSON response
-
-            error_resp = getattr(e, "response", response)
-            logger.error(
-                f"Failed to kill session: {e.status} - {parse_error(error_resp or response, response_data)}"
-            )
-        except aiohttp.ClientError as e:
             logger.error(f"Network or client error during session termination: {e}")
         finally:
             self._session_token = None  # Always clear token after attempt to kill
