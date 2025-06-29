@@ -86,7 +86,9 @@ class Query:
     @strawberry.field
     async def tickets(self, info: Info) -> List[Ticket]:  # pragma: no cover
         df = await _load_tickets(client=info.context.get("client"))
-        return [Ticket(**{str(k): v for k, v in r.items()}) for r in df.to_dict("records")]
+        return [
+            Ticket(**{str(k): v for k, v in r.items()}) for r in df.to_dict("records")
+        ]
 
     @strawberry.field
     async def metrics(self, info: Info) -> Metrics:

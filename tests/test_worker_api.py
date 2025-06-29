@@ -4,7 +4,9 @@ import sys
 import pytest
 from fastapi.testclient import TestClient  # noqa: E402
 
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src"))  # noqa: E402
+sys.path.insert(
+    0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src")
+)  # noqa: E402
 
 from glpi_dashboard.services.glpi_session import Credentials, GLPISession  # noqa: E402
 import worker  # noqa: E402
@@ -52,7 +54,9 @@ class FakeSession(GLPISession):
     def __init__(self):
         super().__init__(
             base_url="http://example.com/apirest.php",
-            credentials=Credentials(app_token="dummy_app_token", username="test", password="test"),
+            credentials=Credentials(
+                app_token="dummy_app_token", username="test", password="test"
+            ),
         )
 
     async def __aenter__(self):
