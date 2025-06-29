@@ -202,6 +202,7 @@ Execute the unit tests with coverage:
 ```bash
 pip install -r requirements.txt -r requirements-dev.txt
 pytest --cov=./
+pre-commit run --all-files
 ```
 
 Lint checks can be run manually:
