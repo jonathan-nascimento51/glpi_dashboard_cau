@@ -538,7 +538,7 @@ async def test_proactive_refresh_loop_username_password(
     """
     credentials = Credentials(app_token=app_token, username=username, password=password)
     glpi_session = GLPISession(
-        base_url, credentials, refresh_interval=0.1 # type: ignore
+        base_url, credentials, refresh_interval=0.1  # type: ignore
     )  # Set a short interval
 
     # Mock initSession for initial and subsequent proactive refreshes

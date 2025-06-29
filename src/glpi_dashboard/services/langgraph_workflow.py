@@ -30,7 +30,7 @@ async def fetcher(state: AgentState) -> AgentState:
         tickets = await client.get("search/Ticket")
     df = process_raw(tickets.get("data", tickets))
     state["data"] = df
-    state["messages"].append("fetched tickets")
+    state.setdefault("messages", []).append("no data to analyze")
     return state
 
 
