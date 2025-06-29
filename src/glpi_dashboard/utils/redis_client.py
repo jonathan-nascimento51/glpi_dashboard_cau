@@ -94,9 +94,7 @@ class RedisClient:
             logger.error("Unexpected error during Redis GET for key %s: %s", key, e)
             return None
 
-    def set(
-        self, key: str, data: Dict[str, Any], ttl_seconds: Optional[int] = None
-    ) -> None:
+    def set(self, key: str, data: Dict[str, Any], ttl_seconds: Optional[int] = None) -> None:
         """Store data in Redis cache with an optional TTL."""
         try:
             client = self._connect()
