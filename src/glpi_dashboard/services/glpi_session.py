@@ -285,7 +285,9 @@ class GLPISession:
                 pass  # Not a JSON response
 
             error_resp = getattr(e, "response", response)
-            logger.error(f"Failed to kill session: {e.status} - {parse_error(error_resp or response, response_data)}")
+            logger.error(
+                f"Failed to kill session: {e.status} - {parse_error(error_resp or response, response_data)}"
+            )
         except aiohttp.ClientError as e:
             logger.error(f"Network or client error during session termination: {e}")
         finally:
