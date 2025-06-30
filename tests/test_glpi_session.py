@@ -6,11 +6,9 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from typing import Optional
 from contextlib import asynccontextmanager
 
-sys.path.insert(
-    0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src")
-)  # noqa: E402
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src"))  # noqa: E402
 
-from glpi_dashboard.services.glpi_session import (
+from glpi_dashboard.services.glpi_session import (  # noqa: E402
     GLPISession,
     Credentials,
     GLPIUnauthorizedError,
@@ -20,14 +18,14 @@ from glpi_dashboard.services.glpi_session import (
     GLPITooManyRequestsError,
     GLPIInternalServerError,
 )
-import logging
-import aiohttp
+import aiohttp  # noqa: E402
+from glpi_dashboard.logging_config import setup_logging  # noqa: E402
 
-# Configure minimal logging for tests to see output
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-)
+
+@pytest.fixture(autouse=True)
+def _configure_logging() -> None:
+    """Ensure logging is configured for tests."""
+    setup_logging()
 
 
 @pytest.fixture
@@ -74,12 +72,8 @@ def mock_response():
     ):
         mock_resp = MagicMock(spec=aiohttp.ClientResponse)
         mock_resp.status = status
-        mock_resp.json = AsyncMock(
-            return_value=json_data if json_data is not None else {}
-        )
-        mock_resp.text = AsyncMock(
-            return_value=str(json_data) if json_data is not None else ""
-        )
+        mock_resp.json = AsyncMock(return_value=json_data if json_data is not None else {})
+        mock_resp.text = AsyncMock(return_value=str(json_data) if json_data is not None else "")
         mock_resp.request_info = MagicMock()  # Required for ClientResponseError
         mock_resp.history = tuple()  # Required for ClientResponseError
 
@@ -108,9 +102,7 @@ def mock_client_session(mock_response):
     Fixture to mock aiohttp.ClientSession and its HTTP methods.
     Patches aiohttp.ClientSession globally for tests.
     """
-    with patch(
-        "glpi_dashboard.services.glpi_session.ClientSession"
-    ) as mock_session_cls:
+    with patch("glpi_dashboard.services.glpi_session.ClientSession") as mock_session_cls:
         mock_session_instance = MagicMock()
         mock_session_instance.closed = False  # Assume not closed initially
 
@@ -173,9 +165,7 @@ async def test_glpi_session_context_manager_user_token_auth(
     glpi_session = GLPISession(base_url, credentials)
 
     # Mock the initSession call specifically for user_token payload
-    mock_client_session.post.return_value = mock_response(
-        200, {"session_token": user_token}
-    )
+    mock_client_session.post.return_value = mock_response(200, {"session_token": user_token})
 
     async with glpi_session as session:
         assert session._session_token == user_token
@@ -192,9 +182,7 @@ async def test_glpi_session_context_manager_user_token_auth(
         )
         assert session._session is not None
         assert not session._session.closed
-        assert (
-            session._refresh_task is None
-        )  # Proactive refresh should not start for user_token
+        assert session._refresh_task is None  # Proactive refresh should not start for user_token
 
     assert session._session_token is None
     assert session._session.closed
@@ -270,9 +258,7 @@ async def test_get_request_success(
     mock_client_session.post.return_value = mock_response(
         200, {"session_token": user_token}
     )  # Mock initSession
-    mock_client_session.request.return_value = mock_response(
-        200, {"data": "ticket_info"}
-    )
+    mock_client_session.request.return_value = mock_response(200, {"data": "ticket_info"})
 
     async with glpi_session as session:
         response_data = await session.get("Ticket/123")
@@ -338,9 +324,7 @@ async def test_put_request_success(
     mock_client_session.post.return_value = mock_response(
         200, {"session_token": user_token}
     )  # Mock initSession
-    mock_client_session.request.return_value = mock_response(
-        200, {"message": "updated"}
-    )
+    mock_client_session.request.return_value = mock_response(200, {"message": "updated"})
 
     async with glpi_session as session:
         payload = {"id": 123, "name": "Updated Ticket"}
@@ -372,9 +356,7 @@ async def test_delete_request_success(
     mock_client_session.post.return_value = mock_response(
         200, {"session_token": user_token}
     )  # Mock initSession
-    mock_client_session.request.return_value = mock_response(
-        200, {"message": "deleted"}
-    )
+    mock_client_session.request.return_value = mock_response(200, {"message": "deleted"})
 
     async with glpi_session as session:
         response_data = await session.delete("Ticket/123")
@@ -451,9 +433,7 @@ async def test_session_refresh_on_401_success(
     # 1. Initial initSession call (from __aenter__)
     # 2. Second initSession call (for refresh after 401)
     mock_client_session.post.side_effect = [
-        mock_response(
-            200, {"session_token": "expired_session_token"}
-        ),  # Initial session
+        mock_response(200, {"session_token": "expired_session_token"}),  # Initial session
         mock_response(200, {"session_token": "refreshed_session_token"}),  # For refresh
     ]
 
@@ -483,17 +463,11 @@ async def test_session_refresh_on_401_success(
 
         # Verify the first request used the expired token
         first_request_call = mock_client_session.request.call_args_list[0]
-        assert (
-            first_request_call.kwargs["headers"]["Session-Token"]
-            == "expired_session_token"
-        )
+        assert first_request_call.kwargs["headers"]["Session-Token"] == "expired_session_token"
 
         # Verify the second request used the refreshed token
         second_request_call = mock_client_session.request.call_args_list[1]
-        assert (
-            second_request_call.kwargs["headers"]["Session-Token"]
-            == "refreshed_session_token"
-        )
+        assert second_request_call.kwargs["headers"]["Session-Token"] == "refreshed_session_token"
 
 
 @pytest.mark.asyncio
@@ -538,7 +512,7 @@ async def test_proactive_refresh_loop_username_password(
     """
     credentials = Credentials(app_token=app_token, username=username, password=password)
     glpi_session = GLPISession(
-        base_url, credentials, refresh_interval=0.1 # type: ignore
+        base_url, credentials, refresh_interval=0.1  # type: ignore
     )  # Set a short interval
 
     # Mock initSession for initial and subsequent proactive refreshes

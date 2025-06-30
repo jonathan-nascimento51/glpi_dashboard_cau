@@ -69,12 +69,12 @@ class RedisClient:
         """Return current cache metrics."""
         return self.metrics.as_dict()
 
-    def get(self, key: str) -> Optional[Dict[str, Any]]:
+    async def get(self, key: str) -> Optional[Dict[str, Any]]:
         """Retrieve data and register hit/miss."""
         try:
             client = self._connect()
             redis_key = self._format_key(key)
-            cached_data = client.get(redis_key)
+            cached_data = await client.get(redis_key)
             if cached_data:
                 self.metrics.hits += 1
                 logger.debug("Cache HIT for key: %s", key)
@@ -94,10 +94,7 @@ class RedisClient:
             logger.error("Unexpected error during Redis GET for key %s: %s", key, e)
             return None
 
-    def set(
-        self, key: str, data: Dict[str, Any], ttl_seconds: Optional[int] = None
-    ) -> None:
-
+    def set(self, key: str, data: Dict[str, Any], ttl_seconds: Optional[int] = None) -> None:
         """Store data in Redis cache with an optional TTL."""
         try:
             client = self._connect()
@@ -124,12 +121,13 @@ class RedisClient:
         except Exception as e:
             logger.error("Unexpected error during Redis DELETE for key %s: %s", key, e)
 
-    def get_ttl(self, key: str) -> int:
+    async def get_ttl(self, key: str) -> int:
         """Return remaining TTL for a key in seconds or -2 if not found."""
         try:
             client = self._connect()
             redis_key = self._format_key(key)
-            return client.ttl(redis_key)
+            ttl = await client.ttl(redis_key)
+            return int(ttl)
         except redis.exceptions.AuthenticationError as e:
             logger.error("Redis connection error during TTL: %s", e)
             self._client = None

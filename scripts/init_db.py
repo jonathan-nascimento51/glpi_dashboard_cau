@@ -11,9 +11,7 @@ async def _run(drop_all: bool) -> None:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Initialize PostgreSQL schema from schema.sql"
-    )
+    parser = argparse.ArgumentParser(description="Initialize PostgreSQL schema from schema.sql")
     parser.add_argument(
         "--drop-all",
         action="store_true",
@@ -21,7 +19,6 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    logging.basicConfig(level=logging.INFO)
     try:
         asyncio.run(_run(drop_all=args.drop_all))
     except Exception as e:  # noqa: BLE001
