@@ -91,6 +91,8 @@ python main.py
 
 The Dash server uses gzip compression via `flask-compress` and loads data lazily on first render.
 
+Use the `/ping` endpoint for health checks; it returns `OK` when the server is running.
+
 Profile startup time with:
 
 ```bash
