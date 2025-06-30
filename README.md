@@ -104,6 +104,8 @@ For an OS-specific walkthrough including virtual environment commands, see
 
 If you encounter issues during the first run, consult
 [docs/error_map.md](docs/error_map.md) for troubleshooting tips.
+For additional troubleshooting steps in Portuguese, see
+[docs/solucoes_problemas.md](docs/solucoes_problemas.md).
 
 ## Running the Worker API
 
