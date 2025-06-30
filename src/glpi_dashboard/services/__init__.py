@@ -1,7 +1,7 @@
 """Service layer exports for the GLPI dashboard."""
 
 from .glpi_session import Credentials, GLPISession
-from .langgraph_workflow import build_workflow  # re-export for tests
+from .langgraph_workflow import AgentState, build_workflow  # re-export for tests
 from .exceptions import (
     GLPIAPIError,
     GLPIBadRequestError,
@@ -29,4 +29,5 @@ __all__ = [
     "glpi_retry",
     "parse_error",
     "build_workflow",
+    "AgentState",
 ]

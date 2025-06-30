@@ -17,10 +17,11 @@ from src.glpi_dashboard.config.settings import (
 )
 from src.glpi_dashboard.data.pipeline import process_raw
 from src.glpi_dashboard.services.glpi_session import Credentials, GLPISession
+from src.glpi_dashboard.logging_config import setup_logging
 from src.glpi_dashboard.dashboard.layout import build_layout
 from src.glpi_dashboard.dashboard.callbacks import register_callbacks
 
-logging.basicConfig(level=logging.INFO)
+setup_logging()
 
 
 async def _fetch_api_data() -> pd.DataFrame:

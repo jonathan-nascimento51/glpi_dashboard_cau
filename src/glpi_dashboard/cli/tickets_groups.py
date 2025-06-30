@@ -19,10 +19,6 @@ from glpi_dashboard.data.tickets_groups import pipeline
 def main(since: str, until: str, outfile: Path | None, log_level: str) -> None:
     """Run the tickets+groups ETL pipeline."""
 
-    logging.basicConfig(
-        level=getattr(logging, log_level.upper(), logging.INFO),
-        format="%(asctime)s %(levelname)s %(message)s",
-    )
     load_dotenv()
 
     outfile_str = str(outfile) if outfile else None
