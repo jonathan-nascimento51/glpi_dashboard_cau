@@ -54,7 +54,6 @@ def process_raw(data: TicketData) -> pd.DataFrame:
     df = df[REQUIRED_FIELDS + extra_cols]
     df["date_creation"] = pd.to_datetime(df["date_creation"], errors="coerce")
     df = df.where(pd.notna(df), None)
-    print(df.head())
     return df
 
 

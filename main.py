@@ -5,7 +5,6 @@ import asyncio
 import pandas as pd
 from dash import Dash
 from flask import Flask
-from flask_compress import Compress
 import logging
 
 from src.glpi_dashboard.config.settings import (
@@ -48,9 +47,8 @@ def load_data() -> pd.DataFrame:
 
 
 def create_app(df: pd.DataFrame) -> Dash:
-    """Create Dash application with Gzip compression."""
+    """Create Dash application."""
     server = Flask(__name__)
-    Compress(server)
     app = Dash(__name__, server=server)
     app.layout = build_layout(df)
     register_callbacks(app, df)
@@ -73,4 +71,7 @@ def profile_startup() -> None:
 if __name__ == "__main__":
     df = load_data()
     app = create_app(df)
-    app.run(debug=True)
+    import os
+
+    port = int(os.getenv("DASH_PORT", "8050"))
+    app.run(host="0.0.0.0", port=port, debug=False, use_reloader=False, threaded=True)
