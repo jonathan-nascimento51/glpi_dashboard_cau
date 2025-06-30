@@ -8,7 +8,14 @@ import pandas as pd
 
 TicketData = Union[List[dict], pd.DataFrame, pd.Series]
 
-REQUIRED_FIELDS = ["id", "status", "group", "date_creation", "assigned_to"]
+REQUIRED_FIELDS = ["id", "status", "group", "assigned_to", "date_creation"]
+
+# Map alternate field names from the GLPI API to our normalized names
+ALIASES = {
+    "groups_name": "group",
+    "users_id_recipient": "assigned_to",
+    "creation_date": "date_creation",
+}
 
 
 def _ensure_dataframe(data: TicketData) -> pd.DataFrame:
@@ -33,14 +40,21 @@ def process_raw(data: TicketData) -> pd.DataFrame:
         Cleaned dataframe with required columns and converted types.
     """
     df = _ensure_dataframe(data)
+
+    # Rename columns based on known aliases from the API
+    for src, dst in ALIASES.items():
+        if src in df.columns and dst not in df.columns:
+            df.rename(columns={src: dst}, inplace=True)
+
     missing = set(REQUIRED_FIELDS) - set(df.columns)
     if missing:
-        raise KeyError(f"Missing required fields: {missing}")
+        raise ValueError(f"GLPI payload missing expected fields: {missing}")
 
     extra_cols = [c for c in df.columns if c not in REQUIRED_FIELDS]
     df = df[REQUIRED_FIELDS + extra_cols]
     df["date_creation"] = pd.to_datetime(df["date_creation"], errors="coerce")
     df = df.where(pd.notna(df), None)
+    print(df.head())
     return df
 
 

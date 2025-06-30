@@ -72,8 +72,14 @@ if __name__ == "__main__":
     initial_state = PromptState(
         {
             "tipo": "validacao_arquitetura",
-            "meta": "Auditar se o fluxo Supervisor → Workers está implementado corretamente",
-            "contexto": "O fluxo possui nó supervisor que roteia com base em mensagens e registra next_agent no estado.",
+            "meta": (
+                "Auditar se o fluxo Supervisor → Workers "
+                "está implementado corretamente"
+            ),
+            "contexto": (
+                "O fluxo possui nó supervisor que roteia com base em mensagens "
+                "e registra next_agent no estado."
+            ),
         }
     )
 

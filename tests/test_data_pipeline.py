@@ -35,8 +35,8 @@ def test_process_list():
         "id",
         "status",
         "group",
-        "date_creation",
         "assigned_to",
+        "date_creation",
     ]
     assert df["date_creation"].dtype.kind == "M"
 
@@ -55,8 +55,24 @@ def test_process_series():
 
 def test_missing_fields():
     bad = [{"id": 1}]
-    with pytest.raises(KeyError):
+    with pytest.raises(ValueError):
         process_raw(bad)
+
+
+def test_alias_rename():
+    data = [
+        {
+            "id": 1,
+            "status": "new",
+            "groups_name": "N1",
+            "creation_date": "2024-01-01",
+            "users_id_recipient": "alice",
+        }
+    ]
+    df = process_raw(data)
+    assert set(["id", "status", "group", "assigned_to", "date_creation"]) <= set(
+        df.columns
+    )
 
 
 def test_save_json(tmp_path):
