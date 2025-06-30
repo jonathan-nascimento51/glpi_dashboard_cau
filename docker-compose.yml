@@ -34,6 +34,8 @@ services:
     command: python scripts/init_db.py
     env_file:
       - .env
+    environment:
+      PYTHONPATH: /app/src
     depends_on:
       - postgres
 
