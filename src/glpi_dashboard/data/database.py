@@ -3,7 +3,7 @@ import time
 from datetime import datetime
 from typing import List, Dict, Any
 
-from sqlalchemy import Column, Integer, String, JSON, DateTime, text
+from sqlalchemy import Column, Integer, DateTime, text
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.dialects.postgresql import JSONB
@@ -73,9 +73,10 @@ async def init_db(drop_all: bool = False) -> None:
                 try:
                     await conn.execute(text(stripped_statement))
                 except Exception as e:
-                    # Log error but continue for other statements, unless it's a critical error
+                    # Log error but continue unless the failure is critical
                     logger.error(
-                        f"Error executing SQL statement: {stripped_statement[:100]}... Error: {e}"
+                        "Error executing SQL statement: "
+                        f"{stripped_statement[:100]}... Error: {e}"
                     )
 
         logger.info("Database schema initialization complete.")
@@ -108,12 +109,14 @@ async def insert_tickets(tickets_data: List[Dict[str, Any]]) -> None:
 
                 if not all([glpi_ticket_id, status, priority, opened_at]):
                     logger.warning(
-                        f"Skipping ticket due to missing essential data: {ticket_dict.get('id')}"
+                        "Skipping ticket due to missing essential data: "
+                        f"{ticket_dict.get('id')}"
                     )
                     continue
 
                 values_clauses.append(
-                    f"(:glpi_ticket_id_{i}, :raw_data_{i}, :status_{i}, :priority_{i}, :assignee_id_{i}, :opened_at_{i})"
+                    f"(:glpi_ticket_id_{i}, :raw_data_{i}, :status_{i}, "
+                    f":priority_{i}, :assignee_id_{i}, :opened_at_{i})"
                 )
                 params[f"glpi_ticket_id_{i}"] = glpi_ticket_id
                 params[f"raw_data_{i}"] = ticket_dict
@@ -127,7 +130,9 @@ async def insert_tickets(tickets_data: List[Dict[str, Any]]) -> None:
                 return
 
             insert_stmt = f"""
-            INSERT INTO tickets (glpi_ticket_id, raw_data, status, priority, assignee_id, opened_at)
+            INSERT INTO tickets (
+                glpi_ticket_id, raw_data, status, priority, assignee_id, opened_at
+            )
             VALUES {', '.join(values_clauses)}
             ON CONFLICT (glpi_ticket_id) DO UPDATE SET
                 raw_data = EXCLUDED.raw_data,
@@ -140,7 +145,8 @@ async def insert_tickets(tickets_data: List[Dict[str, Any]]) -> None:
             await session.execute(text(insert_stmt), params)
             await session.commit()
             logger.info(
-                f"Successfully inserted/updated {len(tickets_data)} tickets into PostgreSQL."
+                "Successfully inserted/updated %d tickets into PostgreSQL",
+                len(tickets_data),
             )
         except SQLAlchemyError as e:
             await session.rollback()

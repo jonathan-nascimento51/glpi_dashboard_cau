@@ -4,7 +4,7 @@ repos:
     hooks:
       - id: black
         args:
-          - "--line-length=100"
+          - "--line-length=88"
           - '--exclude=/\.(env|venv|\.venv|env|\.git|build|dist)/'
   - repo: https://github.com/pycqa/flake8
     rev: 7.3.0

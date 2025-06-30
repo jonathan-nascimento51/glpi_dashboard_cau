@@ -14,7 +14,7 @@ from fastapi.responses import JSONResponse
 from strawberry.fastapi import GraphQLRouter
 from strawberry.types import Info
 
-from glpi_dashboard.config.settings import (
+from ..config.settings import (
     GLPI_APP_TOKEN,
     GLPI_BASE_URL,
     GLPI_PASSWORD,
@@ -55,7 +55,7 @@ async def _load_tickets(client: Optional[GLPISession] = None) -> pd.DataFrame:
             # Extract the actual ticket list if cached is a dict
             data = cached.get("data", cached) if isinstance(cached, dict) else cached
             return process_raw(data)
-        except KeyError:
+        except (KeyError, ValueError):
             return pd.DataFrame(data)
 
     try:
@@ -77,7 +77,7 @@ async def _load_tickets(client: Optional[GLPISession] = None) -> pd.DataFrame:
     redis_client.set(cache_key, data)
     try:
         return process_raw(data)
-    except KeyError:
+    except (KeyError, ValueError):
         return pd.DataFrame(data)
 
 

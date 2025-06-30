@@ -11,7 +11,9 @@ async def _run(drop_all: bool) -> None:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Initialize PostgreSQL schema from schema.sql")
+    parser = argparse.ArgumentParser(
+        description="Initialize PostgreSQL schema from schema.sql"
+    )
     parser.add_argument(
         "--drop-all",
         action="store_true",

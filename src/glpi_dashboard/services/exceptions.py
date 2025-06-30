@@ -40,7 +40,9 @@ class GLPIAPIError(Exception):
         response_data: Optional dictionary containing the raw response data from the API.
     """
 
-    def __init__(self, status_code: int, message: str, response_data: Optional[dict] = None):
+    def __init__(
+        self, status_code: int, message: str, response_data: Optional[dict] = None
+    ):
         self.status_code = status_code
         self.message = message
         self.response_data = response_data
@@ -162,7 +164,9 @@ def glpi_retry(
                         await asyncio.sleep(sleep_time)
                     else:
                         # Raise a generic GLPIAPIError for persistent network issues
-                        raise GLPIAPIError(0, f"Network error after {max_retries} retries: {e}")
+                        raise GLPIAPIError(
+                            0, f"Network error after {max_retries} retries: {e}"
+                        )
                 except Exception as e:
                     # Catch any other unexpected exceptions and wrap them in GLPIAPIError
                     raise GLPIAPIError(0, f"An unexpected error occurred: {e}")
