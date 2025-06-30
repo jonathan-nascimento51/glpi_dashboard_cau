@@ -29,7 +29,7 @@ Este documento reúne estratégias para lidar com falhas de inicialização, inc
 - Para gráficos vazios, crie uma figura com anotação "Dados não disponíveis".
 
 ## 6. Melhores Práticas de Deploy
-- Execute a aplicação com **Gunicorn**: `gunicorn -w 4 -b 0.0.0.0:8050 main:server`.
+- Execute a aplicação com **Gunicorn**: `gunicorn -w 4 -b 0.0.0.0:8050 main:create_app`.
 - Coloque o **Nginx** como proxy reverso e responsável por TLS.
 - Considere empacotar tudo em Docker para facilitar o deploy.
 
