@@ -86,9 +86,8 @@ class Query:
     @strawberry.field
     async def tickets(self, info: Info) -> List[Ticket]:  # pragma: no cover
         df = await _load_tickets(client=info.context.get("client"))
-        return [
-            Ticket(**{str(k): v for k, v in r.items()}) for r in df.to_dict("records")
-        ]
+        records = df.astype(object).where(pd.notna(df), None).to_dict("records")
+        return [Ticket(**{str(k): v for k, v in r.items()}) for r in records]
 
     @strawberry.field
     async def metrics(self, info: Info) -> Metrics:
@@ -96,7 +95,8 @@ class Query:
         total = len(df)
         closed = 0
         if "status" in df:
-            closed = df[df["status"].str.lower() == "closed"].shape[0]
+            status_series = df["status"].astype(str).str.lower()
+            closed = df[status_series == "closed"].shape[0]
         opened = total - closed
         return Metrics(total=total, opened=opened, closed=closed)
 
@@ -141,7 +141,7 @@ def create_app(client: Optional[GLPISession] = None) -> FastAPI:
     @app.get("/tickets")
     async def tickets() -> list[dict]:
         df = await _load_tickets(client=client)
-        return df.to_dict(orient="records")
+        return df.astype(object).where(pd.notna(df), None).to_dict(orient="records")
 
     @app.get("/metrics")
     async def metrics() -> dict:
@@ -149,7 +149,8 @@ def create_app(client: Optional[GLPISession] = None) -> FastAPI:
         total = len(df)
         closed = 0
         if "status" in df:
-            closed = df[df["status"].str.lower() == "closed"].shape[0]
+            status_series = df["status"].astype(str).str.lower()
+            closed = df[status_series == "closed"].shape[0]
         opened = total - closed
         return {"total": total, "opened": opened, "closed": closed}
 
