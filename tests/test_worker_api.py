@@ -19,14 +19,14 @@ class DummyCache:
         self.hits = 0
         self.misses = 0
 
-    def get(self, key):
+    async def get(self, key):
         if key in self.data:
             self.hits += 1
             return self.data[key]
         self.misses += 1
         return None
 
-    def set(self, key, data, ttl_seconds=None):
+    async def set(self, key, data, ttl_seconds=None):
         self.data[key] = data
 
     def get_cache_metrics(self):

@@ -49,7 +49,7 @@ class Metrics:
 async def _load_tickets(client: Optional[GLPISession] = None) -> pd.DataFrame:
     """Return processed ticket data from the API with caching."""
     cache_key = "tickets_api"
-    cached = redis_client.get(cache_key)
+    cached = await redis_client.get(cache_key)
     if cached is not None:
         try:
             # Extract the actual ticket list if cached is a dict
@@ -74,7 +74,7 @@ async def _load_tickets(client: Optional[GLPISession] = None) -> pd.DataFrame:
 
     if isinstance(data, dict):
         data = data.get("data", data)
-    redis_client.set(cache_key, data)
+    await redis_client.set(cache_key, data)
     try:
         return process_raw(data)
     except (KeyError, ValueError):
@@ -108,7 +108,7 @@ def create_app(client: Optional[GLPISession] = None) -> FastAPI:
     @app.middleware("http")
     async def cache_tickets(request: Request, call_next):
         if request.method == "GET" and request.url.path == "/tickets":
-            cached = redis_client.get("resp:tickets")
+            cached = await redis_client.get("resp:tickets")
             if cached is not None:
                 return JSONResponse(content=cached)
             response = await call_next(request)
@@ -123,7 +123,7 @@ def create_app(client: Optional[GLPISession] = None) -> FastAPI:
                 response.body_iterator = new_iter()
                 try:
                     data = json.loads(body.decode())
-                    redis_client.set("resp:tickets", data)
+                    await redis_client.set("resp:tickets", data)
                 except json.JSONDecodeError:
                     pass
             return response
