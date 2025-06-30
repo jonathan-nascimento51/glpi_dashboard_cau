@@ -161,6 +161,17 @@ Open `.env` and set the required values:
 - `REDIS_DB` – Redis database number
 - `REDIS_TTL_SECONDS` – TTL for cached responses in seconds
 
+Before running Docker make sure this `.env` file exists and that `DB_NAME`,
+`DB_USER`, `DB_PASSWORD` and all GLPI credentials have non-empty values. You can
+create the file using:
+
+```bash
+python scripts/setup_env.py
+```
+
+The Docker services rely on these settings to connect to the database and the
+GLPI API.
+
 After configuring the environment file you can optionally download a JSON dump of tickets:
 
 ```bash
@@ -195,7 +206,7 @@ Running `docker-compose up` will build the image, initialize the database and st
 docker-compose up
 ```
 
-This exposes the worker API on port `8000` and the dashboard on port `8050`.
+This exposes the worker API on port `8000` and the dashboard on port `8080`.
 
 ## Tests and linting
 
