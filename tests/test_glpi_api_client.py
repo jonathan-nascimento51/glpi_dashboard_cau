@@ -98,3 +98,51 @@ def test_get_all_http_error(requests_mock, monkeypatch):
     with GLPIAPIClient("http://example.com/apirest.php", creds) as client:
         with pytest.raises(GLPIForbiddenError):
             client.get_all("Ticket")
+
+
+def test_get_all_multiple_pages(requests_mock, monkeypatch):
+    patch_session(monkeypatch)
+    requests_mock.get(
+        "http://example.com/apirest.php/search/Ticket",
+        [
+            {
+                "json": {"data": [{"id": 1, "status": 1}]},
+                "headers": {"Content-Range": "0-99/250"},
+            },
+            {
+                "json": {"data": [{"id": 2, "status": 2}]},
+                "headers": {"Content-Range": "100-199/250"},
+            },
+            {
+                "json": {"data": [{"id": 3, "status": 5}]},
+                "headers": {"Content-Range": "200-249/250"},
+            },
+        ],
+    )
+    creds = Credentials(app_token="app", user_token="u")
+    with GLPIAPIClient("http://example.com/apirest.php", creds) as client:
+        data = client.get_all("Ticket")
+
+    assert [d["status"] for d in data] == ["New", "Processing (assigned)", "Solved"]
+    history = requests_mock.request_history
+    assert history[0].qs["range"] == ["0-99"]
+    assert history[1].qs["range"] == ["100-199"]
+    assert history[2].qs["range"] == ["200-299"]
+
+
+def test_field_mapping(requests_mock, monkeypatch):
+    patch_session(monkeypatch)
+    requests_mock.get(
+        "http://example.com/apirest.php/search/Ticket",
+        json={"data": [{"id": 1, "status": 2, "priority": 4, "impact": 3, "type": 1}]},
+        headers={"Content-Range": "0-0/1"},
+    )
+    creds = Credentials(app_token="app", user_token="u")
+    with GLPIAPIClient("http://example.com/apirest.php", creds) as client:
+        data = client.get_all("Ticket")
+
+    item = data[0]
+    assert item["status"] == "Processing (assigned)"
+    assert item["priority"] == "High"
+    assert item["impact"] == "Medium"
+    assert item["type"] == "Incident"
