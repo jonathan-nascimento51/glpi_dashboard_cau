@@ -16,7 +16,14 @@ def build_layout(df: pd.DataFrame) -> html.Div:
                 id="ticket-table",
                 columns=[
                     {"name": c, "id": c}
-                    for c in ["id", "name", "status", "assigned_to"]
+                    for c in [
+                        "id",
+                        "name",
+                        "status",
+                        "assigned_to",
+                        "group",
+                        "date_creation",
+                    ]
                 ],
                 page_size=10,
             ),
