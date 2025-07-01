@@ -49,7 +49,7 @@ class Metrics:
 async def _load_tickets(client: Optional[GLPISession] = None) -> pd.DataFrame:
     """Return processed ticket data from the API with caching."""
     cache_key = "tickets_api"
-    cached = redis_client.get(cache_key)
+    cached = await redis_client.get(cache_key)
     if cached is not None:
         try:
             # Extract the actual ticket list if cached is a dict
@@ -74,7 +74,7 @@ async def _load_tickets(client: Optional[GLPISession] = None) -> pd.DataFrame:
 
     if isinstance(data, dict):
         data = data.get("data", data)
-    redis_client.set(cache_key, data)
+    await redis_client.set(cache_key, data)
     try:
         return process_raw(data)
     except (KeyError, ValueError):
@@ -86,9 +86,8 @@ class Query:
     @strawberry.field
     async def tickets(self, info: Info) -> List[Ticket]:  # pragma: no cover
         df = await _load_tickets(client=info.context.get("client"))
-        return [
-            Ticket(**{str(k): v for k, v in r.items()}) for r in df.to_dict("records")
-        ]
+        records = df.astype(object).where(pd.notna(df), None).to_dict("records")
+        return [Ticket(**{str(k): v for k, v in r.items()}) for r in records]
 
     @strawberry.field
     async def metrics(self, info: Info) -> Metrics:
@@ -96,7 +95,8 @@ class Query:
         total = len(df)
         closed = 0
         if "status" in df:
-            closed = df[df["status"].str.lower() == "closed"].shape[0]
+            status_series = df["status"].astype(str).str.lower()
+            closed = df[status_series == "closed"].shape[0]
         opened = total - closed
         return Metrics(total=total, opened=opened, closed=closed)
 
@@ -108,7 +108,7 @@ def create_app(client: Optional[GLPISession] = None) -> FastAPI:
     @app.middleware("http")
     async def cache_tickets(request: Request, call_next):
         if request.method == "GET" and request.url.path == "/tickets":
-            cached = redis_client.get("resp:tickets")
+            cached = await redis_client.get("resp:tickets")
             if cached is not None:
                 return JSONResponse(content=cached)
             response = await call_next(request)
@@ -123,7 +123,7 @@ def create_app(client: Optional[GLPISession] = None) -> FastAPI:
                 response.body_iterator = new_iter()
                 try:
                     data = json.loads(body.decode())
-                    redis_client.set("resp:tickets", data)
+                    await redis_client.set("resp:tickets", data)
                 except json.JSONDecodeError:
                     pass
             return response
@@ -141,7 +141,7 @@ def create_app(client: Optional[GLPISession] = None) -> FastAPI:
     @app.get("/tickets")
     async def tickets() -> list[dict]:
         df = await _load_tickets(client=client)
-        return df.to_dict(orient="records")
+        return df.astype(object).where(pd.notna(df), None).to_dict(orient="records")
 
     @app.get("/metrics")
     async def metrics() -> dict:
@@ -149,7 +149,8 @@ def create_app(client: Optional[GLPISession] = None) -> FastAPI:
         total = len(df)
         closed = 0
         if "status" in df:
-            closed = df[df["status"].str.lower() == "closed"].shape[0]
+            status_series = df["status"].astype(str).str.lower()
+            closed = df[status_series == "closed"].shape[0]
         opened = total - closed
         return {"total": total, "opened": opened, "closed": closed}
 

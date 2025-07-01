@@ -91,6 +91,8 @@ python main.py
 
 The Dash server uses gzip compression via `flask-compress` and loads data lazily on first render.
 
+Use the `/ping` endpoint for health checks; it returns `OK` when the server is running.
+
 Profile startup time with:
 
 ```bash
@@ -104,6 +106,11 @@ For an OS-specific walkthrough including virtual environment commands, see
 
 If you encounter issues during the first run, consult
 [docs/error_map.md](docs/error_map.md) for troubleshooting tips.
+For additional troubleshooting steps in Portuguese, see
+[docs/solucoes_problemas.md](docs/solucoes_problemas.md).
+Specific guidance for erros `400 Bad Request` ao iniciar a sessão GLPI via Docker
+está disponível em
+[docs/troubleshooting_400_bad_request.md](docs/troubleshooting_400_bad_request.md).
 
 ## Running the Worker API
 
@@ -159,6 +166,17 @@ Open `.env` and set the required values:
 - `REDIS_DB` – Redis database number
 - `REDIS_TTL_SECONDS` – TTL for cached responses in seconds
 
+Before running Docker make sure this `.env` file exists and that `DB_NAME`,
+`DB_USER`, `DB_PASSWORD` and all GLPI credentials have non-empty values. You can
+create the file using:
+
+```bash
+python scripts/setup_env.py
+```
+
+The Docker services rely on these settings to connect to the database and the
+GLPI API.
+
 After configuring the environment file you can optionally download a JSON dump of tickets:
 
 ```bash
@@ -193,7 +211,7 @@ Running `docker-compose up` will build the image, initialize the database and st
 docker-compose up
 ```
 
-This exposes the worker API on port `8000` and the dashboard on port `8050`.
+This exposes the worker API on port `8000` and the dashboard on port `8080`.
 
 ## Tests and linting
 

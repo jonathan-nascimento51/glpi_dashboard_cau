@@ -54,5 +54,8 @@ async def test_fetch_and_save_bad_payload(monkeypatch, tmp_path):
 
     monkeypatch.setattr(fetch_tickets, "GLPISession", lambda *a, **k: FakeSession())
     out = tmp_path / "bad.json"
-    with pytest.raises(ValueError):
-        await fetch_tickets.fetch_and_save(output=out)
+    await fetch_tickets.fetch_and_save(output=out)
+    with out.open() as f:
+        data = json.load(f)
+    assert data[0]["id"] is None
+    assert data[0].get("status") is None

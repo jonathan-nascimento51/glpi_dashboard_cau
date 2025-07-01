@@ -49,6 +49,12 @@ def load_data() -> pd.DataFrame:
 def create_app(df: pd.DataFrame) -> Dash:
     """Create Dash application."""
     server = Flask(__name__)
+
+    @server.route("/ping")
+    def ping() -> tuple[str, int]:
+        """Simple health check endpoint."""
+        return "OK", 200
+
     app = Dash(__name__, server=server)
     app.layout = build_layout(df)
     register_callbacks(app, df)
