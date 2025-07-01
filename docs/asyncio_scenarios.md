@@ -55,7 +55,7 @@ asyncio.run(fetch_and_save("https://example.com", "out.html"))
 
 ## 3. Interactive environments
 
-Jupyter and IPython run an event loop already. Patch it with `nest_asyncio` for quick experiments, but avoid this in production.
+Jupyter and IPython run an event loop already. Patch it with `nest_asyncio` for quick experiments, **but avoid this in production**. Patching the loop can lead to deadlocks or tasks that never run. Instead, restructure your code to use a single, well-controlled event loop.
 
 ```python
 import asyncio
