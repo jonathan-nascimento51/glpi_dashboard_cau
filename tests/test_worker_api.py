@@ -8,7 +8,6 @@ sys.path.insert(
     0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src")
 )  # noqa: E402
 
-from glpi_dashboard.services.glpi_session import Credentials, GLPISession  # noqa: E402
 import worker  # noqa: E402
 from worker import create_app  # noqa: E402
 
@@ -50,23 +49,15 @@ def patch_cache(monkeypatch: pytest.MonkeyPatch):
     return cache
 
 
-class FakeSession(GLPISession):
-    def __init__(self):
-        super().__init__(
-            base_url="http://example.com/apirest.php",
-            credentials=Credentials(
-                app_token="dummy_app_token", username="test", password="test"
-            ),
-        )
-
-    async def __aenter__(self):
+class FakeSession:
+    def __enter__(self):
         return self
 
-    async def __aexit__(self, exc_type, exc, tb):
+    def __exit__(self, exc_type, exc, tb):
         pass
 
-    async def get(self, *args, **kwargs):
-        return {"data": [{"id": 1}]}
+    def get_all(self, *args, **kwargs):
+        return [{"id": 1}]
 
 
 def test_rest_endpoints():
@@ -101,7 +92,7 @@ def test_client_reused(monkeypatch: pytest.MonkeyPatch):
             instances.append(self)
 
     monkeypatch.setattr(
-        "glpi_dashboard.services.worker_api.GLPISession",
+        "glpi_dashboard.services.worker_api.GlpiApiClient",
         lambda *a, **k: RecordingSession(),
     )
 

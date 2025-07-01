@@ -32,3 +32,24 @@ def test_process_raw_sanitization():
     assert df["assigned_to"].iloc[0] == "123"
     assert df["group"].tolist() == ["", "", ""]
     assert df["date_creation"].isna().all()
+
+
+def test_process_raw_aliases():
+    """Fields with underscore names should be normalized."""
+    raw = [
+        {
+            "id": 1,
+            "_status": "New",
+            "_priority": 2,
+            "_users_id_assign": 5,
+            "groups_name": "N1",
+            "creation_date": "2024-05-01",
+        }
+    ]
+    df = process_raw(raw)
+
+    assert df.iloc[0]["status"] == "new"
+    assert df.iloc[0]["assigned_to"] == "5"
+    assert df.iloc[0]["group"] == "N1"
+    assert df.iloc[0]["id"] == 1
+    assert df.iloc[0]["date_creation"].strftime("%Y-%m-%d") == "2024-05-01"

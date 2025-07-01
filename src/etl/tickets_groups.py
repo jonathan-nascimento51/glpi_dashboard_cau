@@ -11,7 +11,7 @@ import pandas as pd
 import os
 
 import asyncio
-from glpi_dashboard.services.glpi_session import GLPISession, Credentials
+from glpi_dashboard.services.glpi_api_client import GlpiApiClient
 import requests
 from glpi_dashboard.config.settings import (
     GLPI_BASE_URL,
@@ -28,7 +28,7 @@ STATUS = {1: "New", 2: "Processing", 3: "Assigned", 5: "Solved", 6: "Closed"}
 
 
 async def collect_tickets_with_groups(
-    start: str, end: str, client: Optional[GLPISession] = None
+    start: str, end: str, client: Optional[GlpiApiClient] = None
 ) -> pd.DataFrame:
     """Return a dataframe with ticket/group/user assignments."""
 
@@ -39,18 +39,22 @@ async def collect_tickets_with_groups(
     password = os.getenv("GLPI_PASSWORD", GLPI_PASSWORD)
 
     if client is None:
-        creds = Credentials(
-            app_token=app_token,
-            user_token=user_token,
+        client = GlpiApiClient(
+            base_url,
+            app_token,
+            user_token,
             username=username,
             password=password,
         )
-        client = GLPISession(base_url, creds)
 
-    async with client as session:
+    with client as session:
 
-        async def fetch(endpoint: str, params: Optional[dict] = None) -> dict:
-            data = await session.get(endpoint, params=params)
+        def fetch(endpoint: str, params: Optional[dict] = None) -> dict:
+            if endpoint.startswith("search/"):
+                item = endpoint.split("/", 1)[1]
+                data = session.get_all(item, **(params or {}))
+            else:
+                data = session.get(endpoint, params=params)
             if isinstance(data, dict):
                 inner = data.get("data")
                 if (
@@ -89,13 +93,14 @@ async def collect_tickets_with_groups(
                 "forcedisplay": forcedisplay,
                 "range": f"{offset}-{offset + FETCH_PAGE_SIZE - 1}",
             }
-            tickets = await fetch("search/Ticket", params=params)
-            tickets = tickets.get("data", tickets)
+            tickets = fetch("search/Ticket", params=params)
+            if isinstance(tickets, dict):
+                tickets = tickets.get("data", tickets)
             if not tickets:
                 break
             for t in tickets:
                 tid = int(t["id"])
-                ticket_assigns = await fetch(
+                ticket_assigns = fetch(
                     "search/Ticket_User",
                     params={
                         "criteria": [
@@ -105,27 +110,28 @@ async def collect_tickets_with_groups(
                         ]
                     },
                 )
-                ticket_assigns = ticket_assigns.get("data", ticket_assigns)
+                if isinstance(ticket_assigns, dict):
+                    ticket_assigns = ticket_assigns.get("data", ticket_assigns)
                 for assign in ticket_assigns:
                     group_id = assign.get("groups_id")
                     user_id = assign.get("users_id")
                     group_name = None
                     user_name = None
                     if group_id:
-                        g = await fetch(
+                        g = fetch(
                             f"Group/{group_id}",
                             params={"forcedisplay[0]": "completename"},
                         )
                         group_name = g.get("completename")
                     elif user_id:
-                        u = await fetch(
+                        u = fetch(
                             f"User/{user_id}",
                             params={"forcedisplay[0]": "name"},
                         )
                         user_name = u.get("name")
                         group_id = u.get("groups_id")
                         if group_id:
-                            g = await fetch(
+                            g = fetch(
                                 f"Group/{group_id}",
                                 params={"forcedisplay[0]": "completename"},
                             )

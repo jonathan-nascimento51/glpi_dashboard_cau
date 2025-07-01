@@ -81,7 +81,7 @@ def mock_response():
             return_value=str(json_data) if json_data is not None else ""
         )
         mock_resp.request_info = MagicMock()  # Required for ClientResponseError
-        mock_resp.history = tuple()  # Required for ClientResponseError
+        mock_resp.history = ()  # Required for ClientResponseError
 
         if raise_for_status_exc:
             err = aiohttp.ClientResponseError(
