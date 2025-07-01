@@ -203,7 +203,8 @@ class GLPISession:
                             data,
                         )
                     logger.info("GLPI session initiated successfully.")
-                    self._last_refresh_time = asyncio.get_event_loop().time()
+                    # Record refresh time using the running loop
+                    self._last_refresh_time = asyncio.get_running_loop().time()
             except aiohttp.ClientError as e:
                 if self._session and not self._session.closed:
                     await self._session.close()
@@ -228,7 +229,7 @@ class GLPISession:
             # Check if current token is older than refresh_interval
             if (
                 self._session_token
-                and (asyncio.get_event_loop().time() - self._last_refresh_time)
+                and (asyncio.get_running_loop().time() - self._last_refresh_time)
                 >= self.refresh_interval
             ):
                 logger.info("Proactively refreshing GLPI session token.")
