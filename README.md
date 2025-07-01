@@ -16,6 +16,7 @@ Install dependencies and prepare the environment:
 python -m pip install --upgrade pip
 pip install -r requirements.txt
 pip install -r requirements-dev.txt
+pip install -e .  # install package locally
 pre-commit install
 ```
 
