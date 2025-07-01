@@ -3,7 +3,7 @@ import asyncio
 import json
 import sys
 from pathlib import Path
-from glpi_dashboard.services.glpi_session import GLPISession, Credentials
+from glpi_dashboard.services.glpi_api_client import GlpiApiClient
 
 if sys.platform == "win32":
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
@@ -24,13 +24,13 @@ async def fetch_and_save(
     limit: int = 100,
 ) -> None:
     """Fetch tickets from GLPI and save them to a JSON file."""
-    creds = Credentials(
-        app_token=GLPI_APP_TOKEN,
-        user_token=GLPI_USER_TOKEN,
+    client = GlpiApiClient(
+        GLPI_BASE_URL,
+        GLPI_APP_TOKEN,
+        GLPI_USER_TOKEN,
         username=GLPI_USERNAME,
         password=GLPI_PASSWORD,
     )
-    session = GLPISession(GLPI_BASE_URL, creds)
     criteria = []
     if status is not None:
         criteria.append(
@@ -40,13 +40,10 @@ async def fetch_and_save(
                 "value": status,
             }
         )
-    async with session as client:
-        query_range = f"0-{limit-1}"
-        tickets = await client.get(
-            "search/Ticket",
-            params={"criteria": criteria, "range": query_range},
-        )
-    tickets = tickets.get("data", tickets)
+    with client as api:
+        tickets = api.get_all("Ticket", criteria=criteria)
+    if limit:
+        tickets = tickets[:limit]
     try:
         df = process_raw(tickets)
         save_json(df, str(output))

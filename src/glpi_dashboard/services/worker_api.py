@@ -22,7 +22,7 @@ from ..config.settings import (
     GLPI_USERNAME,
 )
 from glpi_dashboard.data.pipeline import process_raw
-from glpi_dashboard.services.glpi_session import Credentials, GLPISession
+from glpi_dashboard.services.glpi_api_client import GlpiApiClient
 from glpi_dashboard.utils.redis_client import redis_client
 
 
@@ -46,7 +46,7 @@ class Metrics:
     closed: int
 
 
-async def _load_tickets(client: Optional[GLPISession] = None) -> pd.DataFrame:
+async def _load_tickets(client: Optional[GlpiApiClient] = None) -> pd.DataFrame:
     """Return processed ticket data from the API with caching."""
     cache_key = "tickets_api"
     cached = await redis_client.get(cache_key)
@@ -60,15 +60,15 @@ async def _load_tickets(client: Optional[GLPISession] = None) -> pd.DataFrame:
 
     try:
         if client is None:
-            creds = Credentials(
-                app_token=GLPI_APP_TOKEN,
-                user_token=GLPI_USER_TOKEN,
+            client = GlpiApiClient(
+                GLPI_BASE_URL,
+                GLPI_APP_TOKEN,
+                GLPI_USER_TOKEN,
                 username=GLPI_USERNAME,
                 password=GLPI_PASSWORD,
             )
-            client = GLPISession(GLPI_BASE_URL, creds)
-        async with client as session:
-            data = await session.get("search/Ticket")
+        with client as session:
+            data = session.get_all("Ticket")
     except Exception as exc:  # pragma: no cover - network errors
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
@@ -101,7 +101,7 @@ class Query:
         return Metrics(total=total, opened=opened, closed=closed)
 
 
-def create_app(client: Optional[GLPISession] = None) -> FastAPI:
+def create_app(client: Optional[GlpiApiClient] = None) -> FastAPI:
     """Create FastAPI app with REST and GraphQL routes."""
     app = FastAPI(title="GLPI Worker API")
 
@@ -130,13 +130,13 @@ def create_app(client: Optional[GLPISession] = None) -> FastAPI:
         return await call_next(request)
 
     if client is None:
-        creds = Credentials(
-            app_token=GLPI_APP_TOKEN,
-            user_token=GLPI_USER_TOKEN,
+        client = GlpiApiClient(
+            GLPI_BASE_URL,
+            GLPI_APP_TOKEN,
+            GLPI_USER_TOKEN,
             username=GLPI_USERNAME,
             password=GLPI_PASSWORD,
         )
-        client = GLPISession(GLPI_BASE_URL, creds)
 
     @app.get("/tickets")
     async def tickets() -> list[dict]:
