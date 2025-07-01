@@ -48,14 +48,23 @@ async def test_collect_basic(requests_mock):
     )
 
     class FakeSession:
-        async def __aenter__(self):
+        def __enter__(self):
             return self
 
-        async def __aexit__(self, exc_type, exc, tb):
+        def __exit__(self, exc_type, exc, tb):
             pass
 
-        async def get(self, *args, **kwargs):
-            return {"data": [{"id": 1}]}
+        def get_all(self, item, **kwargs):
+            if "Ticket_User" in item:
+                return [{"users_id": 2, "groups_id": 3}]
+            return [{"id": 1, "name": "t", "status": 1, "date": "2024-01-01"}]
+
+        def get(self, *args, **kwargs):
+            if "User" in args[0]:
+                return {"id": 2, "name": "Alice", "groups_id": 3}
+            if "Group" in args[0]:
+                return {"id": 3, "completename": "N1"}
+            return {"id": 1}
 
     session = FakeSession()
     df = await tickets_groups.collect_tickets_with_groups(
