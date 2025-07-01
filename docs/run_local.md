@@ -26,6 +26,7 @@ py -m venv .venv
 
 ```bash
 pip install -r requirements.txt -r requirements-dev.txt
+pip install -e .  # install package locally
 pre-commit install  # optional
 ```
 
