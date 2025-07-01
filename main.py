@@ -25,7 +25,8 @@ setup_logging()
 
 async def _fetch_api_data() -> pd.DataFrame:
     """Fetch ticket data directly from the GLPI API."""
-    try:
+
+    def _sync_fetch() -> list[dict]:
         with GlpiApiClient(
             GLPI_BASE_URL,
             GLPI_APP_TOKEN,
@@ -33,10 +34,14 @@ async def _fetch_api_data() -> pd.DataFrame:
             username=GLPI_USERNAME,
             password=GLPI_PASSWORD,
         ) as client:
-            data = client.get_all("Ticket")
+            return client.get_all("Ticket")
+
+    try:
+        data = await asyncio.to_thread(_sync_fetch)
     except Exception as exc:  # Broad catch logs unexpected failures
         logging.error("Failed to fetch data from GLPI API: %s", exc)
         raise
+
     return process_raw(data)
 
 

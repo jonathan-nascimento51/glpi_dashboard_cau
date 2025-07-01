@@ -40,8 +40,12 @@ async def fetch_and_save(
                 "value": status,
             }
         )
-    with client as api:
-        tickets = api.get_all("Ticket", criteria=criteria)
+
+    def _sync_fetch() -> list[dict]:
+        with client as api:
+            return api.get_all("Ticket", criteria=criteria)
+
+    tickets = await asyncio.to_thread(_sync_fetch)
     if limit:
         tickets = tickets[:limit]
     try:
