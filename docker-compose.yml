@@ -37,7 +37,9 @@ services:
     environment:
       PYTHONPATH: /app/src
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+    restart: on-failure
 
   worker:
     build: .
@@ -49,8 +51,11 @@ services:
     ports:
       - "8000:8000"
     depends_on:
-      - initdb
-      - redis
+      initdb:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    restart: always
 
   dash:
     build: .
@@ -61,10 +66,13 @@ services:
       PYTHONPATH: /app/src
       DASH_PORT: 8050
     ports:
-      - "8080:8050"            # porta externa 8080 para evitar conflito com wslrelay
+      - "8080:8050"  # porta externa -> 8080 evita conflito com WSL
     depends_on:
-      - initdb
-      - redis
+      initdb:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    restart: always
 
 volumes:
   postgres_data:
