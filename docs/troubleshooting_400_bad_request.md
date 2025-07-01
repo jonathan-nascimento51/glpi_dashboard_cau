@@ -50,3 +50,13 @@ tests/
 Isso reduz o tempo de build e evita vazamento de arquivos locais no contêiner.
 
 Com as etapas acima é possível isolar problemas de autenticação, resolver falhas de DNS e reduzir o tempo de construção da imagem Docker.
+
+## 5. Erro `ERROR_WRONG_APP_TOKEN_PARAMETER`
+
+Caso os logs mostrem **`ERROR_WRONG_APP_TOKEN_PARAMETER`** após a chamada a `initSession`, verifique:
+
+1. **Valor do app-token** – copie o token exibido em `Configuração > Geral > API` no GLPI e compare com `GLPI_APP_TOKEN` definido no `.env`. Qualquer caractere incorreto resulta em `400 Bad Request`.
+2. **Intervalo de IP** – o app-token pode restringir endereços autorizados. Certifique-se de que o IP do contêiner esteja incluso. Para testes, permita `0.0.0.0/0` e ajuste depois.
+3. **Recriação do cliente** – se houver dúvidas sobre tokens antigos persistentes, exclua o cliente de API e crie um novo, mantendo apenas o token necessário.
+
+Seguindo esses passos, a autenticação deve ser aceita e o dashboard continuará a inicialização normalmente.
