@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import asyncio
 import json
 from typing import List, Optional, AsyncGenerator
 
@@ -58,6 +59,10 @@ async def _load_tickets(client: Optional[GlpiApiClient] = None) -> pd.DataFrame:
         except (KeyError, ValueError):
             return pd.DataFrame(data)
 
+    def _sync_fetch(c: GlpiApiClient) -> list[dict]:
+        with c as session:
+            return session.get_all("Ticket")
+
     try:
         if client is None:
             client = GlpiApiClient(
@@ -67,8 +72,7 @@ async def _load_tickets(client: Optional[GlpiApiClient] = None) -> pd.DataFrame:
                 username=GLPI_USERNAME,
                 password=GLPI_PASSWORD,
             )
-        with client as session:
-            data = session.get_all("Ticket")
+        data = await asyncio.to_thread(_sync_fetch, client)
     except Exception as exc:  # pragma: no cover - network errors
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
