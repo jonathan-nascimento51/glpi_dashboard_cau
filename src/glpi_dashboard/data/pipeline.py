@@ -10,11 +10,20 @@ TicketData = Union[List[dict], pd.DataFrame, pd.Series]
 
 REQUIRED_FIELDS = ["id", "status", "group", "assigned_to", "date_creation"]
 
-# Map alternate field names from the GLPI API to our normalized names
-ALIASES = {
+# Map alternate/underscore-prefixed field names returned by the GLPI API
+# to the canonical column names used by the dashboard. This keeps
+# ``process_raw`` resilient to schema variations across GLPI versions.
+FIELD_ALIASES = {
     "groups_name": "group",
+    "group_name": "group",
     "users_id_recipient": "assigned_to",
+    "users_id_assign": "assigned_to",
+    "_users_id_assign": "assigned_to",
+    "_users_id_requester": "assigned_to",
     "creation_date": "date_creation",
+    "date": "date_creation",
+    "_status": "status",
+    "_priority": "priority",
 }
 
 
@@ -37,7 +46,7 @@ def process_raw(data: TicketData) -> pd.DataFrame:
     df = _ensure_dataframe(data)
 
     # Handle legacy/alternate field names from the API
-    for src, dst in ALIASES.items():
+    for src, dst in FIELD_ALIASES.items():
         if src in df.columns and dst not in df.columns:
             df.rename(columns={src: dst}, inplace=True)
 
