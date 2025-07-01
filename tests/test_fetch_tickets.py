@@ -57,5 +57,5 @@ async def test_fetch_and_save_bad_payload(monkeypatch, tmp_path):
     await fetch_tickets.fetch_and_save(output=out)
     with out.open() as f:
         data = json.load(f)
-    assert data[0]["id"] is None
-    assert data[0].get("status") is None
+    assert data[0]["id"] == 0
+    assert data[0].get("status") == ""

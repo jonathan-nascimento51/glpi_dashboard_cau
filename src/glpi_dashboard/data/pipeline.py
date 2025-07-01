@@ -27,31 +27,47 @@ def _ensure_dataframe(data: TicketData) -> pd.DataFrame:
 
 
 def process_raw(data: TicketData) -> pd.DataFrame:
-    """Normalize raw ticket data.
+    """Normalize raw ticket data for display in the dashboard.
 
-    Parameters
-    ----------
-    data : list[dict] | pandas.DataFrame | pandas.Series
-        Raw ticket data in any supported format.
-
-    Returns
-    -------
-    pandas.DataFrame
-        Cleaned dataframe with required columns and converted types.
+    This function is resilient to missing keys and converts the main textual
+    fields to human‑friendly strings. It preserves ``id`` as an integer when
+    possible and always returns the same four columns expected by the front‑end.
     """
+
     df = _ensure_dataframe(data)
 
-    # Rename columns based on known aliases from the API
+    # Handle legacy/alternate field names from the API
     for src, dst in ALIASES.items():
         if src in df.columns and dst not in df.columns:
             df.rename(columns={src: dst}, inplace=True)
 
-    # Determine additional fields to preserve the original payload
-    extra_cols = [c for c in df.columns if c not in REQUIRED_FIELDS]
-    # Reindex ensures all required fields exist; missing ones are filled with NaN/None
-    df = df.reindex(columns=REQUIRED_FIELDS + extra_cols, fill_value=None)
-    df["date_creation"] = pd.to_datetime(df["date_creation"], errors="coerce")
-    return df
+    idx = df.index
+
+    df["id"] = (
+        pd.to_numeric(
+            df.get("id", pd.Series([None] * len(df), index=idx)), errors="coerce"
+        )
+        .fillna(0)
+        .astype(int)
+    )
+    df["name"] = (
+        df.get("name", pd.Series([""] * len(df), index=idx)).fillna("").astype(str)
+    )
+    df["status"] = (
+        df.get("status", pd.Series([""] * len(df), index=idx))
+        .fillna("")
+        .astype(str)
+        .str.lower()
+    )
+    assigned_raw = df.get("assigned_to", pd.Series([None] * len(df), index=idx))
+    numeric_assigned = pd.to_numeric(assigned_raw, errors="coerce")
+    if numeric_assigned.notna().any():
+        assigned_to = numeric_assigned.astype("Int64").astype(str)
+    else:
+        assigned_to = assigned_raw.astype(str)
+    df["assigned_to"] = assigned_to.replace({"<NA>": "", "nan": ""}).fillna("")
+
+    return df[["id", "name", "status", "assigned_to"]].copy()
 
 
 def save_json(df: pd.DataFrame, path: str = "mock/sample_data.json") -> None:
