@@ -142,19 +142,19 @@ export async function initGLPISession(
   password?: string
 ): Promise<void> {
   const initSessionUrl = '/initSession'; // [8]
-  let payload: { user_token?: string; login?: string; password?: string } = {};
+  const headers: Record<string, string> = {};
 
   if (userToken) {
-    payload.user_token = userToken;
+    headers['Authorization'] = `user_token ${userToken}`;
   } else if (username && password) {
-    payload.login = username;
-    payload.password = password;
+    const cred = btoa(`${username}:${password}`);
+    headers['Authorization'] = `Basic ${cred}`;
   } else {
     throw new Error('Either userToken or username/password must be provided for session initiation.');
   }
 
   try {
-    const response = await axiosInstance.post(initSessionUrl, payload);
+    const response = await axiosInstance.get(initSessionUrl, { headers });
     currentSessionToken = response.data.session_token;
     if (currentSessionToken) {
       localStorage.setItem(SESSION_TOKEN_KEY, currentSessionToken);

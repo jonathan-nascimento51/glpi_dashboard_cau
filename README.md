@@ -111,6 +111,8 @@ For additional troubleshooting steps in Portuguese, see
 Specific guidance for erros `400 Bad Request` ao iniciar a sessão GLPI via Docker
 está disponível em
 [docs/troubleshooting_400_bad_request.md](docs/troubleshooting_400_bad_request.md).
+Detalhes completos do endpoint `initSession` encontram-se em
+[docs/init_session_api.md](docs/init_session_api.md).
 
 ## Running the Worker API
 

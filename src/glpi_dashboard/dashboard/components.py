@@ -4,6 +4,7 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objs as go
 from dash import html
+from glpi_dashboard.utils import sanitize_status_column
 
 
 def _status_fig(df: pd.DataFrame) -> go.Figure:
@@ -13,8 +14,9 @@ def _status_fig(df: pd.DataFrame) -> go.Figure:
 
 def compute_ticket_stats(df: pd.DataFrame) -> list[html.Div]:
     """Return aggregated ticket statistics as ready-to-render divs."""
-    total = len(df)
-    closed = df[df["status"].str.lower() == "closed"].shape[0]
+    clean = sanitize_status_column(df)
+    total = len(clean)
+    closed = clean[clean["status"] == "closed"].shape[0]
     opened = total - closed
     return [
         html.Div(f"Total: {total}"),

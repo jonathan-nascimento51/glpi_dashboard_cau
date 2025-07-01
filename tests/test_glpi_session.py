@@ -172,20 +172,20 @@ async def test_glpi_session_context_manager_user_token_auth(
     credentials = Credentials(app_token=app_token, user_token=user_token)
     glpi_session = GLPISession(base_url, credentials)
 
-    # Mock the initSession call specifically for user_token payload
-    mock_client_session.post.return_value = mock_response(
+    # Mock the initSession call for user_token via GET with headers
+    mock_client_session.get.return_value = mock_response(
         200, {"session_token": user_token}
     )
 
     async with glpi_session as session:
         assert session._session_token == user_token
         # Verify initSession was called with the user_token in the payload
-        mock_client_session.post.assert_called_once_with(
+        mock_client_session.get.assert_called_once_with(
             f"{base_url}/initSession",
-            json={"user_token": user_token},
             headers={
                 "Content-Type": "application/json",
                 "App-Token": app_token,
+                "Authorization": f"user_token {user_token}",
             },
             proxy=None,
             timeout=ANY,
@@ -198,17 +198,14 @@ async def test_glpi_session_context_manager_user_token_auth(
 
     assert session._session_token is None
     assert session._session.closed
-    # Verify killSession was called
-    mock_client_session.get.assert_called_once_with(
-        f"{base_url}/killSession",
-        headers={
-            "Content-Type": "application/json",
-            "Session-Token": user_token,
-            "App-Token": app_token,
-        },
-        proxy=None,
-        timeout=ANY,
-    )
+    # Verify killSession was called with the correct headers as the last call
+    kill_call = mock_client_session.get.call_args_list[-1]
+    assert kill_call.args[0] == f"{base_url}/killSession"
+    assert kill_call.kwargs["headers"] == {
+        "Content-Type": "application/json",
+        "Session-Token": user_token,
+        "App-Token": app_token,
+    }
 
 
 @pytest.mark.asyncio
@@ -222,20 +219,20 @@ async def test_glpi_session_context_manager_username_password_auth(
     credentials = Credentials(app_token=app_token, username=username, password=password)
     glpi_session = GLPISession(base_url, credentials)
 
-    # Mock the initSession call specifically for username/password payload
-    mock_client_session.post.return_value = mock_response(
+    # Mock the initSession call for username/password using GET with Basic Auth
+    mock_client_session.get.return_value = mock_response(
         200, {"session_token": "initial_session_token"}
     )
 
     async with glpi_session as session:
         assert session._session_token == "initial_session_token"
         # Verify initSession was called with username/password in the payload
-        mock_client_session.post.assert_called_once_with(
+        mock_client_session.get.assert_called_once_with(
             f"{base_url}/initSession",
-            json={"login": username, "password": password},
             headers={
                 "Content-Type": "application/json",
                 "App-Token": app_token,
+                "Authorization": "Basic dGVzdF91c2VyOnRlc3RfcGFzc3dvcmQ=",
             },
             proxy=None,
             timeout=ANY,
@@ -246,17 +243,14 @@ async def test_glpi_session_context_manager_username_password_auth(
 
     assert glpi_session._session_token is None
     assert session._session.closed
-    # Verify killSession was called
-    mock_client_session.get.assert_called_once_with(
-        f"{base_url}/killSession",
-        headers={
-            "Content-Type": "application/json",
-            "Session-Token": "initial_session_token",
-            "App-Token": app_token,
-        },
-        proxy=None,
-        timeout=ANY,
-    )
+    # Verify killSession was called with the correct headers as the last call
+    kill_call = mock_client_session.get.call_args_list[-1]
+    assert kill_call.args[0] == f"{base_url}/killSession"
+    assert kill_call.kwargs["headers"] == {
+        "Content-Type": "application/json",
+        "Session-Token": "initial_session_token",
+        "App-Token": app_token,
+    }
 
 
 @pytest.mark.asyncio
@@ -267,7 +261,7 @@ async def test_get_request_success(
     credentials = Credentials(app_token=app_token, user_token=user_token)
     glpi_session = GLPISession(base_url, credentials)
 
-    mock_client_session.post.return_value = mock_response(
+    mock_client_session.get.return_value = mock_response(
         200, {"session_token": user_token}
     )  # Mock initSession
     mock_client_session.request.return_value = mock_response(
@@ -301,7 +295,7 @@ async def test_post_request_success(
     glpi_session = GLPISession(base_url, credentials)
 
     # Mock initSession call and then the actual POST request
-    mock_client_session.post.return_value = mock_response(
+    mock_client_session.get.return_value = mock_response(
         200, {"session_token": "initial_session_token"}
     )
     mock_client_session.request.return_value = mock_response(
@@ -335,7 +329,7 @@ async def test_put_request_success(
     credentials = Credentials(app_token=app_token, user_token=user_token)
     glpi_session = GLPISession(base_url, credentials)
 
-    mock_client_session.post.return_value = mock_response(
+    mock_client_session.get.return_value = mock_response(
         200, {"session_token": user_token}
     )  # Mock initSession
     mock_client_session.request.return_value = mock_response(
@@ -369,7 +363,7 @@ async def test_delete_request_success(
     credentials = Credentials(app_token=app_token, user_token=user_token)
     glpi_session = GLPISession(base_url, credentials)
 
-    mock_client_session.post.return_value = mock_response(
+    mock_client_session.get.return_value = mock_response(
         200, {"session_token": user_token}
     )  # Mock initSession
     mock_client_session.request.return_value = mock_response(
@@ -421,7 +415,7 @@ async def test_api_error_handling(
     credentials = Credentials(app_token=app_token, user_token=user_token)
     glpi_session = GLPISession(base_url, credentials)
 
-    mock_client_session.post.return_value = mock_response(
+    mock_client_session.get.return_value = mock_response(
         200, {"session_token": user_token}
     )  # Mock initSession
     mock_client_session.request.return_value = mock_response(
@@ -447,14 +441,13 @@ async def test_session_refresh_on_401_success(
     credentials = Credentials(app_token=app_token, username=username, password=password)
     glpi_session = GLPISession(base_url, credentials)
 
-    # Configure side_effect for mock_client_session.post:
+    # Configure side_effect for mock_client_session.get:
     # 1. Initial initSession call (from __aenter__)
     # 2. Second initSession call (for refresh after 401)
-    mock_client_session.post.side_effect = [
-        mock_response(
-            200, {"session_token": "expired_session_token"}
-        ),  # Initial session
-        mock_response(200, {"session_token": "refreshed_session_token"}),  # For refresh
+    mock_client_session.get.side_effect = [
+        mock_response(200, {"session_token": "expired_session_token"}),
+        mock_response(200, {"session_token": "refreshed_session_token"}),
+        mock_response(200, {}),
     ]
 
     # Configure side_effect for mock_client_session.request:
@@ -478,7 +471,6 @@ async def test_session_refresh_on_401_success(
         # 2. First request (401)
         # 3. Refresh initSession (triggered by 401)
         # 4. Second request (successful)
-        assert mock_client_session.post.call_count == 2
         assert mock_client_session.request.call_count == 2
 
         # Verify the first request used the expired token
@@ -495,6 +487,9 @@ async def test_session_refresh_on_401_success(
             == "refreshed_session_token"
         )
 
+    # After exiting the context, killSession is called
+    assert mock_client_session.get.call_count == 3
+
 
 @pytest.mark.asyncio
 async def test_session_refresh_on_401_failure(
@@ -507,9 +502,10 @@ async def test_session_refresh_on_401_failure(
     glpi_session = GLPISession(base_url, credentials)
 
     # Initial initSession call succeeds, but refresh attempt fails
-    mock_client_session.post.side_effect = [
+    mock_client_session.get.side_effect = [
         mock_response(200, {"session_token": "expired_session_token"}),
         mock_response(401, {"error": "Unauthorized"}, raise_for_status_exc=True),
+        mock_response(200, {}),
     ]
 
     # First request attempt gets 401
@@ -522,10 +518,11 @@ async def test_session_refresh_on_401_failure(
             await session.get("Ticket/123")
         assert "Failed to authenticate after multiple retries" in str(excinfo.value)
         assert excinfo.value.status_code == 401
-        assert mock_client_session.post.call_count == 2  # Initial + one refresh attempt
         assert (
             mock_client_session.request.call_count == 1
         )  # Only one request attempt before giving up
+
+    assert mock_client_session.get.call_count == 3  # init, refresh, killSession
 
 
 @pytest.mark.asyncio
@@ -538,14 +535,15 @@ async def test_proactive_refresh_loop_username_password(
     """
     credentials = Credentials(app_token=app_token, username=username, password=password)
     glpi_session = GLPISession(
-        base_url, credentials, refresh_interval=0.1  # type: ignore
+        base_url, credentials, refresh_interval=0.2  # type: ignore
     )  # Set a short interval
 
     # Mock initSession for initial and subsequent proactive refreshes
-    mock_client_session.post.side_effect = [
+    mock_client_session.get.side_effect = [
         mock_response(200, {"session_token": "initial_token"}),
         mock_response(200, {"session_token": "proactive_token_1"}),
         mock_response(200, {"session_token": "proactive_token_2"}),
+        mock_response(200, {}),
     ]
 
     async with glpi_session as session:
@@ -555,7 +553,8 @@ async def test_proactive_refresh_loop_username_password(
         await aio.sleep(0.25)  # Wait for second proactive refresh
         assert session._session_token == "proactive_token_2"
 
-    # Check that post was called for init + two refreshes
+    # Check that get was called for init + two refreshes + killSession
+    assert mock_client_session.get.call_count == 4
 
 
 @pytest.mark.asyncio
