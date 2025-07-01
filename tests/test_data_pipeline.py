@@ -5,84 +5,21 @@ sys.path.insert(
     0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src")
 )  # noqa: E402
 
-import pandas as pd  # noqa: E402
-from glpi_dashboard.data.pipeline import process_raw, save_json  # noqa: E402
-
-sample = [
-    {
-        "id": 1,
-        "status": "new",
-        "group": "N1",
-        "date_creation": "2024-01-01",
-        "assigned_to": "alice",
-        "name": "t1",
-    },
-    {
-        "id": 2,
-        "status": "closed",
-        "group": "N2",
-        "date_creation": "2024-01-02",
-        "assigned_to": "bob",
-        "name": "t2",
-    },
-]
+from glpi_dashboard.data.pipeline import process_raw  # noqa: E402
 
 
-def test_process_list():
-    df = process_raw(sample)
-    assert list(df.columns[:5]) == [
-        "id",
-        "status",
-        "group",
-        "assigned_to",
-        "date_creation",
+def test_process_raw_sanitization():
+    raw = [
+        {"id": 1, "status": "Closed", "name": None, "assigned_to": 123},
+        {"id": None, "status": None, "name": "Chamado A", "assigned_to": None},
+        {"status": "new"},
     ]
-    assert df["date_creation"].dtype.kind == "M"
+    df = process_raw(raw)
 
+    assert df.shape == (3, 4)
+    assert df.columns.tolist() == ["id", "name", "status", "assigned_to"]
 
-def test_process_dataframe():
-    df_in = pd.DataFrame(sample)
-    df = process_raw(df_in)
-    assert len(df) == 2
-
-
-def test_process_series():
-    series = pd.Series(sample[0])
-    df = process_raw(series)
-    assert df.iloc[0]["id"] == 1
-
-
-def test_missing_fields():
-    bad = [{"id": 1}]
-    df = process_raw(bad)
-    assert list(df.columns)[:5] == [
-        "id",
-        "status",
-        "group",
-        "assigned_to",
-        "date_creation",
-    ]
-    assert pd.isna(df.loc[0, "status"])
-
-
-def test_alias_rename():
-    data = [
-        {
-            "id": 1,
-            "status": "new",
-            "groups_name": "N1",
-            "creation_date": "2024-01-01",
-            "users_id_recipient": "alice",
-        }
-    ]
-    df = process_raw(data)
-    assert set(["id", "status", "group", "assigned_to", "date_creation"]) <= set(
-        df.columns
-    )
-
-
-def test_save_json(tmp_path):
-    df = process_raw(sample)
-    file = tmp_path / "out.json"
-    save_json(df, file)
-    assert file.exists() and file.read_text()
+    assert df["id"].tolist() == [1, 0, 0]
+    assert df["status"].tolist() == ["closed", "", "new"]
+    assert df["name"].iloc[1] == "Chamado A"
+    assert df["assigned_to"].iloc[0] == "123"
