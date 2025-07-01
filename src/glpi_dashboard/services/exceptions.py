@@ -1,4 +1,3 @@
-# flake8: noqa
 import asyncio
 import random
 from enum import Enum
@@ -37,7 +36,8 @@ class GLPIAPIError(Exception):
     Attributes:
         status_code: The HTTP status code of the error.
         message: A descriptive error message.
-        response_data: Optional dictionary containing the raw response data from the API.
+        response_data: Optional dictionary containing the raw
+            response data from the API.
     """
 
     def __init__(
@@ -120,7 +120,8 @@ def glpi_retry(
     ),
 ) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """
-    A decorator for asynchronous GLPI API calls that implements jittered exponential back-off.
+    A decorator for asynchronous GLPI API calls that implements jittered
+    exponential back-off.
 
     Retries on specified HTTP status codes (default: 429, 500) and network errors.
     Translates other HTTP error codes into custom GLPIAPIError exceptions.
@@ -144,8 +145,13 @@ def glpi_retry(
                         jitter = random.uniform(0, delay)
                         sleep_time = delay + jitter
                         logger.warning(
-                            f"API call failed with status {e.status_code} ({e.message}). "
-                            f"Retrying in {sleep_time:.2f} seconds (attempt {attempt + 1}/{max_retries})."
+                            "API call failed with status %s (%s). "
+                            "Retrying in %.2f seconds (attempt %s/%s).",
+                            e.status_code,
+                            e.message,
+                            sleep_time,
+                            attempt + 1,
+                            max_retries,
                         )
                         await asyncio.sleep(sleep_time)
                     else:
@@ -158,8 +164,12 @@ def glpi_retry(
                         jitter = random.uniform(0, delay)
                         sleep_time = delay + jitter
                         logger.warning(
-                            f"Network error during API call: {e}. "
-                            f"Retrying in {sleep_time:.2f} seconds (attempt {attempt + 1}/{max_retries})."
+                            "Network error during API call: %s. "
+                            "Retrying in %.2f seconds (attempt %s/%s).",
+                            e,
+                            sleep_time,
+                            attempt + 1,
+                            max_retries,
                         )
                         await asyncio.sleep(sleep_time)
                     else:
@@ -168,10 +178,12 @@ def glpi_retry(
                             0, f"Network error after {max_retries} retries: {e}"
                         )
                 except Exception as e:
-                    # Catch any other unexpected exceptions and wrap them in GLPIAPIError
+                    # Catch any other unexpected exceptions
+                    # and wrap them in GLPIAPIError
                     raise GLPIAPIError(0, f"An unexpected error occurred: {e}")
 
-            # This line should ideally not be reached if max_retries is handled correctly
+            # This line should ideally not be reached if max_retries
+            # is handled correctly
             raise GLPIAPIError(0, f"API call failed after {max_retries} retries.")
 
         return wrapper
