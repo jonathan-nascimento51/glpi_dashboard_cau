@@ -15,7 +15,7 @@ from src.glpi_dashboard.config.settings import (
     GLPI_USERNAME,
 )
 from src.glpi_dashboard.data.pipeline import process_raw
-from src.glpi_dashboard.services.glpi_session import Credentials, GLPISession
+from src.glpi_dashboard.services.glpi_api_client import GlpiApiClient
 from src.glpi_dashboard.logging_config import setup_logging
 from src.glpi_dashboard.dashboard.layout import build_layout
 from src.glpi_dashboard.dashboard.callbacks import register_callbacks
@@ -25,19 +25,19 @@ setup_logging()
 
 async def _fetch_api_data() -> pd.DataFrame:
     """Fetch ticket data directly from the GLPI API."""
-    creds = Credentials(
-        app_token=GLPI_APP_TOKEN,
-        user_token=GLPI_USER_TOKEN,
-        username=GLPI_USERNAME,
-        password=GLPI_PASSWORD,
-    )
     try:
-        async with GLPISession(GLPI_BASE_URL, creds) as client:
-            data = await client.get("search/Ticket")
+        with GlpiApiClient(
+            GLPI_BASE_URL,
+            GLPI_APP_TOKEN,
+            GLPI_USER_TOKEN,
+            username=GLPI_USERNAME,
+            password=GLPI_PASSWORD,
+        ) as client:
+            data = client.get_all("Ticket")
     except Exception as exc:  # Broad catch logs unexpected failures
         logging.error("Failed to fetch data from GLPI API: %s", exc)
         raise
-    return process_raw(data.get("data", data))
+    return process_raw(data)
 
 
 def load_data() -> pd.DataFrame:

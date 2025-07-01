@@ -179,3 +179,31 @@ class GLPIAPIClient:
             if offset >= total:
                 break
         return results
+
+
+class GlpiApiClient(GLPIAPIClient):
+    """Convenience wrapper using tokens directly."""
+
+    def __init__(
+        self,
+        base_url: str,
+        app_token: str,
+        user_token: Optional[str] = None,
+        username: Optional[str] = None,
+        password: Optional[str] = None,
+        **session_kwargs: Any,
+    ) -> None:
+        creds = Credentials(
+            app_token=app_token,
+            user_token=user_token,
+            username=username,
+            password=password,
+        )
+        super().__init__(base_url, creds, **session_kwargs)
+
+    def get(
+        self, endpoint: str, params: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
+        if self._session is None or self._loop is None:
+            raise RuntimeError("Client session not started")
+        return self._loop.run_until_complete(self._session.get(endpoint, params=params))
