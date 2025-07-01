@@ -160,10 +160,14 @@ class GLPISession:
                         response.raise_for_status()  # Raises aiohttp.ClientResponseError for 4xx/5xx
                     except aiohttp.ClientResponseError as e:
                         response_data = {}
+                        response_text = ""
                         try:
                             response_data = await response.json()
                         except (aiohttp.ContentTypeError, ValueError):
-                            pass  # Not a JSON response
+                            try:
+                                response_text = await response.text()
+                            except Exception:
+                                pass
 
                         error_resp = getattr(e, "response", response)
                         error_class = HTTP_STATUS_ERROR_MAP.get(e.status, GLPIAPIError)
@@ -172,10 +176,19 @@ class GLPISession:
                             logger.info(
                                 "aiohttp ClientSession closed due to init failure."
                             )
+                        logger.error(
+                            "initSession failed with status %s: %s",
+                            e.status,
+                            response_data or response_text,
+                        )
                         raise error_class(
                             e.status,
                             parse_error(error_resp or response, response_data),
-                            response_data,
+                            (
+                                response_data or {"text": response_text}
+                                if (response_data or response_text)
+                                else None
+                            ),
                         )
 
                     data = await response.json()

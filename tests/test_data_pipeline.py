@@ -6,7 +6,6 @@ sys.path.insert(
 )  # noqa: E402
 
 import pandas as pd  # noqa: E402
-import pytest  # noqa: E402
 from glpi_dashboard.data.pipeline import process_raw, save_json  # noqa: E402
 
 sample = [
@@ -55,8 +54,15 @@ def test_process_series():
 
 def test_missing_fields():
     bad = [{"id": 1}]
-    with pytest.raises(ValueError):
-        process_raw(bad)
+    df = process_raw(bad)
+    assert list(df.columns)[:5] == [
+        "id",
+        "status",
+        "group",
+        "assigned_to",
+        "date_creation",
+    ]
+    assert pd.isna(df.loc[0, "status"])
 
 
 def test_alias_rename():

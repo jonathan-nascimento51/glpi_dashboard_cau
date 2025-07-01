@@ -5,7 +5,7 @@ import logging
 from dataclasses import dataclass
 from typing import Any, Dict, Optional
 
-import redis
+import redis.asyncio as redis
 import redis.exceptions
 
 from glpi_dashboard.config.settings import (
@@ -44,7 +44,7 @@ class RedisClient:
         self._prefix = prefix
         self.metrics = CacheMetrics()
 
-    def _connect(self) -> redis.Redis:
+    async def _connect(self) -> redis.Redis:
         """Establish a connection to Redis if not already connected."""
         if self._client is None:
             self._client = redis.Redis(
@@ -54,7 +54,7 @@ class RedisClient:
                 decode_responses=True,
             )
             try:
-                self._client.ping()
+                await self._client.ping()
                 logger.info("Successfully connected to Redis.")
             except redis.exceptions.ConnectionError as e:
                 logger.error("Could not connect to Redis: %s", e)
@@ -72,7 +72,7 @@ class RedisClient:
     async def get(self, key: str) -> Optional[Dict[str, Any]]:
         """Retrieve data and register hit/miss."""
         try:
-            client = self._connect()
+            client = await self._connect()
             redis_key = self._format_key(key)
             cached_data = await client.get(redis_key)
             if cached_data:
@@ -88,21 +88,21 @@ class RedisClient:
             return None
         except json.JSONDecodeError as e:
             logger.error("Error decoding JSON for key %s: %s", key, e)
-            self.delete(key)
+            await self.delete(key)
             return None
         except Exception as e:
             logger.error("Unexpected error during Redis GET for key %s: %s", key, e)
             return None
 
-    def set(
+    async def set(
         self, key: str, data: Dict[str, Any], ttl_seconds: Optional[int] = None
     ) -> None:
         """Store data in Redis cache with an optional TTL."""
         try:
-            client = self._connect()
+            client = await self._connect()
             ttl = ttl_seconds or REDIS_TTL_SECONDS
             redis_key = self._format_key(key)
-            client.setex(redis_key, ttl, json.dumps(data))
+            await client.setex(redis_key, ttl, json.dumps(data))
             logger.debug("Cache SET for key %s with TTL %s", redis_key, ttl)
         except redis.exceptions.ConnectionError as e:
             logger.error("Redis connection error during SET: %s", e)
@@ -110,12 +110,12 @@ class RedisClient:
         except Exception as e:
             logger.error("Unexpected error during Redis SET for key %s: %s", key, e)
 
-    def delete(self, key: str) -> None:
+    async def delete(self, key: str) -> None:
         """Delete a key from Redis."""
         try:
-            client = self._connect()
+            client = await self._connect()
             redis_key = self._format_key(key)
-            client.delete(redis_key)
+            await client.delete(redis_key)
             logger.debug("Cache DELETE for key: %s", redis_key)
         except redis.exceptions.AuthenticationError as e:
             logger.error("Redis connection error during DELETE: %s", e)
@@ -126,7 +126,7 @@ class RedisClient:
     async def get_ttl(self, key: str) -> int:
         """Return remaining TTL for a key in seconds or -2 if not found."""
         try:
-            client = self._connect()
+            client = await self._connect()
             redis_key = self._format_key(key)
             ttl = await client.ttl(redis_key)
             return int(ttl)
