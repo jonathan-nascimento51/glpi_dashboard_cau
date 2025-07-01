@@ -5,6 +5,7 @@ Para entender em detalhes o funcionamento do endpoint, consulte também
 [init_session_api.md](init_session_api.md).
 
 ## 1. Verifique as Credenciais
+
 1. Crie o arquivo `.env` com `python scripts/setup_env.py` caso ainda não exista.
 2. Preencha `GLPI_BASE_URL`, `GLPI_APP_TOKEN` e `GLPI_USER_TOKEN` (ou `GLPI_USERNAME`/`GLPI_PASSWORD`).
 3. Execute um teste fora do Docker para confirmar a validade dos tokens:
@@ -17,14 +18,18 @@ Invoke-WebRequest -Uri "$Env:GLPI_BASE_URL/initSession" -Headers $headers -Metho
 Se a chamada retornar `200 OK` com um `session_token`, as credenciais estão corretas.
 
 ## 2. Teste a Conectividade a Partir do Contêiner
+
 1. Altere temporariamente o `docker-compose.yml` para manter o contêiner ativo:
+
    ```yaml
    services:
      dash:
        command: tail -f /dev/null
    ```
+
 2. Recrie os serviços (`docker compose up -d --build`).
 3. Acesse o shell do contêiner e teste DNS e HTTP:
+
    ```bash
    docker compose exec dash bash
    apt-get update && apt-get install -y curl dnsutils iputils-ping
@@ -35,12 +40,14 @@ Se a chamada retornar `200 OK` com um `session_token`, as credenciais estão cor
 Se o `curl` retornar o mesmo erro 400, a conexão está ocorrendo e o problema é realmente na autenticação ou formatação dos headers.
 
 ## 3. Ajuste do Código e Logs
+
 Caso esteja utilizando a versão padrão do projeto, verifique `src/glpi_dashboard/services/glpi_session.py`. A partir da versão atual, erros de inicialização registram o corpo da resposta para facilitar o diagnóstico. Veja o log com `docker compose logs dash`.
 
 ## 4. Otimize o Build do Docker
+
 Um contexto de build grande (acima de 400 MB) pode indicar arquivos desnecessários. Confirme se `.dockerignore` contém entradas como:
 
-```
+```.ignore
 .venv/
 *.md
 docs/
@@ -60,4 +67,3 @@ Caso os logs mostrem **`ERROR_WRONG_APP_TOKEN_PARAMETER`** após a chamada a `in
 3. **Recriação do cliente** – se houver dúvidas sobre tokens antigos persistentes, exclua o cliente de API e crie um novo, mantendo apenas o token necessário.
 
 Seguindo esses passos, a autenticação deve ser aceita e o dashboard continuará a inicialização normalmente.
-
