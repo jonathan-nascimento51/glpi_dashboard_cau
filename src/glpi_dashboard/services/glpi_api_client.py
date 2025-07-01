@@ -79,6 +79,18 @@ class GLPIAPIClient:
                 continue
             item[field] = mapping.get(num, value)
 
+    def _flatten_params(self, params: Dict[str, Any]) -> Dict[str, Any]:
+        """Expand list values into ``key[index]`` query parameters."""
+
+        flat: Dict[str, Any] = {}
+        for key, value in params.items():
+            if isinstance(value, list):
+                for idx, val in enumerate(value):
+                    flat[f"{key}[{idx}]"] = val
+            else:
+                flat[key] = value
+        return flat
+
     def _request_page(
         self, endpoint: str, params: Dict[str, Any]
     ) -> tuple[Dict[str, Any], Dict[str, str]]:
