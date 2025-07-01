@@ -24,6 +24,8 @@ from ..config.settings import (
 )
 from glpi_dashboard.data.pipeline import process_raw
 from glpi_dashboard.services.glpi_api_client import GlpiApiClient
+from glpi_dashboard.services.glpi_session import Credentials, GLPISession
+from glpi_dashboard.services.exceptions import GLPIAPIError, GLPIUnauthorizedError
 from glpi_dashboard.utils.redis_client import redis_client
 
 
@@ -165,6 +167,37 @@ def create_app(client: Optional[GlpiApiClient] = None) -> FastAPI:
     @app.get("/cache-metrics")  # legacy name
     async def cache_metrics() -> dict:
         return redis_client.get_cache_metrics()
+
+    @app.get("/health/glpi")
+    async def health_glpi() -> JSONResponse:
+        """Check GLPI connectivity."""
+        creds = Credentials(
+            app_token=GLPI_APP_TOKEN,
+            user_token=GLPI_USER_TOKEN,
+            username=GLPI_USERNAME,
+            password=GLPI_PASSWORD,
+        )
+        try:
+            async with GLPISession(GLPI_BASE_URL, creds):
+                pass
+        except (GLPIAPIError, GLPIUnauthorizedError) as exc:
+            return JSONResponse(
+                status_code=500,
+                content={
+                    "status": "error",
+                    "message": "GLPI connection failed",
+                    "details": str(exc),
+                },
+                headers={"Cache-Control": "no-cache"},
+            )
+        return JSONResponse(
+            status_code=200,
+            content={
+                "status": "success",
+                "message": "GLPI connection successful.",
+            },
+            headers={"Cache-Control": "no-cache"},
+        )
 
     schema = strawberry.Schema(Query)
     graphql = GraphQLRouter(

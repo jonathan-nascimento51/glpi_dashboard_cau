@@ -121,3 +121,24 @@ def test_cache_middleware():
     data = resp.json()
     assert data["hits"] == 1
     assert data["misses"] == 2
+
+
+def test_health_glpi(monkeypatch: pytest.MonkeyPatch):
+    async def fake_enter(self):
+        return self
+
+    async def fake_exit(self, exc_type, exc, tb):
+        return False
+
+    monkeypatch.setattr(
+        "glpi_dashboard.services.worker_api.GLPISession.__aenter__",
+        fake_enter,
+    )
+    monkeypatch.setattr(
+        "glpi_dashboard.services.worker_api.GLPISession.__aexit__",
+        fake_exit,
+    )
+    client = TestClient(create_app(client=FakeSession()))
+    resp = client.get("/health/glpi")
+    assert resp.status_code == 200
+    assert resp.json()["status"] == "success"
