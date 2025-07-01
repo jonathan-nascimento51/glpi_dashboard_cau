@@ -104,8 +104,7 @@ axiosInstance.interceptors.response.use(
     const RETRY_DELAY_MS = 1000; // Base delay for exponential back-off
 
     if (response && response.status === 429) { // [15, 16]
-      originalRequest!._retryCount = originalRequest!._retryCount |
-| 0;
+      originalRequest!._retryCount = originalRequest!._retryCount || 0;
 
       if (originalRequest!._retryCount < MAX_RETRIES) {
         originalRequest!._retryCount += 1;
@@ -210,7 +209,7 @@ export async function killGLPISession(): Promise<void> {
  * @returns An array of criterion objects for the GLPI API.
  */
 function buildCriteria(filter: TicketFilter): any {
-  const criteria: any =;
+  const criteria: any[] = [];
   let criterionIndex = 0;
 
   if (filter.status && filter.status.length > 0) {
