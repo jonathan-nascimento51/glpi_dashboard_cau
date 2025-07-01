@@ -16,10 +16,19 @@ def test_process_raw_sanitization():
     ]
     df = process_raw(raw)
 
-    assert df.shape == (3, 4)
-    assert df.columns.tolist() == ["id", "name", "status", "assigned_to"]
+    assert df.shape == (3, 6)
+    assert df.columns.tolist() == [
+        "id",
+        "name",
+        "status",
+        "assigned_to",
+        "group",
+        "date_creation",
+    ]
 
     assert df["id"].tolist() == [1, 0, 0]
     assert df["status"].tolist() == ["closed", "", "new"]
     assert df["name"].iloc[1] == "Chamado A"
     assert df["assigned_to"].iloc[0] == "123"
+    assert df["group"].tolist() == ["", "", ""]
+    assert df["date_creation"].isna().all()

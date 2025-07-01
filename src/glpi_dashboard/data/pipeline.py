@@ -59,6 +59,12 @@ def process_raw(data: TicketData) -> pd.DataFrame:
         .astype(str)
         .str.lower()
     )
+    df["group"] = (
+        df.get("group", pd.Series([""] * len(df), index=idx)).fillna("").astype(str)
+    )
+    df["date_creation"] = pd.to_datetime(
+        df.get("date_creation", pd.Series([pd.NaT] * len(df), index=idx))
+    )
     assigned_raw = df.get("assigned_to", pd.Series([None] * len(df), index=idx))
     numeric_assigned = pd.to_numeric(assigned_raw, errors="coerce")
     if numeric_assigned.notna().any():
@@ -67,7 +73,7 @@ def process_raw(data: TicketData) -> pd.DataFrame:
         assigned_to = assigned_raw.astype(str)
     df["assigned_to"] = assigned_to.replace({"<NA>": "", "nan": ""}).fillna("")
 
-    return df[["id", "name", "status", "assigned_to"]].copy()
+    return df[["id", "name", "status", "assigned_to", "group", "date_creation"]].copy()
 
 
 def save_json(df: pd.DataFrame, path: str = "mock/sample_data.json") -> None:
