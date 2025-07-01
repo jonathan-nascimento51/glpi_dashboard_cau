@@ -79,4 +79,3 @@ gunicorn main:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000
 ```
 
 Gunicorn manages multiple processes (parallelism) while each Uvicorn worker runs the asyncio event loop (concurrency).
-
