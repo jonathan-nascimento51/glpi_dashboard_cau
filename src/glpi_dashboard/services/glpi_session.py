@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import Optional, Dict, Any, Union
 import asyncio
 from contextlib import asynccontextmanager
+import base64
 
 import aiohttp
 from aiohttp import ClientSession, TCPConnector
@@ -129,14 +130,14 @@ class GLPISession:
                 "Content-Type": "application/json",
                 "App-Token": self.credentials.app_token,
             }
-            payload: Dict[str, str] = {}
 
             if self.credentials.user_token:
-                payload["user_token"] = self.credentials.user_token
+                headers["Authorization"] = f"user_token {self.credentials.user_token}"
                 logger.info("Attempting to initiate GLPI session with user_token...")
             elif self.credentials.username and self.credentials.password:
-                payload["login"] = self.credentials.username
-                payload["password"] = self.credentials.password
+                cred = f"{self.credentials.username}:{self.credentials.password}"
+                b64 = base64.b64encode(cred.encode()).decode()
+                headers["Authorization"] = f"Basic {b64}"
                 logger.info(
                     "Attempting to initiate GLPI session with username/password..."
                 )
@@ -149,9 +150,8 @@ class GLPISession:
                 if self._session is None:
                     self._session = aiohttp.ClientSession()
 
-                async with self._session.post(
+                async with self._session.get(
                     init_session_url,
-                    json=payload,
                     headers=headers,
                     proxy=self.proxy,
                     timeout=self._resolve_timeout(),
