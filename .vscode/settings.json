@@ -9,4 +9,8 @@
     "python.analysis.extraPaths": [
         "./src"
     ],
+    "cSpell.words": [
+        "creds",
+        "excinfo"
+    ],
 }
