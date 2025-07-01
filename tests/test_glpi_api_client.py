@@ -146,3 +146,28 @@ def test_field_mapping(requests_mock, monkeypatch):
     assert item["priority"] == "High"
     assert item["impact"] == "Medium"
     assert item["type"] == "Incident"
+
+
+def test_search_with_criteria(requests_mock, monkeypatch):
+    patch_session(monkeypatch)
+    requests_mock.get(
+        "http://example.com/apirest.php/search/Ticket",
+        json={"data": [{"id": 3, "status": 5}]},
+        headers={"Content-Range": "0-0/1"},
+    )
+    creds = Credentials(app_token="app", user_token="u")
+    with GLPIAPIClient("http://example.com/apirest.php", creds) as client:
+        data = client.search(
+            "Ticket",
+            [{"field": "status", "searchtype": "equals", "value": 5}],
+            forcedisplay=["id", "status"],
+        )
+
+    item = data[0]
+    assert item["status"] == "Solved"
+    q = requests_mock.request_history[0].qs
+    assert q["criteria[0][field]"] == ["status"]
+    assert q["criteria[0][searchtype]"] == ["equals"]
+    assert q["criteria[0][value]"] == ["5"]
+    assert q["forcedisplay[0]"] == ["id"]
+    assert q["expand_dropdowns"] == ["1"]

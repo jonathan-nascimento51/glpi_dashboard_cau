@@ -180,6 +180,37 @@ class GLPIAPIClient:
                 break
         return results
 
+    def search(
+        self, itemtype: str, criteria: List[Dict[str, Any]], **params: Any
+    ) -> List[Dict[str, Any]]:
+        """Search for items using GLPI search criteria.
+
+        Parameters
+        ----------
+        itemtype:
+            The GLPI item type (e.g. ``Ticket``).
+        criteria:
+            A list of dictionaries representing GLPI search criteria.
+            Each dictionary should contain keys like ``field``, ``searchtype``
+            and ``value``.
+        params:
+            Additional query parameters to include in the request.
+        """
+
+        search_params: Dict[str, Any] = {}
+        for k, v in params.items():
+            if isinstance(v, list):
+                for idx, val in enumerate(v):
+                    search_params[f"{k}[{idx}]"] = val
+            else:
+                search_params[k] = v
+
+        for idx, cond in enumerate(criteria):
+            for key, value in cond.items():
+                search_params[f"criteria[{idx}][{key}]"] = value
+
+        return self.get_all(f"search/{itemtype}", **search_params)
+
 
 class GlpiApiClient(GLPIAPIClient):
     """Convenience wrapper using tokens directly."""
