@@ -12,4 +12,3 @@ Este guia relaciona os principais problemas que podem ocorrer na primeira execuc
 | `ModuleNotFoundError` ao rodar scripts | Dependencias ausentes ou ambiente virtual desativado | Ative o venv, rode `pip install -r requirements.txt -r requirements-dev.txt` e depois `pip install -e .` (pacotes estão em `src/`) | "Crie ou ative o venv e reinstale dependencias" |
 
 Estas orientacoes sao complementares aos guias [run_local](run_local.md) e [first_use_mysql](first_use_mysql.md).
-
