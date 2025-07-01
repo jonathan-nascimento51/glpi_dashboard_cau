@@ -1,6 +1,8 @@
 # Investigando Erros 400 ao Chamar a API GLPI
 
 Este guia explica as causas mais comuns do retorno **HTTP 400: Bad Request** durante a inicialização do dashboard via Docker. O problema geralmente ocorre na etapa de `initSession` do GLPI e impede que o contêiner `dash` permaneça ativo.
+Para entender em detalhes o funcionamento do endpoint, consulte também
+[init_session_api.md](init_session_api.md).
 
 ## 1. Verifique as Credenciais
 1. Crie o arquivo `.env` com `python scripts/setup_env.py` caso ainda não exista.
