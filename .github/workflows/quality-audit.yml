@@ -1,0 +1,78 @@
+name: Weekly Quality Audit
+
+on:
+  schedule:
+    - cron: "0 3 * * 1"
+  workflow_dispatch:
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Python deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest coverage
+
+      - name: Run tests with coverage
+        run: |
+          pytest --cov=./ --cov-report=term --cov-report=xml > pytest.log
+          echo "coverage=$(grep -o 'TOTAL.*%' pytest.log | awk '{print $NF}')" >> $GITHUB_ENV
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Node deps
+        run: |
+          cd frontend
+          npm ci
+          npm install -g @lhci/cli
+
+      - name: Run Lighthouse CI
+        run: |
+          lhci collect --url=https://example.com --settings.preset=desktop
+          lhci upload --target=filesystem --outputDir=./lhci-report
+          echo "lcp=$(jq '.runs[0].lhr.audits["largest-contentful-paint"].displayValue' lhci-report/*/lhr.json)" >> $GITHUB_ENV
+
+      - name: Count open bug issues
+        run: |
+          BUGS=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            https://api.github.com/repos/${{ github.repository }}/issues?labels=bug\&state=open | jq length)
+          echo "bugs=$BUGS" >> $GITHUB_ENV
+
+      - name: Snyk vulnerability scan
+        uses: snyk/actions/node@v2
+        with:
+          command: test
+          args: --json-file-output=snyk.json --severity-threshold=high
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      - name: Summarize vulnerabilities
+        run: echo "vuln=$(jq '.uniqueCount' snyk.json)" >> $GITHUB_ENV
+
+      - name: Format report
+        run: |
+          echo "Coverage: $coverage" > report.txt
+          echo "LCP: $lcp" >> report.txt
+          echo "Open bugs: $bugs" >> report.txt
+          echo "Vulnerabilities: $vuln" >> report.txt
+
+      - name: Send to Slack
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          payload: |
+            {
+              "text": "$(cat report.txt | jq -Rs .)"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
