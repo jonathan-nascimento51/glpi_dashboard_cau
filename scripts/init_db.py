@@ -2,8 +2,11 @@ import argparse
 import asyncio
 import logging
 import sys
+from pathlib import Path
 
-from glpi_dashboard.data.database import init_db
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+
+from glpi_dashboard.data.database import init_db  # noqa: E402
 
 
 async def _run(drop_all: bool) -> None:
