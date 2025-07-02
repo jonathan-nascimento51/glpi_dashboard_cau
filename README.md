@@ -200,7 +200,7 @@ python scripts/fetch_tickets.py --output tickets_dump.json
 
 ## Database setup
 
-Run migrations to create the PostgreSQL tables defined in `schema.sql`:
+Run migrations to create the PostgreSQL tables defined in the `schema.sql` file located at the project root:
 
 ```bash
 make init-db

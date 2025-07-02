@@ -1,17 +1,12 @@
 # scripts/validate_credentials.py
 
 import asyncio
-import sys
-from pathlib import Path
 
-from glpi_dashboard.config.settings import get_settings
+from src.glpi_dashboard.config.settings import get_settings
 from aiohttp import ClientSession
 import textwrap
 import logging
 
-# Ensure src directory is on the path for imports
-ROOT_DIR = Path(__file__).resolve().parent.parent
-sys.path.append(str(ROOT_DIR / "src"))
 
 # --- Add project root to path to allow imports from src ---
 # This allows the script to be run from the root directory of the project
