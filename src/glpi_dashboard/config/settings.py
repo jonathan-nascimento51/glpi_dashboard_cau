@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from functools import lru_cache
 import os
-from typing import Literal, List
+from typing import Literal
 
 from dotenv import load_dotenv
 
@@ -40,7 +40,6 @@ class Settings(BaseSettings):
     MV_REFRESH_INTERVAL_MINUTES: int = 5
 
     USE_MOCK_DATA: bool = False
-    ALLOWED_IPS: List[str] = []
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
