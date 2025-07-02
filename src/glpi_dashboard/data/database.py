@@ -67,6 +67,7 @@ async def init_db(drop_all: bool = False) -> None:
 
         logger.info("Creating database schema from schema.sql...")
         # Read and execute schema.sql from repository root
+        SCHEMA_PATH = Path(__file__).resolve().parents[3] / "schema.sql"
         with SCHEMA_PATH.open("r", encoding="utf-8") as f:
             schema_sql = f.read()
 
