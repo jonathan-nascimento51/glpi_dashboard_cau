@@ -13,9 +13,11 @@ from src.glpi_dashboard.config.settings import (
     GLPI_PASSWORD,
     GLPI_USER_TOKEN,
     GLPI_USERNAME,
+    USE_MOCK_DATA,
 )
 from src.glpi_dashboard.data.pipeline import process_raw
 from src.glpi_dashboard.services.glpi_api_client import GlpiApiClient
+from src.glpi_dashboard.services.exceptions import GLPIAPIError
 from src.glpi_dashboard.logging_config import setup_logging
 from src.glpi_dashboard.dashboard.layout import build_layout
 from src.glpi_dashboard.dashboard.callbacks import register_callbacks
@@ -45,13 +47,25 @@ async def _fetch_api_data() -> pd.DataFrame:
     return process_raw(data)
 
 
-def load_data() -> pd.DataFrame:
-    """Always fetch ticket data from the GLPI API."""
+def load_data() -> pd.DataFrame | None:
+    """Load ticket data from GLPI or a local mock file."""
+    if USE_MOCK_DATA:
+        logging.info("Loading ticket data from mock file")
+        try:
+            return process_raw(pd.read_json("data/mock_tickets.json"))
+        except Exception as exc:  # pragma: no cover - file errors
+            logging.error("Failed to load mock data: %s", exc)
+            return None
+
     logging.info("Fetching ticket data from GLPI API")
-    return asyncio.run(_fetch_api_data())
+    try:
+        return asyncio.run(_fetch_api_data())
+    except GLPIAPIError as exc:
+        logging.error("Error contacting GLPI API: %s", exc)
+        return None
 
 
-def create_app(df: pd.DataFrame) -> Dash:
+def create_app(df: pd.DataFrame | None) -> Dash:
     """Create Dash application."""
     server = Flask(__name__)
 
@@ -62,7 +76,8 @@ def create_app(df: pd.DataFrame) -> Dash:
 
     app = Dash(__name__, server=server)
     app.layout = build_layout(df)
-    register_callbacks(app, df)
+    if df is not None:
+        register_callbacks(app, df)
     return app
 
 

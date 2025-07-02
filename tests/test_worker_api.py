@@ -3,6 +3,8 @@ import sys
 
 import pytest
 from fastapi.testclient import TestClient  # noqa: E402
+import redis
+from glpi_dashboard.services.exceptions import GLPIUnauthorizedError
 
 sys.path.insert(
     0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src")
@@ -121,3 +123,52 @@ def test_cache_middleware():
     data = resp.json()
     assert data["hits"] == 1
     assert data["misses"] == 2
+
+
+def test_health_glpi(monkeypatch: pytest.MonkeyPatch):
+    async def fake_enter(self):
+        return self
+
+    async def fake_exit(self, exc_type, exc, tb):
+        return False
+
+    monkeypatch.setattr(
+        "glpi_dashboard.services.worker_api.GLPISession.__aenter__",
+        fake_enter,
+    )
+    monkeypatch.setattr(
+        "glpi_dashboard.services.worker_api.GLPISession.__aexit__",
+        fake_exit,
+    )
+    client = TestClient(create_app(client=FakeSession()))
+    resp = client.get("/health/glpi")
+    assert resp.status_code == 200
+    assert resp.json()["status"] == "success"
+
+
+def test_redis_connection_error(monkeypatch: pytest.MonkeyPatch, patch_cache):
+    async def raise_conn(*args, **kwargs):
+        raise redis.exceptions.ConnectionError("fail")
+
+    monkeypatch.setattr(patch_cache, "get", raise_conn)
+    client = TestClient(create_app(client=FakeSession()), raise_server_exceptions=False)
+    resp = client.get("/tickets")
+    assert resp.status_code == 500
+    assert "Internal Server Error" in resp.text
+
+
+def test_health_glpi_auth_failure(monkeypatch: pytest.MonkeyPatch):
+    async def raise_auth(self):
+        raise GLPIUnauthorizedError(401, "unauthorized")
+
+    monkeypatch.setattr(
+        "glpi_dashboard.services.worker_api.GLPISession.__aenter__",
+        raise_auth,
+    )
+    client = TestClient(create_app(client=FakeSession()), raise_server_exceptions=False)
+    resp = client.get("/health/glpi")
+    assert resp.status_code == 500
+    data = resp.json()
+    assert data["status"] == "error"
+    assert data["message"] == "GLPI connection failed"
+    assert "unauthorized" in data["details"]

@@ -39,7 +39,22 @@ python scripts/setup_env.py
 # then open .env and set tokens and database credentials
 ```
 
-## 4. Prepare the data
+## 4. Validar credenciais GLPI
+
+Execute o script abaixo para confirmar que suas credenciais estão corretas:
+
+```bash
+python scripts/validate_credentials.py
+```
+
+Saída esperada em caso de sucesso:
+
+```text
+✅ Conexão com GLPI bem-sucedida!
+```
+
+Se ocorrer algum erro, ajuste o arquivo `.env` antes de prosseguir com `docker compose up`.
+## 5. Prepare the data
 
 Optionally download a JSON dump from GLPI:
 
@@ -47,7 +62,7 @@ Optionally download a JSON dump from GLPI:
 python scripts/fetch_tickets.py --output tickets_dump.json
 ```
 
-## 5. Start the Dash server
+## 6. Start the Dash server
 
 ### Linux / macOS
 ```bash
