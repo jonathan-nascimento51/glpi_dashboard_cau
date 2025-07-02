@@ -1,6 +1,7 @@
 import logging
 import time
 from datetime import datetime
+from pathlib import Path
 from typing import List, Dict, Any
 
 from sqlalchemy import Column, Integer, DateTime, text
@@ -14,6 +15,9 @@ from glpi_dashboard.config.settings import DATABASE_URL
 logger = logging.getLogger(__name__)
 
 Base = declarative_base()
+
+# Resolve schema.sql path relative to project root
+SCHEMA_PATH = Path(__file__).resolve().parents[2] / "schema.sql"
 
 
 class Ticket(Base):
@@ -62,8 +66,8 @@ async def init_db(drop_all: bool = False) -> None:
             logger.info("All tables dropped.")
 
         logger.info("Creating database schema from schema.sql...")
-        # Read and execute schema.sql
-        with open("schema.sql", "r") as f:
+        # Read and execute schema.sql from repository root
+        with SCHEMA_PATH.open("r", encoding="utf-8") as f:
             schema_sql = f.read()
 
         # Split by semicolon to execute multiple statements
