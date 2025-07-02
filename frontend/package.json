@@ -14,24 +14,24 @@
     "storybook": "storybook dev -p 6006",
     "cz": "git-cz",
     "start": "next start",
-    "prepare": "husky install",
     "test:e2e": "playwright test",
     "test:integration": "jest --config jest.integration.config.ts"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.32.0",
+    "autoprefixer": "^10.4.14",
     "next": "^14.2.0",
+    "postcss": "^8.4.32",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "zustand": "^4.4.0",
-    "@tanstack/react-query": "^5.32.0",
     "tailwindcss": "^3.4.0",
-    "postcss": "^8.4.32",
-    "autoprefixer": "^10.4.14"
+    "zustand": "^4.4.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@next/bundle-analyzer": "^15",
     "@playwright/test": "^1.41.2",
-    "@storybook/react": "^7",
+    "@storybook/react": "^9.0.15",
     "@testing-library/jest-dom": "^6",
     "@testing-library/react": "^14",
     "@testing-library/user-event": "^14",
@@ -39,22 +39,21 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@typescript-eslint/eslint-plugin": "^8",
     "commitizen": "^4",
     "eslint": "^9",
     "eslint-config-next": "^15.3.4",
     "eslint-plugin-import": "^2",
     "eslint-plugin-react": "^7",
     "eslint-plugin-react-hooks": "^5",
-    "@typescript-eslint/eslint-plugin": "^8",
     "husky": "^8",
     "jest": "^29",
     "jest-environment-jsdom": "^29",
-    "testcontainers": "^9",
     "lint-staged": "^15",
     "prettier": "^3",
+    "testcontainers": "^11.0.3",
     "ts-node": "^10",
-    "typescript": "^5",
-    "@next/bundle-analyzer": "^15"
+    "typescript": "^5"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,md,json}": [
