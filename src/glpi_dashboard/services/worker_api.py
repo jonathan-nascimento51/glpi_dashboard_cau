@@ -141,12 +141,15 @@ def create_app(client: Optional[GlpiApiClient] = None) -> FastAPI:
         return await call_next(request)
 
     if client is None:
-        client = GlpiApiClient(
-            GLPI_BASE_URL,
-            GLPI_APP_TOKEN,
-            GLPI_USER_TOKEN,
+        creds = Credentials(
+            app_token=GLPI_APP_TOKEN,
+            user_token=GLPI_USER_TOKEN,
             username=GLPI_USERNAME,
             password=GLPI_PASSWORD,
+        )
+        client = GlpiApiClient(
+            GLPI_BASE_URL,
+            creds,
         )
 
     @app.get("/tickets")
