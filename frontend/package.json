@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
+    "analyze": "ANALYZE=true next build",
     "lint": "next lint",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,md,json}\"",
     "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,md,json}\"",
@@ -42,7 +43,8 @@
     "lint-staged": "^15",
     "prettier": "^3",
     "ts-node": "^10",
-    "typescript": "^5"
+    "typescript": "^5",
+    "@next/bundle-analyzer": "^15"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,md,json}": [

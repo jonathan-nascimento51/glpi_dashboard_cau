@@ -252,6 +252,16 @@ To gather the current warnings and generate a debugging prompt for other LLMs:
 python scripts/generate_bug_prompt.py --output bug_prompt.md
 ```
 
+## Front-end performance
+
+The Next.js dashboard targets a Largest Contentful Paint (LCP) below **2.5&nbsp;seconds**.
+Builds fail if any JavaScript bundle exceeds **250&nbsp;kB**. Run the analyzer
+with:
+
+```bash
+npm run analyze
+```
+
 ## CI
 
 Continuous integration runs on GitHub Actions using `.github/workflows/ci.yml`.
