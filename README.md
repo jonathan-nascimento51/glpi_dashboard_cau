@@ -1,6 +1,7 @@
 # GLPI Dashboard CAU
 
 ![Coverage](https://img.shields.io/badge/coverage-90%25-brightgreen.svg)
+[![Security](https://snyk.io/test/github/USER/REPO/badge.svg)](https://snyk.io/test/github/USER/REPO)
 
 This project provides a minimal dashboard to visualize service desk tickets from GLPI using a live connection to the REST API.
 
