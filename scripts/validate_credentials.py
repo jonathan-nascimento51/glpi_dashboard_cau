@@ -27,8 +27,16 @@ async def _check() -> None:
         username=GLPI_USERNAME,
         password=GLPI_PASSWORD,
     )
-    async with GLPISession(GLPI_BASE_URL, creds):
-        pass
+    async with GLPISession(GLPI_BASE_URL, creds) as session:
+        await wait_for_token(session, "proactive_token_2")
+
+
+async def wait_for_token(session, expected_token, timeout=1.0):
+    start = asyncio.get_event_loop().time()
+    while session._session_token != expected_token:
+        if asyncio.get_event_loop().time() - start > timeout:
+            break
+        await asyncio.sleep(0.05)
 
 
 def main() -> None:
