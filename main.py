@@ -17,6 +17,7 @@ from src.glpi_dashboard.config.settings import (
 )
 from src.glpi_dashboard.data.pipeline import process_raw
 from src.glpi_dashboard.services.glpi_api_client import GlpiApiClient
+from src.glpi_dashboard.services.glpi_session import Credentials
 from src.glpi_dashboard.services.exceptions import GLPIAPIError
 from src.glpi_dashboard.logging_config import setup_logging
 from src.glpi_dashboard.dashboard.layout import build_layout
@@ -29,12 +30,15 @@ async def _fetch_api_data() -> pd.DataFrame:
     """Fetch ticket data directly from the GLPI API."""
 
     def _sync_fetch() -> list[dict]:
-        with GlpiApiClient(
-            GLPI_BASE_URL,
-            GLPI_APP_TOKEN,
-            GLPI_USER_TOKEN,
+        creds = Credentials(
+            app_token=GLPI_APP_TOKEN,
+            user_token=GLPI_USER_TOKEN,
             username=GLPI_USERNAME,
             password=GLPI_PASSWORD,
+        )
+        with GlpiApiClient(
+            GLPI_BASE_URL,
+            creds,
         ) as client:
             return client.get_all("Ticket")
 

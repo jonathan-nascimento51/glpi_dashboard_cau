@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 
 # Importa o cliente da API do seu projeto
 from glpi_dashboard.services.glpi_api_client import GlpiApiClient
+from glpi_dashboard.services.glpi_session import Credentials
 
 # Carrega as variáveis de ambiente do arquivo .env
 load_dotenv()
@@ -43,8 +44,10 @@ def fetch_raw_data():
     assert user_token is not None
 
     try:
+        creds = Credentials(app_token=app_token, user_token=user_token)
         with GlpiApiClient(
-            base_url=glpi_url, app_token=app_token, user_token=user_token
+            glpi_url,
+            creds,
         ) as client:
             logger.info(
                 "Cliente da API inicializado corretamente. Buscando chamados..."
@@ -100,8 +103,10 @@ async def fetch_and_save(output):
     assert user_token is not None
 
     try:
+        creds = Credentials(app_token=app_token, user_token=user_token)
         with GlpiApiClient(
-            base_url=glpi_url, app_token=app_token, user_token=user_token
+            glpi_url,
+            creds,
         ) as client:
             params = {
                 "is_deleted": 0,
