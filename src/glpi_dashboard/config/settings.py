@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 from functools import lru_cache
+import os
 from typing import Literal, List
 
 from dotenv import load_dotenv
-from pydantic import HttpUrl, SecretStr
+
+# from pydantic import HttpUrl, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -15,11 +17,13 @@ class Settings(BaseSettings):
 
     ENVIRONMENT: Literal["dev", "work", "prod"] = "dev"
 
-    GLPI_BASE_URL: HttpUrl = "https://localhost/glpi/apirest.php"
-    GLPI_APP_TOKEN: SecretStr = SecretStr("your_app_token")
-    GLPI_USERNAME: str = "glpi_user"
-    GLPI_PASSWORD: str = "glpi_password"
-    GLPI_USER_TOKEN: SecretStr | None = None
+    GLPI_BASE_URL: str = os.getenv(
+        "GLPI_BASE_URL", "https://localhost/glpi/apirest.php"
+    )
+    GLPI_APP_TOKEN: str = os.getenv("GLPI_APP_TOKEN", "your_app_token")
+    GLPI_USERNAME: str = os.getenv("GLPI_USERNAME", "glpi_user")
+    GLPI_PASSWORD: str = os.getenv("GLPI_PASSWORD", "glpi_password")
+    GLPI_USER_TOKEN: str | None = os.getenv("GLPI_USER_TOKEN", None)  # Optional
 
     DB_HOST: str = "localhost"
     DB_PORT: str = "5432"
@@ -54,12 +58,10 @@ def get_settings() -> Settings:
 settings = get_settings()
 
 GLPI_BASE_URL = str(settings.GLPI_BASE_URL)
-GLPI_APP_TOKEN = settings.GLPI_APP_TOKEN.get_secret_value()
+GLPI_APP_TOKEN = settings.GLPI_APP_TOKEN
 GLPI_USERNAME = settings.GLPI_USERNAME
 GLPI_PASSWORD = settings.GLPI_PASSWORD
-GLPI_USER_TOKEN = (
-    settings.GLPI_USER_TOKEN.get_secret_value() if settings.GLPI_USER_TOKEN else None
-)
+GLPI_USER_TOKEN = settings.GLPI_USER_TOKEN if settings.GLPI_USER_TOKEN else None
 
 DB_HOST = settings.DB_HOST
 DB_PORT = settings.DB_PORT

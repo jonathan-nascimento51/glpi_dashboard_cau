@@ -1,5 +1,4 @@
 import os
-import re
 import datetime as dt
 import pytest
 import sys
@@ -17,58 +16,32 @@ def setup_env() -> None:
     os.environ["GLPI_USER_TOKEN"] = "user"
 
 
-def mock_common(requests_mock):
-    requests_mock.post(
-        "http://example.com/apirest.php/initSession",
-        json={"session_token": "t"},
-    )
+class FakeSession:
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, exc_type, exc, tb):
+        pass
+
+    async def get(self, endpoint: str, params: dict | None = None):
+        if endpoint.startswith("search/Ticket_User"):
+            return {"data": [{"users_id": 2, "groups_id": 3}]}
+        if endpoint.startswith("search/Ticket"):
+            return {"data": [{"id": 1, "name": "t", "status": 1, "date": "2024-01-01"}]}
+        if "User/2" in endpoint:
+            return {"id": 2, "name": "Alice", "groups_id": 3}
+        if "Group/3" in endpoint:
+            return {"id": 3, "completename": "N1"}
+        return {"id": 1}
 
 
 @pytest.mark.asyncio
-async def test_collect_basic(requests_mock):
+async def test_collect_basic():
     setup_env()
-    mock_common(requests_mock)
-    requests_mock.get(
-        re.compile(r"http://example.com/apirest.php/search/Ticket.*"),
-        json={"data": [{"id": 1, "name": "t", "status": 1, "date": "2024-01-01"}]},
-        headers={"Content-Range": "0-0/1"},
-    )
-    requests_mock.get(
-        re.compile(r"http://example.com/apirest.php/search/Ticket_User.*"),
-        json={"data": [{"users_id": 2, "groups_id": 3}]},
-        headers={"Content-Range": "0-0/1"},
-    )
-    requests_mock.get(
-        "http://example.com/apirest.php/User/2",
-        json={"id": 2, "name": "Alice", "groups_id": 3},
-    )
-    requests_mock.get(
-        "http://example.com/apirest.php/Group/3",
-        json={"id": 3, "completename": "N1"},
-    )
-
-    class FakeSession:
-        def __enter__(self):
-            return self
-
-        def __exit__(self, exc_type, exc, tb):
-            pass
-
-        def get_all(self, item, **kwargs):
-            if "Ticket_User" in item:
-                return [{"users_id": 2, "groups_id": 3}]
-            return [{"id": 1, "name": "t", "status": 1, "date": "2024-01-01"}]
-
-        def get(self, *args, **kwargs):
-            if "User" in args[0]:
-                return {"id": 2, "name": "Alice", "groups_id": 3}
-            if "Group" in args[0]:
-                return {"id": 3, "completename": "N1"}
-            return {"id": 1}
 
     session = FakeSession()
     df = await tickets_groups.collect_tickets_with_groups(
-        "2024-01-01", "2024-01-02", client=session
+        "2024-01-01", "2024-01-02", session=session
     )
     assert len(df) == 1
     assert df.iloc[0]["group_name"] == "N1"
