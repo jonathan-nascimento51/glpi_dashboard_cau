@@ -8,6 +8,7 @@
     "@types/react-dom": "^19.1.6"
   },
   "scripts": {
-    "storybook": "npm --prefix frontend run storybook"
+    "storybook": "npm --prefix frontend run storybook",
+    "test:integration": "npm --prefix frontend run test:integration"
   }
 }
