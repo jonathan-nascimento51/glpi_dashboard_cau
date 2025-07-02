@@ -12,5 +12,8 @@
     "test:integration": "npm --prefix frontend run test:integration",
     "analyze": "npm --prefix frontend run analyze",
     "adr:new": "node scripts/adr-new.js"
+  },
+  "husky": {
+    "dir": "../.husky"
   }
 }
