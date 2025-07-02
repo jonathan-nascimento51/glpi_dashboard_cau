@@ -4,10 +4,13 @@ This guide outlines the required steps to connect the GLPI worker API to Microso
 
 ## 1. Export the OpenAPI schema
 
-Use FastAPI's built-in command to save the schema:
+Run the worker API locally and download the schema from the default
+`/openapi.json` endpoint:
 
 ```bash
-PYTHONPATH=$(pwd) python worker_api.py --export-openapi openapi.json
+python worker.py &
+curl http://127.0.0.1:8000/openapi.json -o openapi.json
+kill %1
 ```
 
 Upload `openapi.json` when creating the connector in Power Platform.
