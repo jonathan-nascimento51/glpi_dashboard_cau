@@ -63,6 +63,7 @@ Set the connection details in `.env` using the keys `DB_*` and `REDIS_*`.
 
 The dashboard reads data produced by the worker and stored in PostgreSQL. More details on the multi-agent workflow can be found in
 [AGENTS.md](AGENTS.md).
+Front-end guidelines are summarized in [docs/frontend_architecture.md](docs/frontend_architecture.md).
 
 ## Main modules
 
@@ -182,6 +183,14 @@ python scripts/setup_env.py
 
 The Docker services rely on these settings to connect to the database and the
 GLPI API.
+
+You can verify that your credentials work before launching the stack:
+
+```bash
+python scripts/validate_credentials.py
+```
+
+If the connection succeeds you will see `✅ Conexão com GLPI bem-sucedida!`.
 
 After configuring the environment file you can optionally download a JSON dump of tickets:
 
