@@ -17,3 +17,6 @@ asyncpg
 redis
 flask-compress
 langgraph>=0.0.22
+dash-bootstrap-components>=1.5
+pydantic>=2.7
+pydantic-settings>=2.2

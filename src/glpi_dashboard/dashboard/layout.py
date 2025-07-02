@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import pandas as pd
 from dash import dash_table, dcc, html
+import dash_bootstrap_components as dbc
 
 
-def build_layout(df: pd.DataFrame) -> html.Div:
-    """Build dashboard layout with lazy loading."""
+def render_dashboard(df: pd.DataFrame) -> html.Div:
+    """Render main dashboard components."""
     return html.Div(
         [
             html.H1("GLPI Dashboard"),
@@ -29,3 +30,13 @@ def build_layout(df: pd.DataFrame) -> html.Div:
             ),
         ]
     )
+
+
+def build_layout(df: pd.DataFrame | None) -> html.Div:
+    """Return dashboard layout or an error message."""
+    if df is None:
+        return dbc.Alert(
+            "Erro na conexão com o GLPI. Verifique suas credenciais.",
+            color="danger",
+        )
+    return render_dashboard(df)

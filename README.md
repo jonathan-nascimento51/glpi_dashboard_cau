@@ -63,6 +63,7 @@ Set the connection details in `.env` using the keys `DB_*` and `REDIS_*`.
 
 The dashboard reads data produced by the worker and stored in PostgreSQL. More details on the multi-agent workflow can be found in
 [AGENTS.md](AGENTS.md).
+Front-end guidelines are summarized in [docs/frontend_architecture.md](docs/frontend_architecture.md).
 
 ## Main modules
 
@@ -168,6 +169,9 @@ Open `.env` and set the required values:
 - `REDIS_PORT` – Redis port
 - `REDIS_DB` – Redis database number
 - `REDIS_TTL_SECONDS` – TTL for cached responses in seconds
+- _Note_: IP filtering is not built into the worker API. Use your
+  network configuration or a reverse proxy if access needs to be
+  restricted.
 
 Before running Docker make sure this `.env` file exists and that `DB_NAME`,
 `DB_USER`, `DB_PASSWORD` and all GLPI credentials have non-empty values. You can
@@ -180,6 +184,14 @@ python scripts/setup_env.py
 The Docker services rely on these settings to connect to the database and the
 GLPI API.
 
+You can verify that your credentials work before launching the stack:
+
+```bash
+python scripts/validate_credentials.py
+```
+
+If the connection succeeds you will see `✅ Conexão com GLPI bem-sucedida!`.
+
 After configuring the environment file you can optionally download a JSON dump of tickets:
 
 ```bash
@@ -188,7 +200,7 @@ python scripts/fetch_tickets.py --output tickets_dump.json
 
 ## Database setup
 
-Run migrations to create the PostgreSQL tables defined in `schema.sql`:
+Run migrations to create the PostgreSQL tables defined in the `schema.sql` file located at the project root:
 
 ```bash
 make init-db
@@ -255,4 +267,6 @@ Guidance on connecting the API to Copilot Studio is available in
 [docs/copilot_integration.md](docs/copilot_integration.md).
 For common asyncio patterns and deployment notes see
 [docs/asyncio_scenarios.md](docs/asyncio_scenarios.md).
+For a complete developer usage guide see
+[docs/developer_usage.md](docs/developer_usage.md).
 

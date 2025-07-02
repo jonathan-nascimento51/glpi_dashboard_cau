@@ -11,8 +11,7 @@ import pandas as pd
 import os
 
 import asyncio
-from glpi_dashboard.services.glpi_api_client import GlpiApiClient
-import requests
+from glpi_dashboard.services.glpi_session import GLPISession, Credentials
 from glpi_dashboard.config.settings import (
     GLPI_BASE_URL,
     GLPI_APP_TOKEN,
@@ -28,7 +27,7 @@ STATUS = {1: "New", 2: "Processing", 3: "Assigned", 5: "Solved", 6: "Closed"}
 
 
 async def collect_tickets_with_groups(
-    start: str, end: str, client: Optional[GlpiApiClient] = None
+    start: str, end: str, session: Optional[GLPISession] = None
 ) -> pd.DataFrame:
     """Return a dataframe with ticket/group/user assignments."""
 
@@ -38,46 +37,61 @@ async def collect_tickets_with_groups(
     username = os.getenv("GLPI_USERNAME", GLPI_USERNAME)
     password = os.getenv("GLPI_PASSWORD", GLPI_PASSWORD)
 
-    if client is None:
-        client = GlpiApiClient(
-            base_url,
-            app_token,
-            user_token,
+    created = False
+    if session is None:
+        creds = Credentials(
+            app_token=app_token,
+            user_token=user_token,
             username=username,
             password=password,
         )
+        session = GLPISession(base_url, creds)
+        created = True
 
-    with client as session:
+    async def get_all(item: str, **params: dict) -> list[dict]:
+        params = {**params, "expand_dropdowns": 1}
+        endpoint = f"search/{item}" if not item.startswith("search/") else item
+        results: list[dict] = []
+        offset = 0
+        while True:
+            page_params = {
+                **params,
+                "range": f"{offset}-{offset + FETCH_PAGE_SIZE - 1}",
+            }
+            data = await session.get(endpoint, params=page_params)
+            page = data.get("data", data)
+            if isinstance(page, dict):
+                page = [page]
+            results.extend(page)
+            if len(page) < FETCH_PAGE_SIZE:
+                break
+            offset += FETCH_PAGE_SIZE
+        return results
 
-        def fetch(endpoint: str, params: Optional[dict] = None) -> dict:
-            if endpoint.startswith("search/"):
-                item = endpoint.split("/", 1)[1]
-                data = session.get_all(item, **(params or {}))
-            else:
-                data = session.get(endpoint, params=params)
-            if isinstance(data, dict):
-                inner = data.get("data")
-                if (
-                    isinstance(inner, list)
-                    and inner
-                    and not any(
-                        k in inner[0]
-                        for k in [
-                            "name",
-                            "completename",
-                            "users_id",
-                            "groups_id",
-                        ]
-                    )
-                ):
-                    resp = requests.get(
-                        f"{base_url}/{endpoint}",
-                        params=params,
-                        headers={"App-Token": app_token},
-                    )
-                    if resp.ok:
-                        data = resp.json()
-            return data
+    async def fetch(endpoint: str, params: Optional[dict] = None):
+        if endpoint.startswith("search/"):
+            item = endpoint.split("/", 1)[1]
+            return await get_all(item, **(params or {}))
+        data = await session.get(endpoint, params=params)
+        if isinstance(data, dict):
+            inner = data.get("data")
+            if (
+                isinstance(inner, list)
+                and inner
+                and not any(
+                    k in inner[0]
+                    for k in [
+                        "name",
+                        "completename",
+                        "users_id",
+                        "groups_id",
+                    ]
+                )
+            ):
+                data = await session.get(endpoint, params=params)
+        return data
+
+    async def collect() -> pd.DataFrame:
 
         criteria = [
             {"field": "date", "searchtype": "morethan", "value": start},
@@ -93,14 +107,14 @@ async def collect_tickets_with_groups(
                 "forcedisplay": forcedisplay,
                 "range": f"{offset}-{offset + FETCH_PAGE_SIZE - 1}",
             }
-            tickets = fetch("search/Ticket", params=params)
+            tickets = await fetch("search/Ticket", params=params)
             if isinstance(tickets, dict):
                 tickets = tickets.get("data", tickets)
             if not tickets:
                 break
             for t in tickets:
                 tid = int(t["id"])
-                ticket_assigns = fetch(
+                ticket_assigns = await fetch(
                     "search/Ticket_User",
                     params={
                         "criteria": [
@@ -118,20 +132,20 @@ async def collect_tickets_with_groups(
                     group_name = None
                     user_name = None
                     if group_id:
-                        g = fetch(
+                        g = await fetch(
                             f"Group/{group_id}",
                             params={"forcedisplay[0]": "completename"},
                         )
                         group_name = g.get("completename")
                     elif user_id:
-                        u = fetch(
+                        u = await fetch(
                             f"User/{user_id}",
                             params={"forcedisplay[0]": "name"},
                         )
                         user_name = u.get("name")
                         group_id = u.get("groups_id")
                         if group_id:
-                            g = fetch(
+                            g = await fetch(
                                 f"Group/{group_id}",
                                 params={"forcedisplay[0]": "completename"},
                             )
@@ -154,10 +168,15 @@ async def collect_tickets_with_groups(
             if len(tickets) < FETCH_PAGE_SIZE:
                 break
             offset += FETCH_PAGE_SIZE
-    df = pd.DataFrame(rows)
-    if not df.empty:
-        df["opened_at"] = pd.to_datetime(df["opened_at"], errors="coerce")
-    return df
+        df = pd.DataFrame(rows)
+        if not df.empty:
+            df["opened_at"] = pd.to_datetime(df["opened_at"], errors="coerce")
+        return df
+
+    if created:
+        async with session:
+            return await collect()
+    return await collect()
 
 
 def save_parquet(df: pd.DataFrame, path: Path | str) -> Path:
