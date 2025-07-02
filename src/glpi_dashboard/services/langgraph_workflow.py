@@ -7,14 +7,14 @@ import pandas as pd
 
 from langgraph.graph import END, StateGraph
 
-from src.glpi_dashboard.config.settings import (
+from glpi_dashboard.config.settings import (
     GLPI_APP_TOKEN,
     GLPI_BASE_URL,
     GLPI_PASSWORD,
     GLPI_USER_TOKEN,
     GLPI_USERNAME,
 )
-from src.glpi_dashboard.data.pipeline import process_raw
+from glpi_dashboard.data.pipeline import process_raw
 from .glpi_session import Credentials, GLPISession
 
 
