@@ -13,7 +13,8 @@
     "storybook": "storybook dev -p 6006",
     "cz": "git-cz",
     "start": "next start",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "next": "^15.3.4",
@@ -22,6 +23,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@playwright/test": "^1.41.2",
     "@storybook/react": "^7",
     "@testing-library/jest-dom": "^6",
     "@testing-library/react": "^14",
