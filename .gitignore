@@ -16,3 +16,8 @@ venv/
 log.jsonl
 logs/
 *src/glpi_dashboard_cau.egg-info/
+
+# Node
+node_modules/
+frontend/node_modules/
+frontend/.next/
