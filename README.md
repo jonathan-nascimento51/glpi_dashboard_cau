@@ -168,6 +168,9 @@ Open `.env` and set the required values:
 - `REDIS_PORT` – Redis port
 - `REDIS_DB` – Redis database number
 - `REDIS_TTL_SECONDS` – TTL for cached responses in seconds
+- _Note_: IP filtering is not built into the worker API. Use your
+  network configuration or a reverse proxy if access needs to be
+  restricted.
 
 Before running Docker make sure this `.env` file exists and that `DB_NAME`,
 `DB_USER`, `DB_PASSWORD` and all GLPI credentials have non-empty values. You can
