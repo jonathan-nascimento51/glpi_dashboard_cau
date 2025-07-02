@@ -63,7 +63,8 @@ Set the connection details in `.env` using the keys `DB_*` and `REDIS_*`.
 
 The dashboard reads data produced by the worker and stored in PostgreSQL. More details on the multi-agent workflow can be found in
 [AGENTS.md](AGENTS.md).
-Front-end guidelines are summarized in [docs/frontend_architecture.md](docs/frontend_architecture.md).
+Instructions for running the React front-end—including npm scripts and required environment variables—are available in
+[docs/frontend_architecture.md](docs/frontend_architecture.md).
 
 ## Main modules
 
