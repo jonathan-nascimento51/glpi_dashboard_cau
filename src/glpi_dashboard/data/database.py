@@ -20,9 +20,6 @@ SCHEMA_FILE = Path(__file__).resolve().parents[3] / "schema.sql"
 
 Base = declarative_base()
 
-# Resolve schema.sql path relative to project root
-SCHEMA_PATH = Path(__file__).resolve().parents[2] / "schema.sql"
-
 
 class Ticket(Base):
     """SQLAlchemy model for raw GLPI ticket data."""

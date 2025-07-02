@@ -1,7 +1,7 @@
 # GLPI Dashboard CAU
 
 ![Coverage](https://img.shields.io/badge/coverage-90%25-brightgreen.svg)
-[![Security](https://snyk.io/test/github/USER/REPO/badge.svg)](https://snyk.io/test/github/USER/REPO)
+[![Security](https://snyk.io/test/github/jonathan-nascimento51/glpi_dashboard_cau/badge.svg)](https://snyk.io/test/github/jonathan-nascimento51/glpi_dashboard_cau)
 
 This project provides a minimal dashboard to visualize service desk tickets from GLPI using a live connection to the REST API.
 
@@ -65,7 +65,7 @@ Set the connection details in `.env` using the keys `DB_*` and `REDIS_*`.
 The dashboard reads data produced by the worker and stored in PostgreSQL. More details on the multi-agent workflow can be found in
 [AGENTS.md](AGENTS.md).
 Instructions for running the React front-end—including npm scripts and required environment variables—are available in
-[docs/frontend_architecture.md](docs/frontend_architecture.md).
+[docs/frontend_architecture.md](docs/frontend_architecture.md). That document also covers how the front-end communicates with the worker API via `VITE_API_URL` and how to run the Jest and Playwright test suites.
 
 ## Main modules
 
