@@ -9,11 +9,13 @@ from aiohttp import ClientSession
 import textwrap
 import logging
 
+# Ensure src directory is on the path for imports
+ROOT_DIR = Path(__file__).resolve().parent.parent
+sys.path.append(str(ROOT_DIR / "src"))
+
 # --- Add project root to path to allow imports from src ---
 # This allows the script to be run from the root directory of the project
 # and still find the necessary modules in `src`.
-ROOT_DIR = Path(__file__).resolve().parent.parent
-sys.path.append(str(ROOT_DIR))
 # -----------------------------------------------------------
 
 # from src.glpi_dashboard.services.glpi_session import GLPISession, Credentials
