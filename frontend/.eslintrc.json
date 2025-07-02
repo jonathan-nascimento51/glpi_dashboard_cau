@@ -1,10 +1,1 @@
-# ESLint configuration with custom rules
-{
-  "extends": ["next", "next/core-web-vitals"],
-  "rules": {
-    # enforce single quotes
-    "quotes": ["error", "single", {"avoidEscape": true}],
-    # disallow semicolons
-    "semi": ["error", "never"]
-  }
-}
+{}
