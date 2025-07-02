@@ -73,7 +73,7 @@ Após configurar o `.env`, execute a criação das tabelas:
 python scripts/init_db.py --drop-all
 ```
 
-O script lê `schema.sql` e cria as tabelas necessárias em seu servidor MySQL.
+O script lê o arquivo `schema.sql` localizado na raiz do projeto e cria as tabelas necessárias em seu servidor MySQL.
 
 ## 5. Execução do aplicativo
 
