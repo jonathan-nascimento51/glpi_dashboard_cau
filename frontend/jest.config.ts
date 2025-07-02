@@ -5,6 +5,7 @@ const createJestConfig = nextJest({ dir: './' })
 const config = {
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
+  testPathIgnorePatterns: ['<rootDir>/tests/e2e/', '<rootDir>/tests/integration/'],
   collectCoverage: true,
   coverageDirectory: 'coverage',
   coverageThreshold: {

@@ -1,8 +1,19 @@
-import { execSync } from 'child_process';
-import path from 'path';
+import { GenericContainer } from 'testcontainers'
+import fs from 'fs'
+import path from 'path'
+import { dirname } from 'path'
+import { fileURLToPath } from 'url'
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
 
 export default async function globalSetup() {
-  const composeFile = path.resolve(__dirname, '../tests/integration/docker-compose.yml');
-  execSync(`docker compose -f ${composeFile} up -d --build`, { stdio: 'inherit' });
-  process.env.API_BASE_URL = 'http://localhost:8000';
+  const context = path.resolve(__dirname, '..')
+  const image = await GenericContainer.fromDockerfile(context).build()
+  const container = await new GenericContainer(image)
+    .withExposedPorts(8000)
+    .start()
+
+  const mappedPort = container.getMappedPort(8000)
+  process.env.API_BASE_URL = `http://localhost:${mappedPort}`
+  fs.writeFileSync(path.join(__dirname, 'container-id'), container.getId())
 }
