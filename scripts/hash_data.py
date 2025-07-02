@@ -29,7 +29,7 @@ def main() -> None:
         sys.exit(f"File not found: {args.json_file}")
 
     digest = sha256sum(args.json_file)
-    sha_file = args.json_file.with_suffix(args.json_file.suffix + ".sha256")
+    sha_file = args.json_file.with_suffix(f"{args.json_file.suffix}.sha256")
     sha_file.write_text(digest)
     print(f"✔ Hash written to {sha_file}")
 
