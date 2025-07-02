@@ -26,7 +26,7 @@ IMPACT_MAP = {1: "None", 2: "Low", 3: "Medium", 4: "High"}
 TYPE_MAP = {1: "Incident", 2: "Request"}
 
 
-class GLPIAPIClient:
+class GlpiApiClient:
     """Simple synchronous wrapper around :class:`GLPISession`."""
 
     def __init__(
@@ -44,7 +44,7 @@ class GLPIAPIClient:
     # ------------------------------------------------------------------
     # Context manager helpers
     # ------------------------------------------------------------------
-    def __enter__(self) -> "GLPIAPIClient":
+    def __enter__(self) -> "GlpiApiClient":
         self._loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self._loop)
         self._session = GLPISession(
@@ -224,7 +224,7 @@ class GLPIAPIClient:
         return self.get_all(f"search/{itemtype}", **search_params)
 
 
-class GlpiApiClient(GLPIAPIClient):
+class TokenGlpiApiClient(GlpiApiClient):
     """Convenience wrapper using tokens directly."""
 
     def __init__(
@@ -250,3 +250,7 @@ class GlpiApiClient(GLPIAPIClient):
         if self._session is None or self._loop is None:
             raise RuntimeError("Client session not started")
         return self._loop.run_until_complete(self._session.get(endpoint, params=params))
+
+
+# Backwards compatibility
+GLPIAPIClient = GlpiApiClient

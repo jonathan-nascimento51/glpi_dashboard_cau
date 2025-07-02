@@ -7,7 +7,7 @@ sys.path.insert(
 
 import pytest  # noqa: E402
 
-from glpi_dashboard.services.glpi_api_client import GLPIAPIClient  # noqa: E402
+from glpi_dashboard.services.glpi_api_client import GlpiApiClient  # noqa: E402
 from glpi_dashboard.services.glpi_session import Credentials  # noqa: E402
 from glpi_dashboard.services.exceptions import GLPIForbiddenError  # noqa: E402
 
@@ -55,7 +55,7 @@ def test_get_all_pagination(requests_mock, monkeypatch):
         ],
     )
     creds = Credentials(app_token="app", user_token="u")
-    with GLPIAPIClient("http://example.com/apirest.php", creds) as client:
+    with GlpiApiClient("http://example.com/apirest.php", creds) as client:
         data = client.get_all("Ticket")
 
     assert [d["status"] for d in data] == ["New", "Solved"]
@@ -81,7 +81,7 @@ def test_get_all_refresh_token(requests_mock, monkeypatch):
         ],
     )
     creds = Credentials(app_token="app", user_token="u")
-    with GLPIAPIClient("http://example.com/apirest.php", creds) as client:
+    with GlpiApiClient("http://example.com/apirest.php", creds) as client:
         data = client.get_all("Ticket")
         assert client._session.refreshed
     assert data[0]["status"] == "Processing (assigned)"
@@ -95,7 +95,7 @@ def test_get_all_http_error(requests_mock, monkeypatch):
         json={"message": "Forbidden"},
     )
     creds = Credentials(app_token="app", user_token="u")
-    with GLPIAPIClient("http://example.com/apirest.php", creds) as client:
+    with GlpiApiClient("http://example.com/apirest.php", creds) as client:
         with pytest.raises(GLPIForbiddenError):
             client.get_all("Ticket")
 
@@ -120,7 +120,7 @@ def test_get_all_multiple_pages(requests_mock, monkeypatch):
         ],
     )
     creds = Credentials(app_token="app", user_token="u")
-    with GLPIAPIClient("http://example.com/apirest.php", creds) as client:
+    with GlpiApiClient("http://example.com/apirest.php", creds) as client:
         data = client.get_all("Ticket")
 
     assert [d["status"] for d in data] == ["New", "Processing (assigned)", "Solved"]
@@ -138,7 +138,7 @@ def test_field_mapping(requests_mock, monkeypatch):
         headers={"Content-Range": "0-0/1"},
     )
     creds = Credentials(app_token="app", user_token="u")
-    with GLPIAPIClient("http://example.com/apirest.php", creds) as client:
+    with GlpiApiClient("http://example.com/apirest.php", creds) as client:
         data = client.get_all("Ticket")
 
     item = data[0]
@@ -156,7 +156,7 @@ def test_search_with_criteria(requests_mock, monkeypatch):
         headers={"Content-Range": "0-0/1"},
     )
     creds = Credentials(app_token="app", user_token="u")
-    with GLPIAPIClient("http://example.com/apirest.php", creds) as client:
+    with GlpiApiClient("http://example.com/apirest.php", creds) as client:
         data = client.search(
             "Ticket",
             [{"field": "status", "searchtype": "equals", "value": 5}],
