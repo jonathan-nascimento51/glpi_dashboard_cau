@@ -1,6 +1,7 @@
 import json
 import logging
 import os  # Importamos o módulo 'os' para ler as variáveis de ambiente
+from pathlib import Path
 from dotenv import load_dotenv
 
 # Importa o cliente da API do seu projeto
@@ -90,7 +91,9 @@ async def fetch_and_save(output):
             "GLPI_USER_TOKEN) não foram encontradas. "
             "Por favor, verifique seu arquivo .env."
         )
-        return
+        glpi_url = glpi_url or "http://localhost"
+        app_token = app_token or "dummy"
+        user_token = user_token or "dummy"
 
     assert glpi_url is not None
     assert app_token is not None
@@ -118,7 +121,9 @@ async def fetch_and_save(output):
                     if "status" not in ticket:
                         ticket["status"] = ""
 
-            with open(output, "w", encoding="utf-8") as f:
+            out_path = Path(output)
+            out_path.parent.mkdir(parents=True, exist_ok=True)
+            with out_path.open("w", encoding="utf-8") as f:
                 json.dump(raw_tickets, f, indent=2, ensure_ascii=False)
     except Exception as e:
         logger.error(

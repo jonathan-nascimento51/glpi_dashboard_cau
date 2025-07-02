@@ -483,6 +483,32 @@ class GLPISession:
         """
         return await self._request("DELETE", endpoint, headers=headers)
 
+    async def get_all(self, itemtype: str, **params: Any) -> list[dict]:
+        """Retrieve all items for a given GLPI type using pagination."""
+
+        from glpi_dashboard.config.settings import FETCH_PAGE_SIZE
+
+        params = {**params, "expand_dropdowns": 1}
+        endpoint = (
+            f"search/{itemtype}" if not itemtype.startswith("search/") else itemtype
+        )
+        results: list[dict] = []
+        offset = 0
+        while True:
+            page_params = {
+                **params,
+                "range": f"{offset}-{offset + FETCH_PAGE_SIZE - 1}",
+            }
+            data = await self.get(endpoint, params=page_params)
+            page = data.get("data", data)
+            if isinstance(page, dict):
+                page = [page]
+            results.extend(page)
+            if len(page) < FETCH_PAGE_SIZE:
+                break
+            offset += FETCH_PAGE_SIZE
+        return results
+
 
 __all__ = [
     "GLPISession",

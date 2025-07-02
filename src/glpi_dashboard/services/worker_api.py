@@ -65,16 +65,21 @@ async def _load_tickets(client: Optional[GlpiApiClient] = None) -> pd.DataFrame:
         with c as session:
             return session.get_all("Ticket")
 
+    async def _async_fetch() -> list[dict]:
+        creds = Credentials(
+            app_token=GLPI_APP_TOKEN,
+            user_token=GLPI_USER_TOKEN,
+            username=GLPI_USERNAME,
+            password=GLPI_PASSWORD,
+        )
+        async with GLPISession(GLPI_BASE_URL, creds) as sess:
+            return await sess.get_all("Ticket")
+
     try:
         if client is None:
-            client = GlpiApiClient(
-                GLPI_BASE_URL,
-                GLPI_APP_TOKEN,
-                GLPI_USER_TOKEN,
-                username=GLPI_USERNAME,
-                password=GLPI_PASSWORD,
-            )
-        data = await asyncio.to_thread(_sync_fetch, client)
+            data = await _async_fetch()
+        else:
+            data = await asyncio.to_thread(_sync_fetch, client)
     except Exception as exc:  # pragma: no cover - network errors
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
