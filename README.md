@@ -258,4 +258,6 @@ Guidance on connecting the API to Copilot Studio is available in
 [docs/copilot_integration.md](docs/copilot_integration.md).
 For common asyncio patterns and deployment notes see
 [docs/asyncio_scenarios.md](docs/asyncio_scenarios.md).
+For a complete developer usage guide see
+[docs/developer_usage.md](docs/developer_usage.md).
 
