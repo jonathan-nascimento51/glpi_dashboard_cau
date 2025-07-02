@@ -10,6 +10,7 @@
   "scripts": {
     "storybook": "npm --prefix frontend run storybook",
     "test:integration": "npm --prefix frontend run test:integration",
-    "analyze": "npm --prefix frontend run analyze"
+    "analyze": "npm --prefix frontend run analyze",
+    "adr:new": "node scripts/adr-new.js"
   }
 }
