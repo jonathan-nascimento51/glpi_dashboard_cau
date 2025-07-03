@@ -1,8 +1,10 @@
 """Dash app using live GLPI data."""
 
+import os
 import pandas as pd
 from dash import Dash
 from flask import Flask
+from flask_caching import Cache
 import logging
 
 from src.glpi_dashboard.config.settings import (
@@ -14,13 +16,21 @@ from src.glpi_dashboard.config.settings import (
     USE_MOCK_DATA,
 )
 from src.glpi_dashboard.data.pipeline import process_raw
-from src.glpi_dashboard.cache import cache
 from src.glpi_dashboard.services.glpi_api_client import GlpiApiClient
 from src.glpi_dashboard.services.glpi_session import Credentials
 from src.glpi_dashboard.services.exceptions import GLPIAPIError
 from src.glpi_dashboard.logging_config import setup_logging
 from src.glpi_dashboard.dashboard.layout import build_layout
 from src.glpi_dashboard.dashboard.callbacks import register_callbacks
+
+app = Flask(__name__)
+cache = Cache(app, config={
+    "CACHE_TYPE": "redis",
+    "CACHE_REDIS_HOST": os.getenv("REDIS_HOST", "redis"),
+    "CACHE_REDIS_PORT": int(os.getenv("REDIS_PORT", 6379)),
+    "CACHE_REDIS_DB": int(os.getenv("REDIS_DB", 0)),
+    "CACHE_REDIS_URL": f"redis://{os.getenv('REDIS_HOST', 'redis')}:{os.getenv('REDIS_PORT', 6379)}/{os.getenv('REDIS_DB', 0)}"
+})  # ou o tipo que você usa
 
 setup_logging()
 
