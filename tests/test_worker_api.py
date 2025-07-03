@@ -2,7 +2,6 @@ import pytest
 import redis
 from fastapi.testclient import TestClient
 
-import worker
 from glpi_dashboard.services.exceptions import GLPIUnauthorizedError
 from worker import create_app
 
@@ -34,14 +33,9 @@ class DummyCache:
         }
 
 
-@pytest.fixture(autouse=True)
-def patch_cache(monkeypatch: pytest.MonkeyPatch):
-    cache = DummyCache()
-    monkeypatch.setattr(worker, "redis_client", cache)
-    import glpi_dashboard.services.worker_api as worker_api
-
-    monkeypatch.setattr(worker_api, "redis_client", cache)
-    return cache
+@pytest.fixture
+def dummy_cache() -> DummyCache:
+    return DummyCache()
 
 
 class FakeSession:
@@ -55,8 +49,8 @@ class FakeSession:
         return [{"id": 1}]
 
 
-def test_rest_endpoints():
-    client = TestClient(create_app(client=FakeSession()))
+def test_rest_endpoints(dummy_cache: DummyCache):
+    client = TestClient(create_app(client=FakeSession(), cache=dummy_cache))
 
     resp = client.get("/tickets")
     assert resp.status_code == 200
@@ -70,7 +64,7 @@ def test_rest_endpoints():
     assert metrics["total"] >= 0
 
 
-def test_tickets_stream(monkeypatch: pytest.MonkeyPatch):
+def test_tickets_stream(monkeypatch: pytest.MonkeyPatch, dummy_cache: DummyCache):
     async def fake_gen(_client):
         yield b"fetching...\n"
         yield b"done\n"
@@ -78,30 +72,30 @@ def test_tickets_stream(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setitem(
         create_app.__globals__,
         "_stream_tickets",
-        lambda client: fake_gen(client),
+        lambda client, cache=None: fake_gen(client),
     )
 
-    client = TestClient(create_app(client=FakeSession()))
+    client = TestClient(create_app(client=FakeSession(), cache=dummy_cache))
     resp = client.get("/tickets/stream")
     assert resp.status_code == 200
     assert resp.text.splitlines() == ["fetching...", "done"]
 
 
-def test_graphql_metrics():
-    app = create_app(client=FakeSession())
+def test_graphql_metrics(dummy_cache: DummyCache):
+    app = create_app(client=FakeSession(), cache=dummy_cache)
     paths = [getattr(r, "path", None) for r in app.router.routes if hasattr(r, "path")]
     assert "/graphql/" in paths
 
 
-def test_graphql_query():
-    client = TestClient(create_app(client=FakeSession()))
+def test_graphql_query(dummy_cache: DummyCache):
+    client = TestClient(create_app(client=FakeSession(), cache=dummy_cache))
     query = "{ metrics { total } }"
     resp = client.post("/graphql/", params={"r": ""}, json={"query": query})
     assert resp.status_code == 200
     assert resp.json()["data"]["metrics"]["total"] >= 0
 
 
-def test_client_reused(monkeypatch: pytest.MonkeyPatch):
+def test_client_reused(monkeypatch: pytest.MonkeyPatch, dummy_cache: DummyCache):
     instances = []
 
     class RecordingSession(FakeSession):
@@ -113,15 +107,15 @@ def test_client_reused(monkeypatch: pytest.MonkeyPatch):
         lambda *a, **k: RecordingSession(),
     )
 
-    client = TestClient(create_app(client=RecordingSession()))
+    client = TestClient(create_app(client=RecordingSession(), cache=dummy_cache))
     client.get("/tickets")
     client.get("/metrics")
 
     assert len(instances) == 1
 
 
-def test_cache_stats_endpoint():
-    client = TestClient(create_app(client=FakeSession()))
+def test_cache_stats_endpoint(dummy_cache: DummyCache):
+    client = TestClient(create_app(client=FakeSession(), cache=dummy_cache))
     client.get("/tickets")
     resp = client.get("/cache/stats")
     assert resp.status_code == 200
@@ -130,8 +124,8 @@ def test_cache_stats_endpoint():
     assert data["hits"] == 0
 
 
-def test_cache_middleware():
-    client = TestClient(create_app(client=FakeSession()))
+def test_cache_middleware(dummy_cache: DummyCache):
+    client = TestClient(create_app(client=FakeSession(), cache=dummy_cache))
     client.get("/tickets")
     client.get("/tickets")
     resp = client.get("/cache/stats")
@@ -140,7 +134,7 @@ def test_cache_middleware():
     assert data["misses"] == 2
 
 
-def test_health_glpi(monkeypatch: pytest.MonkeyPatch):
+def test_health_glpi(monkeypatch: pytest.MonkeyPatch, dummy_cache: DummyCache):
     async def fake_enter(self):
         return self
 
@@ -155,24 +149,31 @@ def test_health_glpi(monkeypatch: pytest.MonkeyPatch):
         "glpi_dashboard.services.worker_api.GLPISession.__aexit__",
         fake_exit,
     )
-    client = TestClient(create_app(client=FakeSession()))
+    client = TestClient(create_app(client=FakeSession(), cache=dummy_cache))
     resp = client.get("/health/glpi")
     assert resp.status_code == 200
     assert resp.json()["status"] == "success"
 
 
-def test_redis_connection_error(monkeypatch: pytest.MonkeyPatch, patch_cache):
+def test_redis_connection_error(
+    monkeypatch: pytest.MonkeyPatch, dummy_cache: DummyCache
+):
     async def raise_conn(*args, **kwargs):
         raise redis.exceptions.ConnectionError("fail")
 
-    monkeypatch.setattr(patch_cache, "get", raise_conn)
-    client = TestClient(create_app(client=FakeSession()), raise_server_exceptions=False)
+    monkeypatch.setattr(dummy_cache, "get", raise_conn)
+    client = TestClient(
+        create_app(client=FakeSession(), cache=dummy_cache),
+        raise_server_exceptions=False,
+    )
     resp = client.get("/tickets")
     assert resp.status_code == 500
     assert "Internal Server Error" in resp.text
 
 
-def test_health_glpi_auth_failure(monkeypatch: pytest.MonkeyPatch):
+def test_health_glpi_auth_failure(
+    monkeypatch: pytest.MonkeyPatch, dummy_cache: DummyCache
+):
     async def raise_auth(self):
         raise GLPIUnauthorizedError(401, "unauthorized")
 
@@ -180,7 +181,10 @@ def test_health_glpi_auth_failure(monkeypatch: pytest.MonkeyPatch):
         "glpi_dashboard.services.worker_api.GLPISession.__aenter__",
         raise_auth,
     )
-    client = TestClient(create_app(client=FakeSession()), raise_server_exceptions=False)
+    client = TestClient(
+        create_app(client=FakeSession(), cache=dummy_cache),
+        raise_server_exceptions=False,
+    )
     resp = client.get("/health/glpi")
     assert resp.status_code == 500
     data = resp.json()
