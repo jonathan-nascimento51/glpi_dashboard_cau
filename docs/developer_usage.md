@@ -41,6 +41,7 @@ Scripts utilitários residem em `scripts/` (ex.: `init_db.py`, `fetch_tickets.py
    from dotenv import load_dotenv
    load_dotenv()
    ```
+
 3. **Inicializar banco**:
 
    ```bash
