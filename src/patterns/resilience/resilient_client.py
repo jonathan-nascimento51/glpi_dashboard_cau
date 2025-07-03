@@ -1,6 +1,6 @@
-from __future__ import annotations
-
 """HTTPX client with retry and circuit breaker."""
+
+from __future__ import annotations
 
 import httpx
 import logging

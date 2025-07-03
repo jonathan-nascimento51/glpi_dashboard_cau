@@ -6,6 +6,8 @@ from __future__ import annotations
 
 from typing import List, Optional, TypedDict
 
+import ast
+
 import pandas as pd
 from langchain_core.language_models.fake import FakeListLLM
 from langchain_core.prompts import PromptTemplate
@@ -156,7 +158,7 @@ def validation_node(state: AgentState) -> AgentState:
     try:
         last = state["messages"][-1]
         if last.startswith("metrics:"):
-            data = eval(last.split("metrics:", 1)[1].strip())
+            data = ast.literal_eval(last.split("metrics:", 1)[1].strip())
             Metrics(**data)
     except (ValidationError, Exception) as exc:
         state["error"] = str(exc)

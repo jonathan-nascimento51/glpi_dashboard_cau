@@ -1,6 +1,6 @@
-from __future__ import annotations
-
 """Pipeline to collect tickets and their group assignments."""
+
+from __future__ import annotations
 
 import datetime as dt
 import logging
