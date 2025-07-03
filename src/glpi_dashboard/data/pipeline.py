@@ -59,14 +59,11 @@ def process_raw(data: TicketData) -> pd.DataFrame:
 
     idx = df.index
 
-    df["id"] = (
-        pd.to_numeric(
-            df.get("id", pd.Series([None] * len(df), index=idx)),
-            errors="coerce",
-            downcast="integer",
-        )
-        .fillna(0)
-    )
+    df["id"] = pd.to_numeric(
+        df.get("id", pd.Series([None] * len(df), index=idx)),
+        errors="coerce",
+        downcast="integer",
+    ).fillna(0)
     df["name"] = (
         df.get("name", pd.Series([""] * len(df), index=idx)).fillna("").astype(str)
     )

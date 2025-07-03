@@ -10,4 +10,3 @@ def sanitize_message(message: str, max_length: int = 200) -> str:
     """Return message without control chars and limited to ``max_length``."""
     cleaned = _CONTROL_CHARS_RE.sub("", message)
     return cleaned[:max_length]
-

@@ -1,6 +1,5 @@
 """FastAPI service exposing GLPI tickets via REST and GraphQL."""
 
-
 from __future__ import annotations
 
 import argparse
@@ -94,7 +93,9 @@ async def _load_tickets(client: Optional[GlpiApiClient] = None) -> pd.DataFrame:
         return pd.DataFrame(data)
 
 
-async def _stream_tickets(client: Optional[GlpiApiClient]) -> AsyncGenerator[bytes, None]:
+async def _stream_tickets(
+    client: Optional[GlpiApiClient],
+) -> AsyncGenerator[bytes, None]:
     """Yield progress events followed by final ticket data."""
     yield b"fetching...\n"
     df = await _load_tickets(client=client)

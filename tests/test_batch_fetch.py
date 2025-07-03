@@ -66,6 +66,8 @@ async def test_fetch_all_tickets_tool_error(monkeypatch):
         raise RuntimeError("fail")
 
     monkeypatch.setattr(batch_fetch, "fetch_all_tickets", boom)
-    out = await batch_fetch.fetch_all_tickets_tool(batch_fetch.BatchFetchParams(ids=[1]))
+    out = await batch_fetch.fetch_all_tickets_tool(
+        batch_fetch.BatchFetchParams(ids=[1])
+    )
     data = json.loads(out)
     assert data["error"]["details"] == "fail"

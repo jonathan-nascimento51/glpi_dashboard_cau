@@ -105,9 +105,7 @@ def test_process_raw_memory_usage_reduced():
 def test_process_raw_invalid_date():
     """Invalid date strings should raise a ValueError."""
 
-    raw = [
-        {"id": 1, "status": "New", "date_creation": "not-a-date"}
-    ]
+    raw = [{"id": 1, "status": "New", "date_creation": "not-a-date"}]
 
     with pytest.raises(ValueError):
         process_raw(raw)

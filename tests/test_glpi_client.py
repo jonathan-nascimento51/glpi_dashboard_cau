@@ -5,7 +5,9 @@ import base64
 import httpx
 import pytest
 
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src"))  # noqa: E402
+sys.path.insert(
+    0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src")
+)  # noqa: E402
 
 from glpi_dashboard.services.glpi_rest_client import GLPIClient  # noqa: E402
 
@@ -23,7 +25,9 @@ async def test_init_session_user_token(mocker):
     http_client.headers = {}
     http_client.headers = {}
 
-    client = GLPIClient("http://example.com/apirest.php", app_token="APP", user_token="USER")
+    client = GLPIClient(
+        "http://example.com/apirest.php", app_token="APP", user_token="USER"
+    )
     await client.init_session()
 
     async_client.assert_called_once_with(
@@ -73,7 +77,9 @@ async def test_search_rest_url(mocker):
         return_value=httpx.Response(200, json={"data": []})
     )
 
-    client = GLPIClient("http://example.com/apirest.php", app_token="APP", user_token="USER")
+    client = GLPIClient(
+        "http://example.com/apirest.php", app_token="APP", user_token="USER"
+    )
     data = await client.search_rest("Ticket", params={"a": 1})
 
     http_client.request.assert_awaited_once_with(
@@ -93,7 +99,9 @@ async def test_query_graphql_payload(mocker):
         return_value=httpx.Response(200, json={"data": {"ok": True}})
     )
 
-    client = GLPIClient("http://example.com/apirest.php", app_token="APP", user_token="USER")
+    client = GLPIClient(
+        "http://example.com/apirest.php", app_token="APP", user_token="USER"
+    )
     result = await client.query_graphql("query { ping }", {"x": 1})
 
     http_client.request.assert_awaited_once_with(
