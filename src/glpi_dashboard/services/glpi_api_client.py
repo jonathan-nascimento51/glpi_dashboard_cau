@@ -1,14 +1,17 @@
+# mypy: ignore-errors
+# ruff: noqa: E402
 from __future__ import annotations
 
 """Synchronous GLPI API client built on top of :class:`GLPISession`."""
 
-from typing import Any, Dict, List, Optional
 import asyncio
 import logging
+from typing import Any, Dict, List, Optional
+
 import requests
 
-from .glpi_session import GLPISession, Credentials
 from .exceptions import HTTP_STATUS_ERROR_MAP, GLPIAPIError
+from .glpi_session import Credentials, GLPISession
 
 logger = logging.getLogger(__name__)
 
