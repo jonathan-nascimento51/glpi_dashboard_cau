@@ -24,6 +24,7 @@ from glpi_dashboard.config.settings import (
     GLPI_USERNAME,
 )
 from glpi_dashboard.data.pipeline import process_raw
+from glpi_dashboard.utils import sanitize_message
 
 from .glpi_session import Credentials, GLPISession
 
@@ -100,7 +101,7 @@ supervisor_llm = create_structured_output_runnable(SUPERVISOR_PROMPT, llm, NextA
 
 def supervisor(state: AgentState) -> AgentState:
     """Use an LLM to decide which worker should run next."""
-    last = state["messages"][-1]
+    last = sanitize_message(state["messages"][-1])
     opts = ", ".join(AVAILABLE_AGENTS)
     model = supervisor_llm.invoke({"message": last, "options": opts})
     state["next_agent"] = model.next_agent
