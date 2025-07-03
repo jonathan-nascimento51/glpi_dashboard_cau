@@ -8,7 +8,6 @@ from typing import Literal
 
 from dotenv import load_dotenv
 
-# from pydantic import HttpUrl, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -41,6 +40,16 @@ class Settings(BaseSettings):
 
     USE_MOCK_DATA: bool = False
 
+    knowledge_base_file: str = ""
+    database_url: str = ""
+    redis_url: str = ""
+    cache_type: str = ""
+    cache_redis_host: str = ""
+    cache_redis_port: str = ""
+    cache_redis_db: str = ""
+    cache_default_timeout: str = ""
+    codegpt_plus_api_key: str = ""
+
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
 
@@ -60,7 +69,7 @@ GLPI_BASE_URL = str(settings.GLPI_BASE_URL)
 GLPI_APP_TOKEN = settings.GLPI_APP_TOKEN
 GLPI_USERNAME = settings.GLPI_USERNAME
 GLPI_PASSWORD = settings.GLPI_PASSWORD
-GLPI_USER_TOKEN = settings.GLPI_USER_TOKEN if settings.GLPI_USER_TOKEN else None
+GLPI_USER_TOKEN = settings.GLPI_USER_TOKEN or None
 
 DB_HOST = settings.DB_HOST
 DB_PORT = settings.DB_PORT
