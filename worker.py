@@ -1,4 +1,8 @@
-"""Convenience wrapper for the worker API entrypoint."""
+"""Convenience wrapper for the worker API entrypoint.
+
+All imports use the installed ``glpi_dashboard`` package instead of the
+former ``src.glpi_dashboard`` path.
+"""
 
 from glpi_dashboard.services.worker_api import (
     create_app,
