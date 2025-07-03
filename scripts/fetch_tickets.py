@@ -79,7 +79,7 @@ def _save_raw_tickets(client):
         f"Busca concluída. {len(raw_tickets)} chamados recebidos do GLPI."
     )
 
-    output_filename = "raw_tickets_output.json"
+    output_filename = "data/raw_tickets_sample.json"
     with open(output_filename, "w", encoding="utf-8") as f:
         json.dump(raw_tickets, f, indent=2, ensure_ascii=False)
 

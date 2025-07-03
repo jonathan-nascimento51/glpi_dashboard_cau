@@ -242,10 +242,12 @@ python scripts/validate_credentials.py
 
 If the connection succeeds you will see `✅ Conexão com GLPI bem-sucedida!`.
 
-After configuring the environment file you can optionally download a JSON dump of tickets:
+After configuring the environment file you can optionally generate a full JSON
+dump of tickets. The repository only ships with a small sanitized sample under
+`data/raw_tickets_sample.json` for quick tests.
 
 ```bash
-python scripts/fetch_tickets.py --output tickets_dump.json
+python scripts/fetch_tickets.py --output data/tickets_dump.json
 ```
 
 ## Database setup

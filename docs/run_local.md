@@ -56,10 +56,11 @@ Saída esperada em caso de sucesso:
 Se ocorrer algum erro, ajuste o arquivo `.env` antes de prosseguir com `docker compose up`.
 ## 5. Prepare the data
 
-Optionally download a JSON dump from GLPI:
+Optionally generate a JSON dump from GLPI. A small sanitized sample is already
+available in `data/raw_tickets_sample.json`:
 
 ```bash
-python scripts/fetch_tickets.py --output tickets_dump.json
+python scripts/fetch_tickets.py --output data/tickets_dump.json
 ```
 
 ## 6. Start the Dash server
