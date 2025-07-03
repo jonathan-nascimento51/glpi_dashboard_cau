@@ -1,5 +1,6 @@
 import { useChamadosPorDia } from '../hooks/useChamadosPorDia'
 import ReactCalendarHeatmap from 'react-calendar-heatmap'
+import { useMemo } from 'react'
 import 'react-calendar-heatmap/dist/styles.css'
 
 export default function ChamadosHeatmap() {
@@ -8,15 +9,23 @@ export default function ChamadosHeatmap() {
   if (loading) return <div>Carregando heatmap...</div>
   if (erro) return <div>Erro ao carregar dados do heatmap</div>
 
-  const values = dados.map((item) => ({ date: item.date, count: item.total }))
+  const values = useMemo(
+    () => dados.map((item) => ({ date: item.date, count: item.total })),
+    [dados],
+  )
 
-  const endDate = new Date()
-  const startDate = new Date(endDate)
-  startDate.setFullYear(startDate.getFullYear() - 1)
+  const { startDate, endDate } = useMemo(() => {
+    const end = new Date()
+    const start = new Date(end)
+    start.setFullYear(start.getFullYear() - 1)
+    return { startDate: start, endDate: end }
+  }, [])
 
   return (
     <div className="bg-white dark:bg-gray-800 p-4 rounded shadow">
-      <h2 className="text-xl font-semibold mb-2">Chamados no Ano (Heatmap Diário)</h2>
+      <h2 className="text-xl font-semibold mb-2">
+        Chamados no Ano (Heatmap Diário)
+      </h2>
       <ReactCalendarHeatmap
         startDate={startDate}
         endDate={endDate}
@@ -29,7 +38,9 @@ export default function ChamadosHeatmap() {
           return 'color-scale-4'
         }}
         tooltipDataAttrs={(value) => ({
-          'data-tip': value.date ? `${value.date}: ${value.count} chamados` : undefined,
+          'data-tip': value.date
+            ? `${value.date}: ${value.count} chamados`
+            : undefined,
         })}
         showWeekdayLabels
       />
