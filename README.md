@@ -222,7 +222,7 @@ POSTGRES_PASSWORD=$DB_PASSWORD
 - `LANGCHAIN_TRACING_V2` – set to `true` to enable LangSmith tracing
 - `LANGCHAIN_API_KEY` – API key used by LangSmith when tracing
 - `LANGCHAIN_PROJECT` – optional project name for tracing sessions
-- _Note_: IP filtering is not built into the worker API. Use your
+- *Note_: IP filtering is not built into the worker API. Use your
   network configuration or a reverse proxy if access needs to be
   restricted.
 
