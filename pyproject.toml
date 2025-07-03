@@ -23,6 +23,7 @@ dependencies = [
     "SQLAlchemy==2.0.30",
     "asyncpg",
     "redis",
+    "Flask-Caching>=2.1",
     "flask-compress",
     "langgraph>=0.0.22",
     "gql[httpx]>=3.5",
