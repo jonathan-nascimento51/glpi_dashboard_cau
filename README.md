@@ -201,6 +201,10 @@ Open `.env` and set the required values:
   network configuration or a reverse proxy if access needs to be
   restricted.
 
+When these variables are present the package will automatically
+initialize LangSmith and record traces for your runs. The project name
+defaults to `default` if `LANGCHAIN_PROJECT` is unset.
+
 ### Activating LangSmith tracing
 
 Add the following variables to `.env` to record traces in your LangSmith
