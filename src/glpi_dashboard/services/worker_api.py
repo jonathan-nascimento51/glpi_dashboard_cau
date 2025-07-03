@@ -218,13 +218,16 @@ def create_app(client: Optional[GlpiApiClient] = None) -> FastAPI:
     return app
 
 
+# Expose ASGI app for uvicorn
+app = create_app()
+
+
 def main() -> None:  # pragma: no cover - manual run
     """CLI for running the worker API."""
     parser = argparse.ArgumentParser(description="Run GLPI worker API")
     parser.add_argument("--port", type=int, default=8000, help="Port to bind")
     args = parser.parse_args()
 
-    app = create_app()
     uvicorn.run(app, host="0.0.0.0", port=args.port)
 
 

@@ -1,5 +1,4 @@
-  <style>
-    :root {
+:root {
       /* Light Theme */
       --primary: #1e40af;
       --primary-light: #3b82f6;
@@ -1364,4 +1363,3 @@
         border: 1px solid #000 !important;
       }
     }
-  </style>
