@@ -1,4 +1,5 @@
 import asyncio
+import json
 import time
 import os
 import sys
@@ -57,3 +58,14 @@ async def test_async_vs_sync_benchmark(monkeypatch):
 
     assert async_result == sync_result
     assert async_duration < sync_duration
+
+
+@pytest.mark.asyncio
+async def test_fetch_all_tickets_tool_error(monkeypatch):
+    async def boom(_ids):
+        raise RuntimeError("fail")
+
+    monkeypatch.setattr(batch_fetch, "fetch_all_tickets", boom)
+    out = await batch_fetch.fetch_all_tickets_tool(batch_fetch.BatchFetchParams(ids=[1]))
+    data = json.loads(out)
+    assert data["error"]["details"] == "fail"

@@ -1,6 +1,7 @@
 import asyncio
 import base64
 import contextlib
+import json
 import logging
 from typing import Any, Dict, Optional, Union
 
@@ -21,6 +22,7 @@ from .exceptions import (
     glpi_retry,
     parse_error,
 )
+from .tool_error import ToolError
 
 logger = logging.getLogger(__name__)
 
@@ -530,15 +532,16 @@ async def open_session_tool(params: SessionParams) -> str:
 
     This tool is typically called by orchestrators in the multi-agent
     pipeline defined in ``AGENTS.md`` to confirm connectivity with the GLPI
-    server.  It returns ``"ok"`` when a session can be established or the
-    error message if authentication fails.
+    server.  It returns ``"ok"`` when a session can be established. On
+    failure it returns a JSON string ``{"error": {"message": str, "details": str}}``.
     """
 
     try:
         async with GLPISession(**params.model_dump()) as _:
             return "ok"
     except Exception as exc:  # pragma: no cover - tool usage
-        return str(exc)
+        err = ToolError("Failed to open session", str(exc))
+        return json.dumps({"error": err.dict()})
 
 
 __all__ = [

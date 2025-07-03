@@ -1,5 +1,6 @@
 import os
 import sys
+import json
 import pytest
 import asyncio as aio
 from unittest.mock import AsyncMock, MagicMock, patch, ANY
@@ -21,6 +22,7 @@ from glpi_dashboard.services.glpi_session import (  # noqa: E402
     GLPIInternalServerError,
     GLPIAPIError,
 )
+import glpi_dashboard.services.glpi_session as glpi_session  # noqa: E402
 import aiohttp  # noqa: E402
 from glpi_dashboard.logging_config import setup_logging  # noqa: E402
 
@@ -624,3 +626,20 @@ async def test_request_network_error(
                 await session.get("Ticket/1")
 
     assert mock_client_session.request.call_count == 1
+
+
+@pytest.mark.asyncio
+async def test_open_session_tool_error(monkeypatch):
+    class BadSession:
+        async def __aenter__(self):
+            raise RuntimeError("boom")
+
+        async def __aexit__(self, exc_type, exc, tb):
+            return False
+
+    monkeypatch.setattr(glpi_session, "GLPISession", lambda *a, **k: BadSession())
+    creds = glpi_session.Credentials(app_token="a", user_token="u")
+    params = glpi_session.SessionParams(base_url="http://x", credentials=creds)
+    out = await glpi_session.open_session_tool(params)
+    data = json.loads(out)
+    assert data["error"]["details"] == "boom"
