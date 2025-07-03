@@ -45,6 +45,13 @@ def process_raw(data: TicketData) -> pd.DataFrame:
 
     df = _ensure_dataframe(data)
 
+    # Attempt to reduce memory by converting numeric-like columns to the
+    # smallest possible integer subtype. ``errors='ignore'`` keeps textual
+    # columns untouched while still downcasting when values look like
+    # integers.
+    for col in df.columns:
+        df[col] = pd.to_numeric(df[col], errors="ignore", downcast="integer")
+
     # Handle legacy/alternate field names from the API
     for src, dst in FIELD_ALIASES.items():
         if src in df.columns and dst not in df.columns:
@@ -54,10 +61,11 @@ def process_raw(data: TicketData) -> pd.DataFrame:
 
     df["id"] = (
         pd.to_numeric(
-            df.get("id", pd.Series([None] * len(df), index=idx)), errors="coerce"
+            df.get("id", pd.Series([None] * len(df), index=idx)),
+            errors="coerce",
+            downcast="integer",
         )
         .fillna(0)
-        .astype(int)
     )
     df["name"] = (
         df.get("name", pd.Series([""] * len(df), index=idx)).fillna("").astype(str)
@@ -67,10 +75,11 @@ def process_raw(data: TicketData) -> pd.DataFrame:
         .fillna("")
         .astype(str)
         .str.lower()
+        .astype("category")
     )
     df["group"] = (
         df.get("group", pd.Series([""] * len(df), index=idx)).fillna("").astype(str)
-    )
+    ).astype("category")
     df["date_creation"] = pd.to_datetime(
         df.get("date_creation", pd.Series([pd.NaT] * len(df), index=idx))
     )
