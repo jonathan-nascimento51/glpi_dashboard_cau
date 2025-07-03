@@ -16,7 +16,7 @@ Principais módulos em `src/glpi_dashboard`:
 | `services/worker_api.py` | Lógica de cache e métricas usadas pelo `worker.py` |
 | `config/settings.py` | Carrega variáveis de ambiente (GLPI, DB, Redis) |
 
-Scripts utilitários residem em `scripts/` (ex.: `init_db.py`, `fetch_tickets.py`, `validate_credentials_test.py`).
+Scripts utilitários residem em `scripts/` (ex.: `init_db.py`, `fetch_tickets.py`, `validate_credentials_script.py`).
 
 ## Configuração
 
@@ -69,6 +69,7 @@ Consulte `data_pipeline.py` para transformar os dados em DataFrame.
 
 Execute toda a suíte de testes com cobertura:
 ```bash
+pip install -r requirements.txt -r requirements-dev.txt
 make test
 ```
 
