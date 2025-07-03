@@ -1,5 +1,4 @@
 import base64
-
 import httpx
 import pytest
 
@@ -8,7 +7,9 @@ from glpi_dashboard.services.glpi_rest_client import GLPIClient
 
 @pytest.mark.asyncio
 async def test_init_session_user_token(mocker):
-    """GLPIClient.init_session should GET initSession with token auth."""
+    """
+    Testa se GLPIClient.init_session realiza GET em initSession com autenticação por user_token.
+    """
     async_client = mocker.patch(
         "glpi_dashboard.services.glpi_rest_client.httpx.AsyncClient"
     )
@@ -16,7 +17,6 @@ async def test_init_session_user_token(mocker):
     http_client.get = mocker.AsyncMock(
         return_value=httpx.Response(200, json={"session_token": "tok"})
     )
-    http_client.headers = {}
     http_client.headers = {}
 
     client = GLPIClient(
@@ -40,7 +40,9 @@ async def test_init_session_user_token(mocker):
 
 @pytest.mark.asyncio
 async def test_init_session_basic_auth(mocker):
-    """Username/password should generate Basic auth header."""
+    """
+    Testa se username/password geram o header Basic Auth corretamente.
+    """
     async_client = mocker.patch(
         "glpi_dashboard.services.glpi_rest_client.httpx.AsyncClient"
     )
@@ -62,7 +64,9 @@ async def test_init_session_basic_auth(mocker):
 
 @pytest.mark.asyncio
 async def test_search_rest_url(mocker):
-    """search_rest should call the correct endpoint with params."""
+    """
+    Testa se search_rest chama o endpoint correto com os parâmetros esperados.
+    """
     async_client = mocker.patch(
         "glpi_dashboard.services.glpi_rest_client.httpx.AsyncClient"
     )
@@ -84,7 +88,9 @@ async def test_search_rest_url(mocker):
 
 @pytest.mark.asyncio
 async def test_query_graphql_payload(mocker):
-    """query_graphql should POST to /graphql with proper JSON."""
+    """
+    Testa se query_graphql faz POST para /graphql com o payload JSON correto.
+    """
     async_client = mocker.patch(
         "glpi_dashboard.services.glpi_rest_client.httpx.AsyncClient"
     )
