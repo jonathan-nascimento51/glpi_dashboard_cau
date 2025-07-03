@@ -1,6 +1,7 @@
 import logging
-from dataclasses import dataclass
 from typing import Optional, Dict, Any, Union
+
+from pydantic import BaseModel, Field, model_validator
 import asyncio
 import base64
 
@@ -25,52 +26,67 @@ from .exceptions import (
 logger = logging.getLogger(__name__)
 
 
-@dataclass
-class Credentials:
-    """
-    Dataclass to hold GLPI API authentication credentials.
+class Credentials(BaseModel):
+    """Authentication data for the GLPI REST API.
 
-    Attributes:
-        app_token: The GLPI application token.
-        user_token: Optional GLPI user API token.
-        username: Optional GLPI username for authentication.
-        password: Optional GLPI password for authentication.
+    Use this model when calling GLPI tools so credentials are validated before
+    any network request is attempted.
     """
 
-    app_token: str
-    user_token: Optional[str] = None
-    username: Optional[str] = None
-    password: Optional[str] = None
+    app_token: str = Field(..., description="GLPI application token")
+    user_token: Optional[str] = Field(
+        default=None, description="Optional user API token"
+    )
+    username: Optional[str] = Field(
+        default=None, description="GLPI username used when no token is provided"
+    )
+    password: Optional[str] = Field(
+        default=None,
+        description="GLPI password used together with ``username``",
+    )
 
-    def __post_init__(self) -> None:
-        """Validate that authentication credentials are provided.
-
-        Either a ``user_token`` or ``username``/``password`` must be supplied.
-        If both are present ``user_token`` is preferred.
-        """
-        auth_methods_count = sum(
+    @model_validator(mode="after")
+    def _check_auth(cls, values: "Credentials") -> "Credentials":
+        """Ensure at least one authentication method is supplied."""
+        auth_methods = sum(
             [
-                1 if self.user_token else 0,
-                1 if (self.username and self.password) else 0,
+                1 if values.user_token else 0,
+                1 if (values.username and values.password) else 0,
             ]
         )
-        if auth_methods_count == 0:
+        if auth_methods == 0:
             raise ValueError("Either user_token or username/password must be provided.")
-        if auth_methods_count > 1:
+        if auth_methods > 1:
             logger.warning(
-                "Both user_token and username/password provided. "
-                "Prioritizing user_token for initSession."
+                "Both user_token and username/password provided. Prioritizing user_token."
             )
-            # Clear username/password if user_token is prioritized to ensure
-            # single auth path
-            self.username = None
-            self.password = None
+            values.username = None
+            values.password = None
+        return values
+
+
+class SessionParams(BaseModel):
+    """Input data for creating :class:`GLPISession`."""
+
+    base_url: str = Field(..., description="GLPI REST base URL")
+    credentials: Credentials
+    proxy: Optional[str] = Field(default=None, description="Optional proxy URL")
+    verify_ssl: bool = Field(default=True, description="Verify SSL certificates")
+    timeout: Union[int, aiohttp.ClientTimeout] = Field(
+        default=300, description="Request timeout in seconds"
+    )
+    refresh_interval: int = Field(
+        default=3000,
+        description="Interval in seconds to proactively refresh the session",
+    )
 
 
 class GLPISession:
-    """
-    Manages a GLPI API session, handling authentication, token refreshing,
-    and graceful session termination using an asynchronous context manager.
+    """Manage an authenticated session with the GLPI REST API.
+
+    This tool is ideal for background workers that need long-lived access to the
+    API. It transparently refreshes tokens and cleans up network resources when
+    used as an async context manager.
     """
 
     def __init__(
@@ -510,9 +526,26 @@ class GLPISession:
         return results
 
 
+async def open_session_tool(params: SessionParams) -> str:
+    """Validate credentials by opening and closing a session.
+
+    Use this helper to quickly check if the GLPI API is reachable and the
+    provided credentials are correct. It returns ``"ok"`` when the session can be
+    established or a human readable error message otherwise.
+    """
+
+    try:
+        async with GLPISession(**params.model_dump()) as _:
+            return "ok"
+    except Exception as exc:  # pragma: no cover - tool usage
+        return str(exc)
+
+
 __all__ = [
     "GLPISession",
     "Credentials",
+    "SessionParams",
+    "open_session_tool",
     "GLPIUnauthorizedError",
     "GLPIBadRequestError",
     "GLPIForbiddenError",
