@@ -1,15 +1,16 @@
-"""Async GLPI REST client built on ``httpx``.
+"""Asynchronous REST client for GLPI built on ``httpx``.
 
-This module provides :class:`GLPIClient`, a minimal asynchronous wrapper
-around the GLPI REST and GraphQL endpoints using :class:`httpx.AsyncClient`.
-It automatically sends the required ``App-Token`` and the persistent
-``Session-Token`` once a session is initiated.
+This module exposes :class:`GLPIClient`, a lightweight wrapper around the
+GLPI REST and GraphQL endpoints.  It handles authentication, persists the
+session token and automatically forwards the required ``App-Token`` and
+``Session-Token`` headers once a session is established.
 
 Example
 -------
 ```python
 import asyncio
 from glpi_dashboard.services.glpi_rest_client import GLPIClient
+
 
 async def main() -> None:
     client = GLPIClient(
@@ -21,6 +22,7 @@ async def main() -> None:
     data = await client.search_rest("Ticket", params={"criteria[0][field]": 1})
     print(data)
     await client.close()
+
 
 asyncio.run(main())
 ```
@@ -51,7 +53,23 @@ class GLPIClient:
         timeout: float = 30.0,
         verify_ssl: bool = True,
     ) -> None:
-        """Initialize the client with base URL and credentials."""
+        """Instantiate the client.
+
+        Parameters
+        ----------
+        base_url:
+            Base URL of the GLPI REST API (e.g.
+            ``https://glpi.example.com/apirest.php``).
+        app_token:
+            The application token generated in GLPI.
+        user_token:
+            Optional API token of the user.  Alternatively ``username`` and
+            ``password`` can be supplied to :meth:`init_session`.
+        timeout:
+            Request timeout in seconds.
+        verify_ssl:
+            Whether to verify SSL certificates when making requests.
+        """
 
         self.base_url = base_url.rstrip("/")
         self.app_token = app_token
@@ -80,7 +98,16 @@ class GLPIClient:
         username: Optional[str] = None,
         password: Optional[str] = None,
     ) -> None:
-        """Initiate a GLPI session and store the session token."""
+        """Open a session and persist the ``Session-Token`` header.
+
+        At least one authentication method is required.  Either provide ``user_token``
+        at construction time or supply ``username`` and ``password`` here.
+
+        Raises
+        ------
+        GLPIAPIError
+            If the server returns an error message or if a timeout occurs.
+        """
 
         headers = {"App-Token": self.app_token}
         if self.user_token:
@@ -118,7 +145,25 @@ class GLPIClient:
     async def search_rest(
         self, itemtype: str, params: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
-        """Execute a REST search for the given item type."""
+        """Execute a REST ``search`` query.
+
+        Parameters
+        ----------
+        itemtype:
+            The GLPI item type to search (e.g. ``Ticket``).
+        params:
+            Optional dictionary of query parameters understood by the GLPI API.
+
+        Returns
+        -------
+        dict
+            Parsed JSON response from the API.
+
+        Raises
+        ------
+        GLPIAPIError
+            If the API responds with an error or the request times out.
+        """
 
         url = f"search/{itemtype}"
         try:
@@ -143,7 +188,26 @@ class GLPIClient:
     async def query_graphql(
         self, query: str, variables: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
-        """Send a GraphQL query to the GLPI server."""
+        """Send a GraphQL query to the GLPI server.
+
+        Parameters
+        ----------
+        query:
+            GraphQL query string.
+        variables:
+            Optional mapping of variables for the query.
+
+        Returns
+        -------
+        dict
+            The ``data`` section of the GraphQL response.
+
+        Raises
+        ------
+        GLPIAPIError
+            If the API returns an error, the query produces GraphQL errors or a
+            timeout occurs.
+        """
 
         payload = {"query": query, "variables": variables or {}}
         try:
