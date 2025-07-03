@@ -18,6 +18,20 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
+### Docker Compose
+
+When running the dashboard via Docker Compose, `node_modules` is mounted as a
+volume to avoid permission issues:
+
+```yaml
+volumes:
+  - ./frontend:/app
+  - /app/node_modules
+```
+
+This setup ensures `npm run dev` works inside the container and that the `next`
+CLI is available.
+
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
 ## Learn More

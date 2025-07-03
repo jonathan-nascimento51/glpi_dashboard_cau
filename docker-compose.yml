@@ -36,6 +36,7 @@ services:
       context: ./frontend
     volumes:
       - ./frontend:/app
+      - /app/node_modules
 
 volumes:
   redis_data:
