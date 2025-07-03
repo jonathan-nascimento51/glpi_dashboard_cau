@@ -9,7 +9,9 @@ from testcontainers.postgres import PostgresContainer
 from app.domain.entities.order import Order
 from app.domain.value_objects.money import Money
 from app.infrastructure.persistence.sqlalchemy_repository import (
-    Base, SqlAlchemyOrderRepository)
+    Base,
+    SqlAlchemyOrderRepository,
+)
 
 
 @pytest.mark.integration

@@ -17,9 +17,7 @@ def _setup_langsmith() -> None:
     project = os.getenv("LANGCHAIN_PROJECT")
 
     if not api_key:
-        logger.warning(
-            "LANGCHAIN_TRACING_V2 is set but LANGCHAIN_API_KEY is missing"
-        )
+        logger.warning("LANGCHAIN_TRACING_V2 is set but LANGCHAIN_API_KEY is missing")
         return
 
     try:

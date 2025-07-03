@@ -11,14 +11,13 @@ def to_dataframe(tickets: list[dict]) -> pd.DataFrame:
     """Return a DataFrame from a list of tickets with optimized dtypes."""
     df = pd.DataFrame(tickets)
     if df.empty:
-        typed = (
-            pd.DataFrame(columns=["id", "status", "assigned_to", "group"])
-            .astype({
+        typed = pd.DataFrame(columns=["id", "status", "assigned_to", "group"]).astype(
+            {
                 "id": "int32",
                 "status": "category",
                 "assigned_to": "category",
                 "group": "category",
-            })
+            }
         )
         return typed
 

@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+
 @dataclass
 class ToolError:
     """Structured error returned by automation tools."""

@@ -51,9 +51,9 @@ def fetch_raw_data():
     try:
         creds = Credentials(app_token=app_token, user_token=user_token)
         with GlpiApiClient(
-                    glpi_url,
-                    creds,
-                ) as client:
+            glpi_url,
+            creds,
+        ) as client:
             _save_raw_tickets(client)
     except Exception as e:
         logger.error(
@@ -63,9 +63,7 @@ def fetch_raw_data():
 
 
 def _save_raw_tickets(client):
-    logger.info(
-        "Cliente da API inicializado corretamente. Buscando chamados..."
-    )
+    logger.info("Cliente da API inicializado corretamente. Buscando chamados...")
 
     params = {
         "is_deleted": 0,
@@ -75,9 +73,7 @@ def _save_raw_tickets(client):
     }
 
     raw_tickets = client.get_all("Ticket", **params)
-    logger.info(
-        f"Busca concluída. {len(raw_tickets)} chamados recebidos do GLPI."
-    )
+    logger.info(f"Busca concluída. {len(raw_tickets)} chamados recebidos do GLPI.")
 
     output_filename = "data/raw_tickets_sample.json"
     with open(output_filename, "w", encoding="utf-8") as f:

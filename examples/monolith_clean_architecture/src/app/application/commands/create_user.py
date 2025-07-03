@@ -1,5 +1,6 @@
 from app.domain.entities.user import User
 
+
 class CreateUser:
     def execute(self, user_id: int, name: str) -> User:
         user = User(user_id, name)

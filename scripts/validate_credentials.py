@@ -57,9 +57,9 @@ def main() -> None:
     try:
         asyncio.run(_check())
     except (GLPIAPIError, GLPIUnauthorizedError) as exc:  # pragma: no cover - network
-        print(f"\u274C Falha na conexão: {exc}")
+        print(f"\u274c Falha na conexão: {exc}")
     except Exception as exc:  # pragma: no cover - unexpected errors
-        print(f"\u274C Falha na conexão: {exc}")
+        print(f"\u274c Falha na conexão: {exc}")
     else:
         print("\u2705 Conexão com GLPI bem-sucedida!")
 
