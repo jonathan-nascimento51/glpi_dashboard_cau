@@ -132,12 +132,14 @@ class GlpiApiClient:
         return flat
 
     def _parse_json(self, resp: requests.Response) -> Dict[str, Any]:
+        """Return JSON content or an empty dict if decoding fails."""
         try:
             return resp.json()
         except ValueError:
             return {}
 
     def _raise_error(self, resp: requests.Response, data: Dict[str, Any]) -> None:
+        """Raise an exception mapped from the HTTP status code."""
         exc_cls = HTTP_STATUS_ERROR_MAP.get(resp.status_code, GLPIAPIError)
         raise exc_cls(resp.status_code, data.get("message", resp.reason), data)
 
