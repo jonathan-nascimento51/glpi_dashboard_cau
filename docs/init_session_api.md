@@ -5,6 +5,7 @@ Este documento resume como autenticar-se corretamente no GLPI usando o endpoint
 não seguem o formato exigido pela API.
 
 ## Requisição
+
 - **URL**: `[GLPI_URL]/apirest.php/initSession`
 - **Método**: `GET`
 - **Cabeçalhos obrigatórios**:
@@ -18,6 +19,7 @@ não seguem o formato exigido pela API.
   - `get_full_session`: se `true`, o GLPI retorna também dados da sessão.
 
 Exemplo usando `curl` com `user_token`:
+
 ```bash
 curl -X GET \
   -H "Content-Type: application/json" \
@@ -31,4 +33,3 @@ Se algum cabeçalho estiver incorreto ou faltar, o servidor responderá `400 Bad
 
 Para exemplos em Python e mais detalhes, consulte
 `docs/troubleshooting_400_bad_request.md`.
-
