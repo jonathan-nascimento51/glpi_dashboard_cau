@@ -268,19 +268,17 @@ For a MySQL-specific walkthrough, see [docs/first_use_mysql.md](docs/first_use_m
 
 ## Docker deployment
 
-You can run the entire stack with Docker. The compose file includes
-`postgres`, `redis`, an `initdb` service, a FastAPI **worker** and the Dash dashboard.
-Running `docker-compose up` will build the image, initialize the database and start all services:
+For a full development environment use the **`docker-compose-dev.yml`** file.
+It launches PostgreSQL, Redis, the worker API and the front-end. Start it with:
 
 ```bash
-docker-compose up
+docker-compose -f docker-compose-dev.yml up
 ```
 
-Ensure that `.env` defines `POSTGRES_DB`, `POSTGRES_USER` and
-`POSTGRES_PASSWORD` (mirroring the `DB_*` values) so the PostgreSQL container can
-initialize correctly.
+The default `docker-compose.yml` only runs the worker API, Redis and the
+front-end. If you already have a local database you can use it instead.
 
-This exposes the worker API on port `8000` and the dashboard on port `8080`.
+The worker API is exposed on port `8000` and the dashboard on port `8080`.
 
 ## Tests and linting
 
