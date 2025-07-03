@@ -1,5 +1,6 @@
 import os
 import sys
+import pandas as pd
 
 sys.path.insert(
     0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src")
@@ -76,3 +77,25 @@ def test_process_raw_to_dataframe_dtypes():
     assert str(typed.dtypes["status"]) == "category"
     assert str(typed.dtypes["group"]) == "category"
     assert str(typed.dtypes["assigned_to"]) == "category"
+
+
+def test_process_raw_memory_usage_reduced():
+    """Numeric downcasting and categorical conversion shrink memory usage."""
+    raw = [
+        {
+            "id": str(i),
+            "status": "New" if i % 2 == 0 else "Closed",
+            "assigned_to": i % 10,
+            "group": "N1",
+        }
+        for i in range(1000)
+    ]
+
+    baseline_df = pd.DataFrame(raw)
+    baseline_df["name"] = ""
+    baseline_df["date_creation"] = pd.NaT
+    baseline = baseline_df.memory_usage(deep=True).sum()
+
+    optimized = process_raw(raw).memory_usage(deep=True).sum()
+
+    assert optimized < baseline
