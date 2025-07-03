@@ -21,17 +21,22 @@ Scripts utilitários residem em `scripts/` (ex.: `init_db.py`, `fetch_tickets.py
 ## Configuração
 
 1. **Instalar dependências**:
+
    ```bash
    pip install -r requirements.txt -r requirements-dev.txt
    pip install -e .  # importa pacotes da pasta src
    pre-commit install
    ```
+
 2. **Criar `.env`**:
+
    ```bash
    python scripts/setup_env.py
    ```
+
    Ajuste tokens GLPI, credenciais de banco e host do Redis.
 3. **Inicializar banco**:
+
    ```bash
    make init-db
    ```
@@ -39,18 +44,23 @@ Scripts utilitários residem em `scripts/` (ex.: `init_db.py`, `fetch_tickets.py
 ## Executando o Dashboard
 
 Inicie o servidor Dash com:
+
 ```bash
 python main.py
 ```
+
 A interface ficará disponível em <http://127.0.0.1:8050>. Use o endpoint `/ping` para verificação de saúde.
 
 ## Executando o Worker API
 
 O serviço FastAPI roda com:
+
 ```bash
 python worker.py
 ```
+
 Endpoints relevantes:
+
 - `/tickets` – lista completa de chamados
 - `/metrics` – contagem de abertos/fechados
 - `/graphql/` – versão GraphQL
@@ -59,21 +69,25 @@ Endpoints relevantes:
 ## Utilizando o ETL
 
 Para gerar um dump de tickets em JSON ou Parquet:
+
 ```bash
 python scripts/fetch_tickets.py --output tickets.json
 python -m cli.tickets_groups --since 2025-06-01 --until 2025-06-30 --outfile grupos.parquet
 ```
+
 Consulte `data_pipeline.py` para transformar os dados em DataFrame.
 
 ## Testes e Lint
 
 Execute toda a suíte de testes com cobertura:
+
 ```bash
 pip install -r requirements.txt -r requirements-dev.txt
 make test
 ```
 
 Rodar apenas lint:
+
 ```bash
 black --check .
 flake8 .
@@ -82,14 +96,16 @@ flake8 .
 ## Docker
 
 A execução completa pode ser feita via Compose:
+
 ```bash
 docker-compose up
 ```
+
 Isso sobe PostgreSQL, Redis, `initdb`, o `worker` e o dashboard em portas 8000 e 8080.
 
 ## Estrutura de Pastas
 
-```
+```plaintext
 ├── src/                 # código principal do pacote
 │   └── glpi_dashboard/
 ├── tests/               # suíte pytest
@@ -99,6 +115,7 @@ Isso sobe PostgreSQL, Redis, `initdb`, o `worker` e o dashboard em portas 8000 e
 ```
 
 Para detalhes de arquitetura e troubleshooting, consulte também:
+
 - `docs/run_local.md`
 - `docs/error_map.md`
 - `docs/revisao_arquitetural_glpi_dashboard.md`
