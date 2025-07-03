@@ -1,8 +1,13 @@
 import json
+
 import pytest
 import requests
 
-from glpi_dashboard.services.exceptions import GLPIForbiddenError, GLPIInternalServerError, GLPIUnauthorizedError
+from glpi_dashboard.services.exceptions import (
+    GLPIForbiddenError,
+    GLPIInternalServerError,
+    GLPIUnauthorizedError,
+)
 from glpi_dashboard.services.glpi_api_client import GlpiApiClient
 from glpi_dashboard.services.glpi_session import Credentials
 
