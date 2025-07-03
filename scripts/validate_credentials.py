@@ -1,7 +1,7 @@
 """Check GLPI credentials before running the stack."""
 
 from __future__ import annotations
-
+import sys
 import asyncio
 from dotenv import load_dotenv
 
@@ -17,10 +17,20 @@ from glpi_dashboard.config.settings import (
     GLPI_USERNAME,
     GLPI_PASSWORD,
     GLPI_USER_TOKEN,
+    USE_MOCK_DATA,
 )
+
+# Windows event loop fix for aiodns
+if sys.platform.startswith("win"):
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 
 async def _check() -> None:
+    # Offline mode: skip check
+    if USE_MOCK_DATA:
+        print("⚠️  Modo offline ativado (USE_MOCK_DATA=True). Health check ignorado.")
+        return
+
     creds = Credentials(
         app_token=GLPI_APP_TOKEN,
         user_token=GLPI_USER_TOKEN,
@@ -33,9 +43,11 @@ async def _check() -> None:
 
 async def wait_for_token(session, expected_token, timeout=1.0):
     start = asyncio.get_event_loop().time()
-    while session._session_token != expected_token:
-        if asyncio.get_event_loop().time() - start > timeout:
-            break
+    while (
+        session._session_token is not None
+        and session._session_token != expected_token
+        and not asyncio.get_event_loop().time() - start > timeout
+    ):
         await asyncio.sleep(0.05)
 
 
@@ -45,11 +57,11 @@ def main() -> None:
     try:
         asyncio.run(_check())
     except (GLPIAPIError, GLPIUnauthorizedError) as exc:  # pragma: no cover - network
-        print(f"\u274C Falha na conex\u00e3o: {exc}")
+        print(f"\u274C Falha na conexão: {exc}")
     except Exception as exc:  # pragma: no cover - unexpected errors
-        print(f"\u274C Falha na conex\u00e3o: {exc}")
+        print(f"\u274C Falha na conexão: {exc}")
     else:
-        print("\u2705 Conex\u00e3o com GLPI bem-sucedida!")
+        print("\u2705 Conexão com GLPI bem-sucedida!")
 
 
 if __name__ == "__main__":  # pragma: no cover - manual run
