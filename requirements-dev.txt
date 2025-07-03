@@ -1,6 +1,7 @@
 pytest
 pytest-cov
 pytest-asyncio
+python-dotenv>=1.0
 flake8
 mypy
 black
