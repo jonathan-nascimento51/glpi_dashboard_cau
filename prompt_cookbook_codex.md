@@ -11,7 +11,7 @@
 
 ### 1️⃣ Gerar **glpi_session.py**
 
-```
+```text
 Você é um engenheiro Python sênior.
 Crie **glpi_session.py** com:
 - login() que cria sessão e retorna um objeto Session pronto.
@@ -23,7 +23,7 @@ Crie **glpi_session.py** com:
 
 ### 2️⃣ Gerar **data_pipeline.py**
 
-```
+```text
 Você é um especialista em ETL.
 Crie data_pipeline.py com:
 - process_raw(data: List[dict]) -> pandas.DataFrame
@@ -34,7 +34,7 @@ Crie data_pipeline.py com:
 
 ### 3️⃣ Gerar **dash_layout.py**
 
-```
+```text
 Você é front‑end Dash.
 Crie dash_layout.py contendo a função build_layout(df) que devolve um objeto html.Div com:
 - H1 título
@@ -46,7 +46,7 @@ Sem CSS avançado.
 
 ### 4️⃣ Atualizar **requirements.txt**
 
-```
+```text
 Adicione/atualize:
 dash>=2.17
 pandas>=2.2
@@ -57,7 +57,7 @@ pre-commit>=3.7
 
 ### 5️⃣ Script **.devcontainer/setup.sh**
 
-```
+```bash
 Gere setup.sh:
 - apt-get update && install build-essential
 - pip install -r requirements.txt -r requirements-dev.txt
@@ -66,21 +66,21 @@ Gere setup.sh:
 
 ### 6️⃣ Criar testes **tests/test_glpi_session.py**
 
-```
+```text
 Use pytest e requests-mock.
 Teste que get_tickets() retorna lista não vazia e lança HTTPError em 500.
 ```
 
 ### 7️⃣ Refatorar depois
 
-```
+```text
 Reescreva data_pipeline.process_raw para aceitar DataFrame e Series.
 Garanta 100% coverage nos testes.
 ```
 
 ### 8️⃣ Mensagens de commit (Conventional Commits)
 
-```
+```text
 feat(api): add glpi_session with session support
 fix(api): handle 401 unauthorized
 docs(readme): add local setup guide
