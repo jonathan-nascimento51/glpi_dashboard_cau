@@ -1,20 +1,23 @@
+version: "3.8"
 services:
-  postgres:
-    image: postgres:16-alpine
-    restart: always
+  app:
+    build: .
+    command: python worker.py
+    env_file:
+      - .env
     environment:
-      POSTGRES_DB: glpi_dashboard
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
+      PYTHONPATH: /app/src
     ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - "8000:8000"
+    depends_on:
+      redis:
+        condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U user -d glpi_dashboard"]
-      interval: 5s
+      test: ["CMD","curl","--fail","http://localhost:8000/health/glpi"]
+      interval: 30s
       timeout: 5s
-      retries: 5
+      retries: 3
+      start_period: 10s
 
   redis:
     image: redis:7-alpine
@@ -29,74 +32,5 @@ services:
       timeout: 5s
       retries: 5
 
-  initdb:
-    build: .
-    command: python scripts/init_db.py
-    env_file:
-      - .env
-    environment:
-      PYTHONPATH: /app/src
-    depends_on:
-      postgres:
-        condition: service_healthy
-    restart: on-failure
-
-  worker:
-    build: .
-    command: python worker.py
-    env_file:
-      - .env
-    environment:
-      PYTHONPATH: /app/src
-    ports:
-      - "8000:8000"
-    depends_on:
-      initdb:
-        condition: service_completed_successfully
-      redis:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD","curl","--fail","http://localhost:8000/health/glpi"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 10s
-    restart: on-failure
-
-  dash:
-    build: .
-    command: python main.py
-    env_file:
-      - .env
-    environment:
-      PYTHONPATH: /app/src
-      DASH_PORT: 8050
-    ports:
-      - "8080:8050"  # porta externa -> 8080 evita conflito com WSL
-    depends_on:
-      initdb:
-        condition: service_completed_successfully
-      redis:
-        condition: service_healthy
-    restart: always
-
-  frontend:
-    build:
-      context: ./frontend
-    command: npm run dev
-    working_dir: /app
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    ports:
-      - "3000:3000"
-    environment:
-      - NODE_ENV=development
-      # - NEXT_PUBLIC_API_URL=http://worker:8000 (exemplo, se precisar)
-    depends_on:
-      - worker
-      - dash
-
 volumes:
-  postgres_data:
   redis_data:
