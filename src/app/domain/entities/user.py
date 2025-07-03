@@ -8,3 +8,4 @@ class User:
 
     user_id: UUID
     name: str
+    email: str
