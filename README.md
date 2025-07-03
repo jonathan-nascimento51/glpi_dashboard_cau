@@ -294,7 +294,10 @@ black --check .
 flake8 .
 ```
 
-To gather the current warnings and generate a debugging prompt for other LLMs:
+### Bug prompt generation
+
+After running the tests and lint checks you can gather the current warnings and
+create a debugging prompt for other LLMs:
 
 ```bash
 python scripts/generate_bug_prompt.py --output bug_prompt.md
