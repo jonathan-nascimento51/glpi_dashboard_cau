@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import ast
+from enum import Enum
 from typing import List, Optional, TypedDict
 
 import pandas as pd
@@ -53,10 +54,21 @@ class NextAgent(BaseModel):
     next_agent: str = Field(..., description="Name of the next agent to execute")
 
 
+class TicketStatus(str, Enum):
+    """Allowed GLPI ticket statuses."""
+
+    NEW = "new"
+    ASSIGNED = "assigned"
+    PLANNED = "planned"
+    WAITING = "waiting"
+    SOLVED = "solved"
+    CLOSED = "closed"
+
+
 class FetcherArgs(BaseModel):
     """Input parameters for the fetcher node."""
 
-    status: str | None = Field(
+    status: TicketStatus | None = Field(
         default=None, description="Optional status filter for tickets"
     )
     limit: int = Field(50, description="Maximum number of tickets to fetch")
@@ -247,5 +259,6 @@ __all__ = [
     "recovery_node",
     "build_workflow",
     "GLPISession",
+    "TicketStatus",
     "AVAILABLE_AGENTS",
 ]
