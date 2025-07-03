@@ -5,6 +5,8 @@ import MetricCard from '../components/MetricCard'
 import LevelsPanel from '../components/LevelsPanel'
 import Sidebar from '../components/Sidebar'
 import FilterPanel from '../components/FilterPanel'
+import ChamadosTendencia from '../components/ChamadosTendencia'
+import ChamadosHeatmap from '../components/ChamadosHeatmap'
 import { useDashboardData } from '../hooks/useDashboardData'
 
 const Dashboard: React.FC = () => {
@@ -88,12 +90,10 @@ const Dashboard: React.FC = () => {
           </div>
           <div className="bottom-section">
             <LevelsPanel levels={levels} />
-            <div className="chart-container">
-              <div className="chart-header">
-                <div className="chart-title">Tendência de Chamados</div>
-              </div>
-              <canvas id="trendsChart" className="chart-canvas" />
-            </div>
+            <ChamadosTendencia />
+          </div>
+          <div className="my-4">
+            <ChamadosHeatmap />
           </div>
         </div>
         <Sidebar performance={performance} ranking={ranking} alerts={alerts} />
