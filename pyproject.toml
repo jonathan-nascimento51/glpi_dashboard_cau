@@ -25,6 +25,7 @@ dependencies = [
     "redis",
     "flask-compress",
     "langgraph>=0.0.22",
+    "gql[httpx]>=3.5",
 ]
 
 [tool.setuptools]
