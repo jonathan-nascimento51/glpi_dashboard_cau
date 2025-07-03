@@ -1,4 +1,4 @@
-from app.application.commands.user_service import UserService, Credentials
+from app.application.commands.user_service import Credentials, UserService
 from app.domain.entities.user import User
 from app.domain.repositories.user_repository import UserRepository
 
@@ -18,5 +18,9 @@ def test_register_and_login() -> None:
     repo = DummyRepo()
     service = UserService(repo)
     service.register("Alice", "alice@example.com", "pass")
-    assert repo.saved[0].name == "Alice"
+    saved_user = repo.saved[0]
+    assert saved_user.name == "Alice"
+    assert saved_user.hashed_password
+
     assert service.login(Credentials("alice@example.com", "pass"))
+    assert not service.login(Credentials("alice@example.com", "wrong"))
