@@ -30,17 +30,15 @@ asyncio.run(main())
 
 from __future__ import annotations
 
+import asyncio
 import base64
+import json
 import logging
+import random
 from typing import Any, Dict, Optional
 
-from pydantic import BaseModel, Field
-import asyncio
-import random
-import time
-import json
-
 import httpx
+from pydantic import BaseModel, Field
 
 from .exceptions import GLPIAPIError
 
@@ -59,6 +57,15 @@ class RestClientParams(BaseModel):
     retry_base_delay: float = Field(
         default=0.1, description="Base delay for exponential backoff"
     )
+
+
+class GraphQLQueryParams(RestClientParams):
+    """Input parameters for :func:`graphql_query_tool`.
+
+    Extends :class:`RestClientParams` with the GraphQL ``query`` to execute.
+    """
+
+    query: str = Field(..., description="GraphQL query string")
 
 
 class GLPIClient:
@@ -313,8 +320,14 @@ class GLPIClient:
         return data.get("data", data)
 
 
-async def graphql_query_tool(params: RestClientParams, query: str) -> str:
-    """Execute a GraphQL query and return JSON or an error message."""
+async def graphql_query_tool(params: GraphQLQueryParams) -> str:
+    """Execute a GraphQL query and return JSON or an error message.
+
+    This helper is used by automation agents when a quick GraphQL call is
+    required without creating a long-lived client. According to the workflow
+    described in ``AGENTS.md``, it can be combined with other tools to fetch
+    ad-hoc data from GLPI.
+    """
 
     client = GLPIClient(
         params.base_url,
@@ -327,7 +340,7 @@ async def graphql_query_tool(params: RestClientParams, query: str) -> str:
     )
     try:
         await client.init_session()
-        data = await client.query_graphql(query)
+        data = await client.query_graphql(params.query)
         return json.dumps(data)
     except Exception as exc:  # pragma: no cover - tool usage
         return str(exc)
@@ -338,5 +351,6 @@ async def graphql_query_tool(params: RestClientParams, query: str) -> str:
 __all__ = [
     "GLPIClient",
     "RestClientParams",
+    "GraphQLQueryParams",
     "graphql_query_tool",
 ]

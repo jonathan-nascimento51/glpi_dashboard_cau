@@ -1,15 +1,13 @@
-from __future__ import annotations
-
 """Lightweight GraphQL client for GLPI using ``gql`` and ``httpx``."""
 
-from typing import Any, Dict, Optional
+from __future__ import annotations
 
 import json
-
-from pydantic import BaseModel, Field
+from typing import Any, Dict, Optional
 
 from gql import Client, gql
 from gql.transport.httpx import HTTPXTransport
+from pydantic import BaseModel, Field
 
 
 class GraphQLParams(BaseModel):
@@ -20,6 +18,12 @@ class GraphQLParams(BaseModel):
     session_token: str
     timeout: float = Field(default=30.0, description="Request timeout")
     verify_ssl: bool = Field(default=True, description="Verify SSL certificates")
+
+
+class GraphQLClientQueryParams(GraphQLParams):
+    """Input parameters for :func:`graphql_client_tool` including the query."""
+
+    query: str = Field(..., description="GraphQL query string")
 
 
 class GlpiGraphQLClient:
@@ -59,8 +63,13 @@ class GlpiGraphQLClient:
         return self._client.execute(document, variable_values=variables or {})
 
 
-def graphql_client_tool(params: GraphQLParams, query: str) -> str:
-    """Execute a GraphQL query with minimal setup and return JSON or error."""
+def graphql_client_tool(params: GraphQLClientQueryParams) -> str:
+    """Execute a GraphQL query with minimal setup and return JSON or error.
+
+    This tool mirrors :func:`graphql_query_tool` but relies on the synchronous
+    :class:`GlpiGraphQLClient`. Use it in workflows from ``AGENTS.md`` when
+    asynchronous infrastructure isn't available.
+    """
 
     try:
         client = GlpiGraphQLClient(
@@ -70,7 +79,7 @@ def graphql_client_tool(params: GraphQLParams, query: str) -> str:
             timeout=params.timeout,
             verify_ssl=params.verify_ssl,
         )
-        data = client.execute(query)
+        data = client.execute(params.query)
         return json.dumps(data)
     except Exception as exc:  # pragma: no cover - tool usage
         return str(exc)
@@ -79,5 +88,6 @@ def graphql_client_tool(params: GraphQLParams, query: str) -> str:
 __all__ = [
     "GlpiGraphQLClient",
     "GraphQLParams",
+    "GraphQLClientQueryParams",
     "graphql_client_tool",
 ]
