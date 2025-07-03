@@ -4,12 +4,30 @@ from __future__ import annotations
 
 from typing import Any, Dict, Optional
 
+import json
+
+from pydantic import BaseModel, Field
+
 from gql import Client, gql
 from gql.transport.httpx import HTTPXTransport
 
 
+class GraphQLParams(BaseModel):
+    """Parameters for constructing :class:`GlpiGraphQLClient`."""
+
+    base_url: str = Field(..., description="GLPI REST base URL")
+    app_token: str
+    session_token: str
+    timeout: float = Field(default=30.0, description="Request timeout")
+    verify_ssl: bool = Field(default=True, description="Verify SSL certificates")
+
+
 class GlpiGraphQLClient:
-    """Synchronous wrapper around :class:`gql.Client`."""
+    """Synchronous wrapper around :class:`gql.Client`.
+
+    Suitable for quick scripts that only need a handful of GraphQL calls without
+    setting up asynchronous infrastructure.
+    """
 
     def __init__(
         self,
@@ -41,4 +59,25 @@ class GlpiGraphQLClient:
         return self._client.execute(document, variable_values=variables or {})
 
 
-__all__ = ["GlpiGraphQLClient"]
+def graphql_client_tool(params: GraphQLParams, query: str) -> str:
+    """Execute a GraphQL query with minimal setup and return JSON or error."""
+
+    try:
+        client = GlpiGraphQLClient(
+            params.base_url,
+            params.app_token,
+            params.session_token,
+            timeout=params.timeout,
+            verify_ssl=params.verify_ssl,
+        )
+        data = client.execute(query)
+        return json.dumps(data)
+    except Exception as exc:  # pragma: no cover - tool usage
+        return str(exc)
+
+
+__all__ = [
+    "GlpiGraphQLClient",
+    "GraphQLParams",
+    "graphql_client_tool",
+]

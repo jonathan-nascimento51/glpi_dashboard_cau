@@ -3,7 +3,10 @@ from __future__ import annotations
 """Utilities for fetching multiple tickets concurrently."""
 
 import asyncio
+import json
 from typing import List
+
+from pydantic import BaseModel, Field
 
 from glpi_dashboard.config.settings import (
     GLPI_APP_TOKEN,
@@ -14,6 +17,12 @@ from glpi_dashboard.config.settings import (
 )
 from .glpi_session import GLPISession, Credentials
 from .exceptions import GLPIAPIError
+
+
+class BatchFetchParams(BaseModel):
+    """Input IDs for :func:`fetch_all_tickets`."""
+
+    ids: List[int] = Field(..., description="Ticket IDs to fetch")
 
 
 async def fetch_all_tickets(ids: List[int]) -> List[dict]:
@@ -53,4 +62,14 @@ async def fetch_all_tickets(ids: List[int]) -> List[dict]:
         return list(results)
 
 
-__all__ = ["fetch_all_tickets"]
+async def fetch_all_tickets_tool(params: BatchFetchParams) -> str:
+    """Wrapper returning JSON or error message for ``ids``."""
+
+    try:
+        data = await fetch_all_tickets(params.ids)
+        return json.dumps(data)
+    except Exception as exc:  # pragma: no cover - tool usage
+        return str(exc)
+
+
+__all__ = ["fetch_all_tickets", "BatchFetchParams", "fetch_all_tickets_tool"]

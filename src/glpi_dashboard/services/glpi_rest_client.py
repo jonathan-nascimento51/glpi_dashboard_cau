@@ -33,6 +33,8 @@ from __future__ import annotations
 import base64
 import logging
 from typing import Any, Dict, Optional
+
+from pydantic import BaseModel, Field
 import asyncio
 import random
 import time
@@ -45,8 +47,27 @@ from .exceptions import GLPIAPIError
 logger = logging.getLogger(__name__)
 
 
+class RestClientParams(BaseModel):
+    """Parameters for :class:`GLPIClient` construction."""
+
+    base_url: str = Field(..., description="GLPI REST base URL")
+    app_token: str
+    user_token: Optional[str] = Field(default=None, description="User API token")
+    timeout: float = Field(default=30.0, description="Request timeout in seconds")
+    verify_ssl: bool = Field(default=True, description="Verify SSL certificates")
+    retry_max: int = Field(default=5, description="Maximum retry attempts")
+    retry_base_delay: float = Field(
+        default=0.1, description="Base delay for exponential backoff"
+    )
+
+
 class GLPIClient:
-    """Asynchronous client for the GLPI REST API."""
+    """Asynchronous client for the GLPI REST API.
+
+    Use this tool when non-blocking access to GLPI is required, for example in a
+    FastAPI worker or background task. It handles retries and session management
+    automatically.
+    """
 
     def __init__(
         self,
@@ -101,7 +122,9 @@ class GLPIClient:
 
         await self._client.aclose()
 
-    async def _request_with_retry(self, method: str, url: str, **kwargs: Any) -> httpx.Response:
+    async def _request_with_retry(
+        self, method: str, url: str, **kwargs: Any
+    ) -> httpx.Response:
         """Perform an HTTP request with exponential backoff retries."""
 
         for attempt in range(self.retry_max + 1):
@@ -109,7 +132,7 @@ class GLPIClient:
                 resp = await self._client.request(method, url, **kwargs)
             except (httpx.TimeoutException, httpx.HTTPError) as exc:
                 if attempt < self.retry_max:
-                    delay = self.retry_base_delay * (2 ** attempt)
+                    delay = self.retry_base_delay * (2**attempt)
                     jitter = random.uniform(0, delay)
                     logger.warning(
                         json.dumps(
@@ -126,7 +149,7 @@ class GLPIClient:
 
             if resp.status_code == 429 or resp.status_code >= 500:
                 if attempt < self.retry_max:
-                    delay = self.retry_base_delay * (2 ** attempt)
+                    delay = self.retry_base_delay * (2**attempt)
                     jitter = random.uniform(0, delay)
                     logger.warning(
                         json.dumps(
@@ -142,9 +165,7 @@ class GLPIClient:
 
             return resp
 
-        raise GLPIAPIError(
-            0, f"API call failed after {self.retry_max} retries."
-        )
+        raise GLPIAPIError(0, f"API call failed after {self.retry_max} retries.")
 
     # ------------------------------------------------------------------
     # Session management
@@ -292,4 +313,30 @@ class GLPIClient:
         return data.get("data", data)
 
 
-__all__ = ["GLPIClient"]
+async def graphql_query_tool(params: RestClientParams, query: str) -> str:
+    """Execute a GraphQL query and return JSON or an error message."""
+
+    client = GLPIClient(
+        params.base_url,
+        app_token=params.app_token,
+        user_token=params.user_token,
+        timeout=params.timeout,
+        verify_ssl=params.verify_ssl,
+        retry_max=params.retry_max,
+        retry_base_delay=params.retry_base_delay,
+    )
+    try:
+        await client.init_session()
+        data = await client.query_graphql(query)
+        return json.dumps(data)
+    except Exception as exc:  # pragma: no cover - tool usage
+        return str(exc)
+    finally:
+        await client.close()
+
+
+__all__ = [
+    "GLPIClient",
+    "RestClientParams",
+    "graphql_query_tool",
+]

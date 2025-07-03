@@ -5,8 +5,11 @@ from __future__ import annotations
 """Synchronous GLPI API client built on top of :class:`GLPISession`."""
 
 import asyncio
+import json
 import logging
 from typing import Any, Dict, List, Optional
+
+from pydantic import BaseModel, Field
 
 import requests
 
@@ -29,8 +32,23 @@ IMPACT_MAP = {1: "None", 2: "Low", 3: "Medium", 4: "High"}
 TYPE_MAP = {1: "Incident", 2: "Request"}
 
 
+class ApiClientParams(BaseModel):
+    """Input data for :class:`GlpiApiClient` construction."""
+
+    base_url: str = Field(..., description="GLPI REST base URL")
+    credentials: Credentials
+    session_kwargs: Dict[str, Any] = Field(
+        default_factory=dict, description="Extra parameters forwarded to session"
+    )
+
+
 class GlpiApiClient:
-    """Simple synchronous wrapper around :class:`GLPISession`."""
+    """Simple synchronous wrapper around :class:`GLPISession`.
+
+    This tool is convenient for scripts or CLI utilities that cannot run
+    asynchronous code. It manages the event loop internally and exposes
+    blocking methods for interacting with the GLPI API.
+    """
 
     def __init__(
         self,
@@ -257,3 +275,25 @@ class TokenGlpiApiClient(GlpiApiClient):
 
 # Backwards compatibility
 GLPIAPIClient = GlpiApiClient
+
+
+def fetch_tickets_tool(params: ApiClientParams) -> str:
+    """Fetch all tickets using synchronous client and return JSON or error."""
+
+    try:
+        client = GlpiApiClient(
+            params.base_url, params.credentials, **params.session_kwargs
+        )
+        with client as sess:
+            data = sess.get_all("Ticket")
+        return json.dumps(data)
+    except Exception as exc:  # pragma: no cover - tool usage
+        return str(exc)
+
+
+__all__ = [
+    "GlpiApiClient",
+    "TokenGlpiApiClient",
+    "ApiClientParams",
+    "fetch_tickets_tool",
+]
