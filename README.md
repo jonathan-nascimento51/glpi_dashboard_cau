@@ -223,8 +223,9 @@ With these set, the application will automatically initialize LangSmith when
 importing `glpi_dashboard`.
 
 Before running Docker make sure this `.env` file exists and that `DB_NAME`,
-`DB_USER`, `DB_PASSWORD` and all GLPI credentials have non-empty values. You can
-create the file using:
+`DB_USER`, `DB_PASSWORD` and all GLPI credentials have non-empty values. The
+compose files map these settings to `POSTGRES_DB`, `POSTGRES_USER` and
+`POSTGRES_PASSWORD`. You can create the file using:
 
 ```bash
 python scripts/setup_env.py
@@ -274,6 +275,10 @@ Running `docker-compose up` will build the image, initialize the database and st
 ```bash
 docker-compose up
 ```
+
+Ensure that `.env` defines `POSTGRES_DB`, `POSTGRES_USER` and
+`POSTGRES_PASSWORD` (mirroring the `DB_*` values) so the PostgreSQL container can
+initialize correctly.
 
 This exposes the worker API on port `8000` and the dashboard on port `8080`.
 
