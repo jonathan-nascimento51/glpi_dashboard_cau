@@ -23,7 +23,6 @@ from glpi_dashboard.config.settings import (
     GLPI_USER_TOKEN,
     GLPI_USERNAME,
 )
-
 from glpi_dashboard.data.pipeline import process_raw
 
 from .glpi_session import Credentials, GLPISession
