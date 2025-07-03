@@ -25,5 +25,6 @@ init-db:
 	python scripts/init_db.py
 
 test:
+	# install runtime and development dependencies
 	pip install -r requirements.txt -r requirements-dev.txt
 	pytest --cov=./

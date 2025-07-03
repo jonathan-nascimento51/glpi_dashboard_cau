@@ -14,7 +14,7 @@ The goal is to inspect backlog, ticket status and productivity metrics without a
 
 Install dependencies and prepare the environment:
 
-You can run `./setup.sh` to install the main requirements in one step or
+You can run `./setup.sh` to install both `requirements.txt` and `requirements-dev.txt` in one step or
 execute the commands below manually.
 
 ```bash
