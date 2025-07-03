@@ -299,6 +299,11 @@ It launches PostgreSQL, Redis, the worker API and the front-end. Start it with:
 docker-compose -f docker-compose-dev.yml up
 ```
 
+The database healthcheck relies on the same username specified by
+`POSTGRES_USER`. If you customize this value in `.env`, ensure the
+compose file uses the updated variable as well, otherwise you may see
+errors like `FATAL:  role "glpi" does not exist` during startup.
+
 The default `docker-compose.yml` only runs the worker API, Redis and the
 front-end. If you already have a local database you can use it instead.
 
