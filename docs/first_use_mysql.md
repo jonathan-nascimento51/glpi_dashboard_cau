@@ -15,6 +15,7 @@ Certifique‑se de ter um usuário com permissões de criação de banco de dado
 ```bash
 python -m pip install --upgrade pip
 pip install -r requirements.txt -r requirements-dev.txt
+pip install -e .  # install package locally (packages live under src/)
 pre-commit install
 ```
 

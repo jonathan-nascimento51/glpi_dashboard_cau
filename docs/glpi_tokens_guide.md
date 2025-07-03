@@ -23,6 +23,7 @@ python -m venv .venv
 source .venv/bin/activate        # Linux/macOS
 # .venv\Scripts\Activate.ps1   # Windows PowerShell
 pip install -r requirements.txt -r requirements-dev.txt
+pip install -e .  # install package locally (packages live under src/)
 ```
 
 ---
