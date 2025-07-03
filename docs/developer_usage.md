@@ -95,13 +95,14 @@ flake8 .
 
 ## Docker
 
-A execução completa pode ser feita via Compose:
+A execução completa pode ser feita via Compose utilizando o arquivo
+`docker-compose-dev.yml`:
 
 ```bash
-docker-compose up
+docker-compose -f docker-compose-dev.yml up
 ```
 
-Isso sobe PostgreSQL, Redis, `initdb`, o `worker` e o dashboard em portas 8000 e 8080.
+Isso sobe PostgreSQL, Redis, o `worker` e o dashboard em portas 8000 e 8080.
 
 ## Estrutura de Pastas
 
