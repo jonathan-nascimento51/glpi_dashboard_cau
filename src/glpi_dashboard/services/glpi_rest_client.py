@@ -33,6 +33,10 @@ from __future__ import annotations
 import base64
 import logging
 from typing import Any, Dict, Optional
+import asyncio
+import random
+import time
+import json
 
 import httpx
 
@@ -52,6 +56,8 @@ class GLPIClient:
         *,
         timeout: float = 30.0,
         verify_ssl: bool = True,
+        retry_max: int = 5,
+        retry_base_delay: float = 0.1,
     ) -> None:
         """Instantiate the client.
 
@@ -69,6 +75,10 @@ class GLPIClient:
             Request timeout in seconds.
         verify_ssl:
             Whether to verify SSL certificates when making requests.
+        retry_max:
+            Maximum number of retry attempts for transient errors.
+        retry_base_delay:
+            Base delay (seconds) used for exponential backoff between retries.
         """
 
         self.base_url = base_url.rstrip("/")
@@ -76,6 +86,8 @@ class GLPIClient:
         self.user_token = user_token
         self.timeout = timeout
         self.verify_ssl = verify_ssl
+        self.retry_max = retry_max
+        self.retry_base_delay = retry_base_delay
         self._session_token: Optional[str] = None
         self._client = httpx.AsyncClient(
             base_url=self.base_url,
@@ -88,6 +100,51 @@ class GLPIClient:
         """Close the underlying ``httpx`` client."""
 
         await self._client.aclose()
+
+    async def _request_with_retry(self, method: str, url: str, **kwargs: Any) -> httpx.Response:
+        """Perform an HTTP request with exponential backoff retries."""
+
+        for attempt in range(self.retry_max + 1):
+            try:
+                resp = await self._client.request(method, url, **kwargs)
+            except (httpx.TimeoutException, httpx.HTTPError) as exc:
+                if attempt < self.retry_max:
+                    delay = self.retry_base_delay * (2 ** attempt)
+                    jitter = random.uniform(0, delay)
+                    logger.warning(
+                        json.dumps(
+                            {
+                                "event": "glpi_retry",
+                                "attempt": attempt + 1,
+                                "status": 0,
+                            }
+                        )
+                    )
+                    await asyncio.sleep(delay + jitter)
+                    continue
+                raise GLPIAPIError(0, f"HTTP error during {url}: {exc}") from exc
+
+            if resp.status_code == 429 or resp.status_code >= 500:
+                if attempt < self.retry_max:
+                    delay = self.retry_base_delay * (2 ** attempt)
+                    jitter = random.uniform(0, delay)
+                    logger.warning(
+                        json.dumps(
+                            {
+                                "event": "glpi_retry",
+                                "attempt": attempt + 1,
+                                "status": resp.status_code,
+                            }
+                        )
+                    )
+                    await asyncio.sleep(delay + jitter)
+                    continue
+
+            return resp
+
+        raise GLPIAPIError(
+            0, f"API call failed after {self.retry_max} retries."
+        )
 
     # ------------------------------------------------------------------
     # Session management
@@ -166,12 +223,7 @@ class GLPIClient:
         """
 
         url = f"search/{itemtype}"
-        try:
-            resp = await self._client.get(url, params=params)
-        except httpx.TimeoutException as exc:  # pragma: no cover - network issues
-            raise GLPIAPIError(0, f"Timeout during search: {exc}") from exc
-        except httpx.HTTPError as exc:  # pragma: no cover - network issues
-            raise GLPIAPIError(0, f"HTTP error during search: {exc}") from exc
+        resp = await self._request_with_retry("GET", url, params=params)
 
         data = resp.json()
         if data.get("message") == "ERROR_JSON_PAYLOAD_FORBIDDEN":
@@ -186,14 +238,7 @@ class GLPIClient:
         """Retrieve available search fields for ``itemtype``."""
 
         url = f"listSearchOptions/{itemtype}"
-        try:
-            resp = await self._client.get(url)
-        except httpx.TimeoutException as exc:  # pragma: no cover - network issues
-            raise GLPIAPIError(0, f"Timeout during listSearchOptions: {exc}") from exc
-        except httpx.HTTPError as exc:  # pragma: no cover - network issues
-            raise GLPIAPIError(
-                0, f"HTTP error during listSearchOptions: {exc}"
-            ) from exc
+        resp = await self._request_with_retry("GET", url)
 
         data = resp.json()
         if data.get("message") == "ERROR_JSON_PAYLOAD_FORBIDDEN":
@@ -232,12 +277,7 @@ class GLPIClient:
         """
 
         payload = {"query": query, "variables": variables or {}}
-        try:
-            resp = await self._client.post("graphql", json=payload)
-        except httpx.TimeoutException as exc:  # pragma: no cover - network issues
-            raise GLPIAPIError(0, f"Timeout during GraphQL query: {exc}") from exc
-        except httpx.HTTPError as exc:  # pragma: no cover - network issues
-            raise GLPIAPIError(0, f"HTTP error during GraphQL query: {exc}") from exc
+        resp = await self._request_with_retry("POST", "graphql", json=payload)
 
         data = resp.json()
         if data.get("message") == "ERROR_JSON_PAYLOAD_FORBIDDEN":
