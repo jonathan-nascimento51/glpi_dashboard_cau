@@ -54,7 +54,7 @@ pre-commit>=3.7
 ```
 Gere setup.sh:
 - apt-get update && install build-essential
-- pip install -r requirements.txt
+- pip install -r requirements.txt -r requirements-dev.txt
 - pre-commit install
 ```
 

@@ -16,8 +16,7 @@ Install dependencies and prepare the environment:
 
 ```bash
 python -m pip install --upgrade pip
-pip install -r requirements.txt
-pip install -r requirements-dev.txt
+pip install -r requirements.txt -r requirements-dev.txt
 pip install -e .  # install package locally (packages live under src/)
 pre-commit install  # sets up hooks for black, ruff, isort and mypy
 ```
