@@ -4,6 +4,7 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 
 from glpi_dashboard.utils.redis_client import RedisClient
+import redis.exceptions
 
 
 @pytest.mark.asyncio
@@ -61,3 +62,26 @@ async def test_get_ttl(monkeypatch):
     ttl = await client.get_ttl("k")
     mock_redis.ttl.assert_called_once()
     assert ttl == 42
+
+
+@pytest.mark.asyncio
+async def test_delete_connection_error(monkeypatch):
+    client = RedisClient()
+    mock_redis = MagicMock()
+    mock_redis.delete = AsyncMock(side_effect=redis.exceptions.ConnectionError("fail"))
+    client._client = mock_redis
+    monkeypatch.setattr(client, "_connect", AsyncMock(return_value=mock_redis))
+    await client.delete("k")
+    assert client._client is None
+
+
+@pytest.mark.asyncio
+async def test_get_ttl_connection_error(monkeypatch):
+    client = RedisClient()
+    mock_redis = MagicMock()
+    mock_redis.ttl = AsyncMock(side_effect=redis.exceptions.ConnectionError("fail"))
+    client._client = mock_redis
+    monkeypatch.setattr(client, "_connect", AsyncMock(return_value=mock_redis))
+    ttl = await client.get_ttl("k")
+    assert ttl == -2
+    assert client._client is None
