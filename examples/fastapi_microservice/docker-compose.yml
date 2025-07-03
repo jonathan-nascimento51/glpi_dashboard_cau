@@ -1,0 +1,21 @@
+version: "3.9"
+services:
+  backend:
+    build: .
+    env_file: .env
+    volumes:
+      - ./main.py:/app/main.py
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8000/health"]
+      interval: 30s
+      retries: 3
+      timeout: 5s
+  db:
+    image: postgres:15
+    env_file: .env
+    volumes:
+      - db_data:/var/lib/postgresql/data
+volumes:
+  db_data:
