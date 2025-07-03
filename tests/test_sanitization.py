@@ -1,3 +1,7 @@
+
+import pytest
+
+pytest.importorskip("pandas")
 import pandas as pd
 
 from glpi_dashboard.dashboard.components import compute_ticket_stats

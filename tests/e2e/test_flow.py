@@ -3,6 +3,8 @@ import time
 from collections.abc import Generator
 
 import pytest
+
+pytest.importorskip("playwright.sync_api")
 from playwright.sync_api import sync_playwright
 
 COMPOSE_FILE = "docker-compose-dev.yml"

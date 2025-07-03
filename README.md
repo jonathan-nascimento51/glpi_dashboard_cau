@@ -311,6 +311,7 @@ Execute the unit tests with coverage:
 ```bash
 pip install -r requirements.txt -r requirements-dev.txt
 pip install -e .  # ensure local package is discoverable during tests
+# the core suite relies on `aiohttp` and `pandas`
 # optional extras for e2e and container tests
 pip install testcontainers playwright
 pytest --cov=./

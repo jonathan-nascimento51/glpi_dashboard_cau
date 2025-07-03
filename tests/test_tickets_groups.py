@@ -49,6 +49,9 @@ def test_pipeline_default(
     """Default output name should include today's date."""
     from pathlib import Path
 
+    import pytest
+
+    pytest.importorskip("pandas")
     import pandas as pd
 
     async def fake_collect(start: str, end: str, client=None):
