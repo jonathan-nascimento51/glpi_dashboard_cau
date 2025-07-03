@@ -50,10 +50,14 @@ class Metrics:
     closed: int
 
 
-async def _load_tickets(client: Optional[GlpiApiClient] = None) -> pd.DataFrame:
+async def _load_tickets(
+    client: Optional[GlpiApiClient] = None,
+    cache=None,
+) -> pd.DataFrame:
     """Return processed ticket data from the API with caching."""
+    cache = cache or redis_client
     cache_key = "tickets_api"
-    cached = await redis_client.get(cache_key)
+    cached = await cache.get(cache_key)
     if cached is not None:
         try:
             # Extract the actual ticket list if cached is a dict
@@ -86,7 +90,7 @@ async def _load_tickets(client: Optional[GlpiApiClient] = None) -> pd.DataFrame:
 
     if isinstance(data, dict):
         data = data.get("data", data)
-    await redis_client.set(cache_key, data)
+    await cache.set(cache_key, data)
     try:
         return process_raw(data)
     except (KeyError, ValueError):
@@ -95,10 +99,11 @@ async def _load_tickets(client: Optional[GlpiApiClient] = None) -> pd.DataFrame:
 
 async def _stream_tickets(
     client: Optional[GlpiApiClient],
+    cache=None,
 ) -> AsyncGenerator[bytes, None]:
     """Yield progress events followed by final ticket data."""
     yield b"fetching...\n"
-    df = await _load_tickets(client=client)
+    df = await _load_tickets(client=client, cache=cache)
     yield b"processing...\n"
     data = df.astype(object).where(pd.notna(df), None).to_dict(orient="records")
     yield json.dumps(data).encode()
@@ -108,13 +113,17 @@ async def _stream_tickets(
 class Query:
     @strawberry.field
     async def tickets(self, info: Info) -> List[Ticket]:  # pragma: no cover
-        df = await _load_tickets(client=info.context.get("client"))
+        df = await _load_tickets(
+            client=info.context.get("client"), cache=info.context.get("cache")
+        )
         records = df.astype(object).where(pd.notna(df), None).to_dict("records")
         return [Ticket(**{str(k): v for k, v in r.items()}) for r in records]
 
     @strawberry.field
     async def metrics(self, info: Info) -> Metrics:
-        df = await _load_tickets(client=info.context.get("client"))
+        df = await _load_tickets(
+            client=info.context.get("client"), cache=info.context.get("cache")
+        )
         total = len(df)
         closed = 0
         if "status" in df:
@@ -124,8 +133,9 @@ class Query:
         return Metrics(total=total, opened=opened, closed=closed)
 
 
-def create_app(client: Optional[GlpiApiClient] = None) -> FastAPI:
+def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
     """Create FastAPI app with REST and GraphQL routes."""
+    cache = cache or redis_client
     app = FastAPI(title="GLPI Worker API")
 
     @app.middleware("http")
@@ -133,7 +143,7 @@ def create_app(client: Optional[GlpiApiClient] = None) -> FastAPI:
         if request.method != "GET" or request.url.path != "/tickets":
             return await call_next(request)
 
-        cached = await redis_client.get("resp:tickets")
+        cached = await cache.get("resp:tickets")
         if cached is not None:
             return JSONResponse(content=cached)
         response = await call_next(request)
@@ -148,7 +158,7 @@ def create_app(client: Optional[GlpiApiClient] = None) -> FastAPI:
             response.body_iterator = new_iter()
             with contextlib.suppress(json.JSONDecodeError):
                 data = json.loads(body.decode())
-                await redis_client.set("resp:tickets", data)
+                await cache.set("resp:tickets", data)
         return response
 
     if client is None:
@@ -165,16 +175,18 @@ def create_app(client: Optional[GlpiApiClient] = None) -> FastAPI:
 
     @app.get("/tickets")
     async def tickets() -> list[dict]:  # noqa: F401
-        df = await _load_tickets(client=client)
+        df = await _load_tickets(client=client, cache=cache)
         return df.astype(object).where(pd.notna(df), None).to_dict(orient="records")
 
     @app.get("/tickets/stream")
     async def tickets_stream() -> StreamingResponse:  # noqa: F401
-        return StreamingResponse(_stream_tickets(client), media_type="text/plain")
+        return StreamingResponse(
+            _stream_tickets(client, cache=cache), media_type="text/plain"
+        )
 
     @app.get("/metrics")
     async def metrics() -> dict:  # noqa: F401
-        df = await _load_tickets(client=client)
+        df = await _load_tickets(client=client, cache=cache)
         total = len(df)
         closed = 0
         if "status" in df:
@@ -185,11 +197,11 @@ def create_app(client: Optional[GlpiApiClient] = None) -> FastAPI:
 
     @app.get("/cache/stats")
     async def cache_stats() -> dict:  # noqa: F401
-        return redis_client.get_cache_metrics()
+        return cache.get_cache_metrics()
 
     @app.get("/cache-metrics")  # legacy name
     async def cache_metrics() -> dict:  # noqa: F401
-        return redis_client.get_cache_metrics()
+        return cache.get_cache_metrics()
 
     @app.get("/health/glpi")
     async def health_glpi() -> JSONResponse:  # noqa: F401
@@ -223,8 +235,9 @@ def create_app(client: Optional[GlpiApiClient] = None) -> FastAPI:
         )
 
     schema = strawberry.Schema(Query)
+
     def get_context(request: Request) -> dict[str, Any]:
-        return {"client": client}
+        return {"client": client, "cache": cache}
 
     graphql = GraphQLRouter(
         schema,
