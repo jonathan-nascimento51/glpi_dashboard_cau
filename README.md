@@ -305,4 +305,6 @@ For common asyncio patterns and deployment notes see
 [docs/asyncio_scenarios.md](docs/asyncio_scenarios.md).
 For a complete developer usage guide see
 [docs/developer_usage.md](docs/developer_usage.md).
+For long-term planning refer to
+[roadmap_2025_2026.md](roadmap_2025_2026.md).
 
