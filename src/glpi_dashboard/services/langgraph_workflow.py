@@ -16,9 +16,14 @@ from langgraph.checkpoint.sqlite import SqliteSaver
 from langgraph.graph import END, StateGraph
 from pydantic import BaseModel, Field, ValidationError
 
-from glpi_dashboard.config.settings import (GLPI_APP_TOKEN, GLPI_BASE_URL,
-                                            GLPI_PASSWORD, GLPI_USER_TOKEN,
-                                            GLPI_USERNAME)
+from glpi_dashboard.config.settings import (
+    GLPI_APP_TOKEN,
+    GLPI_BASE_URL,
+    GLPI_PASSWORD,
+    GLPI_USER_TOKEN,
+    GLPI_USERNAME,
+)
+
 from glpi_dashboard.data.pipeline import process_raw
 
 from .glpi_session import Credentials, GLPISession
@@ -172,7 +177,7 @@ def validation_node(state: AgentState) -> AgentState:
         if last.startswith("metrics:"):
             data = ast.literal_eval(last.split("metrics:", 1)[1].strip())
             Metrics(**data)
-    except (ValidationError, Exception) as exc:
+    except Exception as exc:
         state["error"] = str(exc)
     return state
 
