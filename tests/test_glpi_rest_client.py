@@ -1,13 +1,9 @@
-import httpx
-import os
-import sys
+from unittest.mock import AsyncMock, patch
 
+import httpx
 import pytest
 
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src"))
-
-from glpi_dashboard.services.glpi_rest_client import GLPIClient  # noqa: E402
-from unittest.mock import AsyncMock, patch
+from glpi_dashboard.services.glpi_rest_client import GLPIClient
 
 
 @pytest.mark.asyncio

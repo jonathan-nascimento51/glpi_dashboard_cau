@@ -1,30 +1,23 @@
-import os
-import sys
-import json
-import pytest
 import asyncio as aio
-from unittest.mock import AsyncMock, MagicMock, patch, ANY
-from typing import Optional
 from contextlib import asynccontextmanager
+from typing import Optional
+from unittest.mock import ANY, AsyncMock, MagicMock, patch
 
-sys.path.insert(
-    0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src")
-)  # noqa: E402
+import aiohttp
+import pytest
 
-from glpi_dashboard.services.glpi_session import (  # noqa: E402
-    GLPISession,
+from glpi_dashboard.logging_config import setup_logging
+from glpi_dashboard.services.glpi_session import (
     Credentials,
-    GLPIUnauthorizedError,
+    GLPIAPIError,
     GLPIBadRequestError,
     GLPIForbiddenError,
-    GLPINotFoundError,
-    GLPITooManyRequestsError,
     GLPIInternalServerError,
-    GLPIAPIError,
+    GLPINotFoundError,
+    GLPISession,
+    GLPITooManyRequestsError,
+    GLPIUnauthorizedError,
 )
-import glpi_dashboard.services.glpi_session as glpi_session  # noqa: E402
-import aiohttp  # noqa: E402
-from glpi_dashboard.logging_config import setup_logging  # noqa: E402
 
 
 @pytest.fixture(autouse=True)

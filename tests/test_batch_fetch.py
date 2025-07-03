@@ -1,14 +1,10 @@
 import asyncio
 import json
 import time
-import os
-import sys
 
 import pytest
 
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src"))
-
-from glpi_dashboard.services import batch_fetch  # noqa: E402
+from glpi_dashboard.services import batch_fetch
 
 
 class DummySession:

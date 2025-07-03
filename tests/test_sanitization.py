@@ -1,12 +1,7 @@
-import os
-import sys
-
 import pandas as pd
 
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src"))
-
-from glpi_dashboard.utils import sanitize_status_column  # noqa: E402
-from glpi_dashboard.dashboard.components import compute_ticket_stats  # noqa: E402
+from glpi_dashboard.dashboard.components import compute_ticket_stats
+from glpi_dashboard.utils import sanitize_status_column
 
 
 def test_sanitize_status_column():

@@ -1,10 +1,4 @@
-import sys
-import os
-
-sys.path.insert(
-    0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src")
-)  # noqa: E402
-from glpi_dashboard.services.graphql_client import GlpiGraphQLClient  # noqa: E402
+from glpi_dashboard.services.graphql_client import GlpiGraphQLClient
 
 
 def test_client_initialization():

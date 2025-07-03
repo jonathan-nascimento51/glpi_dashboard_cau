@@ -1,14 +1,8 @@
-import os
-import sys
 import pandas as pd
 import pytest
 
-sys.path.insert(
-    0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src")
-)  # noqa: E402
-
-from glpi_dashboard.data.pipeline import process_raw  # noqa: E402
-from glpi_dashboard.data import transform  # noqa: E402
+from glpi_dashboard.data import transform
+from glpi_dashboard.data.pipeline import process_raw
 
 
 def test_process_raw_sanitization():

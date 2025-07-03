@@ -7,7 +7,7 @@ from flask import Flask
 from flask_caching import Cache
 import logging
 
-from src.glpi_dashboard.config.settings import (
+from glpi_dashboard.config.settings import (
     GLPI_APP_TOKEN,
     GLPI_BASE_URL,
     GLPI_PASSWORD,
@@ -15,13 +15,13 @@ from src.glpi_dashboard.config.settings import (
     GLPI_USERNAME,
     USE_MOCK_DATA,
 )
-from src.glpi_dashboard.data.pipeline import process_raw
-from src.glpi_dashboard.services.glpi_api_client import GlpiApiClient
-from src.glpi_dashboard.services.glpi_session import Credentials
-from src.glpi_dashboard.services.exceptions import GLPIAPIError
-from src.glpi_dashboard.logging_config import setup_logging
-from src.glpi_dashboard.dashboard.layout import build_layout
-from src.glpi_dashboard.dashboard.callbacks import register_callbacks
+from glpi_dashboard.data.pipeline import process_raw
+from glpi_dashboard.services.glpi_api_client import GlpiApiClient
+from glpi_dashboard.services.glpi_session import Credentials
+from glpi_dashboard.services.exceptions import GLPIAPIError
+from glpi_dashboard.logging_config import setup_logging
+from glpi_dashboard.dashboard.layout import build_layout
+from glpi_dashboard.dashboard.callbacks import register_callbacks
 
 app = Flask(__name__)
 cache = Cache(
