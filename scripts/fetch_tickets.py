@@ -3,6 +3,8 @@ import logging
 import os  # Importamos o módulo 'os' para ler as variáveis de ambiente
 from pathlib import Path
 from dotenv import load_dotenv
+import sys
+import asyncio
 
 # Importa o cliente da API do seu projeto
 from glpi_dashboard.services.glpi_api_client import GlpiApiClient
@@ -14,6 +16,9 @@ load_dotenv()
 # Configuração básica de logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+if sys.platform.startswith("win"):
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 
 def fetch_raw_data():
@@ -46,36 +51,40 @@ def fetch_raw_data():
     try:
         creds = Credentials(app_token=app_token, user_token=user_token)
         with GlpiApiClient(
-            glpi_url,
-            creds,
-        ) as client:
-            logger.info(
-                "Cliente da API inicializado corretamente. Buscando chamados..."
-            )
-
-            params = {
-                "is_deleted": 0,
-                "sort": "date_mod",
-                "order": "desc",
-                "range": "0-200",
-            }
-
-            raw_tickets = client.get_all("Ticket", **params)
-            logger.info(
-                f"Busca concluída. {len(raw_tickets)} chamados recebidos do GLPI."
-            )
-
-            output_filename = "raw_tickets_output.json"
-            with open(output_filename, "w", encoding="utf-8") as f:
-                json.dump(raw_tickets, f, indent=2, ensure_ascii=False)
-
-            logger.info(f"Dados brutos salvos com sucesso em '{output_filename}'")
-
+                    glpi_url,
+                    creds,
+                ) as client:
+            _extracted_from_fetch_raw_data_34(client)
     except Exception as e:
         logger.error(
             f"Ocorreu um erro durante a execução do script de diagnóstico: {e}",
             exc_info=True,
         )
+
+
+# TODO Rename this here and in `fetch_raw_data`
+def _extracted_from_fetch_raw_data_34(client):
+    logger.info(
+        "Cliente da API inicializado corretamente. Buscando chamados..."
+    )
+
+    params = {
+        "is_deleted": 0,
+        "sort": "date_mod",
+        "order": "desc",
+        "range": "0-200",
+    }
+
+    raw_tickets = client.get_all("Ticket", **params)
+    logger.info(
+        f"Busca concluída. {len(raw_tickets)} chamados recebidos do GLPI."
+    )
+
+    output_filename = "raw_tickets_output.json"
+    with open(output_filename, "w", encoding="utf-8") as f:
+        json.dump(raw_tickets, f, indent=2, ensure_ascii=False)
+
+    logger.info(f"Dados brutos salvos com sucesso em '{output_filename}'")
 
 
 async def fetch_and_save(output):
