@@ -4,13 +4,15 @@ from __future__ import annotations
 
 import runpy
 from pathlib import Path
+from types import ModuleType
 
 import pytest
 from aiohttp import web
 
 ROOT = Path(__file__).resolve().parents[2]
-main_globals = runpy.run_path(ROOT / "main.py")
-main = type("Module", (), main_globals)
+main_globals = runpy.run_path(str(ROOT / "main.py"))
+main = ModuleType("main")
+main.__dict__.update(main_globals)
 
 
 @pytest.fixture()
