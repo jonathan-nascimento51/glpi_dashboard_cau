@@ -4,8 +4,10 @@ from contextlib import asynccontextmanager
 from typing import Optional
 from unittest.mock import ANY, AsyncMock, MagicMock, patch
 
-import aiohttp
 import pytest
+
+pytest.importorskip("aiohttp")
+import aiohttp
 
 from glpi_dashboard.logging_config import setup_logging
 from glpi_dashboard.services import glpi_session

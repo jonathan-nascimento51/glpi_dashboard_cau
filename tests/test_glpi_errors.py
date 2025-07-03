@@ -1,8 +1,10 @@
 from typing import Optional
 from unittest.mock import AsyncMock, MagicMock, patch
 
-import aiohttp
 import pytest
+
+pytest.importorskip("aiohttp")
+import aiohttp
 
 from glpi_dashboard.logging_config import setup_logging
 from glpi_dashboard.services.exceptions import (

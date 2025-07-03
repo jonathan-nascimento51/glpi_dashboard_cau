@@ -1,5 +1,7 @@
-import pandas as pd
 import pytest
+
+pytest.importorskip("pandas")
+import pandas as pd
 
 from glpi_dashboard.data import transform
 from glpi_dashboard.data.pipeline import process_raw
