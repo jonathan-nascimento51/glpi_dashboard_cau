@@ -15,6 +15,7 @@
         "GLPI",
         "GLPIAPI",
         "PYTHONPATH",
-        "uvicorn"
-    ],
+        "uvicorn",
+        "itemtype"
+    ]
 }
