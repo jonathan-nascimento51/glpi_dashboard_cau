@@ -59,6 +59,21 @@ def test_supervisor_routes_llm(monkeypatch: pytest.MonkeyPatch):
     assert "fetcher" in called["opts"]
 
 
+def test_supervisor_sanitizes_message(monkeypatch: pytest.MonkeyPatch):
+    called = {}
+
+    class DummyRunnable:
+        def invoke(self, inp):
+            called["msg"] = inp["message"]
+            return langgraph_workflow.NextAgent(next_agent="fetcher")
+
+    monkeypatch.setattr(langgraph_workflow, "supervisor_llm", DummyRunnable())
+    dirty = "hello\x00world" + "x" * 300
+    state = {"messages": [dirty], "next_agent": "", "iteration_count": 0}
+    langgraph_workflow.supervisor(state)
+    assert called["msg"] == langgraph_workflow.sanitize_message(dirty)
+
+
 def test_validation_failure_and_recovery():
     state = {
         "messages": ["metrics: {'total': 'bad'}"],
