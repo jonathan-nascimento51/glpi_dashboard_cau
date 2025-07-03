@@ -6,10 +6,19 @@ repos:
         args:
           - "--line-length=88"
           - '--exclude=/\.(env|venv|\.venv|env|\.git|build|dist)/'
-  - repo: https://github.com/pycqa/flake8
-    rev: 7.3.0
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.4.5
     hooks:
-      - id: flake8
+      - id: ruff
+        args: ["--fix"]
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.10.0
+    hooks:
+      - id: mypy
   - repo: local
     hooks:
       - id: pytest
