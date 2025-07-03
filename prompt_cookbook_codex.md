@@ -1,6 +1,7 @@
 # Codex Prompt Cookbook – GLPI Dashboard 📚
 
 ## Como usar
+
 1. Abra uma sessão **Codex** (ChatGPT code‑interpreter).
 2. Copie o bloco *PROMPT* desejado para o chat.
 3. Revise o diff sugerido; aceite ou ajuste; faça commit.
