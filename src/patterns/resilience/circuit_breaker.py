@@ -1,6 +1,6 @@
-from __future__ import annotations
-
 """Circuit breaker setup using pybreaker."""
+
+from __future__ import annotations
 
 from typing import Callable
 import logging

@@ -1,6 +1,6 @@
-from __future__ import annotations
-
 """Factory Method pattern example for serializing songs."""
+
+from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Protocol, Callable

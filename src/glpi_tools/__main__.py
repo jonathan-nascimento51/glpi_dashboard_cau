@@ -1,6 +1,6 @@
-from __future__ import annotations
-
 """Command-line utilities for GLPI REST API."""
+
+from __future__ import annotations
 
 import asyncio
 import csv

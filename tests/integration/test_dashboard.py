@@ -1,4 +1,6 @@
-import asyncio
+"""Integration tests for the dashboard app."""
+
+from __future__ import annotations
 import os
 import sys
 from aiohttp import web
@@ -9,7 +11,7 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 sys.path.insert(0, os.path.join(ROOT, "src"))
 sys.path.insert(0, ROOT)
 
-import main
+import main  # noqa: E402
 
 
 @pytest.fixture()

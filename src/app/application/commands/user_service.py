@@ -1,6 +1,6 @@
-from __future__ import annotations
-
 """Service layer managing user registration and login."""
+
+from __future__ import annotations
 
 from dataclasses import dataclass
 from uuid import uuid4

@@ -1,6 +1,6 @@
-from __future__ import annotations
-
 """Flask-Caching initialization module."""
+
+from __future__ import annotations
 
 import os
 from flask_caching import Cache

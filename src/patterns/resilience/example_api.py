@@ -1,6 +1,6 @@
-from __future__ import annotations
-
 """Example API call using retry_api_call."""
+
+from __future__ import annotations
 
 import random
 import requests
