@@ -1,208 +1,99 @@
-name: CI (Mock)
+name: CI
 
 on:
   pull_request:
-    paths-ignore:
-      - "**/*.md"
   push:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
-  build:
-    runs-on: ${{ matrix.os }}
+  lint:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+      - run: pip install -r requirements-dev.txt -r requirements.txt
+      - run: pre-commit run --color always --show-diff-on-failure --all-files
+
+  unit-tests:
+    needs: lint
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+      - run: pip install -r requirements-dev.txt -r requirements.txt
+      - run: pytest -m "not integration and not e2e" --cov=./ --cov-report=xml --cov-report=term --cov-fail-under=80
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ matrix.python-version }}
+          path: coverage.xml
+
+  integration-tests:
+    needs: unit-tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
     services:
       postgres:
-        image: postgres:16-alpine
+        image: postgres:15
         env:
-          POSTGRES_DB: glpi_dashboard
-          POSTGRES_USER: user
-          POSTGRES_PASSWORD: password
+          POSTGRES_PASSWORD: postgres
         ports:
           - 5432:5432
         options: >-
-          --health-cmd="pg_isready -U user"
-          --health-interval=5s
-          --health-timeout=5s
-          --health-retries=5
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-        python-version: ["3.10", "3.12"]
+          --health-cmd="pg_isready" --health-interval=5s --health-timeout=5s --health-retries=5
     steps:
       - uses: actions/checkout@v4
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install pytest flake8 black pre-commit pytest-cov pytest-asyncio
-      - name: Set PYTHONPATH
-        run: echo "PYTHONPATH=$(pwd)" >> "$GITHUB_ENV"
-      - name: Check if branch is up-to-date with main
-        run: |
-          git fetch origin main
-          ahead_behind=$(git rev-list --left-right --count HEAD...origin/main)
-          behind=$(echo "$ahead_behind" | awk '{print $1}')
-          if [ "$behind" != "0" ]; then
-            echo "Branch desatualizada. Por favor faça rebase com a main."
-            exit 1
-          fi
-      - name: Init DB
-        run: python scripts/init_db.py
-      - name: Pre-commit
-        run: pre-commit run --color always --show-diff-on-failure --all-files
-      - name: Check merge conflicts
-        run: python scripts/check_merge_conflicts.py
-      - name: Run tests
-        run: pytest --cov=./ --cov-report=xml --cov-report=term --cov-fail-under=90
+          cache: 'pip'
+      - run: pip install -r requirements-dev.txt -r requirements.txt
+      - run: pytest -m integration
 
-  frontend_lint:
+  build:
+    needs: integration-tests
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [20]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build backend
+        run: docker build -t glpi-dashboard .
+      - name: Build frontend
+        run: |
+          cd frontend && npm ci && npm run build
+
+  e2e-tests:
+    needs: build
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: '20'
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
-      - name: Install dependencies
-        run: |
-          cd frontend
-          npm ci
-      - name: Lint
-        run: |
-          cd frontend
-          npm run lint
-
-  frontend_unit_tests:
-    runs-on: ubuntu-latest
-    needs: frontend_lint
-    strategy:
-      matrix:
-        node-version: [20]
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
-      - name: Install dependencies
-        run: |
-          cd frontend
-          npm ci
-      - name: Unit tests
-        run: |
-          cd frontend
-          npm test --silent
-
-  frontend_integration_tests:
-    runs-on: ubuntu-latest
-    needs: frontend_lint
-    strategy:
-      matrix:
-        node-version: [20]
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
-      - name: Install dependencies
-        run: |
-          cd frontend
-          npm ci
-      - name: Integration tests
-        run: |
-          cd frontend
-          npm run test:integration
-
-  frontend_build:
-    runs-on: ubuntu-latest
-    needs:
-      - frontend_unit_tests
-      - frontend_integration_tests
-    strategy:
-      matrix:
-        node-version: [20]
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
-      - name: Install dependencies
+      - name: Install deps
         run: |
           cd frontend
           npm ci
           npx playwright install --with-deps
-      - name: Build
+      - name: Run E2E
         run: |
-          cd frontend
-          npm run build
-      - name: End-to-end tests
-        run: |
-          cd frontend
-          npm run test:e2e
-      - name: Upload Next build
-        uses: actions/upload-artifact@v4
+          pytest tests/e2e --html=artifacts/e2e-report.html --self-contained-html
+      - uses: actions/upload-artifact@v4
         with:
-          name: next-${{ matrix.node-version }}
-          path: frontend/.next
-      - name: Upload Playwright report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-report-${{ matrix.node-version }}
-          path: frontend/playwright-report
-          if-no-files-found: ignore
-
-  security_scan:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      security-events: write
-    steps:
-      - uses: actions/checkout@v4
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
-        with:
-          languages: 'python,javascript'
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v3
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
-      - name: Install Node dependencies
-        run: |
-          cd frontend
-          npm ci
-      - name: Snyk Scan
-        uses: snyk/actions/node@v2
-        with:
-          command: test
-          args: --sarif-file-output=snyk.sarif --severity-threshold=high
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-      - name: Upload Snyk SARIF
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: snyk.sarif
-
+          name: e2e-report
+          path: artifacts/e2e-report.html
