@@ -10,12 +10,7 @@ import pytest
 from aiohttp import web
 
 ROOT = Path(__file__).resolve().parents[2]
-<<<<<<< ours
-main_path = ROOT / "main.py"
-main_globals = runpy.run_path(str(main_path))
-=======
 main_globals = runpy.run_path(str(ROOT / "main.py"))
->>>>>>> theirs
 main = ModuleType("main")
 main.__dict__.update(main_globals)
 
