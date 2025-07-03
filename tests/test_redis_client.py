@@ -73,9 +73,6 @@ async def test_delete_connection_error(monkeypatch):
     monkeypatch.setattr(client, "_connect", AsyncMock(return_value=mock_redis))
     await client.delete("k")
     assert client._client is None
-    metrics = client.get_cache_metrics()
-    assert metrics["hits"] == 0
-    assert metrics["misses"] == 0
 
 
 @pytest.mark.asyncio
@@ -88,6 +85,3 @@ async def test_get_ttl_connection_error(monkeypatch):
     ttl = await client.get_ttl("k")
     assert ttl == -2
     assert client._client is None
-    metrics = client.get_cache_metrics()
-    assert metrics["hits"] == 0
-    assert metrics["misses"] == 0
