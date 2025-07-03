@@ -1,6 +1,6 @@
-from __future__ import annotations
-
 """Utilities for fetching multiple tickets concurrently."""
+
+from __future__ import annotations
 
 import asyncio
 import json
@@ -8,15 +8,12 @@ from typing import List
 
 from pydantic import BaseModel, Field
 
-from glpi_dashboard.config.settings import (
-    GLPI_APP_TOKEN,
-    GLPI_BASE_URL,
-    GLPI_PASSWORD,
-    GLPI_USER_TOKEN,
-    GLPI_USERNAME,
-)
-from .glpi_session import GLPISession, Credentials
+from glpi_dashboard.config.settings import (GLPI_APP_TOKEN, GLPI_BASE_URL,
+                                            GLPI_PASSWORD, GLPI_USER_TOKEN,
+                                            GLPI_USERNAME)
+
 from .exceptions import GLPIAPIError
+from .glpi_session import Credentials, GLPISession
 
 
 class BatchFetchParams(BaseModel):
@@ -63,7 +60,12 @@ async def fetch_all_tickets(ids: List[int]) -> List[dict]:
 
 
 async def fetch_all_tickets_tool(params: BatchFetchParams) -> str:
-    """Wrapper returning JSON or error message for ``ids``."""
+    """Return JSON data for multiple tickets or an error message.
+
+    This tool wraps :func:`fetch_all_tickets` for use in agent pipelines where
+    results must be serialized.  It is useful when bulk data is required but
+    asynchronous execution is still possible.
+    """
 
     try:
         data = await fetch_all_tickets(params.ids)

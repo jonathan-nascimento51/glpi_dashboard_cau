@@ -9,9 +9,8 @@ import json
 import logging
 from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel, Field
-
 import requests
+from pydantic import BaseModel, Field
 
 from .exceptions import HTTP_STATUS_ERROR_MAP, GLPIAPIError
 from .glpi_session import Credentials, GLPISession
@@ -278,7 +277,13 @@ GLPIAPIClient = GlpiApiClient
 
 
 def fetch_tickets_tool(params: ApiClientParams) -> str:
-    """Fetch all tickets using synchronous client and return JSON or error."""
+    """Fetch all tickets using the synchronous client.
+
+    This wrapper is intended for CLI utilities or agents that cannot run
+    asynchronous code.  It fits the tooling approach described in
+    ``AGENTS.md`` where discrete functions return JSON or error strings for
+    further processing.
+    """
 
     try:
         client = GlpiApiClient(

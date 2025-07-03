@@ -1,27 +1,19 @@
-import logging
-from typing import Optional, Dict, Any, Union
-
-from pydantic import BaseModel, Field, model_validator
 import asyncio
 import base64
+import contextlib
+import logging
+from typing import Any, Dict, Optional, Union
 
 import aiohttp
-import contextlib
 from aiohttp import ClientSession, TCPConnector
+from pydantic import BaseModel, Field, model_validator
 
 # Import custom exceptions and decorator from sibling module
-from .exceptions import (
-    GLPIAPIError,
-    GLPIUnauthorizedError,
-    HTTP_STATUS_ERROR_MAP,
-    glpi_retry,
-    parse_error,
-    GLPIBadRequestError,
-    GLPIForbiddenError,
-    GLPINotFoundError,
-    GLPITooManyRequestsError,
-    GLPIInternalServerError,
-)
+from .exceptions import (HTTP_STATUS_ERROR_MAP, GLPIAPIError,
+                         GLPIBadRequestError, GLPIForbiddenError,
+                         GLPIInternalServerError, GLPINotFoundError,
+                         GLPITooManyRequestsError, GLPIUnauthorizedError,
+                         glpi_retry, parse_error)
 
 logger = logging.getLogger(__name__)
 
@@ -529,9 +521,10 @@ class GLPISession:
 async def open_session_tool(params: SessionParams) -> str:
     """Validate credentials by opening and closing a session.
 
-    Use this helper to quickly check if the GLPI API is reachable and the
-    provided credentials are correct. It returns ``"ok"`` when the session can be
-    established or a human readable error message otherwise.
+    This tool is typically called by orchestrators in the multi-agent
+    pipeline defined in ``AGENTS.md`` to confirm connectivity with the GLPI
+    server.  It returns ``"ok"`` when a session can be established or the
+    error message if authentication fails.
     """
 
     try:
