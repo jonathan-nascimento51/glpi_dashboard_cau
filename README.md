@@ -194,9 +194,26 @@ Open `.env` and set the required values:
 - `REDIS_PORT` – Redis port
 - `REDIS_DB` – Redis database number
 - `REDIS_TTL_SECONDS` – TTL for cached responses in seconds
+- `LANGCHAIN_TRACING_V2` – set to `true` to enable LangSmith tracing
+- `LANGCHAIN_API_KEY` – API key used by LangSmith when tracing
+- `LANGCHAIN_PROJECT` – optional project name for tracing sessions
 - _Note_: IP filtering is not built into the worker API. Use your
   network configuration or a reverse proxy if access needs to be
   restricted.
+
+### Activating LangSmith tracing
+
+Add the following variables to `.env` to record traces in your LangSmith
+dashboard:
+
+```bash
+LANGCHAIN_TRACING_V2=true
+LANGCHAIN_API_KEY=<your_langsmith_key>
+LANGCHAIN_PROJECT=glpi-dashboard
+```
+
+With these set, the application will automatically initialize LangSmith when
+importing `glpi_dashboard`.
 
 Before running Docker make sure this `.env` file exists and that `DB_NAME`,
 `DB_USER`, `DB_PASSWORD` and all GLPI credentials have non-empty values. You can
