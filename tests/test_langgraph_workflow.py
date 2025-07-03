@@ -48,6 +48,7 @@ def test_supervisor_routes_llm(monkeypatch: pytest.MonkeyPatch):
     class DummyRunnable:
         def invoke(self, inp):
             called["msg"] = inp["message"]
+            called["opts"] = inp["options"]
             return langgraph_workflow.NextAgent(next_agent="analyzer")
 
     monkeypatch.setattr(langgraph_workflow, "supervisor_llm", DummyRunnable())
@@ -55,6 +56,7 @@ def test_supervisor_routes_llm(monkeypatch: pytest.MonkeyPatch):
     result = langgraph_workflow.supervisor(state)
     assert result["next_agent"] == "analyzer"
     assert called["msg"] == "please analyze"
+    assert "fetcher" in called["opts"]
 
 
 def test_validation_failure_and_recovery():
