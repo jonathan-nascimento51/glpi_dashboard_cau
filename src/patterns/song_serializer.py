@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Protocol, Callable
+from typing import Protocol
 import json
 import xml.etree.ElementTree as ET
 import yaml
