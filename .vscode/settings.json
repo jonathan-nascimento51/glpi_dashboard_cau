@@ -19,5 +19,6 @@
         "itemtype",
         "PYTHONPATH",
         "uvicorn"
-    ]
+    ],
+    "docwriter.style": "Auto-detect"
 }
