@@ -71,6 +71,7 @@ class Metrics(BaseModel):
 
 
 AVAILABLE_AGENTS = ["fetcher", "analyzer", "fallback"]
+"""Agents that can be dynamically routed by the supervisor."""
 
 
 SUPERVISOR_PROMPT = PromptTemplate(
