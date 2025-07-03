@@ -21,7 +21,11 @@ services:
       - '3000:3000'
   db:
     image: postgres:15
-    env_file: .env
+    restart: always
+    environment:
+      POSTGRES_DB: glpi_dashboard
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
     ports:
       - "55432:5432"
     volumes:

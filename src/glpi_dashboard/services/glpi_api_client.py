@@ -9,6 +9,7 @@ import json
 import logging
 from typing import Any, Dict, List, Optional
 
+import pandas as pd
 import requests
 from pydantic import BaseModel, Field
 
@@ -99,6 +100,25 @@ class GlpiApiClient:
                 continue
             item[field] = mapping.get(num, value)
 
+    def _map_fields_batch(self, items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """Vectorized version of ``_map_fields`` for multiple items."""
+        if not items:
+            return items
+        df = pd.DataFrame(items)
+        for field, mapping in (
+            ("status", STATUS_MAP),
+            ("priority", PRIORITY_MAP),
+            ("impact", IMPACT_MAP),
+            ("type", TYPE_MAP),
+        ):
+            if field in df.columns:
+                df[field] = (
+                    pd.to_numeric(df[field], errors="coerce")
+                    .map(mapping)
+                    .fillna(df[field])
+                )
+        return df.to_dict(orient="records")
+
     def _flatten_params(self, params: Dict[str, Any]) -> Dict[str, Any]:
         """Expand list values into ``key[index]`` query parameters."""
 
@@ -110,6 +130,16 @@ class GlpiApiClient:
             else:
                 flat[key] = value
         return flat
+
+    def _parse_json(self, resp: requests.Response) -> Dict[str, Any]:
+        try:
+            return resp.json()
+        except ValueError:
+            return {}
+
+    def _raise_error(self, resp: requests.Response, data: Dict[str, Any]) -> None:
+        exc_cls = HTTP_STATUS_ERROR_MAP.get(resp.status_code, GLPIAPIError)
+        raise exc_cls(resp.status_code, data.get("message", resp.reason), data)
 
     def _request_page(
         self, endpoint: str, params: Dict[str, Any]
@@ -139,10 +169,7 @@ class GlpiApiClient:
             ),
         )
         if resp.status_code == 401:
-            try:
-                data = resp.json()
-            except ValueError:
-                data = {}
+            data = self._parse_json(resp)
             if data.get("message") == "ERROR_SESSION_TOKEN_INVALID":
                 logger.warning("Session token invalid, refreshing and retrying")
                 self._loop.run_until_complete(self._session._refresh_session_token())
@@ -162,22 +189,14 @@ class GlpiApiClient:
                         else None
                     ),
                 )
+                data = self._parse_json(resp)
             else:
-                exc_cls = HTTP_STATUS_ERROR_MAP.get(resp.status_code, GLPIAPIError)
-                raise exc_cls(resp.status_code, data.get("message", resp.reason), data)
-
-        if resp.status_code >= 400:
-            try:
-                data = resp.json()
-            except ValueError:
-                data = {}
-            exc_cls = HTTP_STATUS_ERROR_MAP.get(resp.status_code, GLPIAPIError)
-            raise exc_cls(resp.status_code, data.get("message", resp.reason), data)
-
-        try:
-            data = resp.json()
-        except ValueError:
-            data = {}
+                self._raise_error(resp, data)
+        elif resp.status_code >= 400:
+            data = self._parse_json(resp)
+            self._raise_error(resp, data)
+        else:
+            data = self._parse_json(resp)
         return data, resp.headers
 
     # ------------------------------------------------------------------
@@ -196,10 +215,8 @@ class GlpiApiClient:
             page = data.get("data", data)
             if isinstance(page, dict):
                 page = [page]
-            for item in page:
-                if isinstance(item, dict):
-                    self._map_fields(item)
-                    results.append(item)
+            page_items = [item for item in page if isinstance(item, dict)]
+            results.extend(page_items)
             content_range = headers.get("Content-Range")
             if not content_range:
                 break
@@ -210,7 +227,7 @@ class GlpiApiClient:
             offset += 100
             if offset >= total:
                 break
-        return results
+        return self._map_fields_batch(results)
 
     def search(
         self, itemtype: str, criteria: List[Dict[str, Any]], **params: Any

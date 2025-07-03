@@ -4,15 +4,24 @@
 
 from __future__ import annotations
 
-from typing import List, Optional, TypedDict
-
 import ast
+from typing import List, Optional, TypedDict
 
 import pandas as pd
 from langchain_core.language_models.fake import FakeListLLM
-from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import PydanticOutputParser
+from langchain_core.prompts import PromptTemplate
 from langchain_core.runnables import Runnable
+from langgraph.checkpoint.sqlite import SqliteSaver
+from langgraph.graph import END, StateGraph
+from pydantic import BaseModel, Field, ValidationError
+
+from glpi_dashboard.config.settings import (GLPI_APP_TOKEN, GLPI_BASE_URL,
+                                            GLPI_PASSWORD, GLPI_USER_TOKEN,
+                                            GLPI_USERNAME)
+from glpi_dashboard.data.pipeline import process_raw
+
+from .glpi_session import Credentials, GLPISession
 
 
 def create_structured_output_runnable(
@@ -21,22 +30,6 @@ def create_structured_output_runnable(
     """Return a runnable that validates LLM output as a Pydantic model."""
     parser = PydanticOutputParser(pydantic_object=model)
     return prompt | llm | parser
-
-
-from langgraph.checkpoint.sqlite import SqliteSaver
-from langgraph.graph import END, StateGraph
-from pydantic import BaseModel, Field, ValidationError
-
-from glpi_dashboard.config.settings import (
-    GLPI_APP_TOKEN,
-    GLPI_BASE_URL,
-    GLPI_PASSWORD,
-    GLPI_USER_TOKEN,
-    GLPI_USERNAME,
-)
-from glpi_dashboard.data.pipeline import process_raw
-
-from .glpi_session import Credentials, GLPISession
 
 
 class AgentState(TypedDict):
@@ -72,13 +65,20 @@ class Metrics(BaseModel):
     closed: int
 
 
+AVAILABLE_AGENTS = ["fetcher", "analyzer", "fallback"]
+
+
 SUPERVISOR_PROMPT = PromptTemplate(
     template=(
         "You are a supervisor deciding which agent should act next.\n"
+        "Available agents: {options}.\n"
         "Given the latest user message: '{message}' return a JSON object with "
-        "the key 'next_agent' whose value is one of ['fetcher','analyzer','fallback']."
+        "the key 'next_agent'.\n"
+        "Examples:\n"
+        '- message: \'fetch latest tickets\' -> {{"next_agent": "fetcher"}}\n'
+        '- message: \'show stats\' -> {{"next_agent": "analyzer"}}'
     ),
-    input_variables=["message"],
+    input_variables=["message", "options"],
 )
 
 # Using FakeListLLM to keep tests deterministic. In production this could be
@@ -96,7 +96,8 @@ supervisor_llm = create_structured_output_runnable(SUPERVISOR_PROMPT, llm, NextA
 def supervisor(state: AgentState) -> AgentState:
     """Use an LLM to decide which worker should run next."""
     last = state["messages"][-1]
-    model = supervisor_llm.invoke({"message": last})
+    opts = ", ".join(AVAILABLE_AGENTS)
+    model = supervisor_llm.invoke({"message": last, "options": opts})
     state["next_agent"] = model.next_agent
     state["iteration_count"] += 1
     return state
@@ -177,13 +178,26 @@ def validation_node(state: AgentState) -> AgentState:
 
 
 def recovery_node(state: AgentState) -> AgentState:
-    """Handle errors and decide whether to retry or finish."""
+    """Handle errors and decide whether to retry or finish.
+
+    If ``state['error']`` is set and the number of iterations is below three,
+    the workflow will append a ``"retrying"`` message so the supervisor can
+    trigger the fetcher again. Otherwise the flow falls back to the default
+    node and clears the error so the graph can terminate gracefully.
+    """
     if state.get("error") and state["iteration_count"] < 3:
         state["messages"].append("retrying")
     else:
         state["next_agent"] = "fallback"
     state["error"] = None
     return state
+
+
+NODE_FUNCTIONS = {
+    "fetcher": fetcher,
+    "analyzer": analyzer,
+    "fallback": fallback,
+}
 
 
 # --------------------------- Workflow Builder ---------------------------
@@ -195,9 +209,8 @@ def build_workflow() -> StateGraph:
     workflow = StateGraph(AgentState, checkpointer=checkpointer)
 
     workflow.add_node("supervisor", supervisor)
-    workflow.add_node("fetcher", fetcher)
-    workflow.add_node("analyzer", analyzer)
-    workflow.add_node("fallback", fallback)
+    for name in AVAILABLE_AGENTS:
+        workflow.add_node(name, NODE_FUNCTIONS[name])
     workflow.add_node("validation", validation_node)
     workflow.add_node("recovery", recovery_node)
 
@@ -206,11 +219,7 @@ def build_workflow() -> StateGraph:
     workflow.add_conditional_edges(
         "supervisor",
         lambda s: s["next_agent"],
-        {
-            "fetcher": "fetcher",
-            "analyzer": "analyzer",
-            "fallback": "fallback",
-        },
+        {name: name for name in AVAILABLE_AGENTS},
     )
 
     workflow.add_edge("fetcher", "analyzer")
@@ -232,4 +241,5 @@ __all__ = [
     "recovery_node",
     "build_workflow",
     "GLPISession",
+    "AVAILABLE_AGENTS",
 ]
