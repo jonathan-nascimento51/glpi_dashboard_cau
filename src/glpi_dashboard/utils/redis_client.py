@@ -117,7 +117,10 @@ class RedisClient:
             redis_key = self._format_key(key)
             await client.delete(redis_key)
             logger.debug("Cache DELETE for key: %s", redis_key)
-        except redis.exceptions.AuthenticationError as e:
+        except (
+            redis.exceptions.AuthenticationError,
+            redis.exceptions.ConnectionError,
+        ) as e:
             logger.error("Redis connection error during DELETE: %s", e)
             self._client = None
         except Exception as e:
@@ -130,7 +133,10 @@ class RedisClient:
             redis_key = self._format_key(key)
             ttl = await client.ttl(redis_key)
             return int(ttl)
-        except redis.exceptions.AuthenticationError as e:
+        except (
+            redis.exceptions.AuthenticationError,
+            redis.exceptions.ConnectionError,
+        ) as e:
             logger.error("Redis connection error during TTL: %s", e)
             self._client = None
             return -2
