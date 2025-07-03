@@ -283,6 +283,8 @@ Execute the unit tests with coverage:
 
 ```bash
 pip install -r requirements.txt -r requirements-dev.txt
+# optional extras for e2e and container tests
+pip install testcontainers playwright
 pytest --cov=./
 pre-commit run --all-files
 ```

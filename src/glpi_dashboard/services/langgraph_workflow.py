@@ -11,7 +11,18 @@ import ast
 import pandas as pd
 from langchain_core.language_models.fake import FakeListLLM
 from langchain_core.prompts import PromptTemplate
-from langchain_core.utils.function_calling import create_structured_output_runnable
+from langchain_core.output_parsers import PydanticOutputParser
+from langchain_core.runnables import Runnable
+
+
+def create_structured_output_runnable(
+    prompt: PromptTemplate, llm: FakeListLLM, model: type[BaseModel]
+) -> Runnable:
+    """Return a runnable that validates LLM output as a Pydantic model."""
+    parser = PydanticOutputParser(pydantic_object=model)
+    return prompt | llm | parser
+
+
 from langgraph.checkpoint.sqlite import SqliteSaver
 from langgraph.graph import END, StateGraph
 from pydantic import BaseModel, Field, ValidationError
