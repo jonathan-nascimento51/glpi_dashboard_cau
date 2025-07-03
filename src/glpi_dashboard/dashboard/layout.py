@@ -7,12 +7,24 @@ import dash_bootstrap_components as dbc
 
 def render_dashboard(df: pd.DataFrame) -> html.Div:
     """Render main dashboard components."""
+    statuses = ["All"] + sorted({str(s) for s in df["status"].dropna().unique()})
+    status_options = [{"label": s, "value": s if s != "All" else ""} for s in statuses]
+
     return html.Div(
         [
             html.H1("GLPI Dashboard"),
             dcc.Interval(id="init-load", n_intervals=0, max_intervals=1),
+            dcc.Store(id="ticket-store"),
+            dcc.Dropdown(
+                id="status-filter",
+                options=status_options,
+                value="",
+                clearable=False,
+                style={"width": "200px"},
+            ),
             html.Div(id="stats"),
             dcc.Graph(id="status-graph"),
+            dcc.Graph(id="scatter-plot"),
             dash_table.DataTable(
                 id="ticket-table",
                 columns=[

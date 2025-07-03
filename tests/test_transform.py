@@ -1,17 +1,21 @@
 import os
 import sys
+
 import pandas as pd
 
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src"))  # noqa: E402
+root = os.path.dirname(os.path.dirname(__file__))
+sys.path.insert(0, os.path.join(root, "src"))  # noqa: E402
 
 from glpi_dashboard.data import transform  # noqa: E402
 
 
 def test_to_dataframe_dtypes():
-    df = transform.to_dataframe([
-        {"id": "1", "status": "new", "assigned_to": "alice", "group": "N1"},
-        {"id": 2, "status": "closed", "assigned_to": "bob", "group": "N2"},
-    ])
+    df = transform.to_dataframe(
+        [
+            {"id": "1", "status": "new", "assigned_to": "alice", "group": "N1"},
+            {"id": 2, "status": "closed", "assigned_to": "bob", "group": "N2"},
+        ]
+    )
     assert df.dtypes["id"] == "int32"
     assert str(df.dtypes["status"]) == "category"
     assert str(df.dtypes["group"]) == "category"
@@ -51,4 +55,3 @@ def test_empty_dataframe_handling():
     assert result_status.empty
     result_agg = transform.aggregate_by_user(df)
     assert result_agg.empty
-

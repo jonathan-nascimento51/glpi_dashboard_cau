@@ -108,6 +108,14 @@ The app will be available at <http://127.0.0.1:8050>.
 For an OS-specific walkthrough including virtual environment commands, see
 [docs/run_local.md](docs/run_local.md).
 
+### Browser latency benchmark
+
+The dashboard previously filtered tickets on the server, leading to ~500 ms
+round-trips per change. After migrating the filter to a
+`dash_clientside_callback` and rendering the scatter plot with
+`go.Scattergl`, the same interaction completes in roughly 50 ms as measured
+in Chrome DevTools (Network → Timings).
+
 If you encounter issues during the first run, consult
 [docs/error_map.md](docs/error_map.md) for troubleshooting tips.
 For additional troubleshooting steps in Portuguese, see
