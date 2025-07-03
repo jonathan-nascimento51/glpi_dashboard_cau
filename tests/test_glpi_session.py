@@ -19,6 +19,7 @@ from glpi_dashboard.services.glpi_session import (  # noqa: E402
     GLPINotFoundError,
     GLPITooManyRequestsError,
     GLPIInternalServerError,
+    GLPIAPIError,
 )
 import aiohttp  # noqa: E402
 from glpi_dashboard.logging_config import setup_logging  # noqa: E402
@@ -590,3 +591,36 @@ async def test_kill_session_success(
         timeout=ANY,
     )
     assert session._session_token is None
+
+
+@pytest.mark.asyncio
+async def test_request_network_error(
+    base_url, app_token, user_token, mock_client_session, mock_response
+):
+    """Network errors trigger retries and eventually succeed."""
+
+    creds = Credentials(app_token=app_token, user_token=user_token)
+    glpi_session = GLPISession(base_url, creds)
+
+    # initSession succeeds
+    mock_client_session.get.return_value = mock_response(
+        200, {"session_token": user_token}
+    )
+
+    err = aiohttp.ClientConnectionError("fail")
+
+    def side_effect(*args, **kwargs):
+        if side_effect.calls < 2:
+            side_effect.calls += 1
+            raise err
+        return mock_response(200, {"data": {"id": 1}})
+
+    side_effect.calls = 0
+    mock_client_session.request.side_effect = side_effect
+
+    with patch("asyncio.sleep", new=AsyncMock()):
+        async with glpi_session as session:
+            with pytest.raises(GLPIAPIError):
+                await session.get("Ticket/1")
+
+    assert mock_client_session.request.call_count == 1

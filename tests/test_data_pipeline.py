@@ -1,6 +1,7 @@
 import os
 import sys
 import pandas as pd
+import pytest
 
 sys.path.insert(
     0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src")
@@ -99,3 +100,14 @@ def test_process_raw_memory_usage_reduced():
     optimized = process_raw(raw).memory_usage(deep=True).sum()
 
     assert optimized < baseline
+
+
+def test_process_raw_invalid_date():
+    """Invalid date strings should raise a ValueError."""
+
+    raw = [
+        {"id": 1, "status": "New", "date_creation": "not-a-date"}
+    ]
+
+    with pytest.raises(ValueError):
+        process_raw(raw)
