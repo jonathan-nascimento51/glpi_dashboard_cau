@@ -52,6 +52,13 @@ Open <http://127.0.0.1:8050> in your browser.
 
 Set the connection details in `.env` using the keys `DB_*` and `REDIS_*`.
 
+## Configuration
+
+Store credentials in a local `.env` file or load them from a vault service.
+Sensitive variables like `GLPI_*` should **never** be committed to the
+repository. The project expects these values in your environment before running
+any scripts.
+
 ## Architecture
 
 ```plaintext
