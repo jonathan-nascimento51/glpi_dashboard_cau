@@ -50,7 +50,11 @@ class Settings(BaseSettings):
     cache_default_timeout: str = ""
     codegpt_plus_api_key: str = ""
 
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
 
 
 @lru_cache()

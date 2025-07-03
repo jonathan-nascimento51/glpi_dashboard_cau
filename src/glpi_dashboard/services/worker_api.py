@@ -13,7 +13,7 @@ import pandas as pd
 import strawberry
 import uvicorn
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 from strawberry.fastapi import GraphQLRouter
 from strawberry.types import Info
 
@@ -94,6 +94,15 @@ async def _load_tickets(client: Optional[GlpiApiClient] = None) -> pd.DataFrame:
         return pd.DataFrame(data)
 
 
+async def _stream_tickets(client: Optional[GlpiApiClient]) -> AsyncGenerator[bytes, None]:
+    """Yield progress events followed by final ticket data."""
+    yield b"fetching...\n"
+    df = await _load_tickets(client=client)
+    yield b"processing...\n"
+    data = df.astype(object).where(pd.notna(df), None).to_dict(orient="records")
+    yield json.dumps(data).encode()
+
+
 @strawberry.type
 class Query:
     @strawberry.field
@@ -157,6 +166,10 @@ def create_app(client: Optional[GlpiApiClient] = None) -> FastAPI:
     async def tickets() -> list[dict]:  # noqa: F401
         df = await _load_tickets(client=client)
         return df.astype(object).where(pd.notna(df), None).to_dict(orient="records")
+
+    @app.get("/tickets/stream")
+    async def tickets_stream() -> StreamingResponse:  # noqa: F401
+        return StreamingResponse(_stream_tickets(client), media_type="text/plain")
 
     @app.get("/metrics")
     async def metrics() -> dict:  # noqa: F401

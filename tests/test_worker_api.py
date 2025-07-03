@@ -77,6 +77,23 @@ def test_rest_endpoints():
     assert metrics["total"] >= 0
 
 
+def test_tickets_stream(monkeypatch: pytest.MonkeyPatch):
+    async def fake_gen(_client):
+        yield b"fetching...\n"
+        yield b"done\n"
+
+    monkeypatch.setitem(
+        create_app.__globals__,
+        "_stream_tickets",
+        lambda client: fake_gen(client),
+    )
+
+    client = TestClient(create_app(client=FakeSession()))
+    resp = client.get("/tickets/stream")
+    assert resp.status_code == 200
+    assert resp.text.splitlines() == ["fetching...", "done"]
+
+
 def test_graphql_metrics():
     app = create_app(client=FakeSession())
     paths = [getattr(r, "path", None) for r in app.router.routes if hasattr(r, "path")]

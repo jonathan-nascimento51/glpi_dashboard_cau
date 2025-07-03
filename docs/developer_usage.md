@@ -82,9 +82,10 @@ Consulte `data_pipeline.py` para transformar os dados em DataFrame.
 Execute toda a suíte de testes com cobertura:
 
 ```bash
-pip install -r requirements.txt -r requirements-dev.txt
 make test
 ```
+
+The `make test` target installs both `requirements.txt` and `requirements-dev.txt` before running pytest.
 
 Rodar apenas lint:
 

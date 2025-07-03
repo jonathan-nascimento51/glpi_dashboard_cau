@@ -34,6 +34,27 @@ CLI is available.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+### Streaming Tickets
+
+The worker API exposes `/tickets/stream` which returns progress updates while
+ticket data is being fetched and processed. Example usage with `httpx`:
+
+```python
+import httpx
+
+resp = httpx.get("http://localhost:8000/tickets/stream")
+for line in resp.text.splitlines():
+    print(line)
+```
+
+This will print:
+
+```
+fetching...
+processing...
+[{"id": 1}]
+```
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
