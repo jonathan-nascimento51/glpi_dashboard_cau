@@ -182,6 +182,28 @@ class GLPIClient:
             )
         return data
 
+    async def list_search_options(self, itemtype: str) -> Dict[str, Any]:
+        """Retrieve available search fields for ``itemtype``."""
+
+        url = f"listSearchOptions/{itemtype}"
+        try:
+            resp = await self._client.get(url)
+        except httpx.TimeoutException as exc:  # pragma: no cover - network issues
+            raise GLPIAPIError(0, f"Timeout during listSearchOptions: {exc}") from exc
+        except httpx.HTTPError as exc:  # pragma: no cover - network issues
+            raise GLPIAPIError(
+                0, f"HTTP error during listSearchOptions: {exc}"
+            ) from exc
+
+        data = resp.json()
+        if data.get("message") == "ERROR_JSON_PAYLOAD_FORBIDDEN":
+            raise GLPIAPIError(resp.status_code, data["message"], data)
+        if resp.status_code >= 400:
+            raise GLPIAPIError(
+                resp.status_code, data.get("message", resp.reason_phrase), data
+            )
+        return data
+
     # ------------------------------------------------------------------
     # GraphQL helper
     # ------------------------------------------------------------------
