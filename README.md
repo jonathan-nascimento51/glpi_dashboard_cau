@@ -50,7 +50,7 @@ Set the connection details in `.env` using the keys `DB_*` and `REDIS_*`.
 
 ## Architecture
 
-```
+```plaintext
          +---------+      +-------------+
          |  GLPI   +----->+  Worker API |
          +---------+      +-------------+
@@ -261,7 +261,6 @@ and the test suite for Python 3.10 and 3.12.
 
 This project is released under the [MIT License](LICENSE).
 
-
 For CI/CD governance guidelines, see [docs/governanca_tecnica_prompt.md](docs/governanca_tecnica_prompt.md).
 Guidance on connecting the API to Copilot Studio is available in
 [docs/copilot_integration.md](docs/copilot_integration.md).
@@ -269,4 +268,3 @@ For common asyncio patterns and deployment notes see
 [docs/asyncio_scenarios.md](docs/asyncio_scenarios.md).
 For a complete developer usage guide see
 [docs/developer_usage.md](docs/developer_usage.md).
-
