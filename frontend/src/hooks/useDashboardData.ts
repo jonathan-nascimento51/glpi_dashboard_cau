@@ -1,3 +1,5 @@
+'use client';
+
 import { useEffect, useRef, useState } from 'react'
 import { Chart } from 'chart.js/auto'
 
@@ -27,7 +29,9 @@ export function useDashboardData() {
     const ctx = document.getElementById(
       'trendsChart',
     ) as HTMLCanvasElement | null
-    if (!ctx) return
+    if (!ctx) {
+      return;
+    }
     trendChart.current = new Chart(ctx, {
       type: 'line',
       data: {
