@@ -22,3 +22,4 @@ dash-bootstrap-components>=1.5
 pydantic>=2.7
 pydantic-settings>=2.2
 gql[httpx]>=3.5
+dishka>=1.6
