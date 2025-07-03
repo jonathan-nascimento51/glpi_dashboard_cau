@@ -10,3 +10,5 @@ testcontainers
 playwright
 dash[testing]
 pytest-mock
+types-requests
+types-redis
