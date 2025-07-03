@@ -14,6 +14,9 @@ The goal is to inspect backlog, ticket status and productivity metrics without a
 
 Install dependencies and prepare the environment:
 
+You can run `./setup.sh` to install the main requirements in one step or
+execute the commands below manually.
+
 ```bash
 python -m pip install --upgrade pip
 pip install -r requirements.txt -r requirements-dev.txt
@@ -310,8 +313,8 @@ npm run analyze
 ## CI
 
 Continuous integration runs on GitHub Actions using `.github/workflows/ci.yml`.
-It installs dependencies, initializes the database and executes pre-commit hooks
-and the test suite for Python 3.10 and 3.12.
+It installs dependencies using `./setup.sh`, initializes the database and
+executes pre-commit hooks and the test suite for Python 3.10 and 3.12.
 
 ## Architecture Decision Records
 
