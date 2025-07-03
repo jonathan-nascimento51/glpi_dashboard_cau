@@ -180,7 +180,22 @@ Some scripts require a few variables set in a `.env` file. Copy the template and
 python scripts/setup_env.py  # copies .env.example to .env
 ```
 
-Open `.env` and set the required values:
+Open `.env` and set the required values.
+*Important:* all variable names must be **uppercase**, otherwise the Pydantic loader will ignore them.
+
+Example snippet:
+
+```bash
+# Database credentials
+DB_NAME=glpi_dashboard
+DB_USER=user
+DB_PASSWORD=password
+
+# Mapped automatically to the Postgres container
+POSTGRES_DB=$DB_NAME
+POSTGRES_USER=$DB_USER
+POSTGRES_PASSWORD=$DB_PASSWORD
+```
 
 - `GLPI_BASE_URL` – base URL of the GLPI API (e.g. `https://glpi.company.com/apirest.php`).
   Using HTTPS is recommended for deployments.

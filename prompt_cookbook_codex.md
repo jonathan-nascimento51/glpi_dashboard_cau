@@ -10,6 +10,7 @@
 ---
 
 ### 1️⃣ Gerar **glpi_session.py**
+
 ```
 Você é um engenheiro Python sênior.
 Crie **glpi_session.py** com:
@@ -21,6 +22,7 @@ Crie **glpi_session.py** com:
 ```
 
 ### 2️⃣ Gerar **data_pipeline.py**
+
 ```
 Você é um especialista em ETL.
 Crie data_pipeline.py com:
@@ -31,6 +33,7 @@ Crie data_pipeline.py com:
 ```
 
 ### 3️⃣ Gerar **dash_layout.py**
+
 ```
 Você é front‑end Dash.
 Crie dash_layout.py contendo a função build_layout(df) que devolve um objeto html.Div com:
@@ -42,6 +45,7 @@ Sem CSS avançado.
 ```
 
 ### 4️⃣ Atualizar **requirements.txt**
+
 ```
 Adicione/atualize:
 dash>=2.17
@@ -52,6 +56,7 @@ pre-commit>=3.7
 ```
 
 ### 5️⃣ Script **.devcontainer/setup.sh**
+
 ```
 Gere setup.sh:
 - apt-get update && install build-essential
@@ -60,18 +65,21 @@ Gere setup.sh:
 ```
 
 ### 6️⃣ Criar testes **tests/test_glpi_session.py**
+
 ```
 Use pytest e requests-mock.
 Teste que get_tickets() retorna lista não vazia e lança HTTPError em 500.
 ```
 
 ### 7️⃣ Refatorar depois
+
 ```
 Reescreva data_pipeline.process_raw para aceitar DataFrame e Series.
 Garanta 100% coverage nos testes.
 ```
 
 ### 8️⃣ Mensagens de commit (Conventional Commits)
+
 ```
 feat(api): add glpi_session with session support
 fix(api): handle 401 unauthorized
