@@ -1,7 +1,5 @@
 """Dash app using live GLPI data."""
 
-import asyncio
-
 import pandas as pd
 from dash import Dash
 from flask import Flask
@@ -16,6 +14,7 @@ from src.glpi_dashboard.config.settings import (
     USE_MOCK_DATA,
 )
 from src.glpi_dashboard.data.pipeline import process_raw
+from src.glpi_dashboard.cache import cache
 from src.glpi_dashboard.services.glpi_api_client import GlpiApiClient
 from src.glpi_dashboard.services.glpi_session import Credentials
 from src.glpi_dashboard.services.exceptions import GLPIAPIError
@@ -26,32 +25,39 @@ from src.glpi_dashboard.dashboard.callbacks import register_callbacks
 setup_logging()
 
 
-async def _fetch_api_data() -> pd.DataFrame:
+@cache.memoize(timeout=300)
+def _fetch_api_data(ticket_range: str = "0-99", **filters: str) -> list[dict]:
     """Fetch ticket data directly from the GLPI API."""
 
-    def _sync_fetch() -> list[dict]:
-        creds = Credentials(
-            app_token=GLPI_APP_TOKEN,
-            user_token=GLPI_USER_TOKEN,
-            username=GLPI_USERNAME,
-            password=GLPI_PASSWORD,
-        )
-        with GlpiApiClient(
-            GLPI_BASE_URL,
-            creds,
-        ) as client:
-            return client.get_all("Ticket")
+    creds = Credentials(
+        app_token=GLPI_APP_TOKEN,
+        user_token=GLPI_USER_TOKEN,
+        username=GLPI_USERNAME,
+        password=GLPI_PASSWORD,
+    )
+    with GlpiApiClient(
+        GLPI_BASE_URL,
+        creds,
+    ) as client:
+        return client.get_all("Ticket", range=ticket_range, **filters)
 
-    try:
-        data = await asyncio.to_thread(_sync_fetch)
-    except Exception as exc:  # Broad catch logs unexpected failures
-        logging.error("Failed to fetch data from GLPI API: %s", exc)
-        raise
 
+@cache.memoize(timeout=300)
+def _transform_df(ticket_range: str = "0-99", **filters: str) -> pd.DataFrame:
+    """Transform raw ticket data into a normalized DataFrame."""
+
+    data = _fetch_api_data(ticket_range, **filters)
     return process_raw(data)
 
 
-def load_data() -> pd.DataFrame | None:
+def clear_cache(ticket_range: str = "0-99", **filters: str) -> None:
+    """Manually invalidate cached data for a given ticket range and filters."""
+
+    cache.delete_memoized(_fetch_api_data, ticket_range, **filters)
+    cache.delete_memoized(_transform_df, ticket_range, **filters)
+
+
+def load_data(ticket_range: str = "0-99", **filters: str) -> pd.DataFrame | None:
     """Load ticket data from GLPI or a local mock file."""
     if USE_MOCK_DATA:
         logging.info("Loading ticket data from mock file")
@@ -63,7 +69,7 @@ def load_data() -> pd.DataFrame | None:
 
     logging.info("Fetching ticket data from GLPI API")
     try:
-        return asyncio.run(_fetch_api_data())
+        return _transform_df(ticket_range, **filters)
     except GLPIAPIError as exc:
         logging.error("Error contacting GLPI API: %s", exc)
         return None
@@ -72,6 +78,7 @@ def load_data() -> pd.DataFrame | None:
 def create_app(df: pd.DataFrame | None) -> Dash:
     """Create Dash application."""
     server = Flask(__name__)
+    cache.init_app(server)
 
     @server.route("/ping")
     def ping() -> tuple[str, int]:

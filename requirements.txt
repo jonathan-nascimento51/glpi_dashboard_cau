@@ -2,6 +2,7 @@ dash>=2.17
 pandas>=2.2
 requests>=2.32
 python-dotenv>=1.0
+Flask-Caching>=2.1
 pre-commit>=3.7
 requests-mock
 pytest
