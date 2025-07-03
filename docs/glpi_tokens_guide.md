@@ -107,6 +107,7 @@ O backend irá ler `data/mock_tickets.json`.
 ## 9 ▪️ Testes & lint
 
 ```bash
+pip install -r requirements.txt -r requirements-dev.txt
 pytest --cov=./
 pre-commit run --all-files
 ```
