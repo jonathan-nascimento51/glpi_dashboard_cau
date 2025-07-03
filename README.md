@@ -135,6 +135,21 @@ The service exposes four endpoints:
 - `/graphql/` – GraphQL API providing the same information.
 - `/cache/stats` – returns cache hit/miss metrics.
 
+Example GraphQL query to retrieve ticket data:
+
+```graphql
+query GetTickets {
+  tickets {
+    id
+    name
+    status
+    user {
+      name
+    }
+  }
+}
+```
+
 ## Collecting ticket/group assignments
 
 Use the helper CLI to dump assignments into a Parquet dataset:

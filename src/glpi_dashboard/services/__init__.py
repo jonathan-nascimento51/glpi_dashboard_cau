@@ -2,6 +2,7 @@
 
 from .glpi_session import Credentials, GLPISession
 from .glpi_api_client import GlpiApiClient, GLPIAPIClient
+from .graphql_client import GlpiGraphQLClient
 from .langgraph_workflow import AgentState, build_workflow  # re-export for tests
 from .exceptions import (
     GLPIAPIError,
@@ -21,6 +22,7 @@ __all__ = [
     "GLPISession",
     "GLPIAPIClient",
     "GlpiApiClient",
+    "GlpiGraphQLClient",
     "GLPIAPIError",
     "GLPIBadRequestError",
     "GLPIUnauthorizedError",
