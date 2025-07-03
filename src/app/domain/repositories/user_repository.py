@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import abc
 from typing import Optional
-from uuid import UUID
 
 from app.domain.entities.user import User
 

@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from typing import Callable
-import logging
 
 import pybreaker
 from prometheus_client import Gauge, Counter
