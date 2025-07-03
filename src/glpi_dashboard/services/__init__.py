@@ -4,6 +4,7 @@ from .glpi_session import Credentials, GLPISession
 from .glpi_api_client import GlpiApiClient, GLPIAPIClient
 from .graphql_client import GlpiGraphQLClient
 from .langgraph_workflow import AgentState, build_workflow  # re-export for tests
+from .batch_fetch import fetch_all_tickets
 from .exceptions import (
     GLPIAPIError,
     GLPIBadRequestError,
@@ -35,4 +36,5 @@ __all__ = [
     "parse_error",
     "build_workflow",
     "AgentState",
+    "fetch_all_tickets",
 ]
