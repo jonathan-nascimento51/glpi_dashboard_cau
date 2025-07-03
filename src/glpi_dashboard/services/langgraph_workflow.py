@@ -15,7 +15,7 @@ from langchain_core.prompts import PromptTemplate
 from langchain_core.runnables import Runnable
 from langgraph.checkpoint.sqlite import SqliteSaver
 from langgraph.graph import END, StateGraph
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field
 
 from glpi_dashboard.config.settings import (
     GLPI_APP_TOKEN,
