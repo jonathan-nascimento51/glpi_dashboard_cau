@@ -8,10 +8,10 @@
 
 ---
 
-### 1️⃣ Gerar **glpi_api.py**
+### 1️⃣ Gerar **glpi_session.py**
 ```
 Você é um engenheiro Python sênior.
-Crie **glpi_api.py** com:
+Crie **glpi_session.py** com:
 - login() que cria sessão e retorna um objeto Session pronto.
 - get_tickets(status=None, limit=100, session=None) → List[dict]
  - Uso de python‑dotenv para ler GLPI_URL, GLPI_APP_TOKEN, GLPI_USER_TOKEN
@@ -58,7 +58,7 @@ Gere setup.sh:
 - pre-commit install
 ```
 
-### 6️⃣ Criar testes **tests/test_glpi_api.py**
+### 6️⃣ Criar testes **tests/test_glpi_session.py**
 ```
 Use pytest e requests-mock.
 Teste que get_tickets() retorna lista não vazia e lança HTTPError em 500.
@@ -72,7 +72,7 @@ Garanta 100% coverage nos testes.
 
 ### 8️⃣ Mensagens de commit (Conventional Commits)
 ```
-feat(api): add glpi_api with session support
+feat(api): add glpi_session with session support
 fix(api): handle 401 unauthorized
 docs(readme): add local setup guide
 ```
