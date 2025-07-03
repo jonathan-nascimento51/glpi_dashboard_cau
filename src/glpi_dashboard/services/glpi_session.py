@@ -506,9 +506,7 @@ class GLPISession:
         from glpi_dashboard.config.settings import FETCH_PAGE_SIZE
 
         params = {**params, "expand_dropdowns": 1}
-        endpoint = (
-            f"search/{itemtype}" if not itemtype.startswith("search/") else itemtype
-        )
+        endpoint = itemtype if itemtype.startswith("search/") else f"search/{itemtype}"
         results: list[dict] = []
         offset = 0
         while True:
