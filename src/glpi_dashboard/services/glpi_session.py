@@ -6,14 +6,21 @@ from typing import Any, Dict, Optional, Union
 
 import aiohttp
 from aiohttp import ClientSession, TCPConnector
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, model_validator, ConfigDict
 
 # Import custom exceptions and decorator from sibling module
-from .exceptions import (HTTP_STATUS_ERROR_MAP, GLPIAPIError,
-                         GLPIBadRequestError, GLPIForbiddenError,
-                         GLPIInternalServerError, GLPINotFoundError,
-                         GLPITooManyRequestsError, GLPIUnauthorizedError,
-                         glpi_retry, parse_error)
+from .exceptions import (
+    HTTP_STATUS_ERROR_MAP,
+    GLPIAPIError,
+    GLPIBadRequestError,
+    GLPIForbiddenError,
+    GLPIInternalServerError,
+    GLPINotFoundError,
+    GLPITooManyRequestsError,
+    GLPIUnauthorizedError,
+    glpi_retry,
+    parse_error,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -59,6 +66,8 @@ class Credentials(BaseModel):
 
 class SessionParams(BaseModel):
     """Input data for creating :class:`GLPISession`."""
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     base_url: str = Field(..., description="GLPI REST base URL")
     credentials: Credentials

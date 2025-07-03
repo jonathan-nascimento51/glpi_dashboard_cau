@@ -6,4 +6,7 @@ flake8
 mypy
 black
 isort
-pytest-testcontainers
+testcontainers
+playwright
+dash[testing]
+pytest-mock
