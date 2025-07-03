@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Roboto_Mono } from "next/font/google";
 import React from 'react';
-import "./globals.css";
+import './globals.css';
 import { ReactQueryProvider } from './providers/ReactQueryProvider';
 
 const geistSans = Inter({

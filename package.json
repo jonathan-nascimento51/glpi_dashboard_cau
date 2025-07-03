@@ -1,17 +1,28 @@
 {
-  "dependencies": {
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0"
-  },
-  "devDependencies": {
-    "@types/react": "^19.1.8",
-    "@types/react-dom": "^19.1.6"
-  },
+  "name": "frontend",
+  "version": "0.1.0",
+  "private": true,
   "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
     "storybook": "npm --prefix frontend run storybook",
     "test:integration": "npm --prefix frontend run test:integration",
     "analyze": "npm --prefix frontend run analyze",
     "adr:new": "node scripts/adr-new.js"
+  },
+  "dependencies": {
+    "next": "^14.2.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "@tanstack/react-query": "^4.35.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^19.1.6",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
   },
   "husky": {
     "dir": "../.husky"
