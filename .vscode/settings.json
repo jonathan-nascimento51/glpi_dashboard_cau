@@ -13,6 +13,8 @@
         "creds",
         "excinfo",
         "GLPI",
-        "GLPIAPI"
+        "GLPIAPI",
+        "PYTHONPATH",
+        "uvicorn"
     ],
 }

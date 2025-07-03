@@ -47,6 +47,10 @@ package-dir = {"" = "src"}
 line-length = 88
 target-version = ["py310"]
 
+[tool.isort]
+profile = "black"
+line_length = 88
+
 [tool.mypy]
 python_version = "3.10"
 ignore_missing_imports = true
