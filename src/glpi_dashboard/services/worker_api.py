@@ -1,9 +1,11 @@
 """FastAPI service exposing GLPI tickets via REST and GraphQL."""
 
+
 from __future__ import annotations
 
 import argparse
 import asyncio
+import contextlib
 import json
 from typing import List, Optional, AsyncGenerator
 
@@ -118,27 +120,26 @@ def create_app(client: Optional[GlpiApiClient] = None) -> FastAPI:
 
     @app.middleware("http")
     async def cache_tickets(request: Request, call_next):
-        if request.method == "GET" and request.url.path == "/tickets":
-            cached = await redis_client.get("resp:tickets")
-            if cached is not None:
-                return JSONResponse(content=cached)
-            response = await call_next(request)
-            if response.status_code == 200:
-                body = b""
-                async for chunk in response.body_iterator:
-                    body += chunk
+        if request.method != "GET" or request.url.path != "/tickets":
+            return await call_next(request)
 
-                async def new_iter() -> AsyncGenerator[bytes, None]:
-                    yield body
+        cached = await redis_client.get("resp:tickets")
+        if cached is not None:
+            return JSONResponse(content=cached)
+        response = await call_next(request)
+        if response.status_code == 200:
+            body = b""
+            async for chunk in response.body_iterator:
+                body += chunk
 
-                response.body_iterator = new_iter()
-                try:
-                    data = json.loads(body.decode())
-                    await redis_client.set("resp:tickets", data)
-                except json.JSONDecodeError:
-                    pass
-            return response
-        return await call_next(request)
+            async def new_iter() -> AsyncGenerator[bytes, None]:
+                yield body
+
+            response.body_iterator = new_iter()
+            with contextlib.suppress(json.JSONDecodeError):
+                data = json.loads(body.decode())
+                await redis_client.set("resp:tickets", data)
+        return response
 
     if client is None:
         creds = Credentials(
