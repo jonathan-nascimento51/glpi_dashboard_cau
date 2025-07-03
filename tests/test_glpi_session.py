@@ -1,5 +1,6 @@
 import asyncio as aio
 from contextlib import asynccontextmanager
+import json
 from typing import Optional
 from unittest.mock import ANY, AsyncMock, MagicMock, patch
 
@@ -7,6 +8,7 @@ import aiohttp
 import pytest
 
 from glpi_dashboard.logging_config import setup_logging
+from glpi_dashboard.services import glpi_session
 from glpi_dashboard.services.glpi_session import (
     Credentials,
     GLPIAPIError,
