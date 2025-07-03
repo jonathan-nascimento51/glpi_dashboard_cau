@@ -5,11 +5,17 @@ sys.path.insert(
     0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src")
 )  # noqa: E402
 
+import json  # noqa: E402
+import requests  # noqa: E402
 import pytest  # noqa: E402
 
 from glpi_dashboard.services.glpi_api_client import GlpiApiClient  # noqa: E402
 from glpi_dashboard.services.glpi_session import Credentials  # noqa: E402
-from glpi_dashboard.services.exceptions import GLPIForbiddenError  # noqa: E402
+from glpi_dashboard.services.exceptions import (  # noqa: E402
+    GLPIForbiddenError,
+    GLPIInternalServerError,
+    GLPIUnauthorizedError,
+)
 
 
 class FakeSession:
@@ -171,3 +177,54 @@ def test_search_with_criteria(requests_mock, monkeypatch):
     assert q["criteria[0][value]"] == ["5"]
     assert q["forcedisplay[0]"] == ["id"]
     assert q["expand_dropdowns"] == ["1"]
+
+
+def _make_response(status: int, payload: dict | None = None) -> requests.Response:
+    """Helper to build a minimal ``requests.Response`` object."""
+    resp = requests.Response()
+    resp.status_code = status
+    resp._content = json.dumps(payload or {}).encode()
+    resp.headers = {}
+    return resp
+
+
+def test_request_page_unauthorized(monkeypatch) -> None:
+    """401 responses should raise ``GLPIUnauthorizedError``."""
+
+    patch_session(monkeypatch)
+
+    def fake_get(*_a, **_k):
+        return _make_response(401, {"message": "unauthorized"})
+
+    monkeypatch.setattr("requests.get", fake_get)
+
+    creds = Credentials(app_token="app", user_token="u")
+    with GlpiApiClient("http://example.com/apirest.php", creds) as client:
+        with pytest.raises(GLPIUnauthorizedError):
+            client.get_all("Ticket")
+
+
+def test_request_page_server_error(monkeypatch) -> None:
+    """500 responses should raise ``GLPIInternalServerError``."""
+
+    patch_session(monkeypatch)
+
+    def fake_get(*_a, **_k):
+        return _make_response(500, {"message": "server error"})
+
+    monkeypatch.setattr("requests.get", fake_get)
+
+    creds = Credentials(app_token="app", user_token="u")
+    with GlpiApiClient("http://example.com/apirest.php", creds) as client:
+        with pytest.raises(GLPIInternalServerError):
+            client.get_all("Ticket")
+
+
+def test_flatten_params_invalid(monkeypatch) -> None:
+    """Malformed ``params`` should raise an ``AttributeError``."""
+
+    patch_session(monkeypatch)
+    creds = Credentials(app_token="app", user_token="u")
+    with GlpiApiClient("http://example.com/apirest.php", creds) as client:
+        with pytest.raises(AttributeError):
+            client._flatten_params(None)  # type: ignore[arg-type]
