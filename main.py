@@ -24,13 +24,19 @@ from src.glpi_dashboard.dashboard.layout import build_layout
 from src.glpi_dashboard.dashboard.callbacks import register_callbacks
 
 app = Flask(__name__)
-cache = Cache(app, config={
-    "CACHE_TYPE": "redis",
-    "CACHE_REDIS_HOST": os.getenv("REDIS_HOST", "redis"),
-    "CACHE_REDIS_PORT": int(os.getenv("REDIS_PORT", 6379)),
-    "CACHE_REDIS_DB": int(os.getenv("REDIS_DB", 0)),
-    "CACHE_REDIS_URL": f"redis://{os.getenv('REDIS_HOST', 'redis')}:{os.getenv('REDIS_PORT', 6379)}/{os.getenv('REDIS_DB', 0)}"
-})  # ou o tipo que você usa
+cache = Cache(
+    app,
+    config={
+        "CACHE_TYPE": "redis",
+        "CACHE_REDIS_HOST": os.getenv("REDIS_HOST", "redis"),
+        "CACHE_REDIS_PORT": int(os.getenv("REDIS_PORT", 6379)),
+        "CACHE_REDIS_DB": int(os.getenv("REDIS_DB", 0)),
+        "CACHE_REDIS_URL": (
+            f"redis://{os.getenv('REDIS_HOST', 'redis')}:"
+            f"{os.getenv('REDIS_PORT', 6379)}/{os.getenv('REDIS_DB', 0)}"
+        ),
+    },
+)  # ou o tipo que você usa
 
 setup_logging()
 
@@ -98,7 +104,7 @@ def create_app(df: pd.DataFrame | None) -> Dash:
     app = Dash(__name__, server=server)
     app.layout = build_layout(df)
     if df is not None:
-        register_callbacks(app, df)
+        register_callbacks(app, load_data)
     return app
 
 
