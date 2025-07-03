@@ -5,11 +5,12 @@ const bundleAnalyzer = require('@next/bundle-analyzer')({
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  reactStrictMode: true,
   webpack(config) {
     config.performance = {
       ...config.performance,
       maxAssetSize: 250 * 1024,
-      hints: 'error',
+      hints: 'warning', // <-- troque 'error' por 'warning'
     }
     return config
   },

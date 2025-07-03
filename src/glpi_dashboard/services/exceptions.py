@@ -1,5 +1,7 @@
 import asyncio
+import json
 import random
+import time
 from enum import Enum
 from functools import wraps
 from typing import Callable, Any, Dict, Optional, Type
@@ -136,40 +138,56 @@ def glpi_retry(
         @wraps(func)
         async def wrapper(*args: Any, **kwargs: Any) -> Any:
             for attempt in range(max_retries + 1):
+                start_time = time.perf_counter()
                 try:
                     return await func(*args, **kwargs)
                 except GLPIAPIError as e:
+                    duration = round(time.perf_counter() - start_time, 3)
                     # Check if the raised GLPIAPIError is retryable
                     if e.status_code in retry_on_status and attempt < max_retries:
                         delay = base_delay * (2**attempt)
                         jitter = random.uniform(0, delay)
                         sleep_time = delay + jitter
                         logger.warning(
-                            "API call failed with status %s (%s). "
-                            "Retrying in %.2f seconds (attempt %s/%s).",
-                            e.status_code,
-                            e.message,
-                            sleep_time,
-                            attempt + 1,
-                            max_retries,
+                            json.dumps(
+                                {
+                                    "event": "glpi_retry",
+                                    "attempt": attempt + 1,
+                                    "status": e.status_code,
+                                    "duration": duration,
+                                }
+                            )
                         )
                         await asyncio.sleep(sleep_time)
                     else:
+                        logger.warning(
+                            json.dumps(
+                                {
+                                    "event": "glpi_error",
+                                    "attempt": attempt + 1,
+                                    "status": e.status_code,
+                                    "duration": duration,
+                                }
+                            )
+                        )
                         # Re-raise if not a retryable status or max retries exceeded
                         raise
                 except aiohttp.ClientError as e:
+                    duration = round(time.perf_counter() - start_time, 3)
                     # Catch network-level errors (e.g., connection lost)
                     if attempt < max_retries:
                         delay = base_delay * (2**attempt)
                         jitter = random.uniform(0, delay)
                         sleep_time = delay + jitter
                         logger.warning(
-                            "Network error during API call: %s. "
-                            "Retrying in %.2f seconds (attempt %s/%s).",
-                            e,
-                            sleep_time,
-                            attempt + 1,
-                            max_retries,
+                            json.dumps(
+                                {
+                                    "event": "glpi_retry",
+                                    "attempt": attempt + 1,
+                                    "status": 0,
+                                    "duration": duration,
+                                }
+                            )
                         )
                         await asyncio.sleep(sleep_time)
                     else:
@@ -178,8 +196,19 @@ def glpi_retry(
                             0, f"Network error after {max_retries} retries: {e}"
                         )
                 except Exception as e:
+                    duration = round(time.perf_counter() - start_time, 3)
                     # Catch any other unexpected exceptions
                     # and wrap them in GLPIAPIError
+                    logger.warning(
+                        json.dumps(
+                            {
+                                "event": "glpi_exception",
+                                "attempt": attempt + 1,
+                                "status": 0,
+                                "duration": duration,
+                            }
+                        )
+                    )
                     raise GLPIAPIError(0, f"An unexpected error occurred: {e}")
 
             # This line should ideally not be reached if max_retries

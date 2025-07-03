@@ -80,6 +80,23 @@ services:
         condition: service_healthy
     restart: always
 
+  frontend:
+    build:
+      context: ./frontend
+    command: npm run dev
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      # - NEXT_PUBLIC_API_URL=http://worker:8000 (exemplo, se precisar)
+    depends_on:
+      - worker
+      - dash
+
 volumes:
   postgres_data:
   redis_data:
