@@ -54,7 +54,7 @@ def fetch_raw_data():
                     glpi_url,
                     creds,
                 ) as client:
-            _extracted_from_fetch_raw_data_34(client)
+            _save_raw_tickets(client)
     except Exception as e:
         logger.error(
             f"Ocorreu um erro durante a execução do script de diagnóstico: {e}",
@@ -62,8 +62,7 @@ def fetch_raw_data():
         )
 
 
-# TODO Rename this here and in `fetch_raw_data`
-def _extracted_from_fetch_raw_data_34(client):
+def _save_raw_tickets(client):
     logger.info(
         "Cliente da API inicializado corretamente. Buscando chamados..."
     )

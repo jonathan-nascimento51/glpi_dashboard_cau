@@ -74,8 +74,8 @@ async def _load_tickets(client: Optional[GlpiApiClient] = None) -> pd.DataFrame:
             username=GLPI_USERNAME,
             password=GLPI_PASSWORD,
         )
-        async with GLPISession(GLPI_BASE_URL, creds) as sess:
-            return await sess.get_all("Ticket")
+        async with GLPISession(GLPI_BASE_URL, creds) as session:
+            return await session.get_all("Ticket")
 
     try:
         if client is None:
@@ -119,7 +119,7 @@ def create_app(client: Optional[GlpiApiClient] = None) -> FastAPI:
     app = FastAPI(title="GLPI Worker API")
 
     @app.middleware("http")
-    async def cache_tickets(request: Request, call_next):
+    async def cache_tickets(request: Request, call_next):  # noqa: F401
         if request.method != "GET" or request.url.path != "/tickets":
             return await call_next(request)
 
@@ -154,12 +154,12 @@ def create_app(client: Optional[GlpiApiClient] = None) -> FastAPI:
         )
 
     @app.get("/tickets")
-    async def tickets() -> list[dict]:
+    async def tickets() -> list[dict]:  # noqa: F401
         df = await _load_tickets(client=client)
         return df.astype(object).where(pd.notna(df), None).to_dict(orient="records")
 
     @app.get("/metrics")
-    async def metrics() -> dict:
+    async def metrics() -> dict:  # noqa: F401
         df = await _load_tickets(client=client)
         total = len(df)
         closed = 0
@@ -170,15 +170,15 @@ def create_app(client: Optional[GlpiApiClient] = None) -> FastAPI:
         return {"total": total, "opened": opened, "closed": closed}
 
     @app.get("/cache/stats")
-    async def cache_stats() -> dict:
+    async def cache_stats() -> dict:  # noqa: F401
         return redis_client.get_cache_metrics()
 
     @app.get("/cache-metrics")  # legacy name
-    async def cache_metrics() -> dict:
+    async def cache_metrics() -> dict:  # noqa: F401
         return redis_client.get_cache_metrics()
 
     @app.get("/health/glpi")
-    async def health_glpi() -> JSONResponse:
+    async def health_glpi() -> JSONResponse:  # noqa: F401
         """Check GLPI connectivity."""
         creds = Credentials(
             app_token=GLPI_APP_TOKEN,
@@ -212,7 +212,7 @@ def create_app(client: Optional[GlpiApiClient] = None) -> FastAPI:
     graphql = GraphQLRouter(
         schema,
         path="/",
-        context_getter=lambda r: {"client": client},
+        context_getter=lambda _request: {"client": client},  # noqa: ARG005
     )
     app.include_router(graphql, prefix="/graphql")
     return app
