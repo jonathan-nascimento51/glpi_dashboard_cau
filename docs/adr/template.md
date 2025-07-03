@@ -1,15 +1,18 @@
-# {{NUMBER}}. {{TITLE}}
+# ADR-{{NUMBER}}: {{TITLE}}
 
 Date: {{DATE}}
 
 ## Status
 Proposed
 
-## Context
-Describe the forces at play and the problem statement.
+## Contexto
+Descreva as forças em jogo e o problema a ser resolvido.
 
-## Decision
-Record the final decision and its rationale.
+## Opções
+Liste as alternativas consideradas e suas vantagens e desvantagens.
 
-## Consequences
-Describe the consequences, good and bad, of the decision.
+## Decisão
+Registre a decisão tomada e sua justificativa.
+
+## Consequências
+Descreva as consequências, boas e ruins, da decisão.
