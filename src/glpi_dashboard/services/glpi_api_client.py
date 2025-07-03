@@ -206,9 +206,7 @@ class GlpiApiClient:
     # ------------------------------------------------------------------
     def get_all(self, itemtype: str, **params: Any) -> List[Dict[str, Any]]:
         params = {**params, "expand_dropdowns": 1}
-        endpoint = (
-            f"search/{itemtype}" if not itemtype.startswith("search/") else itemtype
-        )
+        endpoint = itemtype if itemtype.startswith("search/") else f"search/{itemtype}"
         results: List[Dict[str, Any]] = []
         offset = 0
         while True:
