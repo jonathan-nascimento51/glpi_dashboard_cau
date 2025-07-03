@@ -69,14 +69,16 @@ async def test_search_rest_url(mocker):
         "glpi_dashboard.services.glpi_rest_client.httpx.AsyncClient"
     )
     http_client = async_client.return_value
-    http_client.get = mocker.AsyncMock(
+    http_client.request = mocker.AsyncMock(
         return_value=httpx.Response(200, json={"data": []})
     )
 
     client = GLPIClient("http://example.com/apirest.php", app_token="APP", user_token="USER")
     data = await client.search_rest("Ticket", params={"a": 1})
 
-    http_client.get.assert_awaited_once_with("search/Ticket", params={"a": 1})
+    http_client.request.assert_awaited_once_with(
+        "GET", "search/Ticket", params={"a": 1}
+    )
     assert data == {"data": []}
 
 
@@ -87,14 +89,15 @@ async def test_query_graphql_payload(mocker):
         "glpi_dashboard.services.glpi_rest_client.httpx.AsyncClient"
     )
     http_client = async_client.return_value
-    http_client.post = mocker.AsyncMock(
+    http_client.request = mocker.AsyncMock(
         return_value=httpx.Response(200, json={"data": {"ok": True}})
     )
 
     client = GLPIClient("http://example.com/apirest.php", app_token="APP", user_token="USER")
     result = await client.query_graphql("query { ping }", {"x": 1})
 
-    http_client.post.assert_awaited_once_with(
+    http_client.request.assert_awaited_once_with(
+        "POST",
         "graphql",
         json={"query": "query { ping }", "variables": {"x": 1}},
     )
