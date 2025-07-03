@@ -10,12 +10,14 @@
         "./src"
     ],
     "cSpell.words": [
+        "autouse",
         "creds",
+        "Estrutura",
         "excinfo",
         "GLPI",
         "GLPIAPI",
+        "itemtype",
         "PYTHONPATH",
-        "uvicorn",
-        "itemtype"
+        "uvicorn"
     ]
 }
