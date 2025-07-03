@@ -99,9 +99,10 @@ SUPERVISOR_PROMPT = PromptTemplate(
     input_variables=["message", "options"],
 )
 
-# Using FakeListLLM to keep tests deterministic. In production this could be
-# replaced by any chat model compatible with LangChain.
-llm = FakeListLLM(responses=['{"next_agent": "fallback"}'])
+# Using FakeListLLM to keep tests deterministic. The static response ensures
+# that unit tests route execution to the ``fetcher`` node. In production this
+# could be replaced by any chat model compatible with LangChain.
+llm = FakeListLLM(responses=['{"next_agent": "fetcher"}'])
 
 # create_structured_output_runnable converts the LLM and prompt to a Runnable
 # that outputs a Pydantic model.
