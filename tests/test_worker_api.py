@@ -64,12 +64,17 @@ class FakeSession:
 
 def test_rest_endpoints():
     client = TestClient(create_app(client=FakeSession()))
+
     resp = client.get("/tickets")
     assert resp.status_code == 200
-    assert isinstance(resp.json(), list)
+    tickets = resp.json()
+    assert isinstance(tickets, list)
+    assert tickets and "id" in tickets[0]
+
     resp = client.get("/metrics")
     assert resp.status_code == 200
-    assert "total" in resp.json()
+    metrics = resp.json()
+    assert metrics["total"] >= 0
 
 
 def test_graphql_metrics():
