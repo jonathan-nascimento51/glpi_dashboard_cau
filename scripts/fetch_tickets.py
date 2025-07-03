@@ -9,12 +9,13 @@ import asyncio
 # Importa o cliente da API do seu projeto
 from glpi_dashboard.services.glpi_api_client import GlpiApiClient
 from glpi_dashboard.services.glpi_session import Credentials
+from glpi_dashboard.logging_config import setup_logging
 
 # Carrega as variáveis de ambiente do arquivo .env
 load_dotenv()
 
 # Configuração básica de logging
-logging.basicConfig(level=logging.INFO)
+setup_logging(logging.INFO)
 logger = logging.getLogger(__name__)
 
 if sys.platform.startswith("win"):
