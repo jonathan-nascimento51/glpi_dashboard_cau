@@ -8,12 +8,17 @@ from typing import List
 
 from pydantic import BaseModel, Field
 
-from glpi_dashboard.config.settings import (GLPI_APP_TOKEN, GLPI_BASE_URL,
-                                            GLPI_PASSWORD, GLPI_USER_TOKEN,
-                                            GLPI_USERNAME)
+from glpi_dashboard.config.settings import (
+    GLPI_APP_TOKEN,
+    GLPI_BASE_URL,
+    GLPI_PASSWORD,
+    GLPI_USER_TOKEN,
+    GLPI_USERNAME,
+)
 
 from .exceptions import GLPIAPIError
 from .glpi_session import Credentials, GLPISession
+from .tool_error import ToolError
 
 
 class BatchFetchParams(BaseModel):
@@ -63,15 +68,16 @@ async def fetch_all_tickets_tool(params: BatchFetchParams) -> str:
     """Return JSON data for multiple tickets or an error message.
 
     This tool wraps :func:`fetch_all_tickets` for use in agent pipelines where
-    results must be serialized.  It is useful when bulk data is required but
-    asynchronous execution is still possible.
+    results must be serialized. It returns a JSON list on success. When an
+    exception occurs it yields ``{"error": {"message": str, "details": str}}``.
     """
 
     try:
         data = await fetch_all_tickets(params.ids)
         return json.dumps(data)
     except Exception as exc:  # pragma: no cover - tool usage
-        return str(exc)
+        err = ToolError("Failed to fetch tickets", str(exc))
+        return json.dumps({"error": err.dict()})
 
 
 __all__ = ["fetch_all_tickets", "BatchFetchParams", "fetch_all_tickets_tool"]

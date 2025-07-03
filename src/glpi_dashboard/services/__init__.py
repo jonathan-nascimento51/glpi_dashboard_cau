@@ -11,8 +11,13 @@ from .glpi_api_client import (ApiClientParams, GlpiApiClient, GLPIAPIClient,
                               fetch_tickets_tool)
 from .glpi_rest_client import (GLPIClient, GraphQLQueryParams,
                                RestClientParams, graphql_query_tool)
-from .glpi_session import (Credentials, GLPISession, SessionParams,
-                           open_session_tool)
+from .glpi_session import (
+    Credentials,
+    GLPISession,
+    SessionParams,
+    open_session_tool,
+)
+from .tool_error import ToolError
 from .graphql_client import (GlpiGraphQLClient, GraphQLClientQueryParams,
                              GraphQLParams, graphql_client_tool)
 from .langgraph_workflow import AgentState  # re-export for tests
@@ -23,6 +28,7 @@ __all__ = [
     "GLPISession",
     "SessionParams",
     "open_session_tool",
+    "ToolError",
     "GLPIAPIClient",
     "GlpiApiClient",
     "ApiClientParams",
@@ -51,3 +57,4 @@ __all__ = [
     "BatchFetchParams",
     "fetch_all_tickets_tool",
 ]
+
