@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -e
+TITLE="$*"
+if [ -z "$TITLE" ]; then
+  echo "Usage: ./adr-new \"Title\"" >&2
+  exit 1
+fi
+DIR="$(dirname "$0")/../docs/adr"
+TEMPLATE="$DIR/template.md"
+NUM=$(ls "$DIR" | grep -E '^[0-9]+-' | sort | tail -n1 | sed 's/\([0-9]*\).*/\1/')
+if [ -z "$NUM" ]; then
+  NUM=1
+else
+  NUM=$((10#$NUM + 1))
+fi
+PAD=$(printf "%04d" "$NUM")
+SLUG=$(echo "$TITLE" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-')
+DATE=$(date +%Y-%m-%d)
+FILE="$DIR/${PAD}-${SLUG}.md"
+sed "s/{{NUMBER}}/$PAD/g;s/{{TITLE}}/$TITLE/g;s/{{DATE}}/$DATE/g" "$TEMPLATE" > "$FILE"
+echo "Created $FILE"

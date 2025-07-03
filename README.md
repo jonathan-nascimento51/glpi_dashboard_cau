@@ -293,6 +293,11 @@ Continuous integration runs on GitHub Actions using `.github/workflows/ci.yml`.
 It installs dependencies, initializes the database and executes pre-commit hooks
 and the test suite for Python 3.10 and 3.12.
 
+## Architecture Decision Records
+
+All ADRs live in [`docs/adr`](docs/adr). Create new records with
+`./scripts/adr-new "Título"` which fills in the MADR template automatically.
+
 ## License
 
 This project is released under the [MIT License](LICENSE).

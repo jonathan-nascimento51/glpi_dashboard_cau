@@ -9,6 +9,9 @@ This document describes the key performance indicators (KPIs) used to track code
 - **Core Web Vitals** – Metrics such as Largest Contentful Paint (LCP) and Cumulative Layout Shift (CLS) measured on the built dashboard.
 - **Bug rate** – Number of open issues labeled `bug`.
 - **Security vulnerabilities** – High or critical issues detected in dependencies.
+- **Lead time** – Time from merge to deploy.
+- **MTTR** – Mean time to recovery after incidents.
+- **Bug escape rate** – Defects found in production versus total defects.
 
 ## Collection Methods
 
@@ -19,5 +22,22 @@ This document describes the key performance indicators (KPIs) used to track code
 | Core Web Vitals        | **Lighthouse‑CI**        | `@lhci/cli` runs against the deployed dashboard and stores JSON reports. |
 | Bug rate               | **GitHub Issues**        | Count of open issues with the label `bug`. |
 | Vulnerabilities        | **Snyk / CodeQL**        | Weekly scans report dependency and code risks. |
+| Lead time              | **GitHub API**           | Difference between merge timestamp and deployment tag. |
+| MTTR                   | **Incident tracker**     | Average resolution time extracted from GLPI issues. |
+| Bug escape rate        | **Post-deploy tests**    | Ratio of production defects to total defects. |
 
 Metrics collected by the workflow are posted to a Slack channel (or any compatible webhook) for visibility.
+
+Example GitHub Action step:
+
+```yaml
+  - name: Notify Slack
+    uses: slackapi/slack-github-action@v1.24.0
+    with:
+      payload: |
+        {
+          "text": "Coverage: ${{ env.coverage }}\nLead time: ${{ env.lead_time }}\nMTTR: ${{ env.mttr }}"
+        }
+    env:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+```

@@ -1,0 +1,8 @@
+{
+  "title": "Backend Metrics",
+  "panels": [
+    {"type": "graph", "title": "Request latency", "targets": [{"expr": "request_latency_seconds"}]},
+    {"type": "graph", "title": "Error rate", "targets": [{"expr": "request_errors_total"}]},
+    {"type": "graph", "title": "Circuit state", "targets": [{"expr": "circuit_breaker_state"}]}
+  ]
+}
