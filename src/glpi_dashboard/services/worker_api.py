@@ -6,7 +6,7 @@ import argparse
 import asyncio
 import contextlib
 import json
-from typing import List, Optional, AsyncGenerator
+from typing import Any, List, Optional, AsyncGenerator
 
 import pandas as pd
 import strawberry
@@ -223,10 +223,13 @@ def create_app(client: Optional[GlpiApiClient] = None) -> FastAPI:
         )
 
     schema = strawberry.Schema(Query)
+    def get_context(request: Request) -> dict[str, Any]:
+        return {"client": client}
+
     graphql = GraphQLRouter(
         schema,
         path="/",
-        context_getter=lambda _request: {"client": client},  # noqa: ARG005
+        context_getter=get_context,
     )
     app.include_router(graphql, prefix="/graphql")
     return app
