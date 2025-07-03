@@ -1,12 +1,6 @@
-import os
-import sys
-
 import pandas as pd
 
-root = os.path.dirname(os.path.dirname(__file__))
-sys.path.insert(0, os.path.join(root, "src"))  # noqa: E402
-
-from glpi_dashboard.data import transform  # noqa: E402
+from glpi_dashboard.data import transform
 
 
 def test_to_dataframe_dtypes():

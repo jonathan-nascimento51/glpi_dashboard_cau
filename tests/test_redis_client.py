@@ -1,16 +1,9 @@
 import json
-import os
-import sys
+from unittest.mock import AsyncMock, MagicMock
 
-sys.path.insert(
-    0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src")
-)  # noqa: E402
+import pytest
 
-from unittest.mock import AsyncMock, MagicMock  # noqa: E402
-
-import pytest  # noqa: E402
-
-from glpi_dashboard.utils.redis_client import RedisClient  # noqa: E402
+from glpi_dashboard.utils.redis_client import RedisClient
 
 
 @pytest.mark.asyncio

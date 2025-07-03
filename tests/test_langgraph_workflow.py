@@ -1,13 +1,6 @@
-import os
-import sys
-
 import pytest
 
-sys.path.insert(
-    0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src")
-)  # noqa: E402
-
-from glpi_dashboard.services import langgraph_workflow  # noqa: E402
+from glpi_dashboard.services import langgraph_workflow
 
 
 @pytest.mark.asyncio

@@ -1,15 +1,9 @@
-import os
-import sys
 import base64
 
 import httpx
 import pytest
 
-sys.path.insert(
-    0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src")
-)  # noqa: E402
-
-from glpi_dashboard.services.glpi_rest_client import GLPIClient  # noqa: E402
+from glpi_dashboard.services.glpi_rest_client import GLPIClient
 
 
 @pytest.mark.asyncio

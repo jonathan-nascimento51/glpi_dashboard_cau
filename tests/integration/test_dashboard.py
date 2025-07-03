@@ -1,17 +1,16 @@
 """Integration tests for the dashboard app."""
 
 from __future__ import annotations
-import os
-import sys
-from aiohttp import web
+
+import runpy
+from pathlib import Path
 
 import pytest
+from aiohttp import web
 
-ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-sys.path.insert(0, os.path.join(ROOT, "src"))
-sys.path.insert(0, ROOT)
-
-import main  # noqa: E402
+ROOT = Path(__file__).resolve().parents[2]
+main_globals = runpy.run_path(ROOT / "main.py")
+main = type("Module", (), main_globals)
 
 
 @pytest.fixture()

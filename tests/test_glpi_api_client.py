@@ -1,21 +1,8 @@
-import os
-import sys
+import pytest
 
-sys.path.insert(
-    0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src")
-)  # noqa: E402
-
-import json  # noqa: E402
-import requests  # noqa: E402
-import pytest  # noqa: E402
-
-from glpi_dashboard.services.glpi_api_client import GlpiApiClient  # noqa: E402
-from glpi_dashboard.services.glpi_session import Credentials  # noqa: E402
-from glpi_dashboard.services.exceptions import (  # noqa: E402
-    GLPIForbiddenError,
-    GLPIInternalServerError,
-    GLPIUnauthorizedError,
-)
+from glpi_dashboard.services.exceptions import GLPIForbiddenError
+from glpi_dashboard.services.glpi_api_client import GlpiApiClient
+from glpi_dashboard.services.glpi_session import Credentials
 
 
 class FakeSession:

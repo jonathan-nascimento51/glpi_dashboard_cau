@@ -1,27 +1,22 @@
-import os
-import sys
-import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
 from typing import Optional
+from unittest.mock import AsyncMock, MagicMock, patch
+
 import aiohttp
+import pytest
+
 from glpi_dashboard.logging_config import setup_logging
-
-sys.path.insert(
-    0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src")
-)  # noqa: E402
-
-from glpi_dashboard.services.exceptions import (  # noqa: E402
-    GlpiHttpError,
+from glpi_dashboard.services.exceptions import (
+    HTTP_STATUS_ERROR_MAP,
     GLPIAPIError,
     GLPIBadRequestError,
-    GLPIUnauthorizedError,
     GLPIForbiddenError,
+    GlpiHttpError,
+    GLPIInternalServerError,
     GLPINotFoundError,
     GLPITooManyRequestsError,
-    GLPIInternalServerError,
+    GLPIUnauthorizedError,
     glpi_retry,
     parse_error,
-    HTTP_STATUS_ERROR_MAP,
 )
 
 

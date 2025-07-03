@@ -1,11 +1,6 @@
-import os
-import sys
-
 import pandas as pd
 
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src"))
-
-from scripts import filters  # noqa: E402
+from scripts import filters
 
 
 def sample_df():

@@ -92,6 +92,12 @@ Execute toda a suíte de testes com cobertura:
 make test
 ```
 
+Before running the tests, install the project in editable mode so imports resolve correctly:
+
+```bash
+pip install -e .
+```
+
 The `make test` target installs both `requirements.txt` and `requirements-dev.txt` before running pytest.
 
 Rodar apenas lint:
