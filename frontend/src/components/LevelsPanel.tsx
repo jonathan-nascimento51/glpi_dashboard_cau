@@ -1,15 +1,15 @@
 import React from 'react'
 
-interface LevelData {
+export interface LevelData {
   name: string
   metrics: { new: number; progress: number; pending: number; resolved: number }
 }
 
-interface Props {
+export interface LevelsPanelProps {
   levels: LevelData[]
 }
 
-const LevelsPanel: React.FC<Props> = ({ levels }) => {
+const LevelsPanelComponent: React.FC<LevelsPanelProps> = ({ levels }) => {
   return (
     <div className="levels-section">
       <div className="levels-header">
@@ -58,4 +58,4 @@ const LevelsPanel: React.FC<Props> = ({ levels }) => {
   )
 }
 
-export default LevelsPanel
+export const LevelsPanel = React.memo(LevelsPanelComponent)

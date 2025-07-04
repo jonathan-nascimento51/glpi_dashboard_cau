@@ -1,9 +1,9 @@
 "use client"
 import React from 'react'
 import Header from '../components/Header'
-import MetricCard from '../components/MetricCard'
-import LevelsPanel from '../components/LevelsPanel'
-import Sidebar from '../components/Sidebar'
+import { MetricCard } from '../components/MetricCard'
+import { LevelsPanel } from '../components/LevelsPanel'
+import { Sidebar } from '../components/Sidebar'
 import FilterPanel from '../components/FilterPanel'
 import ChamadosTendencia from '../components/ChamadosTendencia'
 import ChamadosHeatmap from '../components/ChamadosHeatmap'

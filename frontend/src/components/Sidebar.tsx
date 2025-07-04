@@ -1,31 +1,31 @@
 import React from 'react'
 
-interface PerformanceMetric {
+export interface PerformanceMetric {
   label: string
   value: string
   barWidth: string
 }
 
-interface RankingItem {
+export interface RankingItem {
   name: string
   level: string
   score: number
 }
 
-interface AlertItem {
+export interface AlertItem {
   type: string
   icon: string
   text: string
   time: string
 }
 
-interface Props {
+export interface SidebarProps {
   performance: PerformanceMetric[]
   ranking: RankingItem[]
   alerts: AlertItem[]
 }
 
-const Sidebar: React.FC<Props> = ({ performance, ranking, alerts }) => (
+const SidebarComponent: React.FC<SidebarProps> = ({ performance, ranking, alerts }) => (
   <aside className="sidebar">
     <div className="sidebar-card">
       <div className="sidebar-header">
@@ -79,4 +79,4 @@ const Sidebar: React.FC<Props> = ({ performance, ranking, alerts }) => (
   </aside>
 )
 
-export default Sidebar
+export const Sidebar = React.memo(SidebarComponent)

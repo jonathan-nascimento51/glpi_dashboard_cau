@@ -1,6 +1,6 @@
 import React from 'react'
 
-interface Props {
+export interface MetricCardProps {
   type: 'new' | 'pending' | 'progress' | 'resolved'
   value: number
   change: number
@@ -8,7 +8,7 @@ interface Props {
   canvasRef: React.RefObject<HTMLCanvasElement>
 }
 
-const MetricCard: React.FC<Props> = ({
+const MetricCardComponent: React.FC<MetricCardProps> = ({
   type,
   value,
   change,
@@ -41,4 +41,4 @@ const MetricCard: React.FC<Props> = ({
   )
 }
 
-export default MetricCard
+export const MetricCard = React.memo(MetricCardComponent)
