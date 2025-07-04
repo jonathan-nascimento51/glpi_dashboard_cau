@@ -7,6 +7,7 @@ import { Sidebar } from '../components/Sidebar'
 import FilterPanel from '../components/FilterPanel'
 import { ChamadosTendencia } from '../components/ChamadosTendencia'
 import { ChamadosHeatmap } from '../components/ChamadosHeatmap'
+import { VirtualizedTicketTable } from '../components/VirtualizedTicketTable'
 import { useDashboardData } from '../hooks/useDashboardData'
 
 const Dashboard: React.FC = () => {
@@ -90,6 +91,19 @@ const Dashboard: React.FC = () => {
     [handleMetricClick],
   )
 
+  const tickets = useMemo(
+    () =>
+      Array.from({ length: 200 }, (_, i) => ({
+        id: i + 1,
+        name: `Ticket ${i + 1}`,
+      })),
+    [],
+  )
+
+  const handleRowClick = useCallback((row: { id: number; name: string }) => {
+    console.log('row clicked', row.id)
+  }, [])
+
   return (
     <div className="dashboard-container">
       <Header />
@@ -132,6 +146,9 @@ const Dashboard: React.FC = () => {
           </div>
           <div className="my-4">
             <ChamadosHeatmap />
+          </div>
+          <div className="my-4">
+            <VirtualizedTicketTable rows={tickets} onRowClick={handleRowClick} />
           </div>
         </div>
         <Sidebar performance={performance} ranking={ranking} alerts={alerts} />
