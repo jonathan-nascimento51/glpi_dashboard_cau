@@ -38,8 +38,15 @@ from .graphql_client import (
     GraphQLParams,
     graphql_client_tool,
 )
-from .langgraph_workflow import AgentState  # re-export for tests
-from .langgraph_workflow import build_workflow
+
+try:  # pragma: no cover - optional dependency during tests
+    from .langgraph_workflow import AgentState, build_workflow
+except Exception:  # pragma: no cover - fallback if langgraph missing
+    AgentState = object  # type: ignore[misc,assignment]
+
+    def build_workflow(*_args, **_kwargs):
+        raise ImportError("langgraph is required for workflow features")
+
 
 __all__ = [
     "Credentials",
