@@ -9,14 +9,15 @@ from glpi_dashboard.services.worker_api import (
     main as _main,
     redis_client,
 )
-from glpi_dashboard.services.glpi_api_client import GlpiApiClient
-from glpi_dashboard.logging_config import setup_logging
+from src.glpi_dashboard.services.glpi_api_client import GlpiApiClient
+from src.glpi_dashboard.logging_config import setup_logging
+import os
 
 __all__ = ["create_app", "redis_client", "GlpiApiClient", "main"]
 
 
 def main() -> None:
-    setup_logging()
+    setup_logging(os.getenv("LOG_LEVEL"))
     _main()
 
 

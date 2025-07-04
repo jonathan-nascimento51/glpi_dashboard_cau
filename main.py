@@ -6,6 +6,7 @@ from dash import Dash
 from flask import Flask
 from flask_caching import Cache
 import logging
+import os
 
 from glpi_dashboard.config.settings import (
     GLPI_APP_TOKEN,
@@ -38,7 +39,7 @@ cache = Cache(
     },
 )  # ou o tipo que você usa
 
-setup_logging()
+setup_logging(os.getenv("LOG_LEVEL"))
 
 
 @cache.memoize(timeout=300)
