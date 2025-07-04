@@ -71,8 +71,12 @@ jobs:
       - name: Build backend
         run: docker build -t glpi-dashboard .
       - name: Build frontend
+        env:
+          NEXT_PUBLIC_API_BASE_URL: http://localhost:8000
         run: |
-          cd frontend && npm ci && npm run build
+          cd frontend
+          npm ci
+          npm run build
 
   e2e-tests:
     needs: build
