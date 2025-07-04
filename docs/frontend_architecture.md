@@ -88,6 +88,14 @@ const resp = await fetch(`${import.meta.env.NEXT_PUBLIC_API_BASE_URL}/tickets/me
 const data = await resp.json();
 ```
 
+The worker also streams progress using `/tickets/stream`:
+
+```ts
+const url = `${import.meta.env.NEXT_PUBLIC_API_BASE_URL}/tickets/stream`;
+const es = new EventSource(url);
+es.onmessage = (ev) => console.log('chunk', ev.data);
+```
+
 For aggregated statistics the worker offers `/metrics/aggregated`. This endpoint
 returns cached counts grouped by status and technician, enabling dashboards to
 load summary values quickly.

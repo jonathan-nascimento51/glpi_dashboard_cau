@@ -151,12 +151,20 @@ Run the service:
 python worker.py
 ```
 
-The service exposes four endpoints:
+The service exposes several endpoints:
 
 - `/tickets` – full list of tickets in JSON format.
+- `/tickets/stream` – Server‑Sent Events (SSE) stream of progress followed by the JSON payload.
 - `/metrics` – summary with `total`, `opened` and `closed` counts.
+- `/metrics/aggregated` – cached counts grouped by status and technician.
+- `/chamados/por-data` – aggregated tickets per creation date.
+- `/chamados/por-dia` – totals for calendar heatmaps.
 - `/graphql/` – GraphQL API providing the same information.
 - `/cache/stats` – returns cache hit/miss metrics.
+- `/health/glpi` – quick check that the worker can reach the GLPI API.
+
+Make sure the service is running with `python worker.py` and that your
+front-end points to it via `NEXT_PUBLIC_API_BASE_URL` in `frontend/.env`.
 
 Example GraphQL query to retrieve ticket data:
 
