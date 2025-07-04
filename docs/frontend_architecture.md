@@ -77,6 +77,8 @@ NEXT_PUBLIC_API_BASE_URL=http://127.0.0.1:8000
 
 The React code can read this value using `import.meta.env.NEXT_PUBLIC_API_BASE_URL` to send requests to the worker.
 
+> **Note**: previous revisions referenced `VITE_API_URL`. The variable name was updated to `NEXT_PUBLIC_API_BASE_URL` to match Next.js conventions.
+
 ### API Integration
 
 Start the worker with `python worker.py` (it listens on port `8000` by default) and point the front-end to it using the `NEXT_PUBLIC_API_BASE_URL` variable. Example fetching ticket metrics:
