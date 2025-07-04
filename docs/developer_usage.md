@@ -113,19 +113,12 @@ A execução completa pode ser feita via Compose utilizando o arquivo
 `docker-compose-dev.yml`:
 
 ```bash
-<<<<<<< ours
-docker-compose -f docker-compose-dev.yml up
-```
-
-Isso sobe PostgreSQL, Redis, o `worker` e o dashboard em portas 8000 e 8080.
-=======
 docker compose up
 ```
 
 Se encontrar alguma referência antiga a `docker-compose-dev.yml`, utilize o arquivo padrão `docker-compose.yml` com o comando acima.
 
 Isso sobe PostgreSQL, Redis, `initdb`, o `worker` e o dashboard em portas 8000 e 8080.
->>>>>>> theirs
 
 ## Estrutura de Pastas
 
