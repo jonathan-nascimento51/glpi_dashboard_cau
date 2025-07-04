@@ -50,7 +50,10 @@ def process_raw(data: TicketData) -> pd.DataFrame:
     # columns untouched while still downcasting when values look like
     # integers.
     for col in df.columns:
-        df[col] = pd.to_numeric(df[col], errors="ignore", downcast="integer")
+        try:
+            df[col] = pd.to_numeric(df[col], downcast="integer")
+        except (ValueError, TypeError):  # preserve original when conversion fails
+            pass
 
     # Handle legacy/alternate field names from the API
     for src, dst in FIELD_ALIASES.items():
