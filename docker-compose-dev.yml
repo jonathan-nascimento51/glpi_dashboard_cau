@@ -1,12 +1,22 @@
 services:
   backend:
-    build: .
+    build:
+      context: .
+      args:
+        - HTTP_PROXY=${HTTP_PROXY}
+        - HTTPS_PROXY=${HTTPS_PROXY}
+        - NO_PROXY=${NO_PROXY}
     command: uvicorn src.glpi_dashboard.services.worker_api:app --host 0.0.0.0 --port 8000 --reload
     volumes:
       - ./src:/app/src
     env_file: .env
     environment:
       PYTHONPATH: /app/src
+      args:
+        # Adiciona as variáveis de proxy para o runtime
+        - HTTP_PROXY=${HTTP_PROXY}
+        - HTTPS_PROXY=${HTTPS_PROXY}
+        - NO_PROXY=${NO_PROXY}
     depends_on:
       - db
       - redis
@@ -15,6 +25,10 @@ services:
   frontend:
     build:
       context: ./frontend
+      args:
+        - HTTP_PROXY=${HTTP_PROXY}
+        - HTTPS_PROXY=${HTTPS_PROXY}
+        - NO_PROXY=${NO_PROXY}
     command: npm run dev
     volumes:
       - ./frontend:/app
@@ -22,6 +36,10 @@ services:
     env_file: ./frontend/.env
     ports:
       - '3000:3000'
+    environment:
+      - HTTP_PROXY=${HTTP_PROXY}
+      - HTTPS_PROXY=${HTTPS_PROXY}
+      - NO_PROXY=${NO_PROXY}
   db:
     image: postgres:15-alpine
     environment:

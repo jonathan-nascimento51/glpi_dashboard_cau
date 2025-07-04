@@ -28,6 +28,11 @@ from glpi_dashboard.services.glpi_api_client import GlpiApiClient
 from glpi_dashboard.services.glpi_session import Credentials, GLPISession
 from glpi_dashboard.services.exceptions import GLPIAPIError, GLPIUnauthorizedError
 from glpi_dashboard.utils.redis_client import redis_client
+from glpi_dashboard.services.aggregated_metrics import (
+    compute_aggregated,
+    cache_aggregated_metrics,
+    get_cached_aggregated,
+)
 
 
 @strawberry.type
@@ -194,6 +199,16 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
             closed = df[status_series == "closed"].shape[0]
         opened = total - closed
         return {"total": total, "opened": opened, "closed": closed}
+
+    @app.get("/metrics/aggregated")
+    async def metrics_aggregated() -> dict:  # noqa: F401
+        metrics = await get_cached_aggregated(cache, "metrics_aggregated")
+        if metrics is not None:
+            return metrics
+        df = await _load_tickets(client=client, cache=cache)
+        metrics = compute_aggregated(df)
+        await cache_aggregated_metrics(cache, "metrics_aggregated", metrics)
+        return metrics
 
     @app.get("/cache/stats")
     async def cache_stats() -> dict:  # noqa: F401

@@ -64,6 +64,15 @@ def test_rest_endpoints(dummy_cache: DummyCache):
     assert metrics["total"] >= 0
 
 
+def test_aggregated_metrics(dummy_cache: DummyCache):
+    client = TestClient(create_app(client=FakeSession(), cache=dummy_cache))
+    resp = client.get("/metrics/aggregated")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert "status" in data
+    assert "per_user" in data
+
+
 def test_tickets_stream(monkeypatch: pytest.MonkeyPatch, dummy_cache: DummyCache):
     async def fake_gen(_client):
         yield b"fetching...\n"

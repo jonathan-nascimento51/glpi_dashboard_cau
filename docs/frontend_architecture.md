@@ -88,4 +88,8 @@ const resp = await fetch(`${import.meta.env.NEXT_PUBLIC_API_BASE_URL}/tickets/me
 const data = await resp.json();
 ```
 
+For aggregated statistics the worker offers `/metrics/aggregated`. This endpoint
+returns cached counts grouped by status and technician, enabling dashboards to
+load summary values quickly.
+
 Jest and Playwright tests rely on this same URL when exercising real API calls, so ensure the worker is running before executing `npm test` or `npm run test:e2e`.
