@@ -165,6 +165,8 @@ The service exposes several endpoints:
 
 Make sure the service is running with `python worker.py` and that your
 front-end points to it via `NEXT_PUBLIC_API_BASE_URL` in `frontend/.env`.
+Copy `frontend/.env.example` to `frontend/.env` if the file doesn't exist and
+adjust the URL as needed.
 
 Example GraphQL query to retrieve ticket data:
 
