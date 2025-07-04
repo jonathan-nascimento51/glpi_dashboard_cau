@@ -9,11 +9,6 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  experimental: {
-    modularizeImports: {
-      '@mui/icons-material': { transform: '@mui/icons-material/{{member}}' },
-    },
-  },
   webpack(config) {
     config.performance = {
       ...config.performance,
