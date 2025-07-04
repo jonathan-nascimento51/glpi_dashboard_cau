@@ -4,8 +4,8 @@ import { VirtualizedTicketTable } from '@/components/VirtualizedTicketTable'
 import { FixedSizeList } from 'react-window'
 
 jest.mock('react-window', () => {
-  const React = require('react')
   return {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     FixedSizeList: jest.fn((props: any) => (
       <div data-testid="virtual-list">
         {Array.from({ length: props.itemCount }).map((_, idx) =>

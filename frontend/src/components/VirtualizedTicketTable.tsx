@@ -1,9 +1,11 @@
+/* eslint-disable react/display-name */
 import React, { useCallback, useMemo, useRef, useState } from 'react'
 import { FixedSizeList, ListChildComponentProps } from 'react-window'
 
 export interface TicketRow {
   id: number | string
   name: string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any
 }
 
@@ -153,3 +155,5 @@ export function VirtualizedTicketTable({
     </div>
   )
 }
+
+VirtualizedTicketTable.displayName = 'VirtualizedTicketTable'

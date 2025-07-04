@@ -7,6 +7,7 @@ import { fetcher } from '@/lib/swrClient'
 import './globals.css'
 import '../index.css'
 import { ReactQueryProvider } from './providers/ReactQueryProvider'
+import { ProfilerProvider } from './providers/ProfilerProvider'
 
 const geistSans = Inter({
   variable: '--font-geist-sans',
@@ -45,17 +46,19 @@ export default function RootLayout({
         />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <SWRConfig
-          value={{
-            fetcher,
-            dedupingInterval: 10000,
-            refreshInterval: 30000,
-            revalidateOnFocus: true,
-            onError: (err) => captureException(err),
-          }}
-        >
-          <ReactQueryProvider>{children}</ReactQueryProvider>
-        </SWRConfig>
+        <ProfilerProvider>
+          <SWRConfig
+            value={{
+              fetcher,
+              dedupingInterval: 10000,
+              refreshInterval: 30000,
+              revalidateOnFocus: true,
+              onError: (err) => captureException(err),
+            }}
+          >
+            <ReactQueryProvider>{children}</ReactQueryProvider>
+          </SWRConfig>
+        </ProfilerProvider>
       </body>
     </html>
   )
