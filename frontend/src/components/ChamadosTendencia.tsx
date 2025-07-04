@@ -1,3 +1,4 @@
+import React from 'react'
 import { useChamadosPorData } from '../hooks/useChamadosPorData'
 import {
   LineChart,
@@ -9,7 +10,7 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 
-export default function ChamadosTendencia() {
+function ChamadosTendenciaComponent() {
   const { dados, isLoading, error } = useChamadosPorData()
 
   if (isLoading) return <div>Carregando tendência...</div>
@@ -30,3 +31,5 @@ export default function ChamadosTendencia() {
     </div>
   )
 }
+
+export const ChamadosTendencia = React.memo(ChamadosTendenciaComponent)
