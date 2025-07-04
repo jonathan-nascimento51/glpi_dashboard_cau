@@ -4,72 +4,16 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime
-from enum import IntEnum
-from typing import Any, Type, TypeVar, cast
+from typing import Any, Type, TypeVar
 
 from pydantic import BaseModel, ConfigDict, Field
+
+from .ticket_status import Impact, Priority, TicketStatus, Urgency, _BaseIntEnum
 
 logger = logging.getLogger(__name__)
 
 
-class _SafeIntEnum(IntEnum):
-    """Base enum that falls back to ``UNKNOWN`` for unexpected values."""
-
-    @classmethod
-    def _missing_(cls, value: Any) -> "_SafeIntEnum":
-        logger.warning("Unknown %s value: %r", cls.__name__, value)
-        return cls.__members__.get("UNKNOWN")  # type: ignore[return-value]
-
-
-class TicketStatus(_SafeIntEnum):
-    """Possible ticket statuses in GLPI."""
-
-    UNKNOWN = 0
-    NEW = 1
-    ASSIGNED = 2
-    PLANNED = 3
-    PENDING = 4
-    SOLVED = 5
-    CLOSED = 6
-
-
-class PriorityLevel(_SafeIntEnum):
-    """Priority level for tickets."""
-
-    UNKNOWN = 0
-    VERY_LOW = 1
-    LOW = 2
-    MEDIUM = 3
-    HIGH = 4
-    VERY_HIGH = 5
-    MAJOR = 6
-
-
-class UrgencyLevel(_SafeIntEnum):
-    """Urgency level for tickets."""
-
-    UNKNOWN = 0
-    VERY_LOW = 1
-    LOW = 2
-    MEDIUM = 3
-    HIGH = 4
-    VERY_HIGH = 5
-    MAJOR = 6
-
-
-class ImpactLevel(_SafeIntEnum):
-    """Impact level for tickets."""
-
-    UNKNOWN = 0
-    VERY_LOW = 1
-    LOW = 2
-    MEDIUM = 3
-    HIGH = 4
-    VERY_HIGH = 5
-    MAJOR = 6
-
-
-class TicketType(_SafeIntEnum):
+class TicketType(_BaseIntEnum):
     """Category of ticket."""
 
     UNKNOWN = 0
@@ -100,9 +44,9 @@ class CleanTicketDTO(BaseModel):
     name: str = Field("", description="Short summary")
     content: str | None = Field(None, description="Detailed description")
     status: TicketStatus = Field(TicketStatus.UNKNOWN, description="Status")
-    priority: PriorityLevel = Field(PriorityLevel.UNKNOWN, description="Priority")
-    urgency: UrgencyLevel = Field(UrgencyLevel.UNKNOWN, description="Urgency")
-    impact: ImpactLevel = Field(ImpactLevel.UNKNOWN, description="Impact")
+    priority: Priority = Field(Priority.UNKNOWN, description="Priority")
+    urgency: Urgency = Field(Urgency.UNKNOWN, description="Urgency")
+    impact: Impact = Field(Impact.UNKNOWN, description="Impact")
     type: TicketType = Field(TicketType.UNKNOWN, description="Ticket type")
     date_creation: datetime | None = Field(None, description="Creation timestamp")
 
@@ -117,19 +61,20 @@ def _parse_int(value: Any, field: str, ticket_id: Any) -> int:
         return 0
 
 
-E = TypeVar("E", bound="_SafeIntEnum")
+E = TypeVar("E", bound="_BaseIntEnum")
 
 
 def _parse_enum(value: Any, enum: Type[E], field: str, ticket_id: Any) -> E:
-    unknown = cast(E, enum.__members__.get("UNKNOWN"))
+    """Convert ``value`` to ``enum`` using ``from_int`` with warnings."""
+
     if value is None:
         logger.warning("Missing %s for ticket %r", field, ticket_id)
-        return unknown
+        return enum.from_int(-1)
     try:
-        return enum(int(value))
+        return enum.from_int(int(value))
     except (TypeError, ValueError):
         logger.warning("Invalid %s=%r for ticket %r", field, value, ticket_id)
-        return unknown
+        return enum.from_int(-1)
 
 
 def _parse_date(value: Any, field: str, ticket_id: Any) -> datetime | None:
@@ -167,9 +112,9 @@ def convert_ticket(raw: RawTicketDTO) -> CleanTicketDTO:
             content = raw.content
 
     status = _parse_enum(raw.status, TicketStatus, "status", ticket_id)
-    priority = _parse_enum(raw.priority, PriorityLevel, "priority", ticket_id)
-    urgency = _parse_enum(raw.urgency, UrgencyLevel, "urgency", ticket_id)
-    impact = _parse_enum(raw.impact, ImpactLevel, "impact", ticket_id)
+    priority = _parse_enum(raw.priority, Priority, "priority", ticket_id)
+    urgency = _parse_enum(raw.urgency, Urgency, "urgency", ticket_id)
+    impact = _parse_enum(raw.impact, Impact, "impact", ticket_id)
     ttype = _parse_enum(raw.type, TicketType, "type", ticket_id)
     created = _parse_date(raw.date_creation, "date_creation", ticket_id)
 
@@ -190,9 +135,9 @@ __all__ = [
     "RawTicketDTO",
     "CleanTicketDTO",
     "TicketStatus",
-    "PriorityLevel",
-    "UrgencyLevel",
-    "ImpactLevel",
+    "Priority",
+    "Urgency",
+    "Impact",
     "TicketType",
     "convert_ticket",
 ]
