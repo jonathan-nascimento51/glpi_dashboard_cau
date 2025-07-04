@@ -27,4 +27,5 @@ init-db:
 test:
 	# install runtime and development dependencies
 	pip install -r requirements.txt -r requirements-dev.txt
+	pip install -e .  # ensure local package is discoverable
 	pytest --cov=./
