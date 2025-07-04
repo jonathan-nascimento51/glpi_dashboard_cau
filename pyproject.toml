@@ -30,6 +30,8 @@ dependencies = [
     "dishka>=1.6",
     "pydantic>=2.7",
     "pydantic-settings>=2.2",
+    "tenacity>=8.2",
+    "purgatory>=3.0",
 ]
 
 [project.optional-dependencies]

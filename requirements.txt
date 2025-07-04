@@ -27,3 +27,5 @@ dishka>=1.6
 pybreaker
 langgraph-checkpoint-sqlite
 prometheus-client
+tenacity>=8.2
+purgatory>=3.0
