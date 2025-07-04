@@ -46,7 +46,10 @@ class FakeSession:
         pass
 
     def get_all(self, *args, **kwargs):
-        return [{"id": 1}]
+        return [
+            {"id": 1, "date_creation": "2024-06-01"},
+            {"id": 2, "date_creation": "2024-06-02"},
+        ]
 
 
 def test_rest_endpoints(dummy_cache: DummyCache):
@@ -71,6 +74,28 @@ def test_aggregated_metrics(dummy_cache: DummyCache):
     data = resp.json()
     assert "status" in data
     assert "per_user" in data
+
+
+def test_chamados_por_data(dummy_cache: DummyCache):
+    client = TestClient(create_app(client=FakeSession(), cache=dummy_cache))
+    resp = client.get("/chamados/por-data")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data == [
+        {"date": "2024-06-01", "total": 1},
+        {"date": "2024-06-02", "total": 1},
+    ]
+
+
+def test_chamados_por_dia(dummy_cache: DummyCache):
+    client = TestClient(create_app(client=FakeSession(), cache=dummy_cache))
+    resp = client.get("/chamados/por-dia")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data == [
+        {"date": "2024-06-01", "total": 1},
+        {"date": "2024-06-02", "total": 1},
+    ]
 
 
 def test_tickets_stream(monkeypatch: pytest.MonkeyPatch, dummy_cache: DummyCache):
