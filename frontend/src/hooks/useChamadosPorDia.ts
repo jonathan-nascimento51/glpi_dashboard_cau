@@ -7,15 +7,11 @@ export interface ChamadoPorDia {
 }
 
 export function useChamadosPorDia() {
-  const { data, error, isLoading } = useSWR<ChamadoPorDia[]>(
-    '/chamados/por-dia',
-    fetcher,
-    { refreshInterval: 60000, revalidateOnFocus: false },
-  )
+  const { data, error, isLoading } = useSWR<ChamadoPorDia[]>('/chamados/por-dia', fetcher)
 
   return {
-    dados: data || [],
-    loading: isLoading,
-    erro: error,
+    dados: data,
+    error,
+    isLoading,
   }
 }
