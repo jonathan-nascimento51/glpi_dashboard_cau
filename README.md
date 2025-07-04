@@ -75,7 +75,7 @@ any scripts.
 The dashboard reads data produced by the worker and stored in PostgreSQL. More details on the multi-agent workflow can be found in
 [AGENTS.md](AGENTS.md).
 Instructions for running the React front-end—including npm scripts and required environment variables—are available in
-[docs/frontend_architecture.md](docs/frontend_architecture.md). That document also covers how the front-end communicates with the worker API via `VITE_API_URL` and how to run the Jest and Playwright test suites.
+[docs/frontend_architecture.md](docs/frontend_architecture.md). That document also covers how the front-end communicates with the worker API via `NEXT_PUBLIC_API_BASE_URL` and how to run the Jest and Playwright test suites.
 
 ## Main modules
 

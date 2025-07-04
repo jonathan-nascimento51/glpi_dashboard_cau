@@ -1,8 +1,22 @@
-export async function fetcher<T>(url: string): Promise<T> {
-  const base = import.meta.env.VITE_API_URL || ''
-  const res = await fetch(`${base}${url}`)
-  if (!res.ok) {
-    throw new Error('Failed to fetch')
+export async function fetcher<T>(url: string, init: RequestInit = {}): Promise<T> {
+  const base =
+    typeof process !== 'undefined'
+      ? process.env.NEXT_PUBLIC_API_BASE_URL
+      : import.meta.env.NEXT_PUBLIC_API_BASE_URL
+
+  const res = await fetch(`${base ?? ''}${url}`, {
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      ...(init.headers ?? {}),
+    },
+    ...init,
+  })
+
+  if (res.status >= 400) {
+    const message = await res.text()
+    throw new Error(message || `Request failed with status ${res.status}`)
   }
+
   return res.json() as Promise<T>
 }
