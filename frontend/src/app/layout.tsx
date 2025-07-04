@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { Inter, Roboto_Mono } from 'next/font/google'
 import React from 'react'
 import { SWRConfig } from 'swr'
-import * as Sentry from '@sentry/nextjs'
+import { captureException } from '@sentry/nextjs'
 import { fetcher } from '@/lib/swrClient'
 import './globals.css'
 import '../index.css'
@@ -51,7 +51,7 @@ export default function RootLayout({
             dedupingInterval: 10000,
             refreshInterval: 30000,
             revalidateOnFocus: true,
-            onError: (err) => Sentry.captureException(err),
+            onError: (err) => captureException(err),
           }}
         >
           <ReactQueryProvider>{children}</ReactQueryProvider>
