@@ -98,6 +98,37 @@ def test_chamados_por_dia(dummy_cache: DummyCache):
     ]
 
 
+def test_chamados_por_data_cache(dummy_cache: DummyCache):
+    client = TestClient(create_app(client=FakeSession(), cache=dummy_cache))
+    client.get("/chamados/por-data")
+    client.get("/chamados/por-data")
+    stats = client.get("/cache/stats").json()
+    assert stats["hits"] == 1
+    assert stats["misses"] == 2
+
+
+def test_chamados_por_dia_cache(dummy_cache: DummyCache):
+    client = TestClient(create_app(client=FakeSession(), cache=dummy_cache))
+    client.get("/chamados/por-dia")
+    client.get("/chamados/por-dia")
+    stats = client.get("/cache/stats").json()
+    assert stats["hits"] == 1
+    assert stats["misses"] == 2
+
+
+def test_openapi_schema_models(dummy_cache: DummyCache):
+    app = create_app(client=FakeSession(), cache=dummy_cache)
+    schema = app.openapi()
+    por_data = schema["paths"]["/chamados/por-data"]["get"]["responses"]["200"][
+        "content"
+    ]["application/json"]["schema"]
+    assert por_data["items"]["$ref"].endswith("ChamadoPorData")
+    por_dia = schema["paths"]["/chamados/por-dia"]["get"]["responses"]["200"][
+        "content"
+    ]["application/json"]["schema"]
+    assert por_dia["items"]["$ref"].endswith("ChamadosPorDia")
+
+
 def test_tickets_stream(monkeypatch: pytest.MonkeyPatch, dummy_cache: DummyCache):
     async def fake_gen(_client):
         yield b"fetching...\n"

@@ -6,15 +6,29 @@ import argparse
 import asyncio
 import contextlib
 import json
-from typing import Any, List, Optional, AsyncGenerator
+from typing import Any, AsyncGenerator, List, Optional
 
 import pandas as pd
 import strawberry
 import uvicorn
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse, StreamingResponse
+from pydantic import BaseModel, Field
 from strawberry.fastapi import GraphQLRouter
 from strawberry.types import Info
+
+from glpi_dashboard.data.pipeline import process_raw
+from glpi_dashboard.services.aggregated_metrics import (
+    cache_aggregated_metrics,
+    compute_aggregated,
+    get_cached_aggregated,
+    tickets_by_date,
+    tickets_daily_totals,
+)
+from glpi_dashboard.services.exceptions import GLPIAPIError, GLPIUnauthorizedError
+from glpi_dashboard.services.glpi_api_client import GlpiApiClient
+from glpi_dashboard.services.glpi_session import Credentials, GLPISession
+from glpi_dashboard.utils.redis_client import redis_client
 
 from ..config.settings import (
     GLPI_APP_TOKEN,
@@ -22,18 +36,6 @@ from ..config.settings import (
     GLPI_PASSWORD,
     GLPI_USER_TOKEN,
     GLPI_USERNAME,
-)
-from glpi_dashboard.data.pipeline import process_raw
-from glpi_dashboard.services.glpi_api_client import GlpiApiClient
-from glpi_dashboard.services.glpi_session import Credentials, GLPISession
-from glpi_dashboard.services.exceptions import GLPIAPIError, GLPIUnauthorizedError
-from glpi_dashboard.utils.redis_client import redis_client
-from glpi_dashboard.services.aggregated_metrics import (
-    compute_aggregated,
-    cache_aggregated_metrics,
-    get_cached_aggregated,
-    tickets_by_date,
-    tickets_daily_totals,
 )
 
 
@@ -55,6 +57,20 @@ class Metrics:
     total: int
     opened: int
     closed: int
+
+
+class ChamadoPorData(BaseModel):
+    """Aggregated tickets per creation date."""
+
+    date: str = Field(..., examples=["2024-06-01"])
+    total: int = Field(..., examples=[5])
+
+
+class ChamadosPorDia(BaseModel):
+    """Daily ticket totals used for heatmaps."""
+
+    date: str = Field(..., examples=["2024-06-01"])
+    total: int = Field(..., examples=[5])
 
 
 async def _load_tickets(
@@ -212,17 +228,31 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
         await cache_aggregated_metrics(cache, "metrics_aggregated", metrics)
         return metrics
 
-    @app.get("/chamados/por-data")
-    async def chamados_por_data() -> list[dict]:  # noqa: F401
+    @app.get(
+        "/chamados/por-data",
+        response_model=list[ChamadoPorData],
+    )
+    async def chamados_por_data() -> list[ChamadoPorData]:  # noqa: F401
+        cached = await cache.get("chamados_por_data")
+        if cached is not None:
+            return cached  # type: ignore[return-value]
         df = await _load_tickets(client=client, cache=cache)
-        result = tickets_by_date(df)
-        return result.to_dict(orient="records")
+        result = tickets_by_date(df).to_dict(orient="records")
+        await cache.set("chamados_por_data", result, ttl_seconds=3600)
+        return result
 
-    @app.get("/chamados/por-dia")
-    async def chamados_por_dia() -> list[dict]:  # noqa: F401
+    @app.get(
+        "/chamados/por-dia",
+        response_model=list[ChamadosPorDia],
+    )
+    async def chamados_por_dia() -> list[ChamadosPorDia]:  # noqa: F401
+        cached = await cache.get("chamados_por_dia")
+        if cached is not None:
+            return cached  # type: ignore[return-value]
         df = await _load_tickets(client=client, cache=cache)
-        result = tickets_daily_totals(df)
-        return result.to_dict(orient="records")
+        result = tickets_daily_totals(df).to_dict(orient="records")
+        await cache.set("chamados_por_dia", result, ttl_seconds=86400)
+        return result
 
     @app.get("/cache/stats")
     async def cache_stats() -> dict:  # noqa: F401

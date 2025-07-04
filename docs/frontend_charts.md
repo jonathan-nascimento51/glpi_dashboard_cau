@@ -6,8 +6,8 @@ This guide describes how to display GLPI ticket trends and heatmaps using SWR an
 
 Two REST routes provide the aggregated data used by the charts:
 
-- `/chamados/por-data` — returns a list of `{ "date": "YYYY-MM-DD", "total": n }` grouped by ticket creation date.
-- `/chamados/por-dia` — returns the same structure for calendar heatmap totals.
+- `/chamados/por-data` — returns a list of `{ "date": "YYYY-MM-DD", "total": n }` grouped by ticket creation date. The response is cached for **one hour**.
+- `/chamados/por-dia` — returns the same structure for calendar heatmap totals and is cached for **24 hours**.
 
 Both endpoints perform the aggregation server-side so the front-end only consumes summarized values.
 
