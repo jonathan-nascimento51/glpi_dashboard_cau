@@ -7,6 +7,8 @@ from __future__ import annotations
 import ast
 from enum import Enum
 from typing import List, Optional, TypedDict
+from pathlib import Path
+import tempfile
 
 import pandas as pd
 from langchain_core.language_models.fake import FakeListLLM
@@ -222,9 +224,19 @@ NODE_FUNCTIONS = {
 # --------------------------- Workflow Builder ---------------------------
 
 
-def build_workflow() -> StateGraph:
-    """Create LangGraph workflow with supervisor and workers."""
-    checkpointer = SqliteSaver("workflow_state.sqlite")
+def build_workflow(path: str | None = None) -> StateGraph:
+    """Create LangGraph workflow with supervisor and workers.
+
+    Parameters
+    ----------
+    path:
+        Optional directory to store the workflow state file. Defaults
+        to the system temporary directory.
+    """
+    if path is None:
+        path = tempfile.gettempdir()
+    db_path = Path(path) / "workflow_state.sqlite"
+    checkpointer = SqliteSaver(str(db_path))
     workflow = StateGraph(AgentState, checkpointer=checkpointer)
 
     workflow.add_node("supervisor", supervisor)

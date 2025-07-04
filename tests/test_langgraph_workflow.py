@@ -4,7 +4,7 @@ from glpi_dashboard.services import langgraph_workflow
 
 
 @pytest.mark.asyncio
-async def test_workflow_fetch(monkeypatch):
+async def test_workflow_fetch(monkeypatch, tmp_path):
     class FakeSession:
         async def __aenter__(self):
             return self
@@ -29,7 +29,7 @@ async def test_workflow_fetch(monkeypatch):
         langgraph_workflow, "GLPISession", lambda *a, **k: FakeSession()
     )
 
-    workflow = langgraph_workflow.build_workflow().compile()
+    workflow = langgraph_workflow.build_workflow(path=tmp_path).compile()
     state = {"messages": ["fetch"], "next_agent": "", "iteration_count": 0}
     result = await workflow.ainvoke(state)
     assert "fetched tickets" in result["messages"]
