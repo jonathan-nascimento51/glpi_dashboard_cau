@@ -11,6 +11,10 @@ Two REST routes provide the aggregated data used by the charts:
 
 Both endpoints perform the aggregation server-side so the front-end only consumes summarized values.
 
+Make sure `python worker.py` is running and set `NEXT_PUBLIC_API_BASE_URL` in
+`frontend/.env` to point to the worker (default `http://127.0.0.1:8000`). All
+requests in the examples below use this variable.
+
 ## Hooks
 
 ### `useChamadosPorData`
@@ -34,6 +38,10 @@ export function useChamadosPorData() {
 
   return { dados: data || [], loading: isLoading, erro: error }
 }
+
+// The fetcher prefixes `NEXT_PUBLIC_API_BASE_URL` automatically,
+// so `/chamados/por-data` resolves to
+// `${process.env.NEXT_PUBLIC_API_BASE_URL}/chamados/por-data`.
 ```
 
 ### `useChamadosPorDia`
