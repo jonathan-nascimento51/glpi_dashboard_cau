@@ -1,7 +1,6 @@
 'use client'
 import { ReactNode } from 'react'
 import { SWRConfig } from 'swr'
-import { captureException } from '@sentry/nextjs'
 import { fetcher } from '@/lib/swrClient'
 
 export function SWRProvider({ children }: { children: ReactNode }) {
@@ -12,7 +11,11 @@ export function SWRProvider({ children }: { children: ReactNode }) {
         dedupingInterval: 10000,
         refreshInterval: 30000,
         revalidateOnFocus: true,
-        onError: (err) => captureException(err),
+        onError: (err: any) => {
+          if (process.env.NODE_ENV === 'development') {
+            console.error(err)
+          }
+        },
       }}
     >
       {children}
