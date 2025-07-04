@@ -1,9 +1,9 @@
+import React, { useMemo } from 'react'
 import { useChamadosPorDia } from '../hooks/useChamadosPorDia'
 import ReactCalendarHeatmap from 'react-calendar-heatmap'
-import { useMemo } from 'react'
 import 'react-calendar-heatmap/dist/styles.css'
 
-export default function ChamadosHeatmap() {
+function ChamadosHeatmapComponent() {
   const { dados, isLoading, error } = useChamadosPorDia()
 
   if (isLoading) return <div>Carregando heatmap...</div>
@@ -47,3 +47,5 @@ export default function ChamadosHeatmap() {
     </div>
   )
 }
+
+export const ChamadosHeatmap = React.memo(ChamadosHeatmapComponent)

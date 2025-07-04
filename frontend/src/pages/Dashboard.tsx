@@ -5,8 +5,8 @@ import { MetricCard } from '../components/MetricCard'
 import { LevelsPanel } from '../components/LevelsPanel'
 import { Sidebar } from '../components/Sidebar'
 import FilterPanel from '../components/FilterPanel'
-import ChamadosTendencia from '../components/ChamadosTendencia'
-import ChamadosHeatmap from '../components/ChamadosHeatmap'
+import { ChamadosTendencia } from '../components/ChamadosTendencia'
+import { ChamadosHeatmap } from '../components/ChamadosHeatmap'
 import { useDashboardData } from '../hooks/useDashboardData'
 
 const Dashboard: React.FC = () => {
