@@ -7,11 +7,16 @@ export interface ChamadoPorData {
 }
 
 export function useChamadosPorData() {
-  const { data, error, isLoading } = useSWR<ChamadoPorData[]>('/chamados/por-data', fetcher)
+  const { data, error, isLoading } = useSWR<ChamadoPorData[]>(
+    '/chamados/por-data',
+    fetcher,
+    { refreshInterval: 60000 },
+  )
 
-  return {
-    dados: data,
-    error,
-    isLoading,
-  }
+  const dados = (data ?? []).map((d) => ({
+    date: d.date,
+    total: Number(d.total),
+  }))
+
+  return { dados, error, isLoading }
 }
