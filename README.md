@@ -319,8 +319,18 @@ pip install -e .  # ensure local package is discoverable during tests
 # the core suite relies on `aiohttp` and `pandas`
 # optional extras for e2e and container tests
 pip install testcontainers playwright
+# browser tests require Chrome/Chromedriver
+# install via `apt-get install chromium-driver` or `npx playwright install`
+# skip them with `pytest -k 'not test_dashboard_flows'` if the driver is missing
 pytest --cov=./
 pre-commit run --all-files
+```
+
+Browser-based tests such as `test_dashboard_flows` rely on Chrome and
+Chromedriver. If these are unavailable you can skip them with:
+
+```bash
+pytest -k 'not test_dashboard_flows'
 ```
 
 Lint checks can be run manually:
