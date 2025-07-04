@@ -6,6 +6,7 @@ flake8
 mypy
 black
 isort
+ruff==0.12.2
 testcontainers
 playwright
 dash[testing]
