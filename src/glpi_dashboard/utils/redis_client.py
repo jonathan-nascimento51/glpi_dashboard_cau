@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import logging
+import inspect
 from dataclasses import dataclass
 from typing import Any, Dict, Optional
 
@@ -16,6 +17,11 @@ from glpi_dashboard.config.settings import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+async def _maybe_await(result: Any) -> Any:
+    """Await result if it is awaitable."""
+    return await result if inspect.isawaitable(result) else result
 
 
 @dataclass
@@ -54,7 +60,7 @@ class RedisClient:
                 decode_responses=True,
             )
             try:
-                await self._client.ping()
+                await _maybe_await(self._client.ping())
                 logger.info("Successfully connected to Redis.")
             except redis.exceptions.ConnectionError as e:
                 logger.error("Could not connect to Redis: %s", e)
@@ -74,7 +80,7 @@ class RedisClient:
         try:
             client = await self._connect()
             redis_key = self._format_key(key)
-            cached_data = await client.get(redis_key)
+            cached_data = await _maybe_await(client.get(redis_key))
             if cached_data:
                 self.metrics.hits += 1
                 logger.debug("Cache HIT for key: %s", key)
@@ -102,7 +108,7 @@ class RedisClient:
             client = await self._connect()
             ttl = ttl_seconds or REDIS_TTL_SECONDS
             redis_key = self._format_key(key)
-            await client.setex(redis_key, ttl, json.dumps(data))
+            await _maybe_await(client.setex(redis_key, ttl, json.dumps(data)))
             logger.debug("Cache SET for key %s with TTL %s", redis_key, ttl)
         except redis.exceptions.ConnectionError as e:
             logger.error("Redis connection error during SET: %s", e)
@@ -115,7 +121,7 @@ class RedisClient:
         try:
             client = await self._connect()
             redis_key = self._format_key(key)
-            await client.delete(redis_key)
+            await _maybe_await(client.delete(redis_key))
             logger.debug("Cache DELETE for key: %s", redis_key)
         except (
             redis.exceptions.AuthenticationError,
@@ -131,7 +137,7 @@ class RedisClient:
         try:
             client = await self._connect()
             redis_key = self._format_key(key)
-            ttl = await client.ttl(redis_key)
+            ttl = await _maybe_await(client.ttl(redis_key))
             return int(ttl)
         except (
             redis.exceptions.AuthenticationError,
