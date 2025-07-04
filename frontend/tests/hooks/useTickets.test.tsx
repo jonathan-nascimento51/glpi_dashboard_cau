@@ -1,0 +1,18 @@
+import { renderHook, waitFor } from '@testing-library/react'
+import { SWRConfig } from 'swr'
+import { useTickets } from '@/hooks/useTickets'
+
+const wrapper = ({ children }: { children: React.ReactNode }) => (
+  <SWRConfig value={{ provider: () => new Map() }}>{children}</SWRConfig>
+)
+
+test('fetches tickets from API', async () => {
+  global.fetch = jest.fn().mockResolvedValue({
+    status: 200,
+    json: () => Promise.resolve([{ id: 1, name: 't1' }]),
+  }) as jest.Mock
+
+  const { result } = renderHook(() => useTickets(), { wrapper })
+  await waitFor(() => expect(result.current.tickets).toHaveLength(1))
+  expect(result.current.tickets?.[0].name).toBe('t1')
+})

@@ -10,6 +10,7 @@ import SkeletonChart from '../components/SkeletonChart'
 import SkeletonHeatmap from '../components/SkeletonHeatmap'
 import { VirtualizedTicketTable } from '../components/VirtualizedTicketTable'
 import { useDashboardData } from '../hooks/useDashboardData'
+import { useTickets } from '../hooks/useTickets'
 
 const ChamadosTendencia = dynamic(
   () =>
@@ -29,28 +30,27 @@ const ChamadosHeatmap = dynamic(
 
 const Dashboard: React.FC = () => {
   const { metrics, sparkRefs } = useDashboardData()
+  const { tickets } = useTickets()
 
-  const levels = useMemo(
-    () => [
-      {
-        name: 'N1 - Básico',
-        metrics: { new: 15, progress: 12, pending: 4, resolved: 28 },
-      },
-      {
-        name: 'N2 - Intermediário',
-        metrics: { new: 12, progress: 15, pending: 4, resolved: 18 },
-      },
-      {
-        name: 'N3 - Avançado',
-        metrics: { new: 8, progress: 6, pending: 2, resolved: 10 },
-      },
-      {
-        name: 'N4 - Especialista',
-        metrics: { new: 6, progress: 4, pending: 1, resolved: 6 },
-      },
-    ],
-    [],
-  )
+  const levels = useMemo(() => {
+    const groups = new Map<string, { new: number; progress: number; pending: number; resolved: number }>()
+    tickets?.forEach((t) => {
+      const group = String(t.group ?? 'N1')
+      const status = String(t.status ?? '').toLowerCase()
+      const m =
+        groups.get(group) ??
+        { new: 0, progress: 0, pending: 0, resolved: 0 }
+      if (status === 'new') m.new += 1
+      else if (status === 'pending') m.pending += 1
+      else if (status === 'progress') m.progress += 1
+      else if (status === 'resolved' || status === 'closed') m.resolved += 1
+      groups.set(group, m)
+    })
+    return Array.from(groups.entries()).map(([name, metrics]) => ({
+      name,
+      metrics,
+    }))
+  }, [tickets])
 
   const performance = useMemo(
     () => [
@@ -108,14 +108,8 @@ const Dashboard: React.FC = () => {
     [handleMetricClick],
   )
 
-  const tickets = useMemo(
-    () =>
-      Array.from({ length: 200 }, (_, i) => ({
-        id: i + 1,
-        name: `Ticket ${i + 1}`,
-      })),
-    [],
-  )
+  const ticketsList = tickets ?? []
+
 
   const handleRowClick = useCallback((row: { id: number; name: string }) => {
     console.log('row clicked', row.id)
@@ -169,7 +163,7 @@ const Dashboard: React.FC = () => {
             </Suspense>
           </div>
           <div className="my-4">
-            <VirtualizedTicketTable rows={tickets} onRowClick={handleRowClick} />
+            <VirtualizedTicketTable rows={ticketsList} onRowClick={handleRowClick} />
           </div>
         </div>
         <Sidebar performance={performance} ranking={ranking} alerts={alerts} />
