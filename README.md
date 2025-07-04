@@ -349,6 +349,31 @@ with:
 npm run analyze
 ```
 
+### Performance: List Virtualization
+
+Very large ticket lists can hurt rendering performance if each row is mounted at
+once. The `VirtualizedTicketTable` component automatically enables
+`react-window` when the data set contains **100 rows or more**. For smaller lists
+you may still use the component and tweak the threshold inside
+`VirtualizedTicketTable.tsx`.
+
+During unit tests the virtualization layer is mocked so snapshots remain stable.
+`jest.setup.ts` registers the mock:
+
+```ts
+jest.mock('react-window', () => {
+  const React = require('react')
+  const MockedList = (props: any) => <div>{props.children}</div>
+  return {
+    FixedSizeList: MockedList,
+    VariableSizeList: MockedList,
+  }
+}, { virtual: true })
+```
+
+Make sure your Jest configuration includes this setup file via
+`setupFilesAfterEnv`.
+
 ## CI
 
 Continuous integration runs on GitHub Actions using `.github/workflows/ci.yml`.
