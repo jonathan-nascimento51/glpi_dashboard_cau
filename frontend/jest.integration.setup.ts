@@ -14,6 +14,6 @@ export default async function globalSetup() {
     .start()
 
   const mappedPort = container.getMappedPort(8000)
-  process.env.API_BASE_URL = `http://localhost:${mappedPort}`
+  process.env.NEXT_PUBLIC_API_BASE_URL = `http://localhost:${mappedPort}`
   fs.writeFileSync(path.join(__dirname, 'container-id'), container.getId())
 }
