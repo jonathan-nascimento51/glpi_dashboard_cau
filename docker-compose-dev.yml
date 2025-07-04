@@ -12,11 +12,9 @@ services:
     env_file: .env
     environment:
       PYTHONPATH: /app/src
-      args:
-        # Adiciona as variáveis de proxy para o runtime
-        - HTTP_PROXY=${HTTP_PROXY}
-        - HTTPS_PROXY=${HTTPS_PROXY}
-        - NO_PROXY=${NO_PROXY}
+      HTTP_PROXY: ${HTTP_PROXY}
+      HTTPS_PROXY: ${HTTPS_PROXY}
+      NO_PROXY: ${NO_PROXY}
     depends_on:
       - db
       - redis
