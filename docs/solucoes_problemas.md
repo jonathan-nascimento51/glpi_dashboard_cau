@@ -40,3 +40,11 @@ Este documento reúne estratégias para lidar com falhas de inicialização, inc
 
 Esses tópicos complementam o guia [docs/error_map.md](docs/error_map.md) com soluções voltadas a dados inconsistentes e ajustes de ambiente. Consulte-os sempre que encontrar instabilidades no dashboard.
 
+## 8. Erro "object bool can't be used in 'await' expression"
+Esse problema indica que o cliente Redis foi criado de forma **síncrona** (`redis.Redis`),
+mas a chamada foi feita com `await`. Certifique‑se de importar `redis.asyncio` e
+instanciar `redis.asyncio.Redis` como mostrado em
+[`utils/redis_client.py`](../src/glpi_dashboard/utils/redis_client.py). Caso esteja
+usando outro cliente ou script, troque para a versão assíncrona ou remova o
+`await` das chamadas.
+
