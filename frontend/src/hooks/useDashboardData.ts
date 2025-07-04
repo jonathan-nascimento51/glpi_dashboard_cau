@@ -1,6 +1,8 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
+import useSWR from 'swr'
+import { fetcher } from '../lib/swrClient'
 import type { Chart as ChartType } from 'chart.js'
 
 export interface Metrics {
@@ -10,13 +12,22 @@ export interface Metrics {
   resolved: number
 }
 
+interface Aggregated {
+  status: Record<string, number>
+}
+
 export function useDashboardData() {
-  const [metrics, setMetrics] = useState<Metrics>({
-    new: 42,
-    pending: 11,
-    progress: 37,
-    resolved: 64,
-  })
+  const { data, error, isLoading, mutate } = useSWR<Aggregated>(
+    '/metrics/aggregated',
+    fetcher,
+  )
+
+  const metrics: Metrics = {
+    new: data?.status?.new ?? 0,
+    pending: data?.status?.pending ?? 0,
+    progress: data?.status?.progress ?? 0,
+    resolved: data?.status?.resolved ?? 0,
+  }
   const trendChart = useRef<ChartType | null>(null)
   const sparkRefs = {
     new: useRef<HTMLCanvasElement>(null),
@@ -64,16 +75,13 @@ export function useDashboardData() {
   }, [])
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setMetrics((m) => ({
-        new: m.new + Math.floor(Math.random() * 3 - 1),
-        pending: m.pending + Math.floor(Math.random() * 3 - 1),
-        progress: m.progress + Math.floor(Math.random() * 3 - 1),
-        resolved: m.resolved + Math.floor(Math.random() * 3 - 1),
-      }))
-    }, 5000)
-    return () => clearInterval(interval)
-  }, [])
+    const id = setInterval(() => {
+      mutate().catch(() => undefined)
+    }, 30000)
+    return () => clearInterval(id)
+  }, [mutate])
 
-  return { metrics, sparkRefs }
+  const refreshMetrics = () => mutate()
+
+  return { metrics, sparkRefs, refreshMetrics, isLoading, error }
 }
