@@ -1,14 +1,31 @@
 "use client"
-import React, { useMemo, useCallback } from 'react'
+import React, { Suspense, useCallback, useMemo } from 'react'
+import dynamic from 'next/dynamic'
 import Header from '../components/Header'
 import { MetricCard } from '../components/MetricCard'
 import { LevelsPanel } from '../components/LevelsPanel'
 import { Sidebar } from '../components/Sidebar'
 import FilterPanel from '../components/FilterPanel'
-import { ChamadosTendencia } from '../components/ChamadosTendencia'
-import { ChamadosHeatmap } from '../components/ChamadosHeatmap'
+import SkeletonChart from '../components/SkeletonChart'
+import SkeletonHeatmap from '../components/SkeletonHeatmap'
 import { VirtualizedTicketTable } from '../components/VirtualizedTicketTable'
 import { useDashboardData } from '../hooks/useDashboardData'
+
+const ChamadosTendencia = dynamic(
+  () =>
+    import('../components/ChamadosTendencia').then(
+      (mod) => mod.ChamadosTendencia,
+    ),
+  { ssr: false, suspense: true },
+)
+
+const ChamadosHeatmap = dynamic(
+  () =>
+    import('../components/ChamadosHeatmap').then(
+      (mod) => mod.ChamadosHeatmap,
+    ),
+  { ssr: false, suspense: true },
+)
 
 const Dashboard: React.FC = () => {
   const { metrics, sparkRefs } = useDashboardData()
@@ -142,10 +159,14 @@ const Dashboard: React.FC = () => {
           </div>
           <div className="bottom-section">
             <LevelsPanel levels={levels} />
-            <ChamadosTendencia />
+            <Suspense fallback={<SkeletonChart />}>
+              <ChamadosTendencia />
+            </Suspense>
           </div>
           <div className="my-4">
-            <ChamadosHeatmap />
+            <Suspense fallback={<SkeletonHeatmap />}>
+              <ChamadosHeatmap />
+            </Suspense>
           </div>
           <div className="my-4">
             <VirtualizedTicketTable rows={tickets} onRowClick={handleRowClick} />
