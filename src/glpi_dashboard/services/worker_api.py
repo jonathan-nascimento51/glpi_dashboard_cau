@@ -11,7 +11,7 @@ from typing import Any, AsyncGenerator, List, Optional
 import pandas as pd
 import strawberry
 import uvicorn
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel, Field
 from strawberry.fastapi import GraphQLRouter
@@ -217,6 +217,14 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
             closed = df[status_series == "closed"].shape[0]
         opened = total - closed
         return {"total": total, "opened": opened, "closed": closed}
+
+    @app.get("/breaker")
+    async def breaker_metrics() -> Response:  # noqa: F401
+        """Expose Prometheus metrics for the circuit breaker."""
+        from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
+
+        data = generate_latest()
+        return Response(content=data, media_type=CONTENT_TYPE_LATEST)
 
     @app.get("/metrics/aggregated")
     async def metrics_aggregated() -> dict:  # noqa: F401
