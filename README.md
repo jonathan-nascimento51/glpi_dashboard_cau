@@ -157,8 +157,8 @@ The service exposes several endpoints:
 - `/tickets/stream` – Server‑Sent Events (SSE) stream of progress followed by the JSON payload.
 - `/metrics` – summary with `total`, `opened` and `closed` counts.
 - `/metrics/aggregated` – cached counts grouped by status and technician.
-- `/chamados/por-data` – aggregated tickets per creation date (cached for **1 hour**).
-- `/chamados/por-dia` – totals for calendar heatmaps (cached for **24 hours**).
+- `/chamados/por-data` – aggregated tickets per creation date (cached in Redis for **1 hour**).
+- `/chamados/por-dia` – totals for calendar heatmaps (cached in Redis for **24 hours**).
 - `/graphql/` – GraphQL API providing the same information.
 - `/cache/stats` – returns cache hit/miss metrics.
 - `/health/glpi` – quick check that the worker can reach the GLPI API.

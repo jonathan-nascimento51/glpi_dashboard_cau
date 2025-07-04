@@ -1,9 +1,17 @@
+import sys
+import types
+
 import pytest
 import redis
 from fastapi.testclient import TestClient
 
 from glpi_dashboard.services.exceptions import GLPIUnauthorizedError
 from worker import create_app
+
+sys.modules.setdefault(
+    "langgraph.checkpoint.sqlite", types.ModuleType("langgraph.checkpoint.sqlite")
+)
+sys.modules["langgraph.checkpoint.sqlite"].SqliteSaver = object  # type: ignore[attr-defined]
 
 
 class DummyCache:
@@ -99,18 +107,38 @@ def test_chamados_por_dia(dummy_cache: DummyCache):
 
 
 def test_chamados_por_data_cache(dummy_cache: DummyCache):
-    client = TestClient(create_app(client=FakeSession(), cache=dummy_cache))
-    client.get("/chamados/por-data")
-    client.get("/chamados/por-data")
+    session = FakeSession()
+    client = TestClient(create_app(client=session, cache=dummy_cache))
+    first = client.get("/chamados/por-data").json()
+
+    def later_data(*args, **kwargs):
+        return [
+            {"id": 1, "date_creation": "2024-06-03"},
+            {"id": 2, "date_creation": "2024-06-04"},
+        ]
+
+    session.get_all = later_data  # type: ignore[assignment]
+    second = client.get("/chamados/por-data").json()
+    assert first == second
     stats = client.get("/cache/stats").json()
     assert stats["hits"] == 1
     assert stats["misses"] == 2
 
 
 def test_chamados_por_dia_cache(dummy_cache: DummyCache):
-    client = TestClient(create_app(client=FakeSession(), cache=dummy_cache))
-    client.get("/chamados/por-dia")
-    client.get("/chamados/por-dia")
+    session = FakeSession()
+    client = TestClient(create_app(client=session, cache=dummy_cache))
+    first = client.get("/chamados/por-dia").json()
+
+    def later_data(*args, **kwargs):
+        return [
+            {"id": 1, "date_creation": "2024-06-03"},
+            {"id": 2, "date_creation": "2024-06-04"},
+        ]
+
+    session.get_all = later_data  # type: ignore[assignment]
+    second = client.get("/chamados/por-dia").json()
+    assert first == second
     stats = client.get("/cache/stats").json()
     assert stats["hits"] == 1
     assert stats["misses"] == 2

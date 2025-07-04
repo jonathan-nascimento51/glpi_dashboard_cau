@@ -6,7 +6,8 @@ import argparse
 import asyncio
 import contextlib
 import json
-from typing import Any, AsyncGenerator, List, Optional
+from functools import wraps
+from typing import Any, AsyncGenerator, Awaitable, Callable, List, Optional, Type
 
 import pandas as pd
 import strawberry
@@ -153,13 +154,30 @@ class Query:
             status_series = df["status"].astype(str).str.lower()
             closed = df[status_series == "closed"].shape[0]
         opened = total - closed
-        return Metrics(total=total, opened=opened, closed=closed)
+        return Metrics(total=total, opened=opened, closed=closed)  # type: ignore[call-arg]
 
 
 def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
     """Create FastAPI app with REST and GraphQL routes."""
     cache = cache or redis_client
     app = FastAPI(title="GLPI Worker API")
+
+    def cache_response(key: str, ttl_seconds: int, model: Type[BaseModel]):
+        """Decorator to cache endpoint responses as a list of dicts."""
+
+        def decorator(func: Callable[[], Awaitable[list[dict]]]):
+            @wraps(func)
+            async def wrapper() -> list[BaseModel]:
+                cached_data = await cache.get(key)
+                if cached_data is not None:
+                    return [model.model_validate(d) for d in cached_data]
+                result = await func()
+                await cache.set(key, result, ttl_seconds=ttl_seconds)
+                return [model.model_validate(d) for d in result]
+
+            return wrapper
+
+        return decorator
 
     @app.middleware("http")
     async def cache_tickets(request: Request, call_next):  # noqa: F401
@@ -221,7 +239,7 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
     @app.get("/breaker")
     async def breaker_metrics() -> Response:  # noqa: F401
         """Expose Prometheus metrics for the circuit breaker."""
-        from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
+        from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 
         data = generate_latest()
         return Response(content=data, media_type=CONTENT_TYPE_LATEST)
@@ -240,27 +258,19 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
         "/chamados/por-data",
         response_model=list[ChamadoPorData],
     )
-    async def chamados_por_data() -> list[ChamadoPorData]:  # noqa: F401
-        cached = await cache.get("chamados_por_data")
-        if cached is not None:
-            return cached  # type: ignore[return-value]
+    @cache_response("chamados_por_data", 3600, ChamadoPorData)
+    async def chamados_por_data() -> list[dict]:  # noqa: F401
         df = await _load_tickets(client=client, cache=cache)
-        result = tickets_by_date(df).to_dict(orient="records")
-        await cache.set("chamados_por_data", result, ttl_seconds=3600)
-        return result
+        return tickets_by_date(df).to_dict(orient="records")
 
     @app.get(
         "/chamados/por-dia",
         response_model=list[ChamadosPorDia],
     )
-    async def chamados_por_dia() -> list[ChamadosPorDia]:  # noqa: F401
-        cached = await cache.get("chamados_por_dia")
-        if cached is not None:
-            return cached  # type: ignore[return-value]
+    @cache_response("chamados_por_dia", 86400, ChamadosPorDia)
+    async def chamados_por_dia() -> list[dict]:  # noqa: F401
         df = await _load_tickets(client=client, cache=cache)
-        result = tickets_daily_totals(df).to_dict(orient="records")
-        await cache.set("chamados_por_dia", result, ttl_seconds=86400)
-        return result
+        return tickets_daily_totals(df).to_dict(orient="records")
 
     @app.get("/cache/stats")
     async def cache_stats() -> dict:  # noqa: F401
