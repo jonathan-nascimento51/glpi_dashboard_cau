@@ -10,10 +10,10 @@ import {
 } from 'recharts'
 
 export default function ChamadosTendencia() {
-  const { dados, loading, erro } = useChamadosPorData()
+  const { dados, isLoading, error } = useChamadosPorData()
 
-  if (loading) return <div>Carregando tendência...</div>
-  if (erro) return <div>Erro ao carregar dados de tendência</div>
+  if (isLoading) return <div>Carregando tendência...</div>
+  if (error) return <div>Erro ao carregar dados de tendência</div>
 
   return (
     <div className="bg-white dark:bg-gray-800 p-4 rounded shadow w-full">

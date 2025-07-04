@@ -4,10 +4,10 @@ import { useMemo } from 'react'
 import 'react-calendar-heatmap/dist/styles.css'
 
 export default function ChamadosHeatmap() {
-  const { dados, loading, erro } = useChamadosPorDia()
+  const { dados, isLoading, error } = useChamadosPorDia()
 
-  if (loading) return <div>Carregando heatmap...</div>
-  if (erro) return <div>Erro ao carregar dados do heatmap</div>
+  if (isLoading) return <div>Carregando heatmap...</div>
+  if (error) return <div>Erro ao carregar dados do heatmap</div>
 
   const values = useMemo(
     () => dados.map((item) => ({ date: item.date, count: item.total })),
