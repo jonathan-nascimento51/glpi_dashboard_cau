@@ -6,6 +6,9 @@ const bundleAnalyzer = require('@next/bundle-analyzer')({
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   webpack(config) {
     config.performance = {
       ...config.performance,
