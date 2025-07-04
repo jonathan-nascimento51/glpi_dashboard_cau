@@ -72,17 +72,17 @@ npx prettier --write "src/**/*.{ts,tsx}"  # format code
 Create a `.env` file in the `frontend` directory to configure the URL of the worker API:
 
 ```bash
-VITE_API_URL=http://127.0.0.1:8000
+NEXT_PUBLIC_API_BASE_URL=http://127.0.0.1:8000
 ```
 
-The React code can read this value using `import.meta.env.VITE_API_URL` to send requests to the worker.
+The React code can read this value using `import.meta.env.NEXT_PUBLIC_API_BASE_URL` to send requests to the worker.
 
 ### API Integration
 
-Start the worker with `python worker.py` (it listens on port `8000` by default) and point the front-end to it using the `VITE_API_URL` variable. Example fetching ticket metrics:
+Start the worker with `python worker.py` (it listens on port `8000` by default) and point the front-end to it using the `NEXT_PUBLIC_API_BASE_URL` variable. Example fetching ticket metrics:
 
 ```ts
-const resp = await fetch(`${import.meta.env.VITE_API_URL}/tickets/metrics`);
+const resp = await fetch(`${import.meta.env.NEXT_PUBLIC_API_BASE_URL}/tickets/metrics`);
 const data = await resp.json();
 ```
 
