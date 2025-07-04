@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, PropsWithChildren, unstable_Profiler as Profiler } from 'react'
+import React, { useEffect, PropsWithChildren, Profiler } from 'react'
 
 export function ProfilerProvider({ children }: PropsWithChildren) {
   useEffect(() => {
