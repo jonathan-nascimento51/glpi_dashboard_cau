@@ -1,27 +1,30 @@
 "use client"
-import React from 'react'
+import React, { useCallback } from 'react'
 import { useFilters } from '../hooks/useFilters'
 
 const FilterPanel: React.FC = () => {
   const { filters, toggleFilters, toggleValue } = useFilters()
 
-  const renderOptions = (category: keyof Omit<typeof filters, 'open'>) => {
-    const values = filters[category] as string[]
-    return values.map((value) => (
-      <div
-        key={value}
-        className="filter-option"
-        onClick={() => toggleValue(category, value)}
-      >
+  const renderOptions = useCallback(
+    (category: keyof Omit<typeof filters, 'open'>) => {
+      const values = filters[category] as string[]
+      return values.map((value) => (
         <div
-          className={`filter-checkbox ${values.includes(value) ? 'checked' : ''}`}
+          key={value}
+          className="filter-option"
+          onClick={() => toggleValue(category, value)}
         >
-          <i className="fas fa-check" />
+          <div
+            className={`filter-checkbox ${values.includes(value) ? 'checked' : ''}`}
+          >
+            <i className="fas fa-check" />
+          </div>
+          <div className="filter-label">{value}</div>
         </div>
-        <div className="filter-label">{value}</div>
-      </div>
-    ))
-  }
+      ))
+    },
+    [filters, toggleValue],
+  )
 
   return (
     <div

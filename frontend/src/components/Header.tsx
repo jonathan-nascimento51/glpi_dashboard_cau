@@ -1,11 +1,16 @@
 "use client"
-import React from 'react'
+import React, { useCallback } from 'react'
 import { useThemeSwitcher } from '../hooks/useThemeSwitcher'
 import { useFilters } from '../hooks/useFilters'
 
 const Header: React.FC = () => {
   const { theme, setTheme } = useThemeSwitcher()
   const { toggleFilters } = useFilters()
+
+  const setLight = useCallback(() => setTheme('light'), [setTheme])
+  const setDark = useCallback(() => setTheme('dark'), [setTheme])
+  const setCorporate = useCallback(() => setTheme('corporate'), [setTheme])
+  const setTech = useCallback(() => setTheme('tech'), [setTheme])
 
   return (
     <header className="header">
@@ -22,25 +27,25 @@ const Header: React.FC = () => {
         <div className="theme-switcher">
           <button
             className={`theme-btn ${theme === 'light' ? 'active' : ''}`}
-            onClick={() => setTheme('light')}
+            onClick={setLight}
           >
             Light
           </button>
           <button
             className={`theme-btn ${theme === 'dark' ? 'active' : ''}`}
-            onClick={() => setTheme('dark')}
+            onClick={setDark}
           >
             Dark
           </button>
           <button
             className={`theme-btn ${theme === 'corporate' ? 'active' : ''}`}
-            onClick={() => setTheme('corporate')}
+            onClick={setCorporate}
           >
             Corp
           </button>
           <button
             className={`theme-btn ${theme === 'tech' ? 'active' : ''}`}
-            onClick={() => setTheme('tech')}
+            onClick={setTech}
           >
             Tech
           </button>
