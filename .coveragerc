@@ -1,0 +1,14 @@
+[run]
+omit =
+    */__dishka_*
+    */tests/*
+    src/patterns/*
+    src/glpi_tools/*
+    worker.py
+    scripts/*
+    examples/*
+    docs/*
+
+[report]
+exclude_lines =
+    pragma: no cover

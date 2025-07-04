@@ -118,8 +118,10 @@ def supervisor(state: AgentState) -> AgentState:
     """Use an LLM to decide which worker should run next."""
     last = sanitize_message(state["messages"][-1])
     opts = ", ".join(AVAILABLE_AGENTS)
-    model = supervisor_llm.invoke({"message": last, "options": opts})
-    state["next_agent"] = model.next_agent
+    # Allow previous nodes to set ``next_agent`` explicitly.
+    if not state.get("next_agent"):
+        model = supervisor_llm.invoke({"message": last, "options": opts})
+        state["next_agent"] = model.next_agent
     state["iteration_count"] += 1
     return state
 
@@ -206,8 +208,11 @@ def recovery_node(state: AgentState) -> AgentState:
     trigger the fetcher again. Otherwise the flow falls back to the default
     node and clears the error so the graph can terminate gracefully.
     """
-    if state.get("error") and state["iteration_count"] < 3:
-        state["messages"].append("retrying")
+    if state.get("error"):
+        if state.get("next_agent") and state["iteration_count"] < 3:
+            state["messages"].append("retrying")
+        else:
+            state["next_agent"] = "fallback"
     else:
         state["next_agent"] = "fallback"
     state["error"] = None
