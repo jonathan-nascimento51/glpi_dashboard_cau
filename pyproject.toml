@@ -66,3 +66,4 @@ package-type = "application"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+exclude = ["app*"]
