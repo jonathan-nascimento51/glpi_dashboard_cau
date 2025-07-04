@@ -22,6 +22,8 @@ python -m pip install --upgrade pip
 pip install -r requirements.txt -r requirements-dev.txt
 pip install -e .  # install package locally (packages live under src/)
 pre-commit install  # sets up hooks for black, ruff, isort and mypy
+# Ruff version pinned to 0.12.2 is included in requirements-dev.txt
+# Reinstall dev dependencies before running pre-commit if your environment is outdated
 ```
 
 Create a `.env` file from the template and set PostgreSQL/Redis credentials:
@@ -91,6 +93,8 @@ Instructions for running the React front-end—including npm scripts and require
 python -m pip install --upgrade pip
 pip install -r requirements.txt -r requirements-dev.txt
 pre-commit install  # sets up hooks for black, ruff, isort and mypy
+# Ruff version pinned to 0.12.2 is included in requirements-dev.txt
+# Reinstall dev dependencies before running pre-commit if your environment is outdated
 ```
 
 This project also uses the `rich-click` library for colored CLI output. It is included in `requirements.txt`.
