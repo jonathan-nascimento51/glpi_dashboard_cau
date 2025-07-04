@@ -2,6 +2,14 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
+Before starting the server copy the example environment file and configure the API endpoint:
+
+```bash
+cp .env.example .env
+```
+
+Ensure `NEXT_PUBLIC_API_BASE_URL` points to the worker API (defaults to `http://localhost:8000`).
+
 First, run the development server:
 
 ```bash

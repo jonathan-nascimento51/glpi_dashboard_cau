@@ -79,6 +79,7 @@ The dashboard reads data produced by the worker and stored in PostgreSQL. More d
 available in [docs/langgraph_workflow.md](docs/langgraph_workflow.md).
 Instructions for running the React front-end—including npm scripts and required environment variables—are available in
 [docs/frontend_architecture.md](docs/frontend_architecture.md). That document also covers how the front-end communicates with the worker API via `NEXT_PUBLIC_API_BASE_URL` and how to run the Jest and Playwright test suites.
+Create the environment file with `cp frontend/.env.example frontend/.env` before running `npm run dev` or launching Docker.
 
 ## Main modules
 
@@ -165,6 +166,7 @@ The service exposes several endpoints:
 
 Make sure the service is running with `python worker.py` and that your
 front-end points to it via `NEXT_PUBLIC_API_BASE_URL` in `frontend/.env`.
+Create the environment file with `cp frontend/.env.example frontend/.env` before running `npm run dev` or launching Docker.
 Copy `frontend/.env.example` to `frontend/.env` if the file doesn't exist and
 adjust the URL as needed.
 
