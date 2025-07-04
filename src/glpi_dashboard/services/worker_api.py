@@ -32,6 +32,8 @@ from glpi_dashboard.services.aggregated_metrics import (
     compute_aggregated,
     cache_aggregated_metrics,
     get_cached_aggregated,
+    tickets_by_date,
+    tickets_daily_totals,
 )
 
 
@@ -209,6 +211,18 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
         metrics = compute_aggregated(df)
         await cache_aggregated_metrics(cache, "metrics_aggregated", metrics)
         return metrics
+
+    @app.get("/chamados/por-data")
+    async def chamados_por_data() -> list[dict]:  # noqa: F401
+        df = await _load_tickets(client=client, cache=cache)
+        result = tickets_by_date(df)
+        return result.to_dict(orient="records")
+
+    @app.get("/chamados/por-dia")
+    async def chamados_por_dia() -> list[dict]:  # noqa: F401
+        df = await _load_tickets(client=client, cache=cache)
+        result = tickets_daily_totals(df)
+        return result.to_dict(orient="records")
 
     @app.get("/cache/stats")
     async def cache_stats() -> dict:  # noqa: F401

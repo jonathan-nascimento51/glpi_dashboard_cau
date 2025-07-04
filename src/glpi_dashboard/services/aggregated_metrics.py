@@ -10,6 +10,22 @@ from glpi_dashboard.utils.redis_client import RedisClient, redis_client
 from glpi_dashboard.data.transform import aggregate_by_user
 
 
+def tickets_by_date(df: pd.DataFrame) -> pd.DataFrame:
+    """Return ticket counts grouped by ``date_creation``."""
+    if "date_creation" not in df.columns:
+        return pd.DataFrame(columns=["date", "total"])
+
+    counts = (
+        df["date_creation"].dropna().dt.strftime("%Y-%m-%d").value_counts().sort_index()
+    )
+    return counts.rename_axis("date").reset_index(name="total")
+
+
+def tickets_daily_totals(df: pd.DataFrame) -> pd.DataFrame:
+    """Return daily ticket totals for the heatmap."""
+    return tickets_by_date(df)
+
+
 def compute_aggregated(df: pd.DataFrame) -> Dict[str, Any]:
     """Return simple aggregated metrics from ``df``."""
     status_counts = (
