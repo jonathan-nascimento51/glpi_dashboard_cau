@@ -75,7 +75,8 @@ any scripts.
 ```
 
 The dashboard reads data produced by the worker and stored in PostgreSQL. More details on the multi-agent workflow can be found in
-[AGENTS.md](AGENTS.md).
+[AGENTS.md](AGENTS.md). A walkthrough of the `langgraph_workflow.py` module is
+available in [docs/langgraph_workflow.md](docs/langgraph_workflow.md).
 Instructions for running the React front-end—including npm scripts and required environment variables—are available in
 [docs/frontend_architecture.md](docs/frontend_architecture.md). That document also covers how the front-end communicates with the worker API via `NEXT_PUBLIC_API_BASE_URL` and how to run the Jest and Playwright test suites.
 
