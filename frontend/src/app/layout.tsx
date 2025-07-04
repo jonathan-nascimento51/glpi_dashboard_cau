@@ -1,9 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter, Roboto_Mono } from 'next/font/google'
 import React from 'react'
-import { SWRConfig } from 'swr'
-import { captureException } from '@sentry/nextjs'
-import { fetcher } from '@/lib/swrClient'
+import { SWRProvider } from './providers/SWRProvider'
 import './globals.css'
 import '../index.css'
 import { ReactQueryProvider } from './providers/ReactQueryProvider'
@@ -47,17 +45,9 @@ export default function RootLayout({
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <ProfilerProvider>
-          <SWRConfig
-            value={{
-              fetcher,
-              dedupingInterval: 10000,
-              refreshInterval: 30000,
-              revalidateOnFocus: true,
-              onError: (err) => captureException(err),
-            }}
-          >
+          <SWRProvider>
             <ReactQueryProvider>{children}</ReactQueryProvider>
-          </SWRConfig>
+          </SWRProvider>
         </ProfilerProvider>
       </body>
     </html>
