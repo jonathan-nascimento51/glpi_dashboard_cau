@@ -396,6 +396,7 @@ jest.mock('react-window', () => {
 
 Make sure your Jest configuration includes this setup file via
 `setupFilesAfterEnv`.
+
 ### \ud83d\udd0d Monitoramento de Performance
 
 O layout principal inclui um `React.Profiler` que registra a dura\u00e7\u00e3o de render no console durante o desenvolvimento. Quando `NODE_ENV` é `development`, a biblioteca `why-did-you-render` é carregada dinamicamente para apontar re-renderiza\u00e7\u00f5es desnecess\u00e1rias.
