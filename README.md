@@ -387,6 +387,21 @@ jest.mock('react-window', () => {
 
 Make sure your Jest configuration includes this setup file via
 `setupFilesAfterEnv`.
+### \ud83d\udd0d Monitoramento de Performance
+
+O layout principal inclui um `React.Profiler` que registra a dura\u00e7\u00e3o de render no console durante o desenvolvimento. Quando `NODE_ENV` é `development`, a biblioteca `why-did-you-render` é carregada dinamicamente para apontar re-renderiza\u00e7\u00f5es desnecess\u00e1rias.
+
+Em produ\u00e7\u00e3o, a fun\u00e7\u00e3o `reportWebVitals` envia as m\u00e9tricas **CLS**, **LCP**, **FCP** e **INP** para o Sentry. As builds de PR executam o workflow `performance.yml`, que roda o Lighthouse CI com os seguintes limites:
+
+- LCP < 3\u00a0s
+- TTI < 3.5\u00a0s
+- Total-Byte-Weight < 250\u00a0kB
+
+Gere flamegraphs locais com:
+
+```bash
+npm run perf:profile
+```
 
 ## CI
 

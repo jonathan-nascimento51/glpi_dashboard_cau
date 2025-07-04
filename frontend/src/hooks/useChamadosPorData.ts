@@ -1,4 +1,4 @@
-import useSWR from 'swr/core'
+import useSWR from 'swr'
 import { fetcher } from '../lib/swrClient'
 
 export interface ChamadoPorData {

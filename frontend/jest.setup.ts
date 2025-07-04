@@ -6,8 +6,10 @@ import '@testing-library/jest-dom'
 jest.mock(
   'react-window',
   () => {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
     const React = require('react')
-    function MockedList(props) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    function MockedList(props: any) {
       return React.createElement('div', null, props.children)
     }
 

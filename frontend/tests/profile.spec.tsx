@@ -28,7 +28,7 @@ class ResizeObserver {
   unobserve() {}
   disconnect() {}
 }
-// @ts-ignore
+// @ts-expect-error JSDOM lacks ResizeObserver
 global.ResizeObserver = ResizeObserver
 
 function measure(Component: React.ComponentType) {
@@ -51,13 +51,17 @@ type Results = {
 
 function profileComponents(useMemo: boolean): Results {
   const origMemo = React.memo
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   React.memo = useMemo ? origMemo : ((c: any) => c)
   jest.resetModules()
+  // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
   const DashMod = require('../src/pages/Dashboard')
   const Dashboard = DashMod.default ?? DashMod.Dashboard ?? DashMod
+  // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
   const TendMod = require('../src/components/ChamadosTendencia')
   const ChamadosTendencia =
     TendMod.ChamadosTendencia ?? TendMod.default ?? TendMod
+  // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
   const HeatMod = require('../src/components/ChamadosHeatmap')
   const ChamadosHeatmap = HeatMod.ChamadosHeatmap ?? HeatMod.default ?? HeatMod
   const res: Results = {

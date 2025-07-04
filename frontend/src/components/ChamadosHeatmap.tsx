@@ -5,10 +5,6 @@ import 'react-calendar-heatmap/dist/styles.css'
 
 function ChamadosHeatmapComponent() {
   const { dados, isLoading, error } = useChamadosPorDia()
-
-  if (isLoading) return <div>Carregando heatmap...</div>
-  if (error) return <div>Erro ao carregar dados do heatmap</div>
-
   const values = useMemo(
     () => dados.map((item) => ({ date: item.date, count: item.total })),
     [dados],
@@ -20,6 +16,9 @@ function ChamadosHeatmapComponent() {
     start.setFullYear(start.getFullYear() - 1)
     return { startDate: start, endDate: end }
   }, [])
+
+  if (isLoading) return <div>Carregando heatmap...</div>
+  if (error) return <div>Erro ao carregar dados do heatmap</div>
 
   return (
     <div className="bg-white dark:bg-gray-800 p-4 rounded shadow">
