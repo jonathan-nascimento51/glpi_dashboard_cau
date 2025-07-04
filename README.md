@@ -14,8 +14,8 @@ The goal is to inspect backlog, ticket status and productivity metrics without a
 
 Install dependencies and prepare the environment:
 
-You can run `./setup.sh` to install both `requirements.txt` and `requirements-dev.txt` in one step or
-execute the commands below manually.
+You can run `./setup.sh` to install all dependencies, set up the editable package
+and enable pre-commit hooks in one step or execute the commands below manually.
 
 ```bash
 python -m pip install --upgrade pip
