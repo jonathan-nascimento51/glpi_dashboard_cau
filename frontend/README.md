@@ -55,6 +55,36 @@ processing...
 [{"id": 1}]
 ```
 
+### Performance: List Virtualization
+
+Very large ticket lists can hurt rendering performance if every row is mounted at
+once. The `VirtualizedTicketTable` component automatically enables
+`react-window` when the data set contains **100 rows or more**. For smaller
+lists you may still use the component and tweak the threshold inside
+`VirtualizedTicketTable.tsx`.
+
+Example usage:
+
+```tsx
+<VirtualizedTicketTable rows={tickets} onRowClick={handleRowClick} />
+```
+
+During unit tests the virtualization layer is mocked so snapshots remain stable.
+`jest.setup.ts` registers the mock:
+
+```ts
+jest.mock('react-window', () => {
+  const React = require('react')
+  const MockedList = (props: any) => <div>{props.children}</div>
+  return {
+    FixedSizeList: MockedList,
+    VariableSizeList: MockedList,
+  }
+}, { virtual: true })
+```
+
+Make sure your Jest configuration includes this setup file via `setupFilesAfterEnv`.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
