@@ -336,10 +336,15 @@ This exposes the worker API on port `8000` and the dashboard on port `8080`.
 
 Execute the unit tests with coverage:
 
+Alternatively you can run `make test` to install dependencies and execute the
+suite in one step.
+
 ```bash
 pip install -r requirements.txt -r requirements-dev.txt
 pip install -e .  # ensure local package is discoverable during tests
 # the core suite relies on `aiohttp` and `pandas`
+# `make test` runs the same setup; running `pytest` directly requires these
+# dependencies to be installed beforehand
 # optional extras for e2e and container tests
 pip install testcontainers playwright
 # browser tests require Chrome/Chromedriver
