@@ -58,7 +58,7 @@ class Credentials(BaseModel):
         if auth_methods == 0:
             raise ValueError("Either user_token or username/password must be provided.")
         if auth_methods > 1:
-            logger.warning(
+            logger.debug(
                 "Both user_token and username/password provided. Prioritizing user_token."
             )
             values.username = None
@@ -288,6 +288,10 @@ class GLPISession:
         if self._session and not self._session.closed:
             await self._session.close()
             logger.info("aiohttp ClientSession closed.")
+
+    async def close(self) -> None:
+        """Public method to close the session without a context manager."""
+        await self.__aexit__(None, None, None)
 
     async def _kill_session(self) -> None:
         """Kills the current GLPI session by calling the killSession endpoint."""
