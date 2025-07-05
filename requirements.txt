@@ -25,3 +25,10 @@ pydantic-settings>=2.2
 opentelemetry-api>=1.24
 opentelemetry-sdk>=1.24
 opentelemetry-exporter-otlp-proto-http>=1.24
+gql[httpx]>=3.5
+dishka>=1.6
+pybreaker
+langgraph-checkpoint-sqlite
+prometheus-client
+tenacity>=8.2
+purgatory>=3.0
