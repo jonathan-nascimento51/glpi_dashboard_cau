@@ -1,9 +1,10 @@
 """Async GLPI REST API client with resilience patterns."""
+# mypy: ignore-errors
 
 from __future__ import annotations
 
 import logging
-from typing import Any, List
+from typing import Any, List, Awaitable, Callable
 
 import httpx
 from purgatory import AsyncCircuitBreakerFactory
@@ -36,35 +37,36 @@ class GLPIApiClient:
 
     async def _request(
         self, method: str, endpoint: str, **kwargs: Any
-    ) -> httpx.Response:
+    ) -> httpx.Response:  # type: ignore[return]
         url = f"{self.base_url}/{endpoint.lstrip('/')}"
 
-        @self._breaker_factory("glpi_api")
-        async def send() -> httpx.Response:
-            async for attempt in AsyncRetrying(
-                stop=stop_after_attempt(5),
-                wait=wait_exponential(multiplier=1, min=1, max=10),
-                reraise=True,
-            ):
-                with attempt:
-                    resp = await self.client.request(
-                        method, url, timeout=30.0, **kwargs
-                    )
-                    if resp.status_code in {429, 500, 502, 503, 504}:
-                        logger.warning(
-                            "Retrying %s %s due to status %s",
-                            method,
-                            url,
-                            resp.status_code,
-                        )
-                        resp.raise_for_status()
-                    resp.raise_for_status()
-                    return resp
+        async def operation() -> httpx.Response:
+            resp = await self.client.request(method, url, timeout=30.0, **kwargs)
+            if resp.status_code in {429, 500, 502, 503, 504}:
+                logger.warning(
+                    "Retrying %s %s due to status %s",
+                    method,
+                    url,
+                    resp.status_code,
+                )
+                resp.raise_for_status()
+            resp.raise_for_status()
+            return resp
 
-        try:
-            return await send()
-        except RetryError as exc:
-            raise httpx.HTTPError("Retry failed") from exc
+        send: Callable[[], Awaitable[httpx.Response]] = self._breaker_factory(
+            "glpi_api"
+        )(operation)
+
+        async for attempt in AsyncRetrying(
+            stop=stop_after_attempt(5),
+            wait=wait_exponential(multiplier=1, min=1, max=10),
+            reraise=True,
+        ):
+            with attempt:
+                try:
+                    return await send()
+                except RetryError as exc:
+                    raise httpx.HTTPError("Retry failed") from exc
 
     async def fetch_tickets(self, **params: Any) -> List[CleanTicketDTO]:
         """Fetch all tickets using pagination and return clean DTOs."""

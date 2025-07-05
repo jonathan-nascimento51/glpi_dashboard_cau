@@ -27,7 +27,19 @@ def setup_telemetry() -> None:
         return
 
     endpoint = os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT")
-    headers = os.getenv("OTEL_EXPORTER_OTLP_HEADERS")
+    raw_headers = os.getenv("OTEL_EXPORTER_OTLP_HEADERS", "")
+    headers = (
+        {
+            k: v
+            for k, v in (
+                item.split("=", 1)
+                for item in raw_headers.split(",")
+                if "=" in item
+            )
+        }
+        if raw_headers
+        else None
+    )
     service_name = os.getenv("OTEL_SERVICE_NAME", "glpi_dashboard_cau")
 
     exporter = OTLPMetricExporter(endpoint=endpoint, headers=headers)
