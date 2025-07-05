@@ -16,3 +16,4 @@ types-redis
 pytest-httpx
 aiohttp
 pandas
+pact-python
