@@ -1,21 +1,23 @@
+import asyncio
 import json
 import logging
 import os  # Importamos o módulo 'os' para ler as variáveis de ambiente
-from pathlib import Path
-from dotenv import load_dotenv
 import sys
-import asyncio
+from pathlib import Path
+
+from dotenv import load_dotenv
+
+from glpi_dashboard.logging_config import init_logging
 
 # Importa o cliente da API do seu projeto
 from glpi_dashboard.services.glpi_api_client import GlpiApiClient
 from glpi_dashboard.services.glpi_session import Credentials
-from glpi_dashboard.logging_config import setup_logging
 
 # Carrega as variáveis de ambiente do arquivo .env
 load_dotenv()
 
 # Configuração básica de logging
-setup_logging(logging.INFO)
+init_logging(logging.INFO)
 logger = logging.getLogger(__name__)
 
 if sys.platform.startswith("win"):

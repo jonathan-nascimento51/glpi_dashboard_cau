@@ -9,7 +9,7 @@ import pytest
 pytest.importorskip("aiohttp")
 import aiohttp
 
-from glpi_dashboard.logging_config import setup_logging
+from glpi_dashboard.logging_config import init_logging
 from glpi_dashboard.services import glpi_session
 from glpi_dashboard.services.glpi_session import (
     Credentials,
@@ -27,7 +27,7 @@ from glpi_dashboard.services.glpi_session import (
 @pytest.fixture(autouse=True)
 def _configure_logging() -> None:
     """Ensure logging is configured for tests."""
-    setup_logging()
+    init_logging()
 
 
 @pytest.fixture
