@@ -14,3 +14,5 @@ pytest-mock
 types-requests
 types-redis
 pytest-httpx
+aiohttp
+pandas
