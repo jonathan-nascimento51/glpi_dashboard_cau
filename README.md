@@ -236,6 +236,7 @@ POSTGRES_PASSWORD=$DB_PASSWORD
 - `REDIS_PORT` – Redis port
 - `REDIS_DB` – Redis database number
 - `REDIS_TTL_SECONDS` – TTL for cached responses in seconds
+- `LOG_LEVEL` – logging verbosity for backend and worker services (default `INFO`)
 - `LANGCHAIN_TRACING_V2` – set to `true` to enable LangSmith tracing
 - `LANGCHAIN_API_KEY` – API key used by LangSmith when tracing
 - `LANGCHAIN_PROJECT` – optional project name for tracing sessions
