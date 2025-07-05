@@ -8,7 +8,7 @@
 
 ## 💡 Visão Geral do Pipeline
 
-```
+```text
 A1 ▶ A2 ▶ A3 ▶ A4‑6 ▶ A7 ▶ A8 ▶ A9
 ```
 
@@ -47,6 +47,7 @@ Gerar automaticamente todo o boilerplate do projeto **GLPI Dashboard MVP**:
 4. `tests/` – pytest + requests-mock
 5. `.github/workflows/ci.yml` – CI Python 3.10/3.12
 ```
+
 > **Nota**: alguns documentos antigos mencionam `glpi_api.py`. O módulo foi consolidado como `glpi_session.py` e centraliza as chamadas à API.
 
 ---
@@ -91,7 +92,7 @@ Você é um engenheiro Python especializado em back-end REST.
 Criar `glpi_session.py` com funções de autenticação e coleta de tickets.
 ```
 
-*(Replicar para cada arquivo: data pipeline, layout, testes, CI).* 
+*(Replicar para cada arquivo: data pipeline, layout, testes, CI).*
 
 ---
 
@@ -194,7 +195,7 @@ Você atua como um Agente Validador de Código para pipelines de desenvolvimento
 O script `scripts/generate_bug_prompt.py` executa testes e lint, além de verificar conflitos de merge.
 Ele consolida tudo em um **prompt** para ser enviado a outros modelos de IA.
 
-```
+```bash
 python scripts/generate_bug_prompt.py --output bug_prompt.md
 ```
 

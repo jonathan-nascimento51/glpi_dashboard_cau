@@ -1,15 +1,19 @@
 # Título
+
 Supervisor Pattern em LangGraph: Modularização de Fluxos Multi-Agente
 
-# Introdução
+## Introdução
+
 O padrão *Supervisor* organiza agentes de LLM em fluxos controlados por estados. Ao desacoplar papéis e etapas, o arquiteto mantém visibilidade detalhada do percurso e possibilita a escalabilidade por adição de novos nós.
 
-# Vantagens
+## Vantagens
+
 - **Isolamento de responsabilidades**: cada agente executa uma função única, o que facilita a depuração.
 - **Rastreabilidade**: os estados do LangGraph registram contexto e ações, permitindo auditoria completa dos diálogos.
 - **Escalabilidade**: novos comportamentos podem ser inseridos como nós especializados, sem alterar a lógica principal.
 
-# Código
+## Código
+
 ```python
 from langgraph import Graph, Node
 from agents import Planner, Coder, Reviewer
@@ -29,13 +33,15 @@ if __name__ == "__main__":
     workflow.run({"spec": "Adicionar endpoint para métricas"})
 ```
 
-# Tabela de Boas Práticas
+## Tabela de Boas Práticas
+
 | Categoria | Prática Recomendada | Descrição Funcional |
 |-----------|--------------------|---------------------|
 | Serialização de estado | Persistir snapshots de contexto em estruturas imutáveis | Permite replay determinístico e simplifica testes |
 | Segurança de loops | Definir contador de ciclos ou TTL para cada fluxo | Evita loops infinitos e controla consumo de tokens |
 | Visualização de fluxo | Executar `print_ascii()` após configurar o grafo | Inspeciona a topologia e valida dependências |
 
-# Conclusão
+## Conclusão
+
 O Supervisor pattern em LangGraph simplifica a orquestração de múltiplos agentes de IA. Com estados bem definidos e acoplamento mínimo entre nós, a solução se torna robusta para aplicações corporativas que exigem rastreabilidade e fácil manutenção.
 Para padronizar os nomes de nós e chaves, consulte [naming_conventions_langgraph.md](naming_conventions_langgraph.md).

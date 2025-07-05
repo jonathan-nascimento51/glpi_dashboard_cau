@@ -317,7 +317,13 @@ Running `docker compose up` will build the image, initialize the database and st
 docker compose up
 ```
 
-The repository no longer includes a `docker-compose-dev.yml` file. If you come across instructions mentioning it, simply run the command above which uses `docker-compose.yml`.
+For local development you can use `docker-compose-dev.yml`, which mounts your source files with hot reload:
+
+```bash
+docker-compose -f docker-compose-dev.yml up --build
+```
+
+The frontend image takes advantage of BuildKit caching to speed up subsequent `npm ci` runs. Ensure BuildKit is enabled by setting `DOCKER_BUILDKIT=1`.
 
 This exposes the worker API on port `8000` and the dashboard on port `8080`.
 

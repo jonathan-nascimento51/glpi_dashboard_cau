@@ -9,13 +9,15 @@ ARG NO_PROXY
 ENV HTTP_PROXY=$HTTP_PROXY
 ENV HTTPS_PROXY=$HTTPS_PROXY
 ENV NO_PROXY=$NO_PROXY
+ENV NPM_CONFIG_CACHE=/root/.npm
 
 # Instalação de dependências do sistema operacional
 WORKDIR /app
 
 COPY package.json package-lock.json* ./
-# Use npm ci for reproducible installs and faster builds
-RUN npm ci --prefer-offline --no-audit --progress=false
+# Use BuildKit cache to speed up dependency installation
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci --prefer-offline --no-audit --progress=false
 
 COPY . .
 
