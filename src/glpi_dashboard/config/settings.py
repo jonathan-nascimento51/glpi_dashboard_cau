@@ -40,21 +40,11 @@ class Settings(BaseSettings):
 
     USE_MOCK_DATA: bool = False
 
-    knowledge_base_file: str = ""
-    database_url: str = ""
-    redis_url: str = ""
-    cache_type: str = ""
-    cache_redis_host: str = ""
-    cache_redis_port: str = ""
-    cache_redis_db: str = ""
-    cache_default_timeout: str = ""
-    codegpt_plus_api_key: str = ""
+    OTEL_EXPORTER_OTLP_ENDPOINT: str | None = os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT")
+    OTEL_EXPORTER_OTLP_HEADERS: str | None = os.getenv("OTEL_EXPORTER_OTLP_HEADERS")
+    OTEL_SERVICE_NAME: str = os.getenv("OTEL_SERVICE_NAME", "glpi_dashboard_cau")
 
-    model_config = SettingsConfigDict(
-        env_file=".env",
-        env_file_encoding="utf-8",
-        extra="ignore",
-    )
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
 
 @lru_cache()
@@ -94,3 +84,7 @@ FETCH_PAGE_SIZE = settings.FETCH_PAGE_SIZE
 MV_REFRESH_INTERVAL_MINUTES = settings.MV_REFRESH_INTERVAL_MINUTES
 
 USE_MOCK_DATA = settings.USE_MOCK_DATA
+
+OTEL_EXPORTER_OTLP_ENDPOINT = settings.OTEL_EXPORTER_OTLP_ENDPOINT
+OTEL_EXPORTER_OTLP_HEADERS = settings.OTEL_EXPORTER_OTLP_HEADERS
+OTEL_SERVICE_NAME = settings.OTEL_SERVICE_NAME
