@@ -1,0 +1,54 @@
+name: Contract Testing
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  consumer_tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install dependencies
+        run: |
+          cd frontend
+          npm ci
+      - name: Run consumer contract tests
+        run: |
+          cd frontend
+          npm test -- --runTestsByPath tests/contracts/glpi-consumer.pact.js
+      - name: Publish pacts
+        env:
+          PACT_BROKER_BASE_URL: ${{ secrets.PACT_BROKER_BASE_URL }}
+          PACT_BROKER_TOKEN: ${{ secrets.PACT_BROKER_TOKEN }}
+        run: |
+          cd frontend
+          npx pact-broker publish pacts \
+            --consumer-app-version=${{ github.sha }} \
+            --branch=${{ github.ref_name }} \
+            --broker-base-url=$PACT_BROKER_BASE_URL \
+            --broker-token=$PACT_BROKER_TOKEN
+
+  provider_verification:
+    runs-on: ubuntu-latest
+    needs: consumer_tests
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt -r requirements-dev.txt
+      - name: Verify provider against broker
+        env:
+          PACT_BROKER_URL: ${{ secrets.PACT_BROKER_BASE_URL }}
+          PACT_BROKER_TOKEN: ${{ secrets.PACT_BROKER_TOKEN }}
+        run: |
+          pytest tests/test_provider_glpi.py::test_verify_against_broker -q
