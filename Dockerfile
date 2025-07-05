@@ -1,6 +1,10 @@
+# =================================================================
+# Estágio 1: Builder - Instala dependências e prepara a aplicação
+# =================================================================
 FROM python:3.12-slim AS builder
 
-# Dependências obrigatórias para instalação do Playwright
+# 1. Instalar dependências do sistema
+# Playwright precisa de várias libs e Node.js
 RUN apt-get update && apt-get install -y \
     curl \
     wget \
@@ -29,33 +33,56 @@ RUN apt-get update && apt-get install -y \
     fonts-liberation \
     && rm -rf /var/lib/apt/lists/*
 
-# Instalar Node.js (recomendado para Playwright)
+# Instalar Node.js
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && apt-get install -y nodejs
-# Instalação Python
-RUN pip install --upgrade pip
 
-COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt --root-user-action=ignore
-
-# Instalar playwright explicitamente
-RUN pip install playwright --root-user-action=ignore
-RUN playwright install chromium --with-deps
-
-WORKDIR /app
+# 2. Criar ambiente virtual
 ENV VENV_PATH=/opt/venv
 RUN python -m venv $VENV_PATH
 ENV PATH="$VENV_PATH/bin:$PATH"
-COPY requirements.txt ./
+
+# 3. Instalar dependências Python (Otimizado para cache)
+WORKDIR /app
+# Copia PRIMEIRO os arquivos de definição de dependências.
+# Se eles não mudarem, o Docker reutiliza a camada de instalação.
+COPY requirements.txt pyproject.toml ./
+# Copie também o setup.sh se o pyproject.toml precisar dele imediatamente
+COPY setup.sh ./ 
+
+# Agora sim, instale as dependências. O pip encontrará os arquivos necessários.
+RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 
+# 4. Copiar o restante do código da aplicação
+COPY . .
+
+# 5. Instalar os browsers do Playwright
+# Isso é feito depois de copiar todo o código para garantir que qualquer config esteja presente
+RUN playwright install chromium --with-deps
+
+
+# =================================================================
+# Estágio 2: Final - Imagem de produção, limpa e enxuta
+# =================================================================
 FROM python:3.12-slim
+
+# Instalar apenas as dependências de sistema ESTRITAMENTE necessárias para rodar
 RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Copiar o ambiente virtual já pronto do estágio builder
 ENV VENV_PATH=/opt/venv
 COPY --from=builder $VENV_PATH $VENV_PATH
 ENV PATH="$VENV_PATH/bin:$PATH"
-WORKDIR /app
-COPY . .
+
+# Copiar a aplicação e os browsers instalados do estágio builder
+COPY --from=builder /app /app
+COPY --from=builder /root/.cache/ms-playwright /root/.cache/ms-playwright
+
 EXPOSE 8000
+
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
   CMD curl --fail http://localhost:8000/health/glpi || exit 1
+
 CMD ["python", "worker.py"]
