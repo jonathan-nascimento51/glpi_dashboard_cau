@@ -7,7 +7,7 @@ from typing import Any, List
 
 import httpx
 from purgatory import AsyncCircuitBreakerFactory
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from tenacity import AsyncRetrying, RetryError, stop_after_attempt, wait_exponential
 
 from .glpi_adapter import CleanTicketDTO, RawTicketDTO, convert_ticket
@@ -17,6 +17,8 @@ logger = logging.getLogger(__name__)
 
 class ClientParams(BaseModel):
     """Parameters for :class:`GLPIApiClient`."""
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     base_url: str = Field(..., description="Base URL for GLPI API")
     client: httpx.AsyncClient = Field(..., description="Injected HTTPX client")

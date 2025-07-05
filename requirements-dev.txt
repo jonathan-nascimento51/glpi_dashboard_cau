@@ -13,3 +13,4 @@ dash[testing]
 pytest-mock
 types-requests
 types-redis
+pytest-httpx
