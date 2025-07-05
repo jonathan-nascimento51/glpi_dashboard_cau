@@ -318,6 +318,10 @@ Running `docker compose up` will build the image, initialize the database and st
 docker compose up
 ```
 
+When using Docker Compose the Redis host should be `redis`. Set `REDIS_HOST`,
+`REDIS_URL` and `CACHE_REDIS_HOST` accordingly in your environment or `.env`
+file.
+
 For local development you can use `docker-compose-dev.yml`, which mounts your source files with hot reload:
 
 ```bash
