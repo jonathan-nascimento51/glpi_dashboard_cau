@@ -26,22 +26,9 @@ dependencies = [
     "Flask-Caching>=2.1",
     "flask-compress",
     "langgraph>=0.0.22",
-    "gql[httpx]>=3.5",
-    "dishka>=1.6",
-    "pydantic>=2.7",
-    "pydantic-settings>=2.2",
-    "tenacity>=8.2",
-    "purgatory>=3.0",
-]
-
-[project.optional-dependencies]
-dev = [
-    "pytest",
-    "pytest-cov",
-    "pytest-asyncio",
-    "black",
-    "mypy",
-    "ruff",
+    "opentelemetry-api>=1.24",
+    "opentelemetry-sdk>=1.24",
+    "opentelemetry-exporter-otlp-proto-http>=1.24",
 ]
 
 [tool.setuptools]
