@@ -1,12 +1,12 @@
 """Dash app using live GLPI data."""
 
+import logging
 import os
+
 import pandas as pd
 from dash import Dash
 from flask import Flask
 from flask_caching import Cache
-import logging
-import os
 
 from glpi_dashboard.config.settings import (
     GLPI_APP_TOKEN,
@@ -16,13 +16,13 @@ from glpi_dashboard.config.settings import (
     GLPI_USERNAME,
     USE_MOCK_DATA,
 )
+from glpi_dashboard.dashboard.callbacks import register_callbacks
+from glpi_dashboard.dashboard.layout import build_layout
 from glpi_dashboard.data.pipeline import process_raw
+from glpi_dashboard.logging_config import init_logging
+from glpi_dashboard.services.exceptions import GLPIAPIError
 from glpi_dashboard.services.glpi_api_client import GlpiApiClient
 from glpi_dashboard.services.glpi_session import Credentials
-from glpi_dashboard.services.exceptions import GLPIAPIError
-from glpi_dashboard.logging_config import setup_logging
-from glpi_dashboard.dashboard.layout import build_layout
-from glpi_dashboard.dashboard.callbacks import register_callbacks
 
 app = Flask(__name__)
 cache = Cache(
@@ -39,7 +39,7 @@ cache = Cache(
     },
 )  # ou o tipo que você usa
 
-setup_logging(os.getenv("LOG_LEVEL"))
+init_logging(os.getenv("LOG_LEVEL"))
 
 
 @cache.memoize(timeout=300)

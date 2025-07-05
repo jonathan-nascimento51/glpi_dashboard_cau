@@ -35,6 +35,7 @@ dependencies = [
     "pydantic-settings>=2.2",
     "tenacity>=8.2",
     "purgatory>=3.0",
+    "loguru>=0.7",
 ]
 
 [project.optional-dependencies]
