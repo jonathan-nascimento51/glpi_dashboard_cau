@@ -1,15 +1,5 @@
 FROM python:3.12-slim AS builder
 
-# Declare os argumentos recebidos do docker-compose
-# ARG HTTP_PROXY
-# ARG HTTPS_PROXY
-# ARG NO_PROXY
-
-# # Defina as variáveis de ambiente para que os comandos RUN as utilizem
-# ENV HTTP_PROXY=$HTTP_PROXY
-# ENV HTTPS_PROXY=$HTTPS_PROXY
-# ENV NO_PROXY=$NO_PROXY
-
 # Dependências obrigatórias para instalação do Playwright
 RUN apt-get update && apt-get install -y \
     curl \
