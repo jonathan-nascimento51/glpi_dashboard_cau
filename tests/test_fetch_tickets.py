@@ -1,4 +1,6 @@
 import json
+import os
+import tempfile
 
 import pytest
 
@@ -52,3 +54,48 @@ async def test_fetch_and_save_bad_payload(monkeypatch, tmp_path):
         data = json.load(f)
     assert data[0]["id"] == 0
     assert data[0].get("status") == ""
+
+
+def test_fetch_raw_data_missing_env(monkeypatch, caplog):
+    """The script should log an error and abort when credentials are absent."""
+
+    monkeypatch.delenv("GLPI_BASE_URL", raising=False)
+    monkeypatch.delenv("GLPI_APP_TOKEN", raising=False)
+    monkeypatch.delenv("GLPI_USER_TOKEN", raising=False)
+
+    def fail(*_a, **_kw):  # pragma: no cover - should not be called
+        raise AssertionError("network call attempted")
+
+    monkeypatch.setattr(fetch_tickets, "GlpiApiClient", fail)
+
+    caplog.set_level("ERROR")
+    fetch_tickets.fetch_raw_data()
+    assert "vari\u00e1veis de ambiente" in caplog.text
+
+
+@pytest.mark.asyncio
+async def test_fetch_and_save_tempfile(monkeypatch):
+    """Use tempfile.NamedTemporaryFile to validate JSON output."""
+
+    class FakeSession:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            pass
+
+        def get_all(self, *args, **kwargs):
+            return [{"id": 1, "status": "new"}]
+
+    monkeypatch.setattr(fetch_tickets, "GlpiApiClient", lambda *a, **k: FakeSession())
+
+    with tempfile.NamedTemporaryFile(delete=False) as tmp:
+        out_path = tmp.name
+
+    try:
+        await fetch_tickets.fetch_and_save(output=out_path)
+        with open(out_path) as f:
+            data = json.load(f)
+        assert data == [{"id": 1, "status": "new"}]
+    finally:
+        os.remove(out_path)
