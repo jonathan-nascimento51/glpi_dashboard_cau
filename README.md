@@ -328,6 +328,10 @@ For local development you can use `docker-compose-dev.yml`, which mounts your so
 docker-compose -f docker-compose-dev.yml up --build
 ```
 
+The development compose file also sets Prometheus to `--log.level=warn` so only
+warnings and errors appear in the logs. Adjust the command in
+`docker-compose-dev.yml` if you need more verbose Prometheus output.
+
 The frontend image takes advantage of BuildKit caching to speed up subsequent `npm ci` runs. Ensure BuildKit is enabled by setting `DOCKER_BUILDKIT=1`.
 
 This exposes the worker API on port `8000` and the dashboard on port `8080`.

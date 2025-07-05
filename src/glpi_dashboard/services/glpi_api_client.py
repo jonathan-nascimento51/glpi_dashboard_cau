@@ -78,7 +78,8 @@ class GlpiApiClient:
 
     def __exit__(self, exc_type, exc, tb) -> None:
         if self._session is not None and self._loop is not None:
-            self._loop.run_until_complete(self._session.close())
+            if hasattr(self._session, "close"):
+                self._loop.run_until_complete(self._session.close())
             self._loop.close()
             self._session = None
             self._loop = None
