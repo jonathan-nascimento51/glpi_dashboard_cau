@@ -54,6 +54,17 @@ class CleanTicketDTO(BaseModel):
 
 
 def _parse_int(value: Any, field: str, ticket_id: Any) -> int:
+    """Coerce ``value`` to ``int`` with warning fallback.
+
+    Args:
+        value: Raw value from the payload.
+        field: Name of the field being parsed.
+        ticket_id: Identifier of the ticket for context in logs.
+
+    Returns:
+        Parsed integer or ``0`` if invalid.
+    """
+
     try:
         return int(value)
     except (TypeError, ValueError):
@@ -65,7 +76,17 @@ E = TypeVar("E", bound="_BaseIntEnum")
 
 
 def _parse_enum(value: Any, enum: Type[E], field: str, ticket_id: Any) -> E:
-    """Convert ``value`` to ``enum`` using ``from_int`` with warnings."""
+    """Convert ``value`` to ``enum`` with safe fallback.
+
+    Args:
+        value: Raw integer value.
+        enum: Enumeration type to convert to.
+        field: Name of the field being parsed.
+        ticket_id: Identifier of the ticket for context in logs.
+
+    Returns:
+        Parsed enum member, defaulting to ``UNKNOWN`` if invalid.
+    """
 
     if value is None:
         logger.warning("Missing %s for ticket %r", field, ticket_id)
@@ -78,6 +99,17 @@ def _parse_enum(value: Any, enum: Type[E], field: str, ticket_id: Any) -> E:
 
 
 def _parse_date(value: Any, field: str, ticket_id: Any) -> datetime | None:
+    """Parse date strings into ``datetime`` objects.
+
+    Args:
+        value: Raw date string from the payload.
+        field: Name of the field being parsed.
+        ticket_id: Identifier of the ticket for context in logs.
+
+    Returns:
+        ``datetime`` instance or ``None`` if parsing fails.
+    """
+
     if value in (None, ""):
         logger.warning("Missing %s for ticket %r", field, ticket_id)
         return None
@@ -91,7 +123,14 @@ def _parse_date(value: Any, field: str, ticket_id: Any) -> datetime | None:
 
 
 def convert_ticket(raw: RawTicketDTO) -> CleanTicketDTO:
-    """Convert a raw GLPI ticket to a domain model."""
+    """Convert a raw GLPI ticket to a domain model.
+
+    Args:
+        raw: Ticket payload as received from the API.
+
+    Returns:
+        ``CleanTicketDTO`` with validated and coerced fields.
+    """
 
     ticket_id = raw.id
     id_int = _parse_int(ticket_id, "id", ticket_id)
