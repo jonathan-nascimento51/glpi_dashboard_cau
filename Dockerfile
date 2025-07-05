@@ -1,17 +1,56 @@
 FROM python:3.12-slim AS builder
 
 # Declare os argumentos recebidos do docker-compose
-ARG HTTP_PROXY
-ARG HTTPS_PROXY
-ARG NO_PROXY
+# ARG HTTP_PROXY
+# ARG HTTPS_PROXY
+# ARG NO_PROXY
 
-# Defina as variáveis de ambiente para que os comandos RUN as utilizem
-ENV HTTP_PROXY=$HTTP_PROXY
-ENV HTTPS_PROXY=$HTTPS_PROXY
-ENV NO_PROXY=$NO_PROXY
+# # Defina as variáveis de ambiente para que os comandos RUN as utilizem
+# ENV HTTP_PROXY=$HTTP_PROXY
+# ENV HTTPS_PROXY=$HTTPS_PROXY
+# ENV NO_PROXY=$NO_PROXY
 
-# Instalação de dependências do sistema operacional
-RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+# Dependências obrigatórias para instalação do Playwright
+RUN apt-get update && apt-get install -y \
+    curl \
+    wget \
+    gnupg \
+    libnss3 \
+    libnspr4 \
+    libatk1.0-0 \
+    libatk-bridge2.0-0 \
+    libcups2 \
+    libdbus-1-3 \
+    libxkbcommon0 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxfixes3 \
+    libxrandr2 \
+    libgbm1 \
+    libpango-1.0-0 \
+    libcairo2 \
+    libasound2 \
+    libatspi2.0-0 \
+    libgtk-3-0 \
+    libx11-xcb1 \
+    libx11-6 \
+    libxshmfence1 \
+    xvfb \
+    fonts-liberation \
+    && rm -rf /var/lib/apt/lists/*
+
+# Instalar Node.js (recomendado para Playwright)
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && apt-get install -y nodejs
+# Instalação Python
+RUN pip install --upgrade pip
+
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt --root-user-action=ignore
+
+# Instalar playwright explicitamente
+RUN pip install playwright --root-user-action=ignore
+RUN playwright install chromium --with-deps
+
 WORKDIR /app
 ENV VENV_PATH=/opt/venv
 RUN python -m venv $VENV_PATH
