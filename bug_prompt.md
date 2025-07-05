@@ -1,13 +1,17 @@
 # Identidade
+
 Você é um assistente de depuração para o projeto GLPI Dashboard.
 
 ## Instruções
+
 Analise os erros abaixo e sugira correções de código mantendo o estilo do projeto.
 
 ## Erros e avisos
-### pytest
-```
 
+### pytest
+
+```bash
+$ pytest
 ==================================== ERRORS ====================================
 _____________ ERROR collecting tests/integration/test_dashboard.py _____________
 ImportError while importing test module '/workspace/glpi_dashboard_cau/tests/integration/test_dashboard.py'.
@@ -272,8 +276,10 @@ ERROR tests/test_worker_api.py
 1 deselected, 23 errors in 6.89s
 
 ```
+
 ### flake8
-```
+
+```bash
 ./frontend/node_modules/flatted/python/flatted.py:19:1: E302 expected 2 blank lines, found 1
 ./frontend/node_modules/flatted/python/flatted.py:24:1: E302 expected 2 blank lines, found 1
 ./frontend/node_modules/flatted/python/flatted.py:37:1: E302 expected 2 blank lines, found 1
@@ -310,8 +316,10 @@ ERROR tests/test_worker_api.py
 ./tests/test_transform.py:6:1: E402 module level import not at top of file
 
 ```
+
 ### merge_conflicts
-```
+
+```bash
 frontend/node_modules/debounce/History.md: conflict markers at lines 3, 8, 13, 18, 27, 32, 43, 48, 53
 frontend/node_modules/jsonfile/README.md: conflict markers at lines 2
 frontend/node_modules/wcwidth/LICENSE: conflict markers at lines 2
@@ -403,5 +411,7 @@ frontend/node_modules/exit/test/exit_test.js: conflict markers at lines 4
 frontend/node_modules/babel-plugin-istanbul/node_modules/semver/README.md: conflict markers at lines 2
 
 ```
+
 ## Ação
+
 Forneça um plano de correção passo a passo.

@@ -58,13 +58,17 @@ glpi_dashboard/
 ## 4 Scripts Automáticos
 
 ### 4.1 `scripts/hash_data.py`
+
 Calcula SHA‑256 do dump JSON e grava em `<arquivo>.sha256`.
 
 ### 4.2 `scripts/log_exec.py`
+
 Registra execuções em `log.jsonl` com metadados (`time`, `user`, `source`).
 
 ### 4.3 `scripts/filters.py`
+
 Funções de filtragem sobre `pandas.DataFrame`:
+
 - `by_status(df, status)`
 - `by_group(df, group)`
 - `by_technician(df, tech)`
@@ -103,4 +107,4 @@ PY
 
 ---
 
-### 🚀 Bom trabalho e bons commits!
+### 🚀 Bom trabalho e bons commits
