@@ -16,8 +16,10 @@ services:
       HTTPS_PROXY: ${HTTPS_PROXY}
       NO_PROXY: ${NO_PROXY}
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     ports:
       - "8001:8000"
   frontend:
@@ -38,6 +40,9 @@ services:
       - HTTP_PROXY=${HTTP_PROXY}
       - HTTPS_PROXY=${HTTPS_PROXY}
       - NO_PROXY=${NO_PROXY}
+    depends_on:
+      backend:
+        condition: service_healthy
   db:
     image: postgres:15-alpine
     environment:
