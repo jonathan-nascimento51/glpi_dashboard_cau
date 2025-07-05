@@ -14,7 +14,8 @@ ENV NO_PROXY=$NO_PROXY
 WORKDIR /app
 
 COPY package.json package-lock.json* ./
-RUN npm install
+# Use npm ci for reproducible installs and faster builds
+RUN npm ci --prefer-offline --no-audit --progress=false
 
 COPY . .
 

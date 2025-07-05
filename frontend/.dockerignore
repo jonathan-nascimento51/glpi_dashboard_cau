@@ -1,0 +1,13 @@
+# Exclude node_modules to speed up Docker builds
+node_modules
+.next
+coverage
+playwright-report
+*.log
+.env*
+Dockerfile*
+.git
+# Reuse same patterns from project root for consistency
+*.md
+docs/
+tests/
