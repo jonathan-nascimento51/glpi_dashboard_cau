@@ -2,19 +2,13 @@ services:
   backend:
     build:
       context: .
-      args:
-        # - HTTP_PROXY=${HTTP_PROXY}
-        # - HTTPS_PROXY=${HTTPS_PROXY}
-        # - NO_PROXY=${NO_PROXY}
+      dockerfile: Dockerfile
     command: uvicorn src.glpi_dashboard.services.worker_api:app --host 0.0.0.0 --port 8000 --reload
     volumes:
       - ./src:/app/src
     env_file: .env
     environment:
       PYTHONPATH: /app/src
-      # HTTP_PROXY: ${HTTP_PROXY}
-      # HTTPS_PROXY: ${HTTPS_PROXY}
-      # NO_PROXY: ${NO_PROXY}
     depends_on:
       db:
         condition: service_healthy
@@ -25,21 +19,10 @@ services:
   frontend:
     build:
       context: ./frontend
-      args:
-        # - HTTP_PROXY=${HTTP_PROXY}
-        # - HTTPS_PROXY=${HTTPS_PROXY}
-        # - NO_PROXY=${NO_PROXY}
     command: npm run dev
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
     env_file: ./frontend/.env
     ports:
       - '3000:3000'
-    environment:
-      # - HTTP_PROXY=${HTTP_PROXY}
-      # - HTTPS_PROXY=${HTTPS_PROXY}
-      # - NO_PROXY=${NO_PROXY}
     depends_on:
       backend:
         condition: service_healthy
