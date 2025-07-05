@@ -3,7 +3,8 @@
 Copie o bloco abaixo inteiro no GPT‑4 (navegação ativa) para obter um **plano macro**:
 
 ---
-```
+
+```text
 Contexto:
 - Projeto: Dashboard GLPI que consome API interna.
 - Ambiente: Repositório git github.com/<org>/glpi_dashboard
@@ -25,9 +26,14 @@ Tabela | Mitigação
 ```yaml
 # ...
 ```
+
 ## Roadmap
+
 Bullet list
+
 ## Fluxograma
+
 Mermaid diagram
+
 ```
 ---
