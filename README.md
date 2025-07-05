@@ -318,6 +318,16 @@ Running `docker compose up` will build the image, initialize the database and st
 docker compose up
 ```
 
+Before launching the compose stack make sure the root environment file exists.
+Create one from the template if needed:
+
+```bash
+cp .env.example .env
+```
+
+If the file is missing the backend falls back to `REDIS_HOST=localhost` which
+prevents communication with the `redis` container.
+
 When using Docker Compose the Redis host should be `redis`. Set `REDIS_HOST`,
 `REDIS_URL` and `CACHE_REDIS_HOST` accordingly in your environment or `.env`
 file.
