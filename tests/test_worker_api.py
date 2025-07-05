@@ -7,6 +7,7 @@ from fastapi.testclient import TestClient
 
 from glpi_dashboard.services.exceptions import GLPIUnauthorizedError
 from worker import create_app
+from prometheus_client import CONTENT_TYPE_LATEST
 
 sys.modules.setdefault(
     "langgraph.checkpoint.sqlite", types.ModuleType("langgraph.checkpoint.sqlite")
@@ -284,3 +285,38 @@ def test_health_glpi_auth_failure(
     assert data["status"] == "error"
     assert data["message"] == "GLPI connection failed"
     assert "unauthorized" in data["details"]
+
+
+def test_breaker_content_type(dummy_cache: DummyCache):
+    client = TestClient(create_app(client=FakeSession(), cache=dummy_cache))
+    resp = client.get("/breaker")
+    assert resp.status_code == 200
+    assert resp.headers["content-type"] == CONTENT_TYPE_LATEST
+
+
+def test_cache_metrics_legacy(dummy_cache: DummyCache):
+    client = TestClient(create_app(client=FakeSession(), cache=dummy_cache))
+    client.get("/tickets")
+    legacy = client.get("/cache-metrics")
+    stats = client.get("/cache/stats")
+    assert legacy.status_code == 200
+    assert legacy.json() == stats.json()
+
+
+def test_metrics_aggregated_cache(dummy_cache: DummyCache):
+    session = FakeSession()
+    client = TestClient(create_app(client=session, cache=dummy_cache))
+    first = client.get("/metrics/aggregated").json()
+
+    def later_data(*args, **kwargs):
+        return [
+            {"id": 99, "date_creation": "2024-07-01"}
+        ]
+
+    session.get_all = later_data  # type: ignore[assignment]
+    second = client.get("/metrics/aggregated").json()
+
+    assert first == second
+    stats = client.get("/cache/stats").json()
+    assert stats["hits"] >= 1
+    assert stats["misses"] >= 2
