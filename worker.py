@@ -6,6 +6,8 @@ former ``src.glpi_dashboard`` path.
 
 import os
 
+from glpi_dashboard.logging_config import init_logging
+from glpi_dashboard.services.glpi_api_client import GlpiApiClient
 from glpi_dashboard.services.worker_api import (
     create_app,
 )
@@ -13,8 +15,6 @@ from glpi_dashboard.services.worker_api import main as _main
 from glpi_dashboard.services.worker_api import (
     redis_client,
 )
-from src.glpi_dashboard.logging_config import init_logging
-from src.glpi_dashboard.services.glpi_api_client import GlpiApiClient
 
 __all__ = ["create_app", "redis_client", "GlpiApiClient", "main"]
 
