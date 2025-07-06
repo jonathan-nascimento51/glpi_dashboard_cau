@@ -1,6 +1,10 @@
 #!/bin/bash
 set -euo pipefail
 
+# Controle de instalação de Playwright/Chromium
+# Defina SKIP_PLAYWRIGHT=true para pular a instalação (ex: em builds Docker)
+SKIP_PLAYWRIGHT=${SKIP_PLAYWRIGHT:-true}
+
 echo ">>> INICIANDO CONFIGURAÇÃO COMPLETA DO AMBIENTE <<<"
 
 echo ">>> (1/6) Instalando dependências do sistema para o Playwright..."
@@ -38,17 +42,24 @@ else
 fi
 
 echo ">>> (6/6) Instalando Docker..."
-sudo apt-get update -y
-sudo apt-get install -y \
-    ca-certificates curl gnupg lsb-release
+sudo apt-get install -y ca-certificates curl gnupg lsb-release
 sudo mkdir -p /etc/apt/keyrings
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 sudo apt-get update -y
 curl -fsSL https://get.docker.com | sudo sh
 
-# Remova esta linha se não for necessária:
-# sudo usermod -aG docker "${USER:-$(whoami)}"
+# sudo usermod -aG docker "${USER:-$(whoami)}"  # Desnecessário no Codex
+
+# Instalação opcional do Playwright/Chromium
+if [ "$SKIP_PLAYWRIGHT" = "false" ]; then
+  echo ">>> Instalando o browser Chromium para o Playwright..."
+  npx playwright install --with-deps chromium < /dev/null \
+    && echo "✅ Chromium instalado." \
+    || { echo "❌ Falha na instalação do Chromium"; exit 1; }
+else
+  echo "⚠️ SKIP_PLAYWRIGHT=true — pulando instalação do Chromium."
+fi
 
 echo "✅ Etapas concluídas com sucesso:"
 echo "  - Dependências do sistema instaladas"
@@ -56,3 +67,4 @@ echo "  - Ambiente virtual criado e ativado"
 echo "  - Dependências Python instaladas"
 echo "  - Ganchos de pre-commit configurados"
 echo "  - Docker instalado"
+echo "  - Chromium instalado (se aplicável)"
