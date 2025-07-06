@@ -5,11 +5,7 @@
     "module": "es2015",
     "esModuleInterop": true,
     "verbatimModuleSyntax": false,
-    "types": ["jest", "@testing-library/jest-dom"],
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*"]
-    }
+    "types": ["jest", "@testing-library/jest-dom"]
   },
   "include": ["src/**/*", "tests/**/*"]
 }
