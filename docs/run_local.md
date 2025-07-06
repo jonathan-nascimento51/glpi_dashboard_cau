@@ -92,3 +92,17 @@ python main.py
 
 The application will start at <http://127.0.0.1:8050>. Check the logs for any
 connection errors when running in online mode.
+
+## Offline Docker images
+
+In restricted environments you may need to load Docker images without internet
+access. Use `scripts/save_docker_images.sh` on a machine that can reach the
+registry:
+
+```bash
+./scripts/save_docker_images.sh images.tar
+docker load -i images.tar
+```
+
+Refer to the [Docker offline](../README.md#docker-offline) section in the main
+README for additional context.
