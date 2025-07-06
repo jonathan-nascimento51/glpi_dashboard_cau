@@ -21,9 +21,9 @@ test('ChamadosTendencia loading', () => {
 })
 
 test('ChamadosTendencia error', () => {
-  mockedData.useChamadosPorData.mockReturnValue({ dados: [], isLoading: false, error: new Error('tendencia fail') })
+  mockedData.useChamadosPorData.mockReturnValue({ dados: [], isLoading: false, error: new Error('x') })
   render(<ChamadosTendencia />)
-  expect(screen.getByText('tendencia fail')).toBeInTheDocument()
+  expect(screen.getByText('Erro ao carregar dados de tendência')).toBeInTheDocument()
 })
 
 test('ChamadosHeatmap success', () => {
@@ -37,4 +37,3 @@ test('ChamadosHeatmap error', () => {
   render(<ChamadosHeatmap />)
   expect(screen.getByText('Erro ao carregar dados do heatmap')).toBeInTheDocument()
 })
-
