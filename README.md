@@ -102,6 +102,35 @@ pre-commit install  # sets up hooks for black, ruff, isort and mypy
 
 This project also uses the `rich-click` library for colored CLI output. It is included in `requirements.txt`.
 
+## Installing Dependencies Behind a Proxy or Offline
+
+If your machine needs a proxy to reach PyPI, export the proxy variables before
+invoking `pip`:
+
+```bash
+export HTTP_PROXY=http://proxy.company.com:8080
+export HTTPS_PROXY=$HTTP_PROXY
+pip install -r requirements.txt -r requirements-dev.txt
+```
+
+On a machine with internet access you can pre-download the wheels needed by the
+project:
+
+```bash
+mkdir wheels
+pip download -d wheels -r requirements.txt -r requirements-dev.txt
+```
+
+Copy the `wheels/` directory to the target environment and install everything
+without contacting PyPI:
+
+```bash
+pip install --no-index --find-links=/path/to/wheels -r requirements.txt
+```
+
+More setup tips—including offline usage with mock data—are documented in
+[docs/glpi_tokens_guide.md](docs/glpi_tokens_guide.md).
+
 ## Running the Dash app
 
 Start the dashboard pointing to your GLPI instance:
