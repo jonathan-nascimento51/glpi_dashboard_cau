@@ -45,3 +45,22 @@ if __name__ == "__main__":
 
 O Supervisor pattern em LangGraph simplifica a orquestração de múltiplos agentes de IA. Com estados bem definidos e acoplamento mínimo entre nós, a solução se torna robusta para aplicações corporativas que exigem rastreabilidade e fácil manutenção.
 Para padronizar os nomes de nós e chaves, consulte [naming_conventions_langgraph.md](naming_conventions_langgraph.md).
+
+## Quando aplicar o padrão
+
+Empregue o Supervisor pattern sempre que for necessário direcionar dinamicamente a execução para agentes especializados ou recuperar de falhas sem interromper o fluxo principal. Ele se mostra útil em pipelines que exigem auditabilidade de cada passo e na expansão de comportamentos por meio de novos nós.
+
+### Exemplo completo
+
+O módulo [`langgraph_workflow.py`](src/glpi_dashboard/services/langgraph_workflow.py) demonstra o padrão em ação. Compile e execute o grafo com o comando abaixo:
+
+```bash
+PYTHONPATH=src python - <<'PY'
+from glpi_dashboard.services.langgraph_workflow import build_workflow
+wf = build_workflow().compile()
+state = {"messages": ["fetch"], "next_agent": "", "iteration_count": 0}
+print(wf.invoke(state)["messages"][-1])
+PY
+```
+
+Esse trecho utiliza o Supervisor para decidir qual nó executa em seguida e retorna `fetched tickets` quando a chamada à API é concluída com sucesso.
