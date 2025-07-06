@@ -59,7 +59,7 @@ function profileComponents(useMemo: boolean): Results {
   React.memo = useMemo ? origMemo : ((c: any) => c)
   jest.resetModules()
   // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
-  const DashMod = require('../src/pages/Dashboard')
+  const DashMod = require('../src/features/tickets/TicketStatsPage')
   const Dashboard = DashMod.default ?? DashMod.Dashboard ?? DashMod
   // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
   const TendMod = require('../src/components/ChamadosTendencia')
