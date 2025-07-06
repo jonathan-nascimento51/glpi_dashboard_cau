@@ -1,5 +1,6 @@
 """Anti-Corruption Layer for the GLPI dashboard."""
 
+from .mapping_service import MappingService
 from .normalization import FIELD_ALIASES, REQUIRED_FIELDS, process_raw
 from .ticket_models import (
     CleanTicketDTO,
@@ -24,4 +25,5 @@ __all__ = [
     "process_raw",
     "FIELD_ALIASES",
     "REQUIRED_FIELDS",
+    "MappingService",
 ]
