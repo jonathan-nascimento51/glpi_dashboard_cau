@@ -1,6 +1,6 @@
 /* eslint-disable react/display-name */
 import React, { useCallback, useMemo, useRef, useState } from 'react'
-import { FixedSizeList, ListChildComponentProps } from 'react-window'
+import { FixedSizeList, type ListChildComponentProps } from 'react-window'
 
 const priorityClasses: Record<string, string> = {
   'Very High': 'text-red-700',
