@@ -3,9 +3,12 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        SKIP_PLAYWRIGHT: "true"
     command: uvicorn src.glpi_dashboard.services.worker_api:app --host 0.0.0.0 --port 8000 --reload
     volumes:
       - ./src:/app/src
+      - playwright-cache:/root/.cache/ms-playwright
     env_file: .env
     environment:
       PYTHONPATH: /app/src
@@ -16,16 +19,18 @@ services:
         condition: service_healthy
     ports:
       - "8001:8000"
+
   frontend:
     build:
       context: ./frontend
     command: npm run dev
     env_file: ./frontend/.env
     ports:
-      - '3000:3000'
+      - "3000:3000"
     depends_on:
       backend:
         condition: service_healthy
+
   db:
     image: postgres:15-alpine
     environment:
@@ -37,21 +42,21 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
     healthcheck:
-      # use the same database defined in POSTGRES_DB
-      # specify -d to avoid defaulting to the user name
       test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER}", "-d", "${POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
       retries: 5
+
   redis:
     image: redis:7-alpine
     ports:
-      - '6379:6379'
+      - "6379:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
+
   prometheus:
     image: prom/prometheus:latest
     command:
@@ -60,16 +65,19 @@ services:
     volumes:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
-      - '9090:9090'
+      - "9090:9090"
     depends_on:
       - backend
+
   grafana:
     image: grafana/grafana:latest
     environment:
       - GF_LOG_LEVEL=warn
     ports:
-      - '3001:3000'
+      - "3001:3000"
     depends_on:
       - prometheus
+
 volumes:
   db_data:
+  playwright-cache:
