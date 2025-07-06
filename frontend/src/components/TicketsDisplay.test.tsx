@@ -44,33 +44,41 @@ describe('TicketsDisplay Component', () => {
     render(<TicketsDisplay />)
 
     expect(screen.getByRole('status')).toBeInTheDocument()
+    expect(screen.getByText(/carregando/i)).toBeInTheDocument()
   })
 
   it('deve exibir uma mensagem de erro se a busca falhar', () => {
+    const refreshSpy = jest.fn()
     useTicketsMock.mockReturnValue({
       tickets: undefined,
       error: new Error('Falha na API'),
       isLoading: false,
-      refreshTickets: jest.fn(),
+      refreshTickets: refreshSpy,
     })
 
     render(<TicketsDisplay />)
 
     expect(screen.getByText(/erro ao carregar os chamados/i)).toBeInTheDocument()
     expect(screen.getByText(/falha na api/i)).toBeInTheDocument()
+    const retryBtn = screen.getByRole('button', { name: /tentar novamente/i })
+    retryBtn.click()
+    expect(refreshSpy).toHaveBeenCalled()
   })
 
   it('deve exibir uma mensagem de "nenhum chamado encontrado" se a API retornar uma lista vazia', () => {
+    const refreshSpy = jest.fn()
     useTicketsMock.mockReturnValue({
       tickets: [],
       error: undefined,
       isLoading: false,
-      refreshTickets: jest.fn(),
+      refreshTickets: refreshSpy,
     })
 
     render(<TicketsDisplay />)
 
     expect(screen.getByText(/nenhum chamado encontrado/i)).toBeInTheDocument()
+    screen.getByRole('button', { name: /atualizar/i }).click()
+    expect(refreshSpy).toHaveBeenCalled()
   })
 
   it('deve renderizar a tabela de tickets quando os dados são recebidos com sucesso', () => {
@@ -91,5 +99,6 @@ describe('TicketsDisplay Component', () => {
     expect(screen.getByText(/dashboard de chamados glpi/i)).toBeInTheDocument()
     expect(screen.getByText(/problema na impressora/i)).toBeInTheDocument()
     expect(screen.getByText(/rede lenta/i)).toBeInTheDocument()
+    expect(screen.getByRole('table')).toBeInTheDocument()
   })
 })
