@@ -36,7 +36,6 @@ pip install -e .  # install package locally (packages live under src/)
 # Reinstall dev dependencies before running pre-commit if your environment is outdated
 
 echo ">>> (5/6) Instalando ganchos de pre-commit..."
-pip install pre-commit && pre-commit install
 pre-commit install  # sets up hooks for black, ruff, isort and mypy
 
 # Docker
