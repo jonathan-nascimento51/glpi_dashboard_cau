@@ -6,7 +6,7 @@ export function TicketStatsPage() {
   const { data, isLoading, error } = useTicketMetrics()
 
   if (isLoading) return <div>Loading...</div>
-  if (error) return <div>Error loading metrics</div>
+  if (error) return <div>{(error as Error).message}</div>
 
   return (
     <div className="grid gap-4 grid-cols-3">

@@ -20,7 +20,10 @@ export async function fetcher<T>(url: string, init: RequestInit = {}): Promise<T
 
   if (res.status >= 400) {
     const message = await res.text()
-    throw new Error(message || `Request failed with status ${res.status}`)
+    const error = new Error(message || res.statusText)
+    ;(error as any).status = res.status
+    ;(error as any).statusText = res.statusText
+    throw error
   }
 
   return res.json() as Promise<T>
