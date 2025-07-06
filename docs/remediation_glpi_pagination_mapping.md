@@ -22,7 +22,3 @@ while True:
 ## 2. Enum Mapping
 
 The API parameter `expand_dropdowns` only expands configurable dropdowns. Fields such as `status`, `priority`, `impact` and `type` still arrive as numbers. Use the dictionaries defined in `glpi_api_client.py` (`STATUS_MAP`, `PRIORITY_MAP`, `IMPACT_MAP`, `TYPE_MAP`) to convert these values.
-<<<<<<< ours
-=======
-
->>>>>>> theirs

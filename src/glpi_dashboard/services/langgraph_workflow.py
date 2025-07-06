@@ -5,10 +5,10 @@
 from __future__ import annotations
 
 import ast
-from enum import Enum
-from typing import List, Optional, TypedDict
-from pathlib import Path
 import tempfile
+from enum import Enum
+from pathlib import Path
+from typing import List, Optional, TypedDict
 
 import pandas as pd
 from langchain_core.language_models.fake import FakeListLLM
@@ -19,6 +19,7 @@ from langgraph.checkpoint.sqlite import SqliteSaver
 from langgraph.graph import END, StateGraph
 from pydantic import BaseModel, Field
 
+from glpi_dashboard.acl import process_raw
 from glpi_dashboard.config.settings import (
     GLPI_APP_TOKEN,
     GLPI_BASE_URL,
@@ -26,7 +27,6 @@ from glpi_dashboard.config.settings import (
     GLPI_USER_TOKEN,
     GLPI_USERNAME,
 )
-from glpi_dashboard.data.pipeline import process_raw
 from glpi_dashboard.utils import sanitize_message
 
 from .glpi_session import Credentials, GLPISession

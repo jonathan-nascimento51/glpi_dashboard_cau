@@ -2,7 +2,7 @@ import logging
 
 import pytest
 
-from glpi_dashboard.glpi_adapter import (
+from glpi_dashboard.acl import (
     Impact,
     Priority,
     RawTicketDTO,

@@ -19,7 +19,7 @@ from pydantic import BaseModel, Field
 from strawberry.fastapi import GraphQLRouter
 from strawberry.types import Info
 
-from glpi_dashboard.data.pipeline import process_raw
+from glpi_dashboard.acl import process_raw
 from glpi_dashboard.services.aggregated_metrics import (
     cache_aggregated_metrics,
     compute_aggregated,
