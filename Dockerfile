@@ -7,7 +7,8 @@ FROM python:3.12-slim AS builder
 ARG INSTALL_PLAYWRIGHT=false
 
 # 1. Instalar dependências de sistema
-RUN apt-get update && apt-get install -y \
+RUN --mount=type=cache,target=/var/cache/apt \
+    apt-get update && apt-get install -y \
     curl \
     wget \
     gnupg \
@@ -36,7 +37,10 @@ RUN apt-get update && apt-get install -y \
   && rm -rf /var/lib/apt/lists/*
 
 # Instalar Node.js
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && apt-get install -y nodejs
+RUN --mount=type=cache,target=/var/cache/apt \
+    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+    apt-get install -y nodejs && \
+    rm -rf /var/lib/apt/lists/*
 
 # 2. Criar ambiente virtual
 ENV VENV_PATH=/opt/venv
@@ -52,20 +56,20 @@ COPY requirements.txt pyproject.toml ./
 COPY setup.sh ./ 
 
 # Agora sim, instale as dependências. O pip encontrará os arquivos necessários.
-RUN pip install --upgrade pip
-RUN pip install --no-cache-dir -r requirements.txt
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
-# 4. Copiar o restante do código da aplicação
-COPY . .
-
-# 5. Instalar (opcionalmente) os browsers do Playwright
-# A instalação pode ser custosa; permite-se desativar via argumento de build
+# 4. Instalar (opcionalmente) os browsers do Playwright
+# Se INSTALL_PLAYWRIGHT for true, instala; depois garante sempre a pasta de cache
 RUN if [ "$INSTALL_PLAYWRIGHT" = "true" ]; then \
       pip install --no-cache-dir playwright && \
       playwright install chromium --with-deps; \
-    else \
-      mkdir -p /root/.cache/ms-playwright; \
-    fi
+    fi \
+  && mkdir -p /root/.cache/ms-playwright
+
+# 5. Copiar o restante do código da aplicação
+COPY . /app
 
 # =================================================================
 # Estágio 2: Final - Imagem de produção, limpa e enxuta
@@ -74,7 +78,8 @@ FROM python:3.12-slim
 ARG INSTALL_PLAYWRIGHT=false
 
 # Instalar apenas as dependências de sistema ESTRITAMENTE necessárias para rodar
-RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+RUN --mount=type=cache,target=/var/cache/apt \
+    apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
