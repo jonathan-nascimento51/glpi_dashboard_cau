@@ -82,6 +82,10 @@ Instructions for running the React front-end—including npm scripts and require
 [docs/frontend_architecture.md](docs/frontend_architecture.md). That document also covers how the front-end communicates with the worker API via `NEXT_PUBLIC_API_BASE_URL` and how to run the Jest and Playwright test suites.
 Create the environment file with `cp frontend/.env.example frontend/.env` before running the dashboard. Execute all npm commands from inside the `frontend` directory, e.g. `cd frontend && npm run dev`, or launch Docker.
 
+### Node.js ESM conventions
+
+`package.json` declares `"type": "module"`, so all `.js` files use ES Module syntax by default. Configuration files that still rely on `module.exports` have been renamed with the `.cjs` extension. When adding new scripts or configs prefer ESM (`import`/`export`) and only use `.cjs` for legacy CommonJS code.
+
 ## Main modules
 
 - **`glpi_session.py`** – asynchronous client for the GLPI REST API used by the worker and ETL modules. This file replaces the former `glpi_api.py` referenced in early docs.

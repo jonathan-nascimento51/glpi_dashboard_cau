@@ -1,6 +1,8 @@
-/* eslint-disable @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports */
-const fs = require('fs')
-const path = require('path')
+import fs from 'fs'
+import path from 'path'
+import { fileURLToPath } from 'url'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 
 const profilePath = path.join(__dirname, '..', '.next', 'profile-events.json')
