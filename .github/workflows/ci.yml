@@ -93,3 +93,16 @@ jobs:
           cd frontend
           npm test --silent
 
+      - name: Verify lockfile
+        run: |
+          cd frontend
+          npm install --package-lock-only --dry-run --json >verify.json
+          added=$(jq '.added' verify.json)
+          removed=$(jq '.removed' verify.json)
+          changed=$(jq '.changed' verify.json)
+          if [ "$added" != "0" ] || [ "$removed" != "0" ] || [ "$changed" != "0" ]; then
+            cat verify.json
+            echo "package-lock.json is out of sync. Please run npm install and commit the updated lockfile." >&2
+            exit 1
+          fi
+
