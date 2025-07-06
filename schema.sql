@@ -81,5 +81,5 @@ LEFT JOIN
     glpi_groups gg ON t.assignee_id = gg.id -- Simplified: assuming assignee_id maps to a group ID
 WITH NO DATA; -- Create empty initially
 
--- Create a unique index on the materialized view for CONCURRENTLY refreshes [3]
+-- Create a unique index on the materialized view for CONCURRENTLY refreshes
 CREATE UNIQUE INDEX IF NOT EXISTS idx_mv_ticket_summary_ticket_id ON mv_ticket_summary (ticket_id);
