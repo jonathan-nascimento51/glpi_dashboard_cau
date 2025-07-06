@@ -33,7 +33,7 @@ const FilterPanel: React.FC = () => {
     >
       <div className="filter-header">
         <div className="filter-title">Filtros Avançados</div>
-        <button className="filter-close" onClick={toggleFilters}>
+        <button className="filter-close" onClick={toggleFilters} title='Fechar filtros'>
           <i className="fas fa-times" />
         </button>
       </div>

@@ -15,7 +15,7 @@ import strawberry
 import uvicorn
 from fastapi import Depends, FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, StreamingResponse
+from fastapi.responses import JSONResponse, ORJSONResponse, StreamingResponse
 from pydantic import BaseModel, Field
 from strawberry.fastapi import GraphQLRouter
 from strawberry.types import Info
@@ -217,7 +217,7 @@ class Query:
 def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
     """Create FastAPI app with REST and GraphQL routes."""
     cache = cache or redis_client
-    app = FastAPI(title="GLPI Worker API")
+    app = FastAPI(title="GLPI Worker API", default_response_class=ORJSONResponse)
 
     app.add_middleware(
         CORSMiddleware,
