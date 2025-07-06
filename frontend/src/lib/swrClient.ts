@@ -1,5 +1,8 @@
 export async function fetcher<T>(url: string, init: RequestInit = {}): Promise<T> {
-  const base = process.env.NEXT_PUBLIC_API_BASE_URL
+  const base =
+    typeof import.meta !== 'undefined'
+      ? import.meta.env.NEXT_PUBLIC_API_BASE_URL
+      : process.env.NEXT_PUBLIC_API_BASE_URL
 
   const res = await fetch(`${base ?? ''}${url}`, {
     headers: {
