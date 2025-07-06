@@ -1,9 +1,10 @@
 import { renderHook, waitFor } from '@testing-library/react'
-import { SWRConfig } from 'swr'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useTickets } from '@/hooks/useTickets'
 
+const queryClient = new QueryClient()
 const wrapper = ({ children }: { children: React.ReactNode }) => (
-  <SWRConfig value={{ provider: () => new Map() }}>{children}</SWRConfig>
+  <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
 )
 
 test('fetches tickets from API', async () => {

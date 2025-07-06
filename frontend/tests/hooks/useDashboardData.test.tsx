@@ -1,9 +1,10 @@
 import { renderHook, waitFor } from '@testing-library/react'
-import { SWRConfig } from 'swr'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useDashboardData } from '@/hooks/useDashboardData'
 
+const queryClient = new QueryClient()
 const wrapper = ({ children }: { children: React.ReactNode }) => (
-  <SWRConfig value={{ provider: () => new Map() }}>{children}</SWRConfig>
+  <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
 )
 
 test('loads metrics from API', async () => {
