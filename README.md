@@ -222,14 +222,21 @@ Run the service:
 python worker.py
 ```
 
+The API uses **ORJSONResponse** for fast serialization. Heavy aggregations are
+pre-computed by an ARQ worker. Start it separately with:
+
+```bash
+python -m glpi_dashboard.services.metrics_worker
+```
+
 The service exposes several endpoints:
 
 - `/tickets` – full list of tickets in JSON format.
 - `/tickets/stream` – Server‑Sent Events (SSE) stream of progress followed by the JSON payload.
 - `/metrics` – summary with `total`, `opened` and `closed` counts.
-- `/metrics/aggregated` – cached counts grouped by status and technician.
-- `/chamados/por-data` – aggregated tickets per creation date (cached in Redis for **1 hour**).
-- `/chamados/por-dia` – totals for calendar heatmaps (cached in Redis for **24 hours**).
+- `/metrics/aggregated` – counts grouped by status and technician, pre-computed by the worker.
+- `/chamados/por-data` – tickets per creation date, refreshed every 10 minutes.
+- `/chamados/por-dia` – totals for calendar heatmaps, refreshed every 10 minutes.
 - `/graphql/` – GraphQL API providing the same information.
 - `/cache/stats` – returns cache hit/miss metrics.
 - `/health/glpi` – quick check that the worker can reach the GLPI API.

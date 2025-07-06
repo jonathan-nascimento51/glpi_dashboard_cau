@@ -27,11 +27,7 @@ from glpi_dashboard.acl import (
     process_raw,
 )
 from glpi_dashboard.services.aggregated_metrics import (
-    cache_aggregated_metrics,
-    compute_aggregated,
     get_cached_aggregated,
-    tickets_by_date,
-    tickets_daily_totals,
 )
 from glpi_dashboard.services.exceptions import GLPIAPIError, GLPIUnauthorizedError
 from glpi_dashboard.services.glpi_api_client import GlpiApiClient
@@ -312,30 +308,29 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
     @app.get("/metrics/aggregated")
     async def metrics_aggregated() -> dict:  # noqa: F401
         metrics = await get_cached_aggregated(cache, "metrics_aggregated")
-        if metrics is not None:
-            return metrics
-        df = await _load_tickets(client=client, cache=cache)
-        metrics = compute_aggregated(df)
-        await cache_aggregated_metrics(cache, "metrics_aggregated", metrics)
+        if metrics is None:
+            raise HTTPException(status_code=503, detail="metrics not available")
         return metrics
 
     @app.get(
         "/chamados/por-data",
         response_model=list[ChamadoPorData],
     )
-    @cache_response("chamados_por_data", 3600, ChamadoPorData)
     async def chamados_por_data() -> list[dict]:  # noqa: F401
-        df = await _load_tickets(client=client, cache=cache)
-        return tickets_by_date(df).to_dict(orient="records")
+        data = await cache.get("chamados_por_data")
+        if data is None:
+            raise HTTPException(status_code=503, detail="metrics not available")
+        return data
 
     @app.get(
         "/chamados/por-dia",
         response_model=list[ChamadosPorDia],
     )
-    @cache_response("chamados_por_dia", 86400, ChamadosPorDia)
     async def chamados_por_dia() -> list[dict]:  # noqa: F401
-        df = await _load_tickets(client=client, cache=cache)
-        return tickets_daily_totals(df).to_dict(orient="records")
+        data = await cache.get("chamados_por_dia")
+        if data is None:
+            raise HTTPException(status_code=503, detail="metrics not available")
+        return data
 
     @app.get("/cache/stats")
     async def cache_stats() -> dict:  # noqa: F401

@@ -39,6 +39,7 @@ from .graphql_client import (
     GraphQLParams,
     graphql_client_tool,
 )
+from .metrics_worker import WorkerSettings, update_metrics
 from .tool_error import ToolError
 
 try:  # pragma: no cover - optional dependency during tests
@@ -84,4 +85,6 @@ __all__ = [
     "fetch_all_tickets",
     "BatchFetchParams",
     "fetch_all_tickets_tool",
+    "update_metrics",
+    "WorkerSettings",
 ]
