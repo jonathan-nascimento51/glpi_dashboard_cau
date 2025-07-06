@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import useSWR from 'swr'
 import { fetcher } from '@/lib/swrClient'
 
 export interface Ticket {
@@ -8,13 +8,12 @@ export interface Ticket {
 }
 
 export function useTickets() {
-  const queryClient = useQueryClient()
-  const query = useQuery<Ticket[]>(['tickets'], () => fetcher('/tickets'))
+  const { data, error, isLoading, mutate } = useSWR<Ticket[]>('/tickets', fetcher)
 
   return {
-    tickets: query.data,
-    error: query.error as Error | null,
-    isLoading: query.isLoading,
-    refreshTickets: () => queryClient.invalidateQueries({ queryKey: ['tickets'] }),
+    tickets: data,
+    error: error as Error | undefined,
+    isLoading,
+    refreshTickets: mutate,
   }
 }
