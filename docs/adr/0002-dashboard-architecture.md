@@ -3,6 +3,7 @@
 Date: 2024-07-04
 
 ## Status
+
 Proposed
 
 ## Context
@@ -13,6 +14,7 @@ background updates—it became clear that the project needed a clearer separatio
 between data processing and presentation.  The architecture document proposes a
 dedicated FastAPI worker for GLPI integration and a Dash/Next.js front-end for
 visualization.
+
 ## Decision
 
 Adopt a two-service architecture composed of:
@@ -23,11 +25,12 @@ Adopt a two-service architecture composed of:
    worker via HTTP.
 
 Docker Compose orchestrates both services alongside Redis and the database.
+
 ## Consequences
 
 * Clear separation of concerns simplifies maintenance and testing.
 * Each service can scale independently or even be deployed separately.
 * Deployment becomes more complex since multiple containers must be managed and
   networked correctly.
-## Steps
 
+## Steps
