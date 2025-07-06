@@ -48,6 +48,7 @@
     "@storybook/react": "^7.6.15",
     "@storybook/react-vite": "^7.6.15",
     "@storybook/addon-essentials": "^7.6.15",
-    "@storybook/addon-themes": "^7.6.15"
+    "@storybook/addon-themes": "^7.6.15",
+    "testcontainers": "^9.4.0"
   }
 }

@@ -44,6 +44,7 @@ export interface VirtualizedTicketTableProps {
   onRowClick?: (row: TicketRow) => void
   height?: number
   rowHeight?: number
+  rowHeightClass?: string
 }
 
 const Row = React.memo(({ index, style, data }: ListChildComponentProps<RowData>) => {
@@ -78,6 +79,7 @@ export function VirtualizedTicketTable({
   onRowClick,
   height = 400,
   rowHeight = 35,
+  rowHeightClass = 'h-[35px]',
 }: VirtualizedTicketTableProps) {
   const [focusedIndex, setFocusedIndex] = useState(0)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -150,8 +152,7 @@ export function VirtualizedTicketTable({
               role="row"
               data-row-index={idx}
               tabIndex={0}
-              className="grid grid-cols-[80px_auto_120px_100px_160px] ticket-row px-2 py-1 hover:bg-gray-100 cursor-pointer"
-              style={{ height: rowHeight }}
+              className={`grid grid-cols-[80px_auto_120px_100px_160px] ticket-row px-2 py-1 hover:bg-gray-100 cursor-pointer ${rowHeightClass}`}
               onClick={() => handleRowClick(row)}
               onFocus={() => handleRowFocus(idx)}
             >
