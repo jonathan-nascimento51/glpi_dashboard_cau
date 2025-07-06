@@ -273,9 +273,10 @@ POSTGRES_PASSWORD=$DB_PASSWORD
 - `LANGCHAIN_TRACING_V2` – set to `true` to enable LangSmith tracing
 - `LANGCHAIN_API_KEY` – API key used by LangSmith when tracing
 - `LANGCHAIN_PROJECT` – optional project name for tracing sessions
-- *Note_: IP filtering is not built into the worker API. Use your
+- *Note*: IP filtering is not built into the worker API. Use your
   network configuration or a reverse proxy if access needs to be
-  restricted.
+  restricted. If your company enforces outbound proxies, define
+  `HTTP_PROXY` and `HTTPS_PROXY` as shown in `.env.example`.
 
 When these variables are present the package will automatically
 initialize LangSmith and record traces for your runs. The project name
