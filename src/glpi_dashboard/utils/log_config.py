@@ -1,22 +1,20 @@
 import logging
 import sys
-from types import FrameType
 
 from loguru import logger
 from opentelemetry.instrumentation.logging import LoggingInstrumentor
 
 
 class InterceptHandler(logging.Handler):
-    """Intercept standard logging and route to Loguru."""
+    """Intercepta logs do sistema e redireciona para o Loguru."""
 
-    def emit(self, record: logging.LogRecord) -> None:
+    def emit(self, record: logging.LogRecord):
         try:
-            level: int | str = logger.level(record.levelname).name
+            level = logger.level(record.levelname).name
         except ValueError:
             level = record.levelno
 
-        frame: FrameType | None = logging.currentframe()
-        depth = 2
+        frame, depth = logging.currentframe(), 2
         while frame and frame.f_code.co_filename == logging.__file__:
             frame = frame.f_back
             depth += 1
@@ -26,16 +24,16 @@ class InterceptHandler(logging.Handler):
         )
 
 
-def setup_logging(log_level: str = "INFO", serialize: bool = False) -> None:
-    """Configure structured logging with Loguru and OpenTelemetry."""
+def setup_logging(log_level: str = "INFO", serialize: bool = False):
+    """Configura o Loguru como logger principal com OpenTelemetry."""
 
     logger.remove()
     logger.add(
         sys.stderr,
         level=log_level.upper(),
         format=(
-            "{time:YYYY-MM-DD HH:mm:ss.SSS} | {level:<8} | {name}:{function}:{line} | "
-            "trace_id={extra[trace_id]} span_id={extra[span_id]} | {message}"
+            "{time:YYYY-MM-DD HH:mm:ss.SSS} | {level: <8} | {name}:{function}:{line} | "
+            "trace_id={extra} span_id={extra} | {message}"
         ),
         serialize=serialize,
         enqueue=True,
@@ -48,3 +46,8 @@ def setup_logging(log_level: str = "INFO", serialize: bool = False) -> None:
     logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
 
     logger.info("Logging configurado com sucesso.")
+
+
+# No ponto de entrada da aplicação (ex: main.py ou worker_api.py):
+# from .log_config import setup_logging
+# setup_logging(serialize=True)  # Em produção, usar JSON
