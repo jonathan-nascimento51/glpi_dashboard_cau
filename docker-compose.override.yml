@@ -15,7 +15,7 @@ services:
     environment:
       - NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
     ports:
-      - "5173:5173"  # Porta correta para Vite
+      - "5173:5173"  # Porta padrão do Vite
     volumes:
       - ./frontend:/app/frontend
     working_dir: /app/frontend
