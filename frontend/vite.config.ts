@@ -11,5 +11,8 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
-  server: { host: true }, // allow external access
+  server: {
+    host: true,
+    hmr: { overlay: false },
+  }, // allow external access
 })

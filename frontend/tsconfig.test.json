@@ -5,7 +5,8 @@
     "module": "es2015",
     "esModuleInterop": true,
     "verbatimModuleSyntax": false,
-    "types": ["jest", "@testing-library/jest-dom"]
+    "types": ["jest", "@testing-library/jest-dom"],
+    "moduleResolution": "node"
   },
   "include": ["src/**/*", "tests/**/*"]
 }
