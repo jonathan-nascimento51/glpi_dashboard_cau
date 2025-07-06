@@ -25,6 +25,16 @@ test('loads metrics from API', async () => {
   })
 })
 
+test('handles API error', async () => {
+  global.fetch = jest.fn().mockResolvedValue({
+    status: 500,
+    text: () => Promise.resolve('fail'),
+  }) as jest.Mock
+
+  const { result } = renderHook(() => useDashboardData(), { wrapper })
+  await waitFor(() => expect(result.current.error).toBeTruthy())
+})
+
 test('refreshMetrics triggers refetch', async () => {
   const fetchMock = jest
     .fn()
@@ -48,3 +58,4 @@ test('refreshMetrics triggers refetch', async () => {
 
   expect(fetchMock).toHaveBeenCalledTimes(2)
 })
+

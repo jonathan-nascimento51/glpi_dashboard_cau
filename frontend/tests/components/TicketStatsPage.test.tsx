@@ -15,18 +15,18 @@ test('renders metrics from the API', () => {
     data: { total: 10, opened: 4, closed: 6 },
     isLoading: false,
     error: null,
-  })
+  } as any)
   render(<TicketStatsPage />)
   expect(screen.getAllByTestId('stats-value')[0]).toHaveTextContent('10')
   expect(screen.getAllByTestId('stats-label')[0]).toHaveTextContent('Total')
 })
 
-test('shows error message', () => {
+test('shows error when fetch fails', () => {
   mockedApi.useTicketMetrics.mockReturnValue({
     data: undefined,
     isLoading: false,
-    error: new Error('metrics boom'),
-  })
+    error: new Error('fail'),
+  } as any)
   render(<TicketStatsPage />)
-  expect(screen.getByText('metrics boom')).toBeInTheDocument()
+  expect(screen.getByText('Error loading metrics')).toBeInTheDocument()
 })
