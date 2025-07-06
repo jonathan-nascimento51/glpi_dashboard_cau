@@ -2,13 +2,13 @@ import logging
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import Any, Dict, List
 
-from sqlalchemy import Column, Integer, DateTime, text
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
-from sqlalchemy.orm import declarative_base
+from sqlalchemy import Column, DateTime, Integer, text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.orm import declarative_base
 
 from glpi_dashboard.config.settings import DATABASE_URL
 
@@ -164,10 +164,9 @@ async def insert_tickets(tickets_data: List[Dict[str, Any]]) -> None:
 
 
 async def refresh_materialized_view() -> float:
-    """
-    Refreshes the mv_ticket_summary materialized view concurrently.
-    Logs the time taken for the refresh.
-    [3, 7]
+    """Refresh the ``mv_ticket_summary`` materialized view concurrently.
+
+    Logs the time taken for the refresh and returns the duration in seconds.
     """
     start_time = time.monotonic()
     async with AsyncSessionLocal() as session:
