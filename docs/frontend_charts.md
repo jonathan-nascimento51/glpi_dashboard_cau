@@ -41,7 +41,7 @@ export function useChamadosPorData() {
 
 // The fetcher prefixes `NEXT_PUBLIC_API_BASE_URL` automatically,
 // so `/chamados/por-data` resolves to
-// `${process.env.NEXT_PUBLIC_API_BASE_URL}/chamados/por-data`.
+// `${import.meta.env.NEXT_PUBLIC_API_BASE_URL}/chamados/por-data`.
 ```
 
 ### `useChamadosPorDia`

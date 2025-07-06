@@ -16,7 +16,7 @@ The dashboard aggregates GLPI service desk metrics using a FastAPI backend and a
    ```bash
    docker-compose -f docker-compose-dev.yml up --build
    ```
-3. Access the frontend at <http://localhost:3000> and the API at <http://localhost:8000>.
+3. Access the frontend at <http://localhost:5173> and the API at <http://localhost:8000>.
 
 ## Folder Layout
 
