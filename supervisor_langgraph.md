@@ -64,3 +64,7 @@ PY
 ```
 
 Esse trecho utiliza o Supervisor para decidir qual nó executa em seguida e retorna `fetched tickets` quando a chamada à API é concluída com sucesso.
+
+## Próximos Passos
+
+Explore adaptações do padrão para fluxos de revisão de código ou geração de documentação. Ajuste a malha de estados conforme agentes adicionais forem incorporados.
