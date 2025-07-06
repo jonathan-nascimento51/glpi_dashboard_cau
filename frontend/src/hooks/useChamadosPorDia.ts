@@ -1,4 +1,4 @@
-import useSWR from 'swr'
+import { useQuery } from '@tanstack/react-query'
 import { fetcher } from '@/lib/swrClient'
 
 export interface ChamadoPorDia {
@@ -7,11 +7,11 @@ export interface ChamadoPorDia {
 }
 
 export function useChamadosPorDia() {
-  const { data, error, isLoading } = useSWR<ChamadoPorDia[]>(
-    '/chamados/por-dia',
-    fetcher,
-    { refreshInterval: 60000 },
-  )
+  const { data, error, isLoading } = useQuery({
+    queryKey: ['chamados', 'por-dia'],
+    queryFn: () => fetcher<ChamadoPorDia[]>('/chamados/por-dia'),
+    refetchInterval: 60000,
+  })
 
   const dados = (data ?? []).map((d) => ({
     date: d.date,

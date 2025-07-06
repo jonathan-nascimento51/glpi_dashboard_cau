@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react'
-import useSWR from 'swr'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { fetcher } from '@/lib/swrClient'
 import type { Chart as ChartType } from 'chart.js'
 
@@ -17,10 +17,11 @@ interface Aggregated {
 }
 
 export function useDashboardData() {
-  const { data, error, isLoading, mutate } = useSWR<Aggregated>(
-    '/metrics/aggregated',
-    fetcher,
-  )
+  const queryClient = useQueryClient()
+  const { data, error, isLoading } = useQuery({
+    queryKey: ['metrics', 'aggregated'],
+    queryFn: () => fetcher<Aggregated>('/metrics/aggregated'),
+  })
 
   const metrics: Metrics = {
     new: data?.status?.new ?? 0,
@@ -76,12 +77,15 @@ export function useDashboardData() {
 
   useEffect(() => {
     const id = setInterval(() => {
-      mutate().catch(() => undefined)
+      queryClient.invalidateQueries({ queryKey: ['metrics', 'aggregated'] }).catch(
+        () => undefined,
+      )
     }, 30000)
     return () => clearInterval(id)
-  }, [mutate])
+  }, [queryClient])
 
-  const refreshMetrics = () => mutate()
+  const refreshMetrics = () =>
+    queryClient.invalidateQueries({ queryKey: ['metrics', 'aggregated'] })
 
   return { metrics, sparkRefs, refreshMetrics, isLoading, error }
 }
