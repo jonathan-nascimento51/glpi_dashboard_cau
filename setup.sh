@@ -77,12 +77,3 @@ pip install -e .
 # --- 4. CONFIGURAÇÃO DE FERRAMENTAS DE DESENVOLVIMENTO ---
 echo ">>> (4/5) Instalando ganchos de pre-commit..."
 pre-commit install
-
-# --- 5. INSTALAÇÃO DO PLAYWRIGHT E NAVEGADORES (NÃO-INTERATIVO) ---
-echo ">>> (5/5) Instalando o browser Chromium para o Playwright..."
-# O comando '--with-deps' instala o navegador e também verifica/instala
-# as dependências de sistema, tornando o processo totalmente automático.
-npx playwright install --with-deps chromium
-
-# --- FINALIZAÇÃO ---
-echo "✅ Ambiente configurado com sucesso! O terminal está pronto para uso."
