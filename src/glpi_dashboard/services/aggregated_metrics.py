@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-from typing import Optional, Dict, Any
+from typing import Any, Dict, Optional
 
 import pandas as pd
 
-from glpi_dashboard.utils.redis_client import RedisClient, redis_client
 from glpi_dashboard.data.transform import aggregate_by_user
+from glpi_dashboard.utils.redis_client import RedisClient, redis_client
 
 
 def tickets_by_date(df: pd.DataFrame) -> pd.DataFrame:
@@ -54,4 +54,3 @@ async def get_cached_aggregated(
     """Retrieve cached metrics if available."""
     cache = cache or redis_client
     return await cache.get(key)
-
