@@ -18,8 +18,14 @@ test('fetcher returns json on success', async () => {
 test('fetcher throws on error status', async () => {
   global.fetch = jest.fn().mockResolvedValue({
     status: 404,
+    statusText: 'Not Found',
     text: () => Promise.resolve('missing'),
   }) as jest.Mock
 
-  await expect(fetcher('/foo')).rejects.toThrow('missing')
+  await expect(fetcher('/foo')).rejects.toMatchObject({
+    message: 'missing',
+    status: 404,
+    statusText: 'Not Found',
+  })
 })
+
