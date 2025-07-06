@@ -39,6 +39,19 @@ export default tseslint.config([
 ])
 ```
 
+## Data fetching and caching
+
+All custom hooks use [React Query](https://tanstack.com/query/latest) to cache
+responses from the worker API. The `queryClient` defined in
+`src/lib/queryClient.ts` is provided at the application root via
+`QueryClientProvider` inside `src/main.tsx`.
+
+Example usage:
+
+```ts
+const { data, isLoading } = useQuery(['tickets'], () => fetcher('/tickets'))
+```
+
 ## Lockfile verification
 
 The CI workflow runs `npm install --package-lock-only --dry-run` inside the
