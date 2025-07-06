@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        SKIP_PLAYWRIGHT: "true"
+        INSTALL_PLAYWRIGHT: "false"
     command: uvicorn src.glpi_dashboard.services.worker_api:app --host 0.0.0.0 --port 8000 --reload
     volumes:
       - ./src:/app/src
@@ -58,7 +58,8 @@ services:
       retries: 5
 
   prometheus:
-    image: prom/prometheus:latest
+    image: prom/prometheus:v2.54.0
+    platform: linux/amd64
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
       - "--log.level=warn"
