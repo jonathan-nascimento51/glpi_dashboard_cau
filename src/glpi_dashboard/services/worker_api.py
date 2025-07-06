@@ -205,7 +205,7 @@ class Query:
         closed = 0
         if "status" in df:
             status_series = df["status"].astype(str).str.lower()
-            closed = df[status_series == "closed"].shape[0]
+            closed = df[status_series.isin(["closed", "solved"])].shape[0]
         opened = total - closed
         return Metrics(total=total, opened=opened, closed=closed)  # type: ignore[call-arg]
 
@@ -293,7 +293,7 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
         closed = 0
         if "status" in df:
             status_series = df["status"].astype(str).str.lower()
-            closed = df[status_series == "closed"].shape[0]
+            closed = df[status_series.isin(["closed", "solved"])].shape[0]
         opened = total - closed
         return {"total": total, "opened": opened, "closed": closed}
 

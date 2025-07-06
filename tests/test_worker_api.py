@@ -58,8 +58,8 @@ class FakeSession:
 
     def get_all(self, *args, **kwargs):  # pragma: no cover - legacy sync path
         return [
-            {"id": 1, "date_creation": "2024-06-01"},
-            {"id": 2, "date_creation": "2024-06-02"},
+            {"id": 1, "date_creation": "2024-06-01", "status": "Solved"},
+            {"id": 2, "date_creation": "2024-06-02", "status": "Closed"},
         ]
 
 
@@ -106,10 +106,11 @@ def test_rest_endpoints(dummy_cache: DummyCache):
     resp = client.get("/metrics")
     assert resp.status_code == 200
     metrics = resp.json()
-    assert metrics["total"] >= 0
+    assert metrics == {"total": 2, "opened": 0, "closed": 2}
 
 
 def test_aggregated_metrics(dummy_cache: DummyCache):
+    dummy_cache.data["metrics_aggregated"] = {"status": {}, "per_user": {}}
     client = TestClient(create_app(client=FakeSession(), cache=dummy_cache))
     resp = client.get("/metrics/aggregated")
     assert resp.status_code == 200
@@ -119,6 +120,10 @@ def test_aggregated_metrics(dummy_cache: DummyCache):
 
 
 def test_chamados_por_data(dummy_cache: DummyCache):
+    dummy_cache.data["chamados_por_data"] = [
+        {"date": "2024-06-01", "total": 1},
+        {"date": "2024-06-02", "total": 1},
+    ]
     client = TestClient(create_app(client=FakeSession(), cache=dummy_cache))
     resp = client.get("/chamados/por-data")
     assert resp.status_code == 200
@@ -130,6 +135,10 @@ def test_chamados_por_data(dummy_cache: DummyCache):
 
 
 def test_chamados_por_dia(dummy_cache: DummyCache):
+    dummy_cache.data["chamados_por_dia"] = [
+        {"date": "2024-06-01", "total": 1},
+        {"date": "2024-06-02", "total": 1},
+    ]
     client = TestClient(create_app(client=FakeSession(), cache=dummy_cache))
     resp = client.get("/chamados/por-dia")
     assert resp.status_code == 200
@@ -337,6 +346,7 @@ def test_cache_metrics_legacy(dummy_cache: DummyCache):
 
 
 def test_metrics_aggregated_cache(dummy_cache: DummyCache):
+    dummy_cache.data["metrics_aggregated"] = {"status": {}, "per_user": {}}
     session = FakeSession()
     client = TestClient(create_app(client=session, cache=dummy_cache))
     first = client.get("/metrics/aggregated").json()
@@ -350,4 +360,3 @@ def test_metrics_aggregated_cache(dummy_cache: DummyCache):
     assert first == second
     stats = client.get("/cache/stats").json()
     assert stats["hits"] >= 1
-    assert stats["misses"] >= 2

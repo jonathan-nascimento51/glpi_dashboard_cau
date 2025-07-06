@@ -28,14 +28,11 @@ def tickets_daily_totals(df: pd.DataFrame) -> pd.DataFrame:
 
 def compute_aggregated(df: pd.DataFrame) -> Dict[str, Any]:
     """Return simple aggregated metrics from ``df``."""
-    status_counts = (
-        df.get("status", pd.Series(dtype="object"))
-        .fillna("")
-        .astype(str)
-        .str.lower()
-        .value_counts()
-        .to_dict()
+    status_series = (
+        df.get("status", pd.Series(dtype="object")).fillna("").astype(str).str.lower()
     )
+    status_series = status_series.replace({"solved": "closed"})
+    status_counts = status_series.value_counts().to_dict()
     by_user = aggregate_by_user(df).set_index("assigned_to")["count"].to_dict()
     return {"status": status_counts, "per_user": by_user}
 
