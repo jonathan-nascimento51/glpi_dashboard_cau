@@ -18,7 +18,7 @@ This document summarizes the high level guidelines for implementing the dashboar
 
 ## 3. Structure
 
-```
+```text
 frontend/
 ├── src/
 │   ├── features/             # slices of business logic
@@ -80,6 +80,8 @@ The React code can read this value using `import.meta.env.NEXT_PUBLIC_API_BASE_U
 > **Note**: previous revisions referenced `VITE_API_URL`. The variable name was updated to `NEXT_PUBLIC_API_BASE_URL` to match Next.js conventions.
 
 Vite only exposes variables prefixed with `VITE_` by default. The project configures `envPrefix` in `vite.config.ts` so that `NEXT_PUBLIC_*` variables are also loaded.
+
+Imports reference `@/` as a shortcut to the `src/` folder. Both Vite and TypeScript resolve this alias through `resolve.alias` in `vite.config.ts` and the `paths` option in `tsconfig.app.json`.
 
 ### API Integration
 
