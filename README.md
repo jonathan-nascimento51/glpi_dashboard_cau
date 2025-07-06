@@ -407,7 +407,7 @@ need browser automation.
 
 The frontend image takes advantage of BuildKit caching to speed up subsequent `npm ci` runs. Ensure BuildKit is enabled by setting `DOCKER_BUILDKIT=1`.
 
-This exposes the worker API on port `8000` and the dashboard on port `8080`.
+This exposes the worker API on port `8000` and the dashboard on port `5173`.
 
 ## Network
 

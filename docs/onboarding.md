@@ -9,18 +9,22 @@ The dashboard aggregates GLPI service desk metrics using a FastAPI backend and a
 ## Getting Started
 
 1. Copy the environment template:
+
    ```bash
    cp .env.example .env
    ```
+
 2. Start the stack:
+
    ```bash
    docker-compose -f docker-compose-dev.yml up --build
    ```
+
 3. Access the frontend at <http://localhost:5173> and the API at <http://localhost:8000>.
 
 ## Folder Layout
 
-```
+```text
 ├── src/           # backend source code
 ├── frontend/      # Next.js application
 ├── docs/          # documentation and ADRs

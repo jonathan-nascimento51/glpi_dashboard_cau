@@ -116,7 +116,7 @@ A execução completa pode ser feita via Compose:
 docker compose up
 ```
 
-Isso sobe PostgreSQL, Redis, `initdb`, o `worker` e o dashboard em portas 8000 e 8080.
+Isso sobe PostgreSQL, Redis, `initdb`, o `worker` e o dashboard em portas 8000 e 5173.
 
 ## Estrutura de Pastas
 

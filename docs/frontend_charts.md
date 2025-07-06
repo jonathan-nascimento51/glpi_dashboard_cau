@@ -18,6 +18,7 @@ requests in the examples below use this variable.
 ## Hooks
 
 ### `useChamadosPorData`
+
 Fetches aggregated ticket counts per day from `/chamados/por-data`.
 
 ```ts
@@ -45,14 +46,17 @@ export function useChamadosPorData() {
 ```
 
 ### `useChamadosPorDia`
+
 Same pattern but pointing to `/chamados/por-dia` for daily totals.
 
 ## Components
 
 ### `ChamadosTendencia`
+
 Renders a line chart with Recharts using `useChamadosPorData`.
 
 ### `ChamadosHeatmap`
+
 Uses `react-calendar-heatmap` and `useChamadosPorDia` to display a GitHub-style calendar.
 
 Both components show loading and error states and refresh data every minute.

@@ -24,7 +24,7 @@ def test_full_checkout_flow() -> None:
     with sync_playwright() as pw:
         browser = pw.chromium.launch()
         page = browser.new_page()
-        page.goto("http://localhost:3000")
+        page.goto("http://localhost:5173")
         page.fill("input[name=email]", "demo@example.com")
         page.fill("input[name=password]", "secret")
         page.click("text=Login")

@@ -1,5 +1,6 @@
 
 # Guia Avançado – Configuração & Execução do **GLPI Dashboard**
+
 > **Revisão:** 2025-07-02  
 
 Este documento conduz da clonagem do repositório ao monitoramento em produção.  
@@ -48,8 +49,8 @@ GLPI_USER_TOKEN="yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy"
 
 | Tipo de token | Onde obter | Captura |
 |---------------|------------|---------|
-| **Aplicação** (`GLPI_APP_TOKEN`) | *Setup → General → API* | ![Menu Setup → General](docs/images/app_token_menu.png) |
-| **Usuário** (`GLPI_USER_TOKEN`)  | *Perfil → Preferences → API* | ![Preferences → API](docs/images/user_token_pref.png) |
+| **Aplicação** (`GLPI_APP_TOKEN`) | *Setup → General → API_ | ![Menu Setup → General](docs/images/app_token_menu.png) |
+| **Usuário** (`GLPI_USER_TOKEN`)  | _Perfil → Preferences → API* | ![Preferences → API](docs/images/user_token_pref.png) |
 
 > **Dica:** salve os prints‑screen acima na pasta `docs/images/` para que os caminhos funcionem.  
 
@@ -75,7 +76,7 @@ docker compose up -d --build
 Ao finalizar, execute:
 
 ```bash
-docker compose ps --format "table {.Name}	{.State}	{.Health}"
+docker compose ps --format "table {.Name} {.State} {.Health}"
 ```
 
 Todos os serviços devem aparecer como **running / healthy**.
@@ -93,7 +94,7 @@ Caso a API esteja indisponível ou tokens inválidos, o front‑end exibe um ale
 
 ---
 
-## 8 ▪️ Modo offline (dados *mock*)
+## 8 ▪️ Modo offline (dados *mock_)
 
 ```bash
 export USE_MOCK_DATA=true          # Linux/macOS
@@ -138,15 +139,15 @@ para acompanhar oscilações em tempo real.
 |   | Definir tokens | editar `.env` |
 |   | Validar API | `python scripts/validate_credentials.py` |
 |   | `docker compose up` | iniciar stack |
-|   | Dashboard ok | abrir <http://localhost:8080> |
+|   | Dashboard ok | abrir <http://localhost:5173> |
 
 ---
 
-> **Nota final:** este guia usa capturas em `docs/images/…`. Se preferir imagens externas, basta substituir pelo link completo. 
+> **Nota final:** este guia usa capturas em `docs/images/…`. Se preferir imagens externas, basta substituir pelo link completo.
 
 ---
 
-## 11 ▪️ Gerar tokens da API GLPI *(Referência rápida)*
+## 11 ▪️ Gerar tokens da API GLPI *(Referência rápida)_
 
 > Os passos abaixo produzem **GLPI_APP_TOKEN** e **GLPI_USER_TOKEN** — obrigatórios no `.env`.
 
