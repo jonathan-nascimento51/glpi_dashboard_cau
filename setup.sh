@@ -32,7 +32,7 @@ echo ">>> (4/6) Atualizando o pip e instalando dependências Python..."
 pip install --upgrade pip
 pip install -r requirements.txt -r requirements-dev.txt
 pip install -e .
-pip install pytest-cov
+pip install pytest pytest-cov
 pip install aiohttp
 
 echo ">>> (5/6) Instalando ganchos de pre-commit..."
@@ -45,6 +45,7 @@ fi
 
 echo ">>> (6/6) Instalando Docker..."
 sudo apt-get install -y ca-certificates curl gnupg lsb-release
+sudo apt-get update && sudo apt-get install curl
 sudo mkdir -p /etc/apt/keyrings
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
