@@ -7,12 +7,12 @@ export interface ChamadoPorDia {
 }
 
 export function useChamadosPorDia() {
-  const query = useQuery<ChamadoPorDia[]>(
+  const query = useQuery<ChamadoPorDia[], Error, ChamadoPorDia[]>(
     ['chamados-por-dia'],
     () => fetcher('/chamados/por-dia'),
     {
-      select: (data) =>
-      data.map((d) => ({ date: d.date, total: Number(d.total) })),
+      select: (data: ChamadoPorDia[]) =>
+        data.map((d) => ({ date: d.date, total: Number(d.total) })),
       refetchInterval: 60000,
     },
   )
