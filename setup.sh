@@ -39,4 +39,8 @@ else
   pip install pre-commit && pre-commit install
 fi
 
-echo "✅ Script de configuração concluído com sucesso."
+echo "✅ Etapas concluídas com sucesso:"
+echo "  - Dependências do sistema instaladas"
+echo "  - Ambiente virtual criado e ativado"
+echo "  - Dependências Python instaladas"
+echo "  - Ganchos de pre-commit configurados"
