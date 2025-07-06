@@ -109,14 +109,11 @@ flake8 .
 
 ## Docker
 
-A execução completa pode ser feita via Compose utilizando o arquivo
-`docker-compose-dev.yml`:
+A execução completa pode ser feita via Compose:
 
 ```bash
 docker compose up
 ```
-
-Se encontrar alguma referência antiga a `docker-compose-dev.yml`, utilize o arquivo padrão `docker-compose.yml` com o comando acima.
 
 Isso sobe PostgreSQL, Redis, `initdb`, o `worker` e o dashboard em portas 8000 e 8080.
 

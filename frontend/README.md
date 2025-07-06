@@ -1,109 +1,69 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# React + TypeScript + Vite
 
-## Getting Started
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-Before starting the server copy the example environment file and configure the API endpoint:
+Currently, two official plugins are available:
 
-```bash
-cp .env.example .env
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+
+## Expanding the ESLint configuration
+
+If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+
+```js
+export default tseslint.config([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
+
+      // Remove tseslint.configs.recommended and replace with this
+      ...tseslint.configs.recommendedTypeChecked,
+      // Alternatively, use this for stricter rules
+      ...tseslint.configs.strictTypeChecked,
+      // Optionally, add this for stylistic rules
+      ...tseslint.configs.stylisticTypeChecked,
+
+      // Other configs...
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
 ```
 
-Ensure `NEXT_PUBLIC_API_BASE_URL` points to the worker API (defaults to `http://localhost:8000`).
+You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
-First, run the development server:
+```js
+// eslint.config.js
+import reactX from 'eslint-plugin-react-x'
+import reactDom from 'eslint-plugin-react-dom'
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+export default tseslint.config([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
+      // Enable lint rules for React
+      reactX.configs['recommended-typescript'],
+      // Enable lint rules for React DOM
+      reactDom.configs.recommended,
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
 ```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-### Docker Compose
-
-When running the dashboard via Docker Compose, `node_modules` is mounted as a
-volume to avoid permission issues:
-
-```yaml
-volumes:
-  - ./frontend:/app
-  - /app/node_modules
-```
-
-This setup ensures `npm run dev` works inside the container and that the `next`
-CLI is available.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-### Streaming Tickets
-
-The worker API exposes `/tickets/stream` which returns progress updates while
-ticket data is being fetched and processed. Example usage with `httpx`:
-
-```python
-import httpx
-
-resp = httpx.get("http://localhost:8000/tickets/stream")
-for line in resp.text.splitlines():
-    print(line)
-```
-
-This will print:
-
-```
-fetching...
-processing...
-[{"id": 1}]
-```
-
-### Performance: List Virtualization
-
-Very large ticket lists can hurt rendering performance if every row is mounted at
-once. The `VirtualizedTicketTable` component automatically enables
-`react-window` when the data set contains **100 rows or more**. For smaller
-lists you may still use the component and tweak the threshold inside
-`VirtualizedTicketTable.tsx`.
-
-Example usage:
-
-```tsx
-<VirtualizedTicketTable rows={tickets} onRowClick={handleRowClick} />
-```
-
-During unit tests the virtualization layer is mocked so snapshots remain stable.
-`jest.setup.ts` registers the mock:
-
-```ts
-jest.mock('react-window', () => {
-  const React = require('react')
-  const MockedList = (props: any) => <div>{props.children}</div>
-  return {
-    FixedSizeList: MockedList,
-    VariableSizeList: MockedList,
-  }
-}, { virtual: true })
-```
-
-Make sure your Jest configuration includes this setup file via `setupFilesAfterEnv`.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

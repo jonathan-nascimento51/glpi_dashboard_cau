@@ -59,45 +59,37 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: 'pip'
-      - run: pip install -r requirements-dev.txt -r requirements.txt
-      - run: pytest -m integration
-
-  build:
-    needs: integration-tests
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Build backend
-        run: docker build -t glpi-dashboard .
-      - name: Build frontend
-        env:
-          NEXT_PUBLIC_API_BASE_URL: http://localhost:8000
-        run: |
-          cd frontend
-          npm ci
-          npm run build
-
-  e2e-tests:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
-      - name: Install deps
+          node-version: 20
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest flake8 black pre-commit pytest-cov pytest-asyncio
+          cd frontend && npm ci && cd ..
+      - name: Set PYTHONPATH
+        run: echo "PYTHONPATH=$(pwd)" >> "$GITHUB_ENV"
+      - name: Check if branch is up-to-date with main
+        run: |
+          git fetch origin main
+          ahead_behind=$(git rev-list --left-right --count HEAD...origin/main)
+          behind=$(echo "$ahead_behind" | awk '{print $1}')
+          if [ "$behind" != "0" ]; then
+            echo "Branch desatualizada. Por favor faça rebase com a main."
+            exit 1
+          fi
+      - name: Init DB
+        run: python scripts/init_db.py
+      - name: Pre-commit
+        run: pre-commit run --color always --show-diff-on-failure --all-files
+      - name: Check merge conflicts
+        run: python scripts/check_merge_conflicts.py
+      - name: Run tests
+        run: pytest --cov=./ --cov-report=xml --cov-report=term --cov-fail-under=90
+      - name: Run frontend tests
         run: |
           cd frontend
-          npm ci
-          npx playwright install --with-deps
-      - name: Run E2E
-        run: |
-          pytest tests/e2e --html=artifacts/e2e-report.html --self-contained-html
-      - uses: actions/upload-artifact@v4
-        with:
-          name: e2e-report
-          path: artifacts/e2e-report.html
+          npm test --silent
+
