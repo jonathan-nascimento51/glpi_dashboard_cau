@@ -14,6 +14,24 @@ The dashboard aggregates GLPI service desk metrics using a FastAPI backend and a
    cp .env.example .env
    ```
 
+   Fill in your GLPI credentials inside `.env` then verify them:
+
+   ```bash
+   python scripts/validate_credentials.py
+   ```
+
+   The command prints `✅ Conexão com GLPI bem-sucedida!` when the API accepts
+   the tokens. If the variables are missing or invalid the worker's
+   `/health/glpi` endpoint will return **HTTP 500**.
+
+   Example snippet:
+
+   ```env
+   GLPI_BASE_URL=https://helpdesk.company.com/apirest.php
+   GLPI_APP_TOKEN=<token_app>
+   GLPI_USER_TOKEN=<token_user>
+   ```
+
    Ensure the Docker Compose plugin is installed. The `docker compose` command
    requires Docker Engine 20.10+ or the `docker-compose-plugin` package.
 
