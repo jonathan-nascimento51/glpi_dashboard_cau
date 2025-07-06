@@ -6,7 +6,9 @@ from unittest.mock import ANY, AsyncMock, MagicMock, patch
 
 import pytest
 
-pytest.importorskip("aiohttp")
+pytest.importorskip(
+    "aiohttp", reason="aiohttp package is required to run glpi_session tests"
+)
 import aiohttp
 
 from glpi_dashboard.logging_config import init_logging
@@ -609,12 +611,12 @@ async def test_request_network_error(
     err = aiohttp.ClientConnectionError("fail")
 
     def side_effect(*args, **kwargs):
-        if side_effect.calls < 2:
-            side_effect.calls += 1
+        if side_effect.calls < 2:  # type: ignore[attr-defined]
+            side_effect.calls += 1  # type: ignore[attr-defined]
             raise err
         return mock_response(200, {"data": {"id": 1}})
 
-    side_effect.calls = 0
+    side_effect.calls = 0  # type: ignore[attr-defined]
     mock_client_session.request.side_effect = side_effect
 
     with patch("asyncio.sleep", new=AsyncMock()):
