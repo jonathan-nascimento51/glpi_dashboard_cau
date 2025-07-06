@@ -481,7 +481,7 @@ python scripts/generate_bug_prompt.py --output bug_prompt.md
 
 ## Front-end performance
 
-The Next.js dashboard targets a Largest Contentful Paint (LCP) below **2.5&nbsp;seconds**.
+The Vite React dashboard targets a Largest Contentful Paint (LCP) below **2.5&nbsp;seconds**.
 Builds fail if any JavaScript bundle exceeds **250&nbsp;kB**. Run the analyzer
 from the `frontend` directory with:
 
