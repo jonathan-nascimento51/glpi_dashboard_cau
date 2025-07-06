@@ -5,11 +5,6 @@ services:
       - SKIP_PLAYWRIGHT=true
     volumes:
       - .:/app
-    command: >
-      bash -c "
-        source .venv/bin/activate &&
-        python worker.py
-      "
 
   frontend:
     environment:
