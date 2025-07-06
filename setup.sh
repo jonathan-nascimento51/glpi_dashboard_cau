@@ -3,7 +3,7 @@ set -euo pipefail
 
 echo ">>> INICIANDO CONFIGURAÇÃO COMPLETA DO AMBIENTE <<<"
 
-echo ">>> (1/5) Instalando dependências do sistema para o Playwright..."
+echo ">>> (1/6) Instalando dependências do sistema para o Playwright..."
 sudo apt-get update -y
 sudo apt-get install -y \
     libnss3 libnspr4 libatk1.0-0t64 libatk-bridge2.0-0t64 libcups2t64 \
@@ -16,22 +16,20 @@ sudo apt-get install -y \
 
 VENV_DIR=".venv"
 if [ ! -d "$VENV_DIR" ]; then
-  echo ">>> (2/5) Criando ambiente virtual em $VENV_DIR..."
+  echo ">>> (2/6) Criando ambiente virtual em $VENV_DIR..."
   python3 -m venv "$VENV_DIR"
 fi
 
-echo ">>> (2/5) Ativando o ambiente virtual..."
+echo ">>> (3/6) Ativando o ambiente virtual..."
 # shellcheck disable=SC1090
 source "$VENV_DIR/bin/activate"
 
-echo ">>> (3/5) Atualizando o pip..."
+echo ">>> (4/6) Atualizando o pip e instalando dependências Python..."
 pip install --upgrade pip
-
-echo ">>> (3/5) Instalando dependências Python..."
 pip install -r requirements.txt -r requirements-dev.txt
 pip install -e .
 
-echo ">>> (4/5) Instalando ganchos de pre-commit..."
+echo ">>> (5/6) Instalando ganchos de pre-commit..."
 if command -v pre-commit >/dev/null 2>&1; then
   pre-commit install
 else
@@ -39,8 +37,20 @@ else
   pip install pre-commit && pre-commit install
 fi
 
+echo ">>> (6/6) Instalando Docker..."
+sudo apt-get update -y
+sudo apt-get install -y \
+    ca-certificates curl gnupg lsb-release
+sudo mkdir -p /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update -y
+curl -fsSL https://get.docker.com | sudo sh
+sudo usermod -aG docker "$USER"
+
 echo "✅ Etapas concluídas com sucesso:"
 echo "  - Dependências do sistema instaladas"
 echo "  - Ambiente virtual criado e ativado"
 echo "  - Dependências Python instaladas"
 echo "  - Ganchos de pre-commit configurados"
+echo "  - Docker instalado"
