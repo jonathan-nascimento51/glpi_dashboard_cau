@@ -11,19 +11,19 @@ setup:
     $(PIP) install -e .
 
 build:
-    docker-compose build
+    docker compose build
 
 up:
-    docker-compose up
+    docker compose up
 
 reset:
-    docker-compose down -v && docker-compose up --build
+    docker compose down -v && docker compose up --build
 
 logs:
-    docker-compose logs -f
+    docker compose logs -f
 
 down:
-    docker-compose down
+    docker compose down
 
 init-db:
     $(PYTHON) scripts/init_db.py

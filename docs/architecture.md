@@ -62,7 +62,7 @@ Em tempo de execução, o worker executa tarefas assíncronas que obtêm dados d
 
 ## 4. Visão de Implantação
 
-A solução é distribuída em contêineres Docker orquestrados via `docker-compose`:
+A solução é distribuída em contêineres Docker orquestrados via `docker compose`:
 
 - `dash`: executa o servidor Dash em Gunicorn/Uvicorn.
 - `worker`: serviço FastAPI para integrações e cálculos.

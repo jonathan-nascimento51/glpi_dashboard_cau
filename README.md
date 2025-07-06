@@ -370,6 +370,9 @@ For a MySQL-specific walkthrough, see [docs/first_use_mysql.md](docs/first_use_m
 
 You can run the entire stack with Docker. The compose file includes
 `postgres`, `redis`, an `initdb` service, a FastAPI **worker** and the Dash dashboard.
+The examples below rely on the Docker Compose plugin (`docker compose`).
+Install the `docker-compose-plugin` package or upgrade to Docker Engine 20.10+
+if the command is unavailable.
 Running `docker compose up` will build the image, initialize the database and start all services using `docker-compose.yml`:
 
 ```bash
@@ -393,7 +396,7 @@ file.
 For local development you can use `docker-compose-dev.yml`, which mounts your source files with hot reload:
 
 ```bash
-docker-compose -f docker-compose-dev.yml up --build
+docker compose -f docker-compose-dev.yml up --build
 ```
 
 The development compose file also sets Prometheus to `--log.level=warn` so only
