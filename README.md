@@ -117,15 +117,14 @@ On a machine with internet access you can pre-download the wheels needed by the
 project:
 
 ```bash
-mkdir wheels
-pip download -d wheels -r requirements.txt -r requirements-dev.txt
+./scripts/download_wheels.sh [target-dir]
 ```
 
-Copy the `wheels/` directory to the target environment and install everything
-without contacting PyPI:
+The script stores wheels under `./wheels` by default. Copy this directory to the
+offline machine and install everything without contacting PyPI:
 
 ```bash
-pip install --no-index --find-links=/path/to/wheels -r requirements.txt
+pip install --no-index --find-links=/path/to/wheels -r requirements.txt -r requirements-dev.txt
 ```
 
 More setup tips—including offline usage with mock data—are documented in
@@ -388,13 +387,13 @@ This exposes the worker API on port `8000` and the dashboard on port `8080`.
 ## Network
 
 If the host has limited internet access you can pre-download all Python
-dependencies:
+dependencies using the helper script:
 
 ```bash
-python scripts/download_wheels.py
+./scripts/download_wheels.sh [target-dir]
 ```
 
-This stores wheels under `wheels/` by default. Transfer the directory to the
+The wheels are saved under `./wheels` by default. Transfer the directory to the
 offline machine and install using:
 
 ```bash
