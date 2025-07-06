@@ -33,8 +33,8 @@ test('ChamadosHeatmap success', () => {
 })
 
 test('ChamadosHeatmap error', () => {
-  mockedDia.useChamadosPorDia.mockReturnValue({ dados: [], isLoading: false, error: new Error('heat fail') })
+  mockedDia.useChamadosPorDia.mockReturnValue({ dados: [], isLoading: false, error: new Error('fail') })
   render(<ChamadosHeatmap />)
-  expect(screen.getByText('heat fail')).toBeInTheDocument()
+  expect(screen.getByText('Erro ao carregar dados do heatmap')).toBeInTheDocument()
 })
 

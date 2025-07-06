@@ -23,6 +23,16 @@ test('useChamadosPorData parses numbers', async () => {
   expect(result.current.dados).toEqual([{ date: '2024-01-01', total: 2 }])
 })
 
+test('useChamadosPorData handles error', async () => {
+  global.fetch = jest.fn().mockResolvedValue({
+    status: 500,
+    text: () => Promise.resolve('fail'),
+  }) as jest.Mock
+
+  const { result } = renderHook(() => useChamadosPorData(), { wrapper })
+  await waitFor(() => expect(result.current.error).toBeTruthy())
+})
+
 test('useChamadosPorDia handles error', async () => {
   global.fetch = jest.fn().mockResolvedValue({
     status: 500,
@@ -32,3 +42,4 @@ test('useChamadosPorDia handles error', async () => {
   const { result } = renderHook(() => useChamadosPorDia(), { wrapper })
   await waitFor(() => expect(result.current.error).toBeTruthy())
 })
+

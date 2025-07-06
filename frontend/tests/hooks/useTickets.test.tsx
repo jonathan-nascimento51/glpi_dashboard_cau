@@ -16,3 +16,14 @@ test('fetches tickets from API', async () => {
   await waitFor(() => expect(result.current.tickets).toHaveLength(1))
   expect(result.current.tickets?.[0].name).toBe('t1')
 })
+
+test('handles API error', async () => {
+  global.fetch = jest.fn().mockResolvedValue({
+    status: 500,
+    text: () => Promise.resolve('fail'),
+  }) as jest.Mock
+
+  const { result } = renderHook(() => useTickets(), { wrapper })
+  await waitFor(() => expect(result.current.error).toBeTruthy())
+})
+
