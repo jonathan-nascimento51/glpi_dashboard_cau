@@ -19,7 +19,7 @@ Se a chamada retornar `200 OK` com um `session_token`, as credenciais estão cor
 
 ## 2. Teste a Conectividade a Partir do Contêiner
 
-1. Altere temporariamente o `docker-compose.yml` para manter o contêiner ativo:
+1. Altere temporariamente o arquivo `docker-compose.yml` para manter o contêiner ativo:
 
    ```yaml
    services:

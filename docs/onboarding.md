@@ -14,6 +14,9 @@ The dashboard aggregates GLPI service desk metrics using a FastAPI backend and a
    cp .env.example .env
    ```
 
+   Ensure the Docker Compose plugin is installed. The `docker compose` command
+   requires Docker Engine 20.10+ or the `docker-compose-plugin` package.
+
 2. Start the stack:
 
    ```bash
