@@ -16,9 +16,7 @@ const eslintConfig = [
     "plugin:react/recommended",
     "plugin:react-hooks/recommended",
     "plugin:import/recommended",
-    "plugin:import/typescript",
-    "next/core-web-vitals",
-    "next/typescript"
+    "plugin:import/typescript"
   ),
   {
     languageOptions: {
