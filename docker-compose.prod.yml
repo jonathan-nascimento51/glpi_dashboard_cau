@@ -1,0 +1,23 @@
+services:
+  backend:
+    build: .
+    command: python worker.py
+    environment:
+      - PYTHONUNBUFFERED=1
+      - SKIP_PLAYWRIGHT=true
+      - DATABASE_URL=postgres://user:pass@db.prod:5432/app
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+
+  frontend:
+    build:
+      context: ./frontend
+    environment:
+      - NEXT_PUBLIC_API_BASE_URL=https://api.seudominio.com
+    ports:
+      - "80:3000"
+    command: npm run build && npm run start

@@ -159,6 +159,18 @@ pip install --no-index --find-links=wheels/ -r requirements.txt
 O front-end já executa `npm ci --prefer-offline`, reutilizando o cache de
 dependências sempre que possível.
 
+## Docker offline
+
+Se o host não puder acessar o **Docker Hub**, é possível salvar previamente as
+imagens usadas pelo `docker-compose.yml`:
+
+```bash
+./scripts/save_docker_images.sh images.tar
+```
+
+Copie `images.tar` para a máquina de destino e carregue com `docker load -i`.
+Assim a stack sobe mesmo sem internet ou com registro interno.
+
 ## Running the Dash app
 
 Start the dashboard pointing to your GLPI instance:
