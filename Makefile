@@ -1,31 +1,50 @@
 # Makefile
 
+VENV=.venv
+PYTHON=$(VENV)/bin/python
+PIP=$(VENV)/bin/pip
+
 setup:
-	python -m venv .venv && source .venv/bin/activate && \
-	pip install -r requirements.txt -r requirements-dev.txt
+    python -m venv $(VENV) && \
+    $(PIP) install --upgrade pip && \
+    $(PIP) install -r requirements.txt -r requirements-dev.txt && \
+    $(PIP) install -e .
 
 build:
-	docker-compose build
+    docker-compose build
 
 up:
-	docker-compose up
+    docker-compose up
 
 reset:
-	docker-compose down -v && docker-compose up --build
+    docker-compose down -v && docker-compose up --build
 
 logs:
-	docker-compose logs -f
+    docker-compose logs -f
 
 down:
-	docker-compose down
-
-.PHONY: init-db test
+    docker-compose down
 
 init-db:
-	python scripts/init_db.py
+    $(PYTHON) scripts/init_db.py
 
 test:
-	# install runtime and development dependencies
-	pip install --break-system-packages -r requirements.txt -r requirements-dev.txt
-	pip install -e .  # ensure local package is discoverable
-	pytest --cov=.
+    $(PIP) install --break-system-packages -r requirements.txt -r requirements-dev.txt
+    $(PIP) install -e .
+    pytest
+
+lint:
+    flake8 .
+    black --check .
+    isort --check-only .
+    ruff check .
+
+format:
+    black .
+    isort .
+    ruff check --fix .
+
+bug-prompt:
+    $(PYTHON) scripts/generate_bug_prompt.py --output bug_prompt.md
+
+.PHONY: setup build up reset logs down init-db test lint format bug-prompt

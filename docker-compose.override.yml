@@ -1,0 +1,22 @@
+services:
+  backend:
+    environment:
+      - PYTHONUNBUFFERED=1
+      - SKIP_PLAYWRIGHT=true
+    volumes:
+      - .:/app
+    command: >
+      bash -c "
+        source .venv/bin/activate &&
+        python worker.py
+      "
+
+  frontend:
+    environment:
+      - NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
+    ports:
+      - "5173:5173"  # Porta correta para Vite
+    volumes:
+      - ./frontend:/app/frontend
+    working_dir: /app/frontend
+    command: npm run dev
