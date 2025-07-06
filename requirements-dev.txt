@@ -17,3 +17,4 @@ pytest-httpx
 aiohttp>=3.9
 pandas
 pact-python
+pydantic-to-typescript
