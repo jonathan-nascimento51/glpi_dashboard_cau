@@ -74,3 +74,33 @@ async def test_query_graphql_retry_on_429(monkeypatch):
     assert call_count == 2
     assert data == {"ok": True}
     assert sleep_mock.call_count == 1
+
+
+@pytest.mark.asyncio
+async def test_get_all_paginated(monkeypatch):
+    client = GLPIClient(
+        "http://example.com/apirest.php", app_token="app", user_token="tok"
+    )
+
+    ranges = ["0-1", "2-3", "4-5"]
+    responses = [
+        httpx.Response(200, json={"data": [{"id": 1}, {"id": 2}]}),
+        httpx.Response(200, json={"data": [{"id": 3}]}),
+        httpx.Response(200, json={"data": []}),
+    ]
+    call_count = 0
+
+    async def fake_request(method, url, **kwargs):
+        nonlocal call_count
+        assert url == "search/Ticket"
+        assert kwargs["params"]["range"] == ranges[call_count]
+        resp = responses[call_count]
+        call_count += 1
+        return resp
+
+    monkeypatch.setattr(client._client, "request", fake_request)
+    with patch("asyncio.sleep", new=AsyncMock()):
+        data = await client.get_all_paginated("Ticket", page_size=2)
+
+    assert call_count == 3
+    assert data == [{"id": 1}, {"id": 2}, {"id": 3}]
