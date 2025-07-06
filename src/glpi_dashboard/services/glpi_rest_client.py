@@ -35,7 +35,7 @@ import base64
 import json
 import logging
 import random
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 import httpx
 from pydantic import BaseModel, Field
@@ -276,6 +276,59 @@ class GLPIClient:
                 resp.status_code, data.get("message", resp.reason_phrase), data
             )
         return data
+
+    async def get_all_paginated(
+        self, itemtype: str, page_size: int = 100, **params: Any
+    ) -> List[Dict[str, Any]]:
+        """Return all items for ``itemtype`` using a resilient page loop."""
+
+        logger.info("Starting paginated fetch for %s with params %s", itemtype, params)
+
+        results: List[Dict[str, Any]] = []
+        offset = 0
+        base_params = {**params, "expand_dropdowns": 1}
+        endpoint = itemtype if itemtype.startswith("search/") else f"search/{itemtype}"
+
+        while True:
+            page_params = {
+                **base_params,
+                "range": f"{offset}-{offset + page_size - 1}",
+            }
+
+            try:
+                resp = await self._request_with_retry(
+                    "GET", endpoint, params=page_params
+                )
+            except httpx.HTTPError as exc:
+                logger.critical("Pagination aborted: %s", exc)
+                break
+
+            data = resp.json()
+            if data.get("message") == "ERROR_JSON_PAYLOAD_FORBIDDEN":
+                raise GLPIAPIError(resp.status_code, data["message"], data)
+            if resp.status_code >= 400 and resp.status_code != 429:
+                raise GLPIAPIError(
+                    resp.status_code,
+                    data.get("message", resp.reason_phrase),
+                    data,
+                )
+
+            page_items = data.get("data", data)
+            if isinstance(page_items, dict):
+                page_items = [page_items]
+            page_items = [i for i in page_items if isinstance(i, dict)]
+
+            if not page_items:
+                logger.info("No items in page; stopping pagination for %s", itemtype)
+                break
+
+            results.extend(page_items)
+
+            offset += page_size
+            await asyncio.sleep(0.1)
+
+        logger.info("Pagination finished for %s: %d items", itemtype, len(results))
+        return results
 
     # ------------------------------------------------------------------
     # GraphQL helper
