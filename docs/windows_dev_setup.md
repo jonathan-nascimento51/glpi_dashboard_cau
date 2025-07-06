@@ -35,10 +35,10 @@ steps:
   - uses: actions/setup-node@v4
     with:
       node-version: '18.x'
-  - run: npm ci
-  - run: npm run lint
-  - run: npm run build --if-present
-  - run: npm test
+  - run: cd frontend && npm ci
+  - run: cd frontend && npm run lint
+  - run: cd frontend && npm run build --if-present
+  - run: cd frontend && npm test
   - uses: actions/setup-python@v5
     with:
       python-version: '3.10'

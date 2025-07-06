@@ -79,7 +79,7 @@ The dashboard reads data produced by the worker and stored in PostgreSQL. More d
 available in [docs/langgraph_workflow.md](docs/langgraph_workflow.md).
 Instructions for running the React front-end—including npm scripts and required environment variables—are available in
 [docs/frontend_architecture.md](docs/frontend_architecture.md). That document also covers how the front-end communicates with the worker API via `NEXT_PUBLIC_API_BASE_URL` and how to run the Jest and Playwright test suites.
-Create the environment file with `cp frontend/.env.example frontend/.env` before running `npm run dev` or launching Docker.
+Create the environment file with `cp frontend/.env.example frontend/.env` before running the dashboard. Execute all npm commands from inside the `frontend` directory, e.g. `cd frontend && npm run dev`, or launch Docker.
 
 ## Main modules
 
@@ -166,7 +166,8 @@ The service exposes several endpoints:
 
 Make sure the service is running with `python worker.py` and that your
 front-end points to it via `NEXT_PUBLIC_API_BASE_URL` in `frontend/.env`.
-Create the environment file with `cp frontend/.env.example frontend/.env` before running `npm run dev` or launching Docker.
+Create the environment file with `cp frontend/.env.example frontend/.env` before starting the front-end.
+Run npm scripts from inside the `frontend` directory (`cd frontend && npm run dev`) or launch Docker.
 Copy `frontend/.env.example` to `frontend/.env` if the file doesn't exist and
 adjust the URL as needed.
 
@@ -397,7 +398,7 @@ python scripts/generate_bug_prompt.py --output bug_prompt.md
 
 The Next.js dashboard targets a Largest Contentful Paint (LCP) below **2.5&nbsp;seconds**.
 Builds fail if any JavaScript bundle exceeds **250&nbsp;kB**. Run the analyzer
-with:
+from the `frontend` directory with:
 
 ```bash
 npm run analyze
@@ -441,7 +442,7 @@ Em produ\u00e7\u00e3o, a fun\u00e7\u00e3o `reportWebVitals` envia as m\u00e9tric
 Gere flamegraphs locais com:
 
 ```bash
-npm run perf:profile
+cd frontend && npm run perf:profile
 ```
 
 ## CI
