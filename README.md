@@ -385,6 +385,22 @@ The frontend image takes advantage of BuildKit caching to speed up subsequent `n
 
 This exposes the worker API on port `8000` and the dashboard on port `8080`.
 
+## Network
+
+If the host has limited internet access you can pre-download all Python
+dependencies:
+
+```bash
+python scripts/download_wheels.py
+```
+
+This stores wheels under `wheels/` by default. Transfer the directory to the
+offline machine and install using:
+
+```bash
+pip install --no-index --find-links=wheels -r requirements.txt -r requirements-dev.txt
+```
+
 ## Tests and linting
 
 Execute the unit tests with coverage:
