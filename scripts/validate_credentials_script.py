@@ -1,20 +1,12 @@
-# scripts/validate_credentials.py
+# scripts/validate_credentials_script.py
 
 import asyncio
-
-from src.glpi_dashboard.config.settings import get_settings
-from aiohttp import ClientSession
-import textwrap
 import logging
+import textwrap
 
+from aiohttp import ClientSession
 
-# --- Add project root to path to allow imports from src ---
-# This allows the script to be run from the root directory of the project
-# and still find the necessary modules in `src`.
-# -----------------------------------------------------------
-
-# from src.glpi_dashboard.services.glpi_session import GLPISession, Credentials
-# from src.glpi_dashboard.services.exceptions import GLPIAPIError
+from glpi_dashboard.config.settings import get_settings
 
 
 async def check_glpi_connection():
@@ -24,11 +16,7 @@ async def check_glpi_connection():
     """
     print("🔍 Validating GLPI API credentials...")
     settings = get_settings()
-    # Print tokens for debugging
-    print(f"GLPI_APP_TOKEN: {settings.GLPI_APP_TOKEN}")
-    print(f"GLPI_USER_TOKEN: {settings.GLPI_USER_TOKEN}")
-    print(f"GLPI_USERNAME: {settings.GLPI_USERNAME}")
-    print(f"GLPI_PASSWORD: {settings.GLPI_PASSWORD}")
+    # Tokens are used only to attempt a login; avoid printing them to stdout
 
     # Retire espaços/nova-linhas acidentais
     app_token = (settings.GLPI_APP_TOKEN or "").strip()
