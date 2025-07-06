@@ -2,9 +2,33 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react'
 import { FixedSizeList, ListChildComponentProps } from 'react-window'
 
+const priorityClasses: Record<string, string> = {
+  'Very High': 'text-red-700',
+  High: 'text-red-600',
+  Major: 'text-red-800',
+  Medium: 'text-yellow-600',
+  Low: 'text-green-600',
+  'Very Low': 'text-green-700',
+}
+
+const formatDate = (value?: string) => {
+  if (!value) return ''
+  try {
+    return new Intl.DateTimeFormat('pt-BR', {
+      dateStyle: 'short',
+      timeStyle: 'short',
+    }).format(new Date(value))
+  } catch {
+    return value
+  }
+}
+
 export interface TicketRow {
   id: number | string
   name: string
+  status?: string
+  priority?: string
+  date_creation?: string
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any
 }
@@ -33,11 +57,15 @@ const Row = React.memo(({ index, style, data }: ListChildComponentProps<RowData>
       role="row"
       data-row-index={index}
       tabIndex={0}
-      className="ticket-row border-b px-2 py-1 hover:bg-gray-100 cursor-pointer"
+      className="grid grid-cols-[80px_auto_120px_100px_160px] ticket-row border-b px-2 py-1 hover:bg-gray-100 cursor-pointer"
       onClick={handleClick}
       onFocus={handleFocus}
     >
-      {row.name}
+      <div>{row.id}</div>
+      <div className="truncate" title={row.name}>{row.name}</div>
+      <div>{row.status}</div>
+      <div className={priorityClasses[row.priority ?? '']}>{row.priority}</div>
+      <div>{formatDate(row.date_creation)}</div>
     </div>
   )
 })
@@ -51,7 +79,7 @@ export function VirtualizedTicketTable({
 }: VirtualizedTicketTableProps) {
   const [focusedIndex, setFocusedIndex] = useState(0)
   const containerRef = useRef<HTMLDivElement>(null)
-  const listRef = useRef<FixedSizeList>(null)
+  const listRef = useRef<any>(null)
 
   const handleRowClick = useCallback(
     (row: TicketRow) => {
@@ -120,12 +148,18 @@ export function VirtualizedTicketTable({
               role="row"
               data-row-index={idx}
               tabIndex={0}
-              className="ticket-row px-2 py-1 hover:bg-gray-100 cursor-pointer"
+              className="grid grid-cols-[80px_auto_120px_100px_160px] ticket-row px-2 py-1 hover:bg-gray-100 cursor-pointer"
               style={{ height: rowHeight }}
               onClick={() => handleRowClick(row)}
               onFocus={() => handleRowFocus(idx)}
             >
-              {row.name}
+              <div>{row.id}</div>
+              <div className="truncate" title={row.name}>{row.name}</div>
+              <div>{row.status}</div>
+              <div className={priorityClasses[row.priority ?? '']}>
+                {row.priority}
+              </div>
+              <div>{formatDate(row.date_creation)}</div>
             </div>
           ))}
         </div>
