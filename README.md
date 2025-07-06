@@ -169,6 +169,8 @@ Make sure the service is running with `python worker.py` and that your
 front-end points to it via `NEXT_PUBLIC_API_BASE_URL` in `frontend/.env`.
 Create the environment file with `cp frontend/.env.example frontend/.env` before starting the front-end.
 Run npm scripts from inside the `frontend` directory (`cd frontend && npm run dev`) or launch Docker.
+
+Vite loads environment variables that start with `NEXT_PUBLIC_` thanks to `envPrefix` in `frontend/vite.config.ts`. Imports that begin with `@/` resolve to the `src` directory so paths stay short.
 Copy `frontend/.env.example` to `frontend/.env` if the file doesn't exist and
 adjust the URL as needed.
 
