@@ -130,6 +130,31 @@ pip install --no-index --find-links=/path/to/wheels -r requirements.txt -r requi
 More setup tips—including offline usage with mock data—are documented in
 [docs/glpi_tokens_guide.md](docs/glpi_tokens_guide.md).
 
+## Instalação em rede restrita
+
+Caso o ambiente tenha acesso limitado à internet ou exija proxy corporativo,
+defina as variáveis `HTTP_PROXY` e `HTTPS_PROXY` antes de executar o `pip`:
+
+```bash
+export HTTP_PROXY=http://proxy.empresa.com:8080
+export HTTPS_PROXY=$HTTP_PROXY
+```
+
+Em uma máquina com conexão liberada faça o download dos pacotes necessários:
+
+```bash
+pip download -r requirements.txt -d wheels/
+```
+
+Transfira o diretório `wheels/` para o destino e instale sem consultar o PyPI:
+
+```bash
+pip install --no-index --find-links=wheels/ -r requirements.txt
+```
+
+O front-end já executa `npm ci --prefer-offline`, reutilizando o cache de
+dependências sempre que possível.
+
 ## Running the Dash app
 
 Start the dashboard pointing to your GLPI instance:
