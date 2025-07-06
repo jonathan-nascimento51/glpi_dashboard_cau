@@ -11,14 +11,17 @@ echo ">>> INICIANDO CONFIGURAÇÃO COMPLETA DO AMBIENTE <<<"
 # --- 1. INSTALAÇÃO DE DEPENDÊNCIAS DO SISTEMA (CRÍTICO) ---
 # O Playwright precisa destas bibliotecas para rodar os navegadores.
 # O `-y` responde 'sim' para todas as perguntas do apt-get.
+#
+# ** VERSÃO ATUALIZADA para Ubuntu 24.04 (Noble) com pacotes 't64' **
+#
 echo ">>> (1/5) Instalando dependências do sistema para o Playwright..."
 sudo apt-get update
 sudo apt-get install -y \
     libnss3 \
     libnspr4 \
-    libatk1.0-0 \
-    libatk-bridge2.0-0 \
-    libcups2 \
+    libatk1.0-0t64 \
+    libatk-bridge2.0-0t64 \
+    libcups2t64 \
     libdbus-1-3 \
     libxkbcommon0 \
     libxcomposite1 \
@@ -28,9 +31,9 @@ sudo apt-get install -y \
     libgbm1 \
     libpango-1.0-0 \
     libcairo2 \
-    libasound2 \
-    libatspi2.0-0 \
-    libgtk-3-0 \
+    libasound2t64 \
+    libatspi2.0-0t64 \
+    libgtk-3-0t64 \
     libx11-xcb1 \
     libxshmfence1 \
     xvfb \
@@ -83,5 +86,3 @@ npx playwright install --with-deps chromium
 
 # --- FINALIZAÇÃO ---
 echo "✅ Ambiente configurado com sucesso! O terminal está pronto para uso."
-# Removi os comandos de teste daqui para que o setup seja mais rápido.
-# Você pode rodar 'pytest' e 'pre-commit run' manualmente quando precisar.
