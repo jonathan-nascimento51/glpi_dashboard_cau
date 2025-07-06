@@ -57,7 +57,10 @@ class AsyncAnalyzer(ast.NodeVisitor):
 
 
 def analyze_file(path: Path) -> list[str]:
-    tree = ast.parse(path.read_text())
+    try:
+        tree = ast.parse(path.read_text())
+    except SyntaxError as e:
+        return [f"{path}: SyntaxError: {e}"]
     analyzer = AsyncAnalyzer(path)
     analyzer.visit(tree)
     analyzer.finalize()
