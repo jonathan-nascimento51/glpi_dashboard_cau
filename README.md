@@ -250,6 +250,16 @@ Vite loads environment variables that start with `NEXT_PUBLIC_` thanks to `envPr
 Copy `frontend/.env.example` to `frontend/.env` if the file doesn't exist and
 adjust the URL as needed.
 
+### Generating TypeScript interfaces
+
+Run the following command to sync the frontend types with the backend models:
+
+```bash
+make gen-types
+```
+
+This converts the Pydantic models in `src/glpi_dashboard/ts_models.py` into TypeScript definitions under `frontend/src/types/api.ts`.
+
 Example GraphQL query to retrieve ticket data:
 
 ```graphql
