@@ -9,7 +9,7 @@ A aplicação é dividida em dois microsserviços principais:
 - **Dash App**: interface web construída com Dash que apresenta gráficos e tabelas em tempo real.
 - **Worker API**: serviço FastAPI responsável por coletar dados do GLPI, armazenar em Redis/PostgreSQL e expor endpoints REST/GraphQL.
 
-```
+```text
 @startuml
 actor Usuario
 Usuario --> Dash
@@ -31,7 +31,7 @@ O repositório é organizado em pacotes Python com responsabilidade clara:
 
 Esses módulos trocam dados através de objetos tipados e utilizam `httpx` com `asyncio` para chamadas não bloqueantes.
 
-```
+```text
 @startuml
 package "glpi_dashboard" {
   [services]
@@ -69,7 +69,7 @@ A solução é distribuída em contêineres Docker orquestrados via `docker comp
 - `redis`: cache de acesso rápido para dados de tickets.
 - `db` (opcional): armazena históricos e metadados adicionais.
 
-```
+```text
 @startuml
 node dash
 node worker
@@ -95,7 +95,7 @@ Um cenário comum envolve a visualização de backlog de chamados em tempo real:
 4. Os dados são normalizados com Pandas e gravados no cache.
 5. Dash recebe os resultados e atualiza as figuras na tela.
 
-```
+```text
 @startuml
 actor Usuario
 Usuario -> Dash : abrir painel
