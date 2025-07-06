@@ -1,10 +1,11 @@
 import { renderHook, waitFor } from '@testing-library/react'
-import { SWRConfig } from 'swr'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useChamadosPorData } from '@/hooks/useChamadosPorData'
 import { useChamadosPorDia } from '@/hooks/useChamadosPorDia'
 
+const queryClient = new QueryClient()
 const wrapper = ({ children }: { children: React.ReactNode }) => (
-  <SWRConfig value={{ provider: () => new Map() }}>{children}</SWRConfig>
+  <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
 )
 
 beforeEach(() => {

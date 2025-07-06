@@ -9,15 +9,12 @@ export interface Ticket {
 
 export function useTickets() {
   const queryClient = useQueryClient()
-  const { data, error, isLoading } = useQuery({
-    queryKey: ['tickets'],
-    queryFn: () => fetcher<Ticket[]>('/tickets'),
-  })
+  const query = useQuery<Ticket[]>(['tickets'], () => fetcher('/tickets'))
 
   return {
-    tickets: data,
-    error,
-    isLoading,
+    tickets: query.data,
+    error: query.error as Error | null,
+    isLoading: query.isLoading,
     refreshTickets: () => queryClient.invalidateQueries({ queryKey: ['tickets'] }),
   }
 }

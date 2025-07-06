@@ -18,16 +18,15 @@ interface Aggregated {
 
 export function useDashboardData() {
   const queryClient = useQueryClient()
-  const { data, error, isLoading } = useQuery({
-    queryKey: ['metrics', 'aggregated'],
-    queryFn: () => fetcher<Aggregated>('/metrics/aggregated'),
-  })
+  const query = useQuery<Aggregated>(['metrics-aggregated'], () =>
+    fetcher('/metrics/aggregated'),
+  )
 
   const metrics: Metrics = {
-    new: data?.status?.new ?? 0,
-    pending: data?.status?.pending ?? 0,
-    progress: data?.status?.progress ?? 0,
-    resolved: data?.status?.resolved ?? 0,
+    new: query.data?.status?.new ?? 0,
+    pending: query.data?.status?.pending ?? 0,
+    progress: query.data?.status?.progress ?? 0,
+    resolved: query.data?.status?.resolved ?? 0,
   }
   const trendChart = useRef<ChartType | null>(null)
   const sparkRefs = {
@@ -77,15 +76,21 @@ export function useDashboardData() {
 
   useEffect(() => {
     const id = setInterval(() => {
-      queryClient.invalidateQueries({ queryKey: ['metrics', 'aggregated'] }).catch(
-        () => undefined,
-      )
+      queryClient
+        .invalidateQueries({ queryKey: ['metrics-aggregated'] })
+        .catch(() => undefined)
     }, 30000)
     return () => clearInterval(id)
   }, [queryClient])
 
   const refreshMetrics = () =>
-    queryClient.invalidateQueries({ queryKey: ['metrics', 'aggregated'] })
+    queryClient.invalidateQueries({ queryKey: ['metrics-aggregated'] })
 
-  return { metrics, sparkRefs, refreshMetrics, isLoading, error }
+  return {
+    metrics,
+    sparkRefs,
+    refreshMetrics,
+    isLoading: query.isLoading,
+    error: query.error as Error | null,
+  }
 }
