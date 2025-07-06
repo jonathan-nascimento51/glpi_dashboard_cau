@@ -343,6 +343,11 @@ The development compose file also sets Prometheus to `--log.level=warn` so only
 warnings and errors appear in the logs. Adjust the command in
 `docker-compose-dev.yml` if you need more verbose Prometheus output.
 
+The backend Dockerfile allows skipping Playwright browser installation using the
+`INSTALL_PLAYWRIGHT` build argument. This is set to `false` in
+`docker-compose-dev.yml` to speed up development builds. Enable it only when you
+need browser automation.
+
 The frontend image takes advantage of BuildKit caching to speed up subsequent `npm ci` runs. Ensure BuildKit is enabled by setting `DOCKER_BUILDKIT=1`.
 
 This exposes the worker API on port `8000` and the dashboard on port `8080`.

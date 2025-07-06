@@ -4,7 +4,7 @@
 FROM python:3.12-slim AS builder
 
 # Permite controlar instalação do Playwright via build-arg
-ARG SKIP_PLAYWRIGHT=false
+ARG INSTALL_PLAYWRIGHT=false
 
 # 1. Instalar dependências de sistema
 RUN apt-get update && apt-get install -y \
@@ -36,48 +36,54 @@ RUN apt-get update && apt-get install -y \
   && rm -rf /var/lib/apt/lists/*
 
 # Instalar Node.js
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-  && apt-get install -y nodejs \
-  && rm -rf /var/lib/apt/lists/*
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && apt-get install -y nodejs
 
-# 2. Criar ambiente virtual e ativar no PATH
+# 2. Criar ambiente virtual
 ENV VENV_PATH=/opt/venv
 RUN python -m venv $VENV_PATH
 ENV PATH="$VENV_PATH/bin:$PATH"
 
-# 3. Copiar definições de dependências para cache
+# 3. Instalar dependências Python (Otimizado para cache)
 WORKDIR /app
-COPY requirements.txt pyproject.toml setup.sh ./
+# Copia PRIMEIRO os arquivos de definição de dependências.
+# Se eles não mudarem, o Docker reutiliza a camada de instalação.
+COPY requirements.txt pyproject.toml ./
+# Copie também o setup.sh se o pyproject.toml precisar dele imediatamente
+COPY setup.sh ./ 
 
-# Instalar dependências Python
+# Agora sim, instale as dependências. O pip encontrará os arquivos necessários.
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 4. Instalar Playwright somente se não for dev
-RUN if [ "$SKIP_PLAYWRIGHT" = "false" ]; then \
-      pip install --no-cache-dir playwright && \
-      playwright install chromium --with-deps; \
-    fi
-
-# 5. Copiar o restante do código
+# 4. Copiar o restante do código da aplicação
 COPY . .
 
+# 5. Instalar (opcionalmente) os browsers do Playwright
+# A instalação pode ser custosa; permite-se desativar via argumento de build
+RUN if [ "$INSTALL_PLAYWRIGHT" = "true" ]; then \
+      pip install --no-cache-dir playwright && \
+      playwright install chromium --with-deps; \
+    else \
+      mkdir -p /root/.cache/ms-playwright; \
+    fi
+
 # =================================================================
-# Estágio 2: Final - Imagem enxuta para produção
+# Estágio 2: Final - Imagem de produção, limpa e enxuta
 # =================================================================
 FROM python:3.12-slim
+ARG INSTALL_PLAYWRIGHT=false
 
-# Instalar dependências mínimas de sistema
+# Instalar apenas as dependências de sistema ESTRITAMENTE necessárias para rodar
 RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Copy virtualenv from builder
+# Copiar o ambiente virtual já pronto do estágio builder
 ENV VENV_PATH=/opt/venv
 COPY --from=builder $VENV_PATH $VENV_PATH
 ENV PATH="$VENV_PATH/bin:$PATH"
 
-# Copy application code and cached browsers (se houver)
+# Copiar a aplicação e os browsers instalados do estágio builder
 COPY --from=builder /app /app
 COPY --from=builder /root/.cache/ms-playwright /root/.cache/ms-playwright
 
