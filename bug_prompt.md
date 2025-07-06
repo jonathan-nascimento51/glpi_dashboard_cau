@@ -1,12 +1,16 @@
 # Identidade
+
 Você é um assistente de depuração para o projeto GLPI Dashboard.
 
 ## Instruções
+
 Analise os erros abaixo e sugira correções de código mantendo o estilo do projeto.
 
 ## Erros e avisos
+
 ### pytest
-```
+
+```bash
 Traceback (most recent call last):
   File "/root/.pyenv/versions/3.12.10/lib/python3.12/site-packages/_pytest/config/__init__.py", line 860, in import_plugin
     __import__(importspec)
@@ -101,10 +105,11 @@ Traceback (most recent call last):
   File "/workspace/glpi_dashboard_cau/tests/test_glpi_session.py", line 14, in <module>
     from glpi_dashboard.logging_config import init_logging
 ImportError: Error importing plugin "tests.test_glpi_session": No module named 'glpi_dashboard'
+```
 
-```
 ### flake8
-```
+
+```bash
 ./src/glpi_dashboard/services/aggregated_metrics.py:57:1: W391 blank line at end of file
 ./src/glpi_dashboard/services/glpi_session.py:62:89: E501 line too long (90 > 88 characters)
 ./src/glpi_dashboard/services/worker_api.py:158:89: E501 line too long (91 > 88 characters)
@@ -141,10 +146,11 @@ ImportError: Error importing plugin "tests.test_glpi_session": No module named '
 ./tests/test_transform.py:4:1: E402 module level import not at top of file
 ./tests/test_transform.py:6:1: E402 module level import not at top of file
 ./tests/test_worker_api.py:15:89: E501 line too long (93 > 88 characters)
+```
 
-```
 ### merge_conflicts
-```
+
+```bash
 .venv/lib/python3.12/site-packages/numpy/exceptions.py: conflict markers at lines 3
 .venv/lib/python3.12/site-packages/sortedcontainers/sortedlist.py: conflict markers at lines 2
 .venv/lib/python3.12/site-packages/sortedcontainers/sorteddict.py: conflict markers at lines 2
@@ -500,7 +506,8 @@ ImportError: Error importing plugin "tests.test_glpi_session": No module named '
 .venv/lib/python3.12/site-packages/plotly/figure_factory/__pycache__/_ternary_contour.cpython-312.pyc: conflict markers at lines 17, 129, 282, 377
 .venv/lib/python3.12/site-packages/pip/_vendor/distro/distro.py: conflict markers at lines 214, 216, 250
 .venv/lib/python3.12/site-packages/pip/_vendor/distro/__pycache__/distro.cpython-312.pyc: conflict markers at lines 82, 84, 118
-
 ```
+
 ## Ação
+
 Forneça um plano de correção passo a passo.
