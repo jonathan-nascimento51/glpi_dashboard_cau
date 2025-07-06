@@ -40,7 +40,7 @@ const SidebarComponent: React.FC<SidebarProps> = ({ performance, ranking, alerts
               <span className="performance-value">{p.value}</span>
             </div>
             <div className="performance-bar">
-              <div className="performance-fill" style={{ width: p.barWidth }} />
+              <div className={`performance-fill w-[${p.barWidth}]`} />
             </div>
           </div>
         ))}
