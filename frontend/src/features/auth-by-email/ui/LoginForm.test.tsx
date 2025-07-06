@@ -9,7 +9,7 @@ jest.mock('@/entities/user', () => ({
 describe('LoginForm', () => {
   it('submits email and calls setUser', () => {
     const setUser = jest.fn()
-    ;(useUserStore as jest.Mock).mockReturnValue({ setUser })
+  ;(useUserStore as unknown as jest.Mock).mockReturnValue({ setUser })
     render(<LoginForm />)
     fireEvent.change(screen.getByPlaceholderText('Email'), {
       target: { value: 'test@example.com' },
