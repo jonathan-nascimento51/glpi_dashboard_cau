@@ -61,11 +61,13 @@ const Row = React.memo(({ index, style, data }: ListChildComponentProps<RowData>
       onClick={handleClick}
       onFocus={handleFocus}
     >
-      <div>{row.id}</div>
-      <div className="truncate" title={row.name}>{row.name}</div>
-      <div>{row.status}</div>
-      <div className={priorityClasses[row.priority ?? '']}>{row.priority}</div>
-      <div>{formatDate(row.date_creation)}</div>
+      <div role="cell">{row.id}</div>
+      <div role="cell" className="truncate" title={row.name}>{row.name}</div>
+      <div role="cell">{row.status}</div>
+      <div role="cell" className={priorityClasses[row.priority ?? '']}>
+        {row.priority}
+      </div>
+      <div role="cell">{formatDate(row.date_creation)}</div>
     </div>
   )
 })
@@ -153,13 +155,13 @@ export function VirtualizedTicketTable({
               onClick={() => handleRowClick(row)}
               onFocus={() => handleRowFocus(idx)}
             >
-              <div>{row.id}</div>
-              <div className="truncate" title={row.name}>{row.name}</div>
-              <div>{row.status}</div>
-              <div className={priorityClasses[row.priority ?? '']}>
+              <div role="cell">{row.id}</div>
+              <div role="cell" className="truncate" title={row.name}>{row.name}</div>
+              <div role="cell">{row.status}</div>
+              <div role="cell" className={priorityClasses[row.priority ?? '']}>
                 {row.priority}
               </div>
-              <div>{formatDate(row.date_creation)}</div>
+              <div role="cell">{formatDate(row.date_creation)}</div>
             </div>
           ))}
         </div>
@@ -180,7 +182,7 @@ export function VirtualizedTicketTable({
         itemSize={rowHeight}
         width="100%"
         itemData={itemData}
-        outerElementType={React.forwardRef<HTMLDivElement>((props, ref) => (
+        innerElementType={React.forwardRef<HTMLDivElement>((props, ref) => (
           <div {...props} ref={ref} role="rowgroup" />
         ))}
       >
