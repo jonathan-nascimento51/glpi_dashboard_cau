@@ -1,5 +1,5 @@
 import useSWR from 'swr'
-import { fetcher } from '../lib/swrClient'
+import { fetcher } from '@/lib/swrClient'
 
 export interface ChamadoPorDia {
   date: string

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import useSWR from 'swr'
-import { fetcher } from '../lib/swrClient'
+import { fetcher } from '@/lib/swrClient'
 import type { Chart as ChartType } from 'chart.js'
 
 export interface Metrics {
