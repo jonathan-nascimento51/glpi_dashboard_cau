@@ -42,10 +42,10 @@ package api {
   [worker_api]
 }
 package dashboard {
-  [dash_layout]
+  [dashboard.layout]
 }
 [worker_api] --> [services]
-[dash_layout] --> [cache]
+[dashboard.layout] --> [cache]
 [services] --> [data]
 @enduml
 ```

@@ -32,11 +32,11 @@ Crie data_pipeline.py com:
 - Função save_json(df, path="mock/sample_data.json")
 ```
 
-### 3️⃣ Gerar **dash_layout.py**
+### 3️⃣ Gerar **dashboard/layout.py**
 
 ```text
 Você é front‑end Dash.
-Crie dash_layout.py contendo a função build_layout(df) que devolve um objeto html.Div com:
+Crie dashboard/layout.py contendo a função build_layout(df) que devolve um objeto html.Div com:
 - H1 título
 - 3 contadores (total, abertos, fechados)
 - Gráfico de barras tickets por status

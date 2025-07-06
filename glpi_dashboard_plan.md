@@ -24,7 +24,7 @@ glpi_dashboard/
 ├── requirements.txt
 ├── glpi_session.py
 ├── data_pipeline.py
-├── dash_layout.py
+├── dashboard/layout.py
 ├── main.py
 ├── scripts/
 │   ├── hash_data.py
@@ -50,7 +50,7 @@ glpi_dashboard/
 | Fase                     | Ambiente | Entregáveis-chave                            |
 |--------------------------|----------|----------------------------------------------|
 | **1. Backend (API)**     | Intra    | `glpi_session.py`, `data_pipeline.py`, `hash_data.py` |
-| **2. Frontend Offline**  | Externo  | `dash_layout.py`, `main.py`, `mock/*.json`   |
+| **2. Frontend Offline**  | Externo  | `dashboard/layout.py`, `main.py`, `mock/*.json`   |
 | **3. Refino & Deploy**   | Ambos    | CSS, refresh automático, `ci_mock.yml`       |
 
 ---
