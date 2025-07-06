@@ -50,7 +50,8 @@ Open <http://127.0.0.1:8050> in your browser.
 
 - Python 3.10+
 - PostgreSQL and Redis instances running locally (or update the `.env` file)
-- Node or Docker are **not** required for development
+- Node.js is required to run the React frontend locally.
+  Docker remains an optional alternative for running the entire stack.
 
 Set the connection details in `.env` using the keys `DB_*` and `REDIS_*`.
 
