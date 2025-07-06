@@ -32,6 +32,7 @@ echo ">>> (4/6) Atualizando o pip e instalando dependências Python..."
 pip install --upgrade pip
 pip install -r requirements.txt -r requirements-dev.txt
 pip install -e .
+pip install pytest-cov
 
 echo ">>> (5/6) Instalando ganchos de pre-commit..."
 if command -v pre-commit >/dev/null 2>&1; then
