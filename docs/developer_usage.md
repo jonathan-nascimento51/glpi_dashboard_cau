@@ -96,6 +96,7 @@ Before running the tests, install the project in editable mode so imports resolv
 
 ```bash
 pip install -e .
+pip install aiohttp  # required for glpi_session tests
 ```
 
 The `make test` target installs both `requirements.txt` and `requirements-dev.txt` before running pytest.
