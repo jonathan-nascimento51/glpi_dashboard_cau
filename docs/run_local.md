@@ -95,14 +95,15 @@ connection errors when running in online mode.
 
 ## Offline Docker images
 
-In restricted environments you may need to load Docker images without internet
-access. Use `scripts/save_docker_images.sh` on a machine that can reach the
-registry:
+In restricted environments without access to Docker Hub you must preload the
+container images. Run `scripts/save_docker_images.sh` on a machine that can
+reach the registry:
 
 ```bash
 ./scripts/save_docker_images.sh images.tar
 docker load -i images.tar
 ```
 
-Refer to the [Docker offline](../README.md#docker-offline) section in the main
-README for additional context.
+Copy the resulting `images.tar` to the offline server and load it before
+starting the stack. Refer to the [Docker offline](../README.md#docker-offline)
+section in the main README for additional context.
