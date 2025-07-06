@@ -133,3 +133,4 @@ Para detalhes de arquitetura e troubleshooting, consulte também:
 - `docs/run_local.md`
 - `docs/error_map.md`
 - `docs/revisao_arquitetural_glpi_dashboard.md`
+- `docs/windows_dev_setup.md`
