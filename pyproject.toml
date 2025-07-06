@@ -37,6 +37,7 @@ dependencies = [
     "purgatory>=3.0",
     "loguru>=0.7",
     "orjson>=3.10",
+    "arq>=0.26",
 ]
 
 [project.optional-dependencies]
