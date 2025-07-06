@@ -1,30 +1,33 @@
-# Windows Development Setup
+# Configuração de Desenvolvimento no Windows
 
-This guide covers how to configure a semi-autonomous workflow on Windows 10 using
-VS Code, WSL and GitHub Actions. The steps mirror the Unix instructions in the
-other documents while highlighting Windows specific tips.
+Este guia explica como configurar um fluxo de trabalho semiautônomo no Windows 10
+utilizando VS Code, WSL e GitHub Actions. As etapas abaixo seguem a mesma lógica
+da configuração Unix descrita nos demais documentos, destacando apenas os pontos
+específicos do Windows.
 
-## 1. Editors and environment
+## 1. Editor e ambiente
 
-- **Visual Studio Code** is recommended for Python and JavaScript/TypeScript.
-  Install the official extensions and use the integrated terminal for Git.
-- **WSL (Windows Subsystem for Linux)** provides a Unix-like shell and is fully
-  supported by VS Code. It allows switching Python interpreters and creating
-  virtual environments just like on Linux.
-- Install the latest **Node.js LTS** and enable `pip`/`venv` for Python. These
-  tools are required by the front-end and back-end.
+- **Visual Studio Code** é a opção recomendada para Python e JavaScript/TypeScript.
+  Instale as extensões oficiais e utilize o terminal integrado para o Git.
+- **WSL (Windows Subsystem for Linux)** fornece um shell Unix‑like totalmente
+  integrado ao VS Code. Ele permite alternar interpretadores Python e criar
+  ambientes virtuais da mesma forma que no Linux.
+- Instale a versão **Node.js LTS** mais recente e habilite `pip`/`venv` para
+  Python. Esses recursos são necessários tanto para o front-end quanto para o
+  back-end.
 
-## 2. Git workflow
+## 2. Fluxo de Git
 
-1. Initialize a local Git repository or clone the existing one.
-2. Work on feature branches for major changes and keep Pull Requests small and
-   focused.
-3. Describe each PR clearly to help reviewers understand the purpose.
+1. Inicie um repositório Git local ou clone o existente.
+2. Trabalhe em branches de recurso para mudanças grandes e mantenha os Pull
+   Requests pequenos e focados.
+3. Descreva cada PR de forma clara para facilitar a revisão.
 
-## 3. Continuous Integration
+## 3. Integração Contínua
 
-The project uses GitHub Actions to lint and test both the Node.js front‑end and
-Python back‑end. Below is a simplified example of the workflow:
+O projeto utiliza GitHub Actions para rodar lint e testes tanto no front-end
+Node.js quanto no back-end em Python. Abaixo segue um exemplo simplificado do
+workflow:
 
 ```yaml
 steps:
@@ -46,5 +49,6 @@ steps:
   - run: pytest
 ```
 
-Use the above as a starting point when customising `.github/workflows/` for your
-Windows setup. The same configuration runs on Linux via WSL or the CI servers.
+Use o trecho acima como ponto de partida ao customizar seus arquivos em
+`.github/workflows/` para o ambiente Windows. Essa mesma configuração funciona no
+Linux via WSL ou nos servidores de CI.
