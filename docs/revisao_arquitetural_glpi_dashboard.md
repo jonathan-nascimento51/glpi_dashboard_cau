@@ -188,6 +188,17 @@ Gestão de Paginação: O método de busca deve conter, de forma transparente, o
 Transformação de Dados: Receber a resposta bruta da API (com IDs) e transformá-la em modelos de dados limpos e validados (usar bibliotecas como Pydantic é ideal para isto), que são então usados pelo resto da aplicação.
 Tratamento de Erros: Capturar os erros da API e os códigos de status HTTP e traduzi-los em exceções específicas da aplicação (ex: GlpiConnectionError, TicketNotFoundError), permitindo um tratamento de erros mais limpo no resto do código.
 A adoção deste padrão arquitetural oferece enormes benefícios. Torna o código do dashboard muito mais limpo e focado na sua responsabilidade principal: a visualização de dados. Isola toda a complexidade da API do GLPI num único local, tornando-a mais fácil de testar, depurar e manter. Mais importante ainda, prepara a aplicação para o futuro. Quando a nova API do GLPI (/api.php) se tornar estável e preferível, apenas a implementação interna da camada GlpiApiClient precisará de ser atualizada; o resto da aplicação glpi_dashboard_cau poderá permanecer inalterado, garantindo uma transição suave e de baixo risco.
+
+4.3. Apresentando Dados com Clareza
+O último passo para uma UI de qualidade é a formatação dos dados para apresentação. Dados brutos da API, mesmo que já traduzidos pela ACL, podem não ser ideais para o usuário final. O exemplo mais comum é o formato de data. A API retornará datas no formato ISO 8601 (ex: 2023-10-27T10:00:00Z). Apresentar isso diretamente na UI é tecnicamente correto, mas pouco amigável.
+
+Boas práticas de formatação no cliente incluem:
+
+- **Formatação de Datas**: Usar bibliotecas como `date-fns` ou a API nativa do navegador `Intl.DateTimeFormat` para formatar datas e horas de acordo com o local (locale) do usuário. Por exemplo, converter `2023-10-27T10:00:00Z` para "27/10/2023 07:00" para um usuário no Brasil (considerando o fuso horário) ou "10/27/2023 10:00 AM" para um usuário em outro local.
+- **Capitalização e Estilização**: Aplicar estilos CSS com base nos valores dos dados. Por exemplo, a coluna "Prioridade" pode ter cores diferentes para "Alta" (vermelho), "Média" (amarelo) e "Baixa" (verde) para melhorar a legibilidade visual da tabela.
+- **Truncamento de Texto**: Para campos de texto longos como o título (`title`), truncar o texto com "..." e exibir o texto completo em um tooltip ao passar o mouse, evitando quebras de layout na tabela.
+
+Esses refinamentos finais, embora pequenos, são o que separam uma aplicação funcional de uma aplicação profissional e agradável de usar.
 Seção 5: Conclusão e Roteiro Estratégico
 5.1. Sumário das Conclusões
 A análise detalhada da aplicação glpi_dashboard_cau e da API REST do GLPI revela que a discrepância de dados observada não é o resultado de uma falha técnica, mas sim de uma implementação de cliente de API incompleta. Os registos mostram um ciclo de comunicação bem-sucedido, mas a lógica da aplicação falha em dois aspetos críticos: não gere a paginação dos resultados da API, levando à obtenção de um conjunto de dados parcial, e não transforma os identificadores relacionais retornados pela API nos seus valores textuais correspondentes, resultando numa exibição de dados brutos e incompreensíveis.
