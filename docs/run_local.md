@@ -5,18 +5,21 @@ This guide details how to configure a virtual environment, install dependencies 
 ## 1. Create and activate a virtual environment
 
 ### Linux
+
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 ```
 
 ### Windows (CMD)
+
 ```bat
 py -m venv .venv
 .venv\Scripts\activate.bat
 ```
 
 ### Windows (PowerShell)
+
 ```powershell
 py -m venv .venv
 .venv\Scripts\Activate.ps1
@@ -54,6 +57,7 @@ Saída esperada em caso de sucesso:
 ```
 
 Se ocorrer algum erro, ajuste o arquivo `.env` antes de prosseguir com `docker compose up`.
+
 ## 5. Prepare the data
 
 Optionally generate a JSON dump from GLPI. A small sanitized sample is already
@@ -65,17 +69,20 @@ python scripts/fetch_tickets.py --output data/tickets_dump.json
 
 ## 6. Start the Dash server
 
-### Linux / macOS
+### 6.1 Linux / macOS
+
 ```bash
 python main.py
 ```
 
-### Windows (CMD)
+### 6.2 Windows (CMD)
+
 ```bat
 python main.py
 ```
 
-### Windows (PowerShell)
+### 6.3 Windows (PowerShell)
+
 ```powershell
 python main.py
 ```
