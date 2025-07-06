@@ -73,6 +73,10 @@ python scripts/validate_credentials.py
 docker compose up -d --build
 ```
 
+O comando `docker compose` exige o plugin Docker Compose v2. Instale o pacote
+`docker-compose-plugin` ou atualize seu Docker Engine caso ele não esteja
+disponível.
+
 Ao finalizar, execute:
 
 ```bash

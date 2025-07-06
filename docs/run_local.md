@@ -57,6 +57,9 @@ Saída esperada em caso de sucesso:
 ```
 
 Se ocorrer algum erro, ajuste o arquivo `.env` antes de prosseguir com `docker compose up`.
+Certifique-se de que o plugin Docker Compose (v2) esteja instalado. Caso o comando
+`docker compose` não seja reconhecido, instale o pacote `docker-compose-plugin` ou
+atualize o Docker Engine.
 
 ## 5. Prepare the data
 
