@@ -1,9 +1,12 @@
-import pandas as pd
-from dash import Dash
-import dash_bootstrap_components as dbc
 import shutil
 import subprocess
+
+import dash_bootstrap_components as dbc
+import pandas as pd
 import pytest
+from dash import Dash
+
+from glpi_dashboard.dashboard.layout import build_layout
 
 _chromedriver = shutil.which("chromedriver")
 try:
@@ -18,9 +21,6 @@ try:
     )
 except OSError:
     _chrome_ok = False
-
-
-from glpi_dashboard.dashboard.layout import build_layout
 
 
 @pytest.mark.skipif(not _chrome_ok, reason="chromedriver not installed")
