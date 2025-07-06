@@ -6,20 +6,26 @@ import argparse
 import asyncio
 import contextlib
 import json
+import logging
 from functools import wraps
 from typing import Any, AsyncGenerator, Awaitable, Callable, List, Optional, Type
 
 import pandas as pd
 import strawberry
 import uvicorn
-from fastapi import FastAPI, HTTPException, Request, Response
+from fastapi import Depends, FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel, Field
 from strawberry.fastapi import GraphQLRouter
 from strawberry.types import Info
 
-from glpi_dashboard.acl import process_raw
+from glpi_dashboard.acl import (
+    CleanTicketDTO,
+    MappingService,
+    TicketTranslator,
+    process_raw,
+)
 from glpi_dashboard.services.aggregated_metrics import (
     cache_aggregated_metrics,
     compute_aggregated,
@@ -39,6 +45,8 @@ from ..config.settings import (
     GLPI_USER_TOKEN,
     GLPI_USERNAME,
 )
+
+logger = logging.getLogger(__name__)
 
 
 @strawberry.type
@@ -73,6 +81,54 @@ class ChamadosPorDia(BaseModel):
 
     date: str = Field(..., examples=["2024-06-01"])
     total: int = Field(..., examples=[5])
+
+
+def get_ticket_translator() -> TicketTranslator:
+    """Instantiate :class:`TicketTranslator` with configured dependencies."""
+
+    creds = Credentials(
+        app_token=GLPI_APP_TOKEN,
+        user_token=GLPI_USER_TOKEN,
+        username=GLPI_USERNAME,
+        password=GLPI_PASSWORD,
+    )
+    session = GLPISession(GLPI_BASE_URL, creds)
+    mapper = MappingService(session)
+    return TicketTranslator(mapper)
+
+
+async def _load_and_translate_tickets(
+    translator: TicketTranslator,
+    cache=None,
+) -> List[CleanTicketDTO]:
+    """Return a list of ``CleanTicketDTO`` using the ACL pipeline."""
+
+    cache = cache or redis_client
+    cache_key = "tickets_clean"
+
+    cached = await cache.get(cache_key)
+    if cached is not None:
+        try:
+            return [CleanTicketDTO.model_validate(d) for d in cached]
+        except Exception:
+            pass
+
+    translated: List[CleanTicketDTO] = []
+    async with translator.mapper._session as glpi:
+        raw_tickets = await glpi.get_all("Ticket")
+        for raw_ticket in raw_tickets:
+            try:
+                clean_ticket = await translator.translate_ticket(raw_ticket)
+                translated.append(clean_ticket)
+            except Exception as exc:  # pragma: no cover - translation errors
+                logger.error(
+                    "Falha ao traduzir o ticket ID %s: %s",
+                    raw_ticket.get("id"),
+                    exc,
+                )
+
+    await cache.set(cache_key, [t.model_dump() for t in translated])
+    return translated
 
 
 async def _load_tickets(
@@ -222,10 +278,11 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
             creds,
         )
 
-    @app.get("/tickets")
-    async def tickets() -> list[dict]:  # noqa: F401
-        df = await _load_tickets(client=client, cache=cache)
-        return df.astype(object).where(pd.notna(df), None).to_dict(orient="records")
+    @app.get("/tickets", response_model=list[CleanTicketDTO])
+    async def tickets(
+        translator: TicketTranslator = Depends(get_ticket_translator),
+    ) -> list[CleanTicketDTO]:  # noqa: F401
+        return await _load_and_translate_tickets(translator, cache=cache)
 
     @app.get("/tickets/stream")
     async def tickets_stream() -> StreamingResponse:  # noqa: F401
