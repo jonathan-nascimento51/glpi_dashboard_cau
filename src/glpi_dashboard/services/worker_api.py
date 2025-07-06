@@ -7,8 +7,7 @@ import asyncio
 import contextlib
 import json
 import logging
-from functools import wraps
-from typing import Any, AsyncGenerator, Awaitable, Callable, List, Optional, Type
+from typing import Any, AsyncGenerator, List, Optional
 
 import pandas as pd
 import strawberry
@@ -221,23 +220,6 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
-
-    def cache_response(key: str, ttl_seconds: int, model: Type[BaseModel]):
-        """Decorator to cache endpoint responses as a list of dicts."""
-
-        def decorator(func: Callable[[], Awaitable[list[dict]]]):
-            @wraps(func)
-            async def wrapper() -> list[BaseModel]:
-                cached_data = await cache.get(key)
-                if cached_data is not None:
-                    return [model.model_validate(d) for d in cached_data]
-                result = await func()
-                await cache.set(key, result, ttl_seconds=ttl_seconds)
-                return [model.model_validate(d) for d in result]
-
-            return wrapper
-
-        return decorator
 
     @app.middleware("http")
     async def cache_tickets(request: Request, call_next):  # noqa: F401
