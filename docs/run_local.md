@@ -95,15 +95,13 @@ connection errors when running in online mode.
 
 ## Offline Docker images
 
-In restricted environments without access to Docker Hub you must preload the
-container images. Run `scripts/save_docker_images.sh` on a machine that can
-reach the registry:
+If the host has no internet access, you can preload all Docker images used by
+`docker-compose.yml` on a machine that does. Run the helper script and transfer
+the tarball to the offline environment:
 
 ```bash
 ./scripts/save_docker_images.sh images.tar
 docker load -i images.tar
 ```
 
-Copy the resulting `images.tar` to the offline server and load it before
-starting the stack. Refer to the [Docker offline](../README.md#docker-offline)
-section in the main README for additional context.
+Start the stack normally with `docker compose up` after loading the archive.
