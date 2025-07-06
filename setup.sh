@@ -29,18 +29,17 @@ echo ">>> (3/6) Ativando o ambiente virtual..."
 source "$VENV_DIR/bin/activate"
 
 echo ">>> (4/6) Atualizando o pip e instalando dependências Python..."
-pip install --upgrade pip
+python -m pip install --upgrade pip
 pip install -r requirements.txt -r requirements-dev.txt
-pip install -e .
+pip install -e .  # install package locally (packages live under src/)
+# Ruff version pinned to 0.12.2 is included in requirements-dev.txt
+# Reinstall dev dependencies before running pre-commit if your environment is outdated
 
 echo ">>> (5/6) Instalando ganchos de pre-commit..."
-if command -v pre-commit >/dev/null 2>&1; then
-  pre-commit install
-else
-  echo "⚠️ pre-commit não encontrado. Instalando..."
-  pip install pre-commit && pre-commit install
-fi
+pip install pre-commit && pre-commit install
+pre-commit install  # sets up hooks for black, ruff, isort and mypy
 
+# Docker
 echo ">>> (6/6) Instalando Docker..."
 sudo apt-get install -y ca-certificates curl gnupg lsb-release
 sudo mkdir -p /etc/apt/keyrings
@@ -54,6 +53,14 @@ curl -fsSL https://get.docker.com | sudo sh
 # Instalação opcional do Playwright/Chromium
 if [ "$SKIP_PLAYWRIGHT" = "false" ]; then
   echo ">>> Instalando o browser Chromium para o Playwright..."
+  # install aiohttp explicitly if using a custom environment
+  pip install aiohttp
+  # optional extras for e2e and container tests
+  pip install testcontainers playwright
+  # browser tests require Chrome/Chromedriver
+  # skip them with `pytest -k 'not test_dashboard_flows'` if the driver is missing
+  pytest --cov=./
+  pre-commit run --all-files
   npx playwright install --with-deps chromium < /dev/null \
     && echo "✅ Chromium instalado." \
     || { echo "❌ Falha na instalação do Chromium"; exit 1; }
