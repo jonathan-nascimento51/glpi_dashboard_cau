@@ -14,6 +14,6 @@ pytest-mock
 types-requests
 types-redis
 pytest-httpx
-aiohttp
+aiohttp>=3.9
 pandas
 pact-python

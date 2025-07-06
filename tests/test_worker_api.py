@@ -4,10 +4,12 @@ import types
 import pytest
 import redis
 from fastapi.testclient import TestClient
-
-from glpi_dashboard.services.exceptions import GLPIUnauthorizedError
-from worker import create_app
 from prometheus_client import CONTENT_TYPE_LATEST
+
+from glpi_dashboard.acl import MappingService, TicketTranslator
+from glpi_dashboard.services.exceptions import GLPIUnauthorizedError
+from glpi_dashboard.services.worker_api import get_ticket_translator
+from worker import create_app
 
 sys.modules.setdefault(
     "langgraph.checkpoint.sqlite", types.ModuleType("langgraph.checkpoint.sqlite")
@@ -48,21 +50,52 @@ def dummy_cache() -> DummyCache:
 
 
 class FakeSession:
-    def __enter__(self):
+    def __enter__(self):  # pragma: no cover - legacy sync path
         return self
 
-    def __exit__(self, exc_type, exc, tb):
+    def __exit__(self, exc_type, exc, tb):  # pragma: no cover - legacy sync path
         pass
 
-    def get_all(self, *args, **kwargs):
+    def get_all(self, *args, **kwargs):  # pragma: no cover - legacy sync path
         return [
             {"id": 1, "date_creation": "2024-06-01"},
             {"id": 2, "date_creation": "2024-06-02"},
         ]
 
 
+class FakeAsyncSession:
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, exc_type, exc, tb):
+        pass
+
+    async def get_all(self, *args, **kwargs):
+        return [
+            {
+                "id": 1,
+                "name": "A",
+                "status": 1,
+                "priority": 3,
+                "date_creation": "2024-06-01T00:00:00",
+                "users_id_assign": None,
+            },
+            {
+                "id": 2,
+                "name": "B",
+                "status": 2,
+                "priority": 2,
+                "date_creation": "2024-06-02T00:00:00",
+                "users_id_assign": None,
+            },
+        ]
+
+
 def test_rest_endpoints(dummy_cache: DummyCache):
-    client = TestClient(create_app(client=FakeSession(), cache=dummy_cache))
+    translator = TicketTranslator(MappingService(FakeAsyncSession()))
+    app = create_app(client=FakeSession(), cache=dummy_cache)
+    app.dependency_overrides[get_ticket_translator] = lambda: translator
+    client = TestClient(app)
 
     resp = client.get("/tickets")
     assert resp.status_code == 200
@@ -309,9 +342,7 @@ def test_metrics_aggregated_cache(dummy_cache: DummyCache):
     first = client.get("/metrics/aggregated").json()
 
     def later_data(*args, **kwargs):
-        return [
-            {"id": 99, "date_creation": "2024-07-01"}
-        ]
+        return [{"id": 99, "date_creation": "2024-07-01"}]
 
     session.get_all = later_data  # type: ignore[assignment]
     second = client.get("/metrics/aggregated").json()
