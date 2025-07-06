@@ -1,17 +1,18 @@
 """Async GLPI REST API client with resilience patterns."""
+
 # mypy: ignore-errors
 
 from __future__ import annotations
 
 import logging
-from typing import Any, List, Awaitable, Callable
+from typing import Any, Awaitable, Callable, List
 
 import httpx
 from purgatory import AsyncCircuitBreakerFactory
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 from tenacity import AsyncRetrying, RetryError, stop_after_attempt, wait_exponential
 
-from .glpi_adapter import CleanTicketDTO, RawTicketDTO, convert_ticket
+from .acl import CleanTicketDTO, RawTicketDTO, convert_ticket
 
 logger = logging.getLogger(__name__)
 
