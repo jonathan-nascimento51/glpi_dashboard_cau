@@ -36,6 +36,7 @@ dependencies = [
     "tenacity>=8.2",
     "purgatory>=3.0",
     "loguru>=0.7",
+    "orjson>=3.10",
 ]
 
 [project.optional-dependencies]
