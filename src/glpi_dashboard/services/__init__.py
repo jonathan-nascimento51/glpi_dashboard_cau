@@ -1,5 +1,7 @@
 """Service layer exports for the GLPI dashboard."""
 
+from typing import Any
+
 from .batch_fetch import BatchFetchParams, fetch_all_tickets, fetch_all_tickets_tool
 from .exceptions import (
     HTTP_STATUS_ERROR_MAP,
@@ -31,20 +33,21 @@ from .glpi_session import (
     SessionParams,
     open_session_tool,
 )
-from .tool_error import ToolError
 from .graphql_client import (
     GlpiGraphQLClient,
     GraphQLClientQueryParams,
     GraphQLParams,
     graphql_client_tool,
 )
+from .tool_error import ToolError
 
 try:  # pragma: no cover - optional dependency during tests
     from .langgraph_workflow import AgentState, build_workflow
 except Exception:  # pragma: no cover - fallback if langgraph missing
     AgentState = object  # type: ignore[misc,assignment]
 
-    def build_workflow(*_args, **_kwargs):
+    def build_workflow(path: str | None = None) -> Any:
+        """Fallback when ``langgraph`` is not installed."""
         raise ImportError("langgraph is required for workflow features")
 
 
