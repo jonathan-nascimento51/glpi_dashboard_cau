@@ -1,10 +1,10 @@
 #!/bin/bash
-set -e
+set -euo pipefail
 
 echo ">>> INICIANDO CONFIGURAÇÃO COMPLETA DO AMBIENTE <<<"
 
 echo ">>> (1/5) Instalando dependências do sistema para o Playwright..."
-sudo apt-get update
+sudo apt-get update -y
 sudo apt-get install -y \
     libnss3 libnspr4 libatk1.0-0t64 libatk-bridge2.0-0t64 libcups2t64 \
     libdbus-1-3 libxkbcommon0 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 \
@@ -17,11 +17,12 @@ sudo apt-get install -y \
 VENV_DIR=".venv"
 if [ ! -d "$VENV_DIR" ]; then
   echo ">>> (2/5) Criando ambiente virtual em $VENV_DIR..."
-  python3 -m venv $VENV_DIR
+  python3 -m venv "$VENV_DIR"
 fi
 
 echo ">>> (2/5) Ativando o ambiente virtual..."
-source $VENV_DIR/bin/activate
+# shellcheck disable=SC1090
+source "$VENV_DIR/bin/activate"
 
 echo ">>> (3/5) Atualizando o pip..."
 pip install --upgrade pip
@@ -31,4 +32,11 @@ pip install -r requirements.txt -r requirements-dev.txt
 pip install -e .
 
 echo ">>> (4/5) Instalando ganchos de pre-commit..."
-pre-commit install
+if command -v pre-commit >/dev/null 2>&1; then
+  pre-commit install
+else
+  echo "⚠️ pre-commit não encontrado. Instalando..."
+  pip install pre-commit && pre-commit install
+fi
+
+echo "✅ Script de configuração concluído com sucesso."
