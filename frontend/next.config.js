@@ -1,5 +1,6 @@
-/* eslint-disable @typescript-eslint/no-require-imports */
-const bundleAnalyzer = require('@next/bundle-analyzer')({
+import createBundleAnalyzer from '@next/bundle-analyzer'
+
+const withBundleAnalyzer = createBundleAnalyzer({
   enabled: process.env.ANALYZE === 'true',
 })
 
@@ -34,4 +35,4 @@ const nextConfig = {
   },
 }
 
-module.exports = bundleAnalyzer(nextConfig)
+export default withBundleAnalyzer(nextConfig)
