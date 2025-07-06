@@ -1,4 +1,5 @@
 import pytest
+from redis.asyncio import Redis
 
 from glpi_dashboard.acl import MappingService
 from glpi_dashboard.services.glpi_session import GLPISession
@@ -17,10 +18,49 @@ async def test_initialize_fetches_all_mappings(mocker):
         ]
     )
 
-    svc = MappingService(session)
+    redis_client = mocker.Mock(spec=Redis)
+    redis_client.hgetall = mocker.AsyncMock(return_value={})
+    pipe = mocker.AsyncMock()
+    pipe.__aenter__.return_value = pipe
+    redis_client.pipeline.return_value = pipe
+
+    svc = MappingService(session, redis_client=redis_client)
     await svc.initialize()
 
     assert svc.lookup("users", 1) == "Alice"
     assert svc.lookup("groups", 10) == "Support"
     assert svc.lookup("categories", 2) == "Hardware"
     assert svc.lookup("locations", 99) is None
+    pipe.hset.assert_called()  # ensure caching attempted
+
+
+@pytest.mark.asyncio
+async def test_get_user_map_cache_hit(mocker):
+    session = mocker.Mock(spec=GLPISession)
+    redis_client = mocker.Mock(spec=Redis)
+    redis_client.hgetall = mocker.AsyncMock(return_value={"5": "Alice"})
+    svc = MappingService(session, redis_client=redis_client)
+
+    result = await svc.get_user_map()
+
+    assert result == {5: "Alice"}
+    session.get_all.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_get_user_map_cache_miss(mocker):
+    session = mocker.Mock(spec=GLPISession)
+    session.get_all = mocker.AsyncMock(return_value=[{"id": 5, "name": "Bob"}])
+    redis_client = mocker.Mock(spec=Redis)
+    redis_client.hgetall = mocker.AsyncMock(return_value={})
+    pipe = mocker.AsyncMock()
+    pipe.__aenter__.return_value = pipe
+    redis_client.pipeline.return_value = pipe
+
+    svc = MappingService(session, redis_client=redis_client)
+    result = await svc.get_user_map()
+
+    assert result == {5: "Bob"}
+    session.get_all.assert_awaited_once_with("User")
+    pipe.hset.assert_called_once()
+    pipe.expire.assert_called_once_with("glpi:mappings:users", svc.cache_ttl_seconds)

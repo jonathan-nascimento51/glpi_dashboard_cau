@@ -1,7 +1,11 @@
 from __future__ import annotations
 
 import logging
-from typing import Dict
+from typing import Dict, Optional
+
+import redis.asyncio as redis
+
+from glpi_dashboard.config.settings import REDIS_DB, REDIS_HOST, REDIS_PORT
 
 from ..services.glpi_session import GLPISession
 
@@ -11,24 +15,41 @@ logger = logging.getLogger(__name__)
 class MappingService:
     """Fetch and cache dynamic ID-to-name mappings from GLPI."""
 
-    def __init__(self, session: GLPISession) -> None:
+    def __init__(
+        self,
+        session: GLPISession,
+        redis_client: Optional[redis.Redis] = None,
+        cache_ttl_seconds: int = 86400,
+    ) -> None:
         self._session = session
         self._data: Dict[str, Dict[int, str]] = {}
+        self.cache_ttl_seconds = cache_ttl_seconds
+        self.redis = redis_client or redis.Redis(
+            host=REDIS_HOST,
+            port=REDIS_PORT,
+            db=REDIS_DB,
+            decode_responses=True,
+        )
 
     async def initialize(self) -> None:
-        """Load all mappings from the GLPI API."""
+        """Load all mappings from the GLPI API into memory and cache."""
         endpoints = {
-            "users": "User",
-            "groups": "Group",
-            "categories": "itilcategory",
-            "locations": "Location",
-            "operating_systems": "OperatingSystem",
+            "users": ("glpi:mappings:users", "User"),
+            "groups": ("glpi:mappings:groups", "Group"),
+            "categories": ("glpi:mappings:categories", "itilcategory"),
+            "locations": ("glpi:mappings:locations", "Location"),
+            "operating_systems": ("glpi:mappings:operating_systems", "OperatingSystem"),
         }
-        for key, endpoint in endpoints.items():
-            await self._fetch_mapping(endpoint, key)
+        for key, (cache_key, endpoint) in endpoints.items():
+            mapping = await self._get_mapping(cache_key, endpoint)
+            self._data[key] = mapping
 
-    async def _fetch_mapping(self, endpoint: str, key: str) -> None:
-        """Retrieve data from ``endpoint`` and store ``id``→``name`` pairs."""
+    async def _get_mapping(self, cache_key: str, endpoint: str) -> Dict[int, str]:
+        """Return mapping from cache or fetch from GLPI and populate cache."""
+        cached = await self.redis.hgetall(cache_key)
+        if cached:
+            return {int(k): v for k, v in cached.items()}
+
         try:
             records = await self._session.get_all(endpoint)
         except Exception as exc:  # pragma: no cover - network failures
@@ -42,14 +63,32 @@ class MappingService:
                 if item_id_raw is None:
                     continue
                 item_id = int(item_id_raw)
-                name = str(item.get("name", ""))
+                name = str(item.get("name", "N/A"))
             except Exception:  # noqa: BLE001
                 continue
             if item_id:
                 mapping[item_id] = name
-        self._data[key] = mapping
-        logger.info("Loaded %d entries for %s", len(mapping), key)
+
+        async with self.redis.pipeline() as pipe:
+            if mapping:
+                await pipe.hset(cache_key, mapping=mapping)
+            await pipe.expire(cache_key, self.cache_ttl_seconds)
+            await pipe.execute()
+
+        logger.info("Loaded %d entries for %s", len(mapping), endpoint)
+        return mapping
 
     def lookup(self, category: str, item_id: int) -> str | None:
         """Return the name for ``item_id`` in ``category`` if present."""
         return self._data.get(category, {}).get(item_id)
+
+    async def get_user_map(self) -> Dict[int, str]:
+        """Return user ID to name mapping using cache-aside strategy."""
+        mapping = await self._get_mapping("glpi:mappings:users", "User")
+        self._data["users"] = mapping
+        return mapping
+
+    async def get_username(self, user_id: int) -> str:
+        """Return user name for ``user_id`` or ``"Unassigned"`` if missing."""
+        user_map = await self.get_user_map()
+        return user_map.get(user_id, "Unassigned")
