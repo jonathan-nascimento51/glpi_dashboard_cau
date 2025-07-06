@@ -1,5 +1,5 @@
 services:
-  app:
+  backend:
     build: .
     command: python worker.py
     env_file:
