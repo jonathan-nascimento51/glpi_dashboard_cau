@@ -13,8 +13,6 @@ htmlcov/
 .venv/
 venv/
 .vscode/
-log.jsonl
-logs/
 *src/glpi_dashboard_cau.egg-info/
 
 # Node
