@@ -35,5 +35,4 @@ Bullet list
 
 Mermaid diagram
 
-```
 ---

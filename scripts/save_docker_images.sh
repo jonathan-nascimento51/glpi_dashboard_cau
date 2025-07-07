@@ -46,7 +46,7 @@ if ! docker compose -f "$COMPOSE_FILE" pull; then
 fi
 
 # Extract image names from compose config
-readarray -t IMAGES < <(docker compose -f "$COMPOSE_FILE" config | awk '/image:/ {print $2}')
+readarray -t IMAGES < <(docker compose -f "$COMPOSE_FILE" config | awk '/image:/ {print $2}' | sort -u)
 
 # Save images to tar archive
 docker save "${IMAGES[@]}" -o "$OUTPUT"
