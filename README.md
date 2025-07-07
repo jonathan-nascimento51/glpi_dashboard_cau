@@ -109,7 +109,8 @@ This project also uses the `rich-click` library for colored CLI output. It is in
 ## Installing Dependencies Behind a Proxy or Offline
 
 If your machine needs a proxy to reach PyPI, export the proxy variables before
-invoking `pip`:
+invoking `pip`. The `setup.sh` script automatically configures `apt` when
+`HTTP_PROXY` is defined and can work offline by setting `OFFLINE_INSTALL=true`:
 
 ```bash
 export HTTP_PROXY=http://proxy.company.com:8080
@@ -130,6 +131,7 @@ offline machine and install everything without contacting PyPI:
 ```bash
 pip install --no-index --find-links=/path/to/wheels -r requirements.txt -r requirements-dev.txt
 ```
+Then run the setup script with `OFFLINE_INSTALL=true ./setup.sh` to skip online downloads.
 
 More setup tips—including offline usage with mock data—are documented in
 [docs/glpi_tokens_guide.md](docs/glpi_tokens_guide.md).

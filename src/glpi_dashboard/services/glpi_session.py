@@ -3,11 +3,12 @@ import base64
 import contextlib
 import json
 import logging
+import os
 from typing import Any, Dict, Optional, Union
 
 import aiohttp
 from aiohttp import ClientSession, TCPConnector
-from pydantic import BaseModel, Field, model_validator, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 # Import custom exceptions and decorator from sibling module
 from .exceptions import (
@@ -73,7 +74,10 @@ class SessionParams(BaseModel):
 
     base_url: str = Field(..., description="GLPI REST base URL")
     credentials: Credentials
-    proxy: Optional[str] = Field(default=None, description="Optional proxy URL")
+    proxy: Optional[str] = Field(
+        default_factory=lambda: os.environ.get("HTTP_PROXY"),
+        description="Optional proxy URL; defaults to HTTP_PROXY env var",
+    )
     verify_ssl: bool = Field(default=True, description="Verify SSL certificates")
     timeout: Union[int, aiohttp.ClientTimeout] = Field(
         default=300, description="Request timeout in seconds"
@@ -110,6 +114,7 @@ class GLPISession:
             credentials: An instance of Credentials containing app_token and
                          either user_token or username/password.
             proxy: Optional proxy URL (e.g., "http://proxy.example.com:8080").
+                Defaults to the ``HTTP_PROXY`` environment variable when unset.
             verify_ssl: Whether to verify SSL certificates. Defaults to True.
             timeout: Default timeout for HTTP requests in seconds.
             refresh_interval: Interval in seconds to proactively
@@ -118,7 +123,7 @@ class GLPISession:
         """
         self.base_url = base_url.rstrip("/")
         self.credentials = credentials
-        self.proxy = proxy
+        self.proxy = proxy or os.environ.get("HTTP_PROXY")
         self.verify_ssl = verify_ssl
         self.timeout = timeout
         self.refresh_interval = refresh_interval
