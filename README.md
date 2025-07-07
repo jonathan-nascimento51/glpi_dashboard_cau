@@ -16,6 +16,8 @@ Install dependencies and prepare the environment:
 
 You can run `./setup.sh` to install all dependencies, set up the editable package
 and enable pre-commit hooks in one step or execute the commands below manually.
+The base requirements now include `opentelemetry-instrumentation-logging` for
+better log instrumentation.
 
 ```bash
 python -m pip install --upgrade pip
