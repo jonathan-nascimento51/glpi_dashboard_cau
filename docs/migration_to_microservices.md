@@ -14,7 +14,7 @@
 
 - Implementar testes de integração
 - Definir contrato de API |
-- Serviço extraído com cobertura de testes >80%
+- Serviço extraído com cobertura de testes >85%
 - Pipeline de CI executando em <5 min |
 
 | 3. Estrangulamento |
