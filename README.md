@@ -94,6 +94,9 @@ Create the environment file with `cp frontend/.env.example frontend/.env` before
 - **`data_pipeline.py`** – normalizes raw ticket data into a `pandas.DataFrame` and exports JSON.
 - **`dashboard/layout.py`** – defines tables and charts for the Dash UI.
 - **`main.py`** – starts the Dash server.
+- **`worker.py`** – entry point for the FastAPI worker that serves REST and GraphQL.
+- **`src/main.py`** – _deprecated_ prototype kept in early revisions; removed in
+  favour of `worker.py`.
 - **`scripts/`** – helper utilities like `filters.py`, `hash_data.py`, `log_exec.py`.
 
 ## Installation
