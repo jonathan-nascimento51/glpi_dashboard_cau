@@ -12,7 +12,7 @@ COPY .npmrc ./
 
 # 3) Instala dependências usando as flags do .npmrc
 RUN --mount=type=cache,target=/root/.npm \
-    npm ci --omit=dev   # ou --production
+    npm ci --omit=dev          # instala só produção, mas lock está completo
 
 # 4) Copia o restante do código e executa build/dev
 COPY . .
