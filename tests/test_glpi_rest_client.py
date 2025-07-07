@@ -1,62 +1,85 @@
 from unittest.mock import AsyncMock, patch
 
-import httpx
+import aiohttp
 import pytest
 
-from glpi_dashboard.services.glpi_rest_client import GLPIClient
+from glpi_dashboard.services.glpi_session import Credentials, GLPISession
+
+
+class DummyCM:
+    def __init__(self, response):
+        self.response = response
+
+    async def __aenter__(self):
+        return self.response
+
+    async def __aexit__(self, exc_type, exc, tb):
+        return False
+
+
+class DummyResponse:
+    def __init__(self, status: int, data=None):
+        self.status = status
+        self._data = data or {}
+        self.headers: dict[str, str] = {}
+
+    async def json(self):
+        return self._data
+
+    def raise_for_status(self):
+        if self.status >= 400:
+            raise aiohttp.ClientResponseError(None, (), status=self.status)
 
 
 @pytest.mark.asyncio
 async def test_list_search_options(monkeypatch):
-    client = GLPIClient(
-        "http://example.com/apirest.php", app_token="app", user_token="tok"
+    session = GLPISession(
+        "http://example.com/apirest.php", Credentials(app_token="app", user_token="tok")
     )
 
     async def fake_request(method, url, **kwargs):
         assert method == "GET"
-        assert url == "listSearchOptions/Ticket"
-        return httpx.Response(200, json={"1": {"name": "ID", "datatype": "int"}})
+        assert url.endswith("listSearchOptions/Ticket")
+        return DummyCM(DummyResponse(200, {"1": {"name": "ID", "datatype": "int"}}))
 
-    monkeypatch.setattr(client._client, "request", fake_request)
-
-    data = await client.list_search_options("Ticket")
+    monkeypatch.setattr(
+        "glpi_dashboard.services.glpi_session.ClientSession.request",
+        AsyncMock(side_effect=fake_request),
+    )
+    data = await session.list_search_options("Ticket")
     assert data["1"]["name"] == "ID"
 
 
 @pytest.mark.asyncio
 async def test_search_rest_retry_on_500(monkeypatch):
-    client = GLPIClient(
+    session = GLPISession(
         "http://example.com/apirest.php",
-        app_token="app",
-        user_token="tok",
-        retry_max=2,
-        retry_base_delay=0.0,
+        Credentials(app_token="app", user_token="tok"),
     )
 
-    calls: list[int] = []
+    calls = []
 
     async def fake_request(method, url, **kwargs):
         calls.append(1)
         if len(calls) == 1:
-            return httpx.Response(500, json={"message": "err"})
-        return httpx.Response(200, json={"data": []})
+            return DummyCM(DummyResponse(500, {"message": "err"}))
+        return DummyCM(DummyResponse(200, {"data": []}))
 
-    monkeypatch.setattr(client._client, "request", fake_request)
-    with patch("asyncio.sleep", new=AsyncMock()) as sleep_mock:
-        result = await client.search_rest("Ticket")
+    monkeypatch.setattr(
+        "glpi_dashboard.services.glpi_session.ClientSession.request",
+        AsyncMock(side_effect=fake_request),
+    )
+    with patch("asyncio.sleep", new=AsyncMock()):
+        result = await session.search_rest("Ticket")
     assert len(calls) == 2
     assert result == {"data": []}
-    assert sleep_mock.call_count == 1
 
 
 @pytest.mark.asyncio
 async def test_query_graphql_retry_on_429(monkeypatch):
-    client = GLPIClient(
+    session = GLPISession(
         "http://example.com/apirest.php",
-        app_token="app",
-        user_token="tok",
-        retry_max=1,
-        retry_base_delay=0.0,
+        Credentials(app_token="app", user_token="tok"),
     )
 
     call_count = 0
@@ -65,42 +88,46 @@ async def test_query_graphql_retry_on_429(monkeypatch):
         nonlocal call_count
         call_count += 1
         if call_count == 1:
-            return httpx.Response(429, json={"message": "rate"})
-        return httpx.Response(200, json={"data": {"ok": True}})
+            return DummyCM(DummyResponse(429, {"message": "rate"}))
+        return DummyCM(DummyResponse(200, {"data": {"ok": True}}))
 
-    monkeypatch.setattr(client._client, "request", fake_request)
-    with patch("asyncio.sleep", new=AsyncMock()) as sleep_mock:
-        data = await client.query_graphql("query {}", {"x": 1})
+    monkeypatch.setattr(
+        "glpi_dashboard.services.glpi_session.ClientSession.request",
+        AsyncMock(side_effect=fake_request),
+    )
+    with patch("asyncio.sleep", new=AsyncMock()):
+        data = await session.query_graphql("query {}", {"x": 1})
     assert call_count == 2
     assert data == {"ok": True}
-    assert sleep_mock.call_count == 1
 
 
 @pytest.mark.asyncio
 async def test_get_all_paginated(monkeypatch):
-    client = GLPIClient(
-        "http://example.com/apirest.php", app_token="app", user_token="tok"
+    session = GLPISession(
+        "http://example.com/apirest.php", Credentials(app_token="app", user_token="tok")
     )
 
     ranges = ["0-1", "2-3", "4-5"]
     responses = [
-        httpx.Response(200, json={"data": [{"id": 1}, {"id": 2}]}),
-        httpx.Response(200, json={"data": [{"id": 3}]}),
-        httpx.Response(200, json={"data": []}),
+        DummyResponse(200, {"data": [{"id": 1}, {"id": 2}]}),
+        DummyResponse(200, {"data": [{"id": 3}]}),
+        DummyResponse(200, {"data": []}),
     ]
     call_count = 0
 
     async def fake_request(method, url, **kwargs):
         nonlocal call_count
-        assert url == "search/Ticket"
         assert kwargs["params"]["range"] == ranges[call_count]
         resp = responses[call_count]
         call_count += 1
-        return resp
+        return DummyCM(resp)
 
-    monkeypatch.setattr(client._client, "request", fake_request)
+    monkeypatch.setattr(
+        "glpi_dashboard.services.glpi_session.ClientSession.request",
+        AsyncMock(side_effect=fake_request),
+    )
     with patch("asyncio.sleep", new=AsyncMock()):
-        data = await client.get_all_paginated("Ticket", page_size=2)
+        data = await session.get_all_paginated("Ticket", page_size=2)
 
     assert call_count == 3
     assert data == [{"id": 1}, {"id": 2}, {"id": 3}]

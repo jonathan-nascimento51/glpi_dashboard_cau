@@ -1,5 +1,6 @@
 """Dash app using live GLPI data."""
 
+import asyncio
 import logging
 import os
 
@@ -21,8 +22,7 @@ from glpi_dashboard.dashboard.layout import build_layout
 from glpi_dashboard.data.pipeline import process_raw
 from glpi_dashboard.logging_config import init_logging
 from glpi_dashboard.services.exceptions import GLPIAPIError
-from glpi_dashboard.services.glpi_api_client import GlpiApiClient
-from glpi_dashboard.services.glpi_session import Credentials
+from glpi_dashboard.services.glpi_session import Credentials, GLPISession
 
 app = Flask(__name__)
 cache = Cache(
@@ -52,11 +52,12 @@ def _fetch_api_data(ticket_range: str = "0-99", **filters: str) -> list[dict]:
         username=GLPI_USERNAME,
         password=GLPI_PASSWORD,
     )
-    with GlpiApiClient(
-        GLPI_BASE_URL,
-        creds,
-    ) as client:
-        return client.get_all("Ticket", range=ticket_range, **filters)
+
+    async def _run() -> list[dict]:
+        async with GLPISession(GLPI_BASE_URL, creds) as client:
+            return await client.get_all("Ticket", range=ticket_range, **filters)
+
+    return asyncio.run(_run())
 
 
 @cache.memoize(timeout=300)

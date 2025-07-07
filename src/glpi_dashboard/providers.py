@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import os
 
 import httpx
 from dishka import Provider, Scope, make_async_container
@@ -9,7 +10,7 @@ from fastapi import FastAPI
 from opentelemetry.sdk.metrics import MeterProvider
 from purgatory import AsyncCircuitBreakerFactory
 
-from .glpi_client import GLPIApiClient
+from .services.glpi_session import Credentials, GLPISession
 
 
 class AnalyticsService:
@@ -40,8 +41,14 @@ class GlpiProvider(Provider):
         return self._breaker_factory
 
     # REQUEST scoped -----------------------------------------------------
-    def _get_api_client(self) -> GLPIApiClient:
-        return GLPIApiClient(self._base_url, self._client)
+    def _get_api_client(self) -> GLPISession:
+        creds = Credentials(
+            app_token=os.environ.get("GLPI_APP_TOKEN", "app"),
+            user_token=os.environ.get("GLPI_USER_TOKEN"),
+            username=os.environ.get("GLPI_USERNAME"),
+            password=os.environ.get("GLPI_PASSWORD"),
+        )
+        return GLPISession(self._base_url, creds)
 
     def _get_analytics(self) -> AnalyticsService:
         return AnalyticsService()

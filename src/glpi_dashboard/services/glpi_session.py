@@ -4,7 +4,7 @@ import contextlib
 import json
 import logging
 import os
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 import aiohttp
 from aiohttp import ClientSession, TCPConnector
@@ -534,6 +534,71 @@ class GLPISession:
                 break
             offset += FETCH_PAGE_SIZE
         return results
+
+    # ------------------------------------------------------------------
+    # Convenience helpers matching the deprecated clients
+    # ------------------------------------------------------------------
+    async def search_rest(
+        self, itemtype: str, params: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
+        """Execute a REST ``search`` query."""
+
+        return await self.get(f"search/{itemtype}", params=params)
+
+    async def list_search_options(self, itemtype: str) -> Dict[str, Any]:
+        """Retrieve search fields for ``itemtype``."""
+
+        return await self.get(f"listSearchOptions/{itemtype}")
+
+    async def get_all_paginated(
+        self, itemtype: str, page_size: int = 100, **params: Any
+    ) -> List[Dict[str, Any]]:
+        """Return all items for ``itemtype`` using a resilient page loop."""
+
+        logger.info("Starting paginated fetch for %s with params %s", itemtype, params)
+        results: List[Dict[str, Any]] = []
+        offset = 0
+        base_params = {**params, "expand_dropdowns": 1}
+        endpoint = itemtype if itemtype.startswith("search/") else f"search/{itemtype}"
+
+        while True:
+            page_params = {
+                **base_params,
+                "range": f"{offset}-{offset + page_size - 1}",
+            }
+            try:
+                data = await self.get(endpoint, params=page_params)
+            except Exception as exc:
+                logger.critical("Pagination aborted: %s", exc)
+                break
+
+            page_items = data.get("data", data)
+            if isinstance(page_items, dict):
+                page_items = [page_items]
+            page_items = [i for i in page_items if isinstance(i, dict)]
+
+            if not page_items:
+                logger.info("No items in page; stopping pagination for %s", itemtype)
+                break
+
+            results.extend(page_items)
+            offset += page_size
+            await asyncio.sleep(0.1)
+
+        logger.info("Pagination finished for %s: %d items", itemtype, len(results))
+        return results
+
+    async def query_graphql(
+        self, query: str, variables: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
+        """Send a GraphQL query to the GLPI server."""
+
+        payload = {"query": query, "variables": variables or {}}
+        data = await self.post("graphql", json_data=payload)
+        if "errors" in data:
+            msg = data["errors"][0].get("message", "GraphQL query failed")
+            raise GLPIAPIError(0, msg, data)
+        return data.get("data", data)
 
 
 async def open_session_tool(params: SessionParams) -> str:

@@ -12,7 +12,7 @@ from rich.console import Console
 from rich.table import Table
 
 from glpi_dashboard.config import settings
-from glpi_dashboard.services.glpi_rest_client import GLPIClient
+from glpi_dashboard.services.glpi_session import Credentials, GLPISession
 
 
 @click.group()
@@ -34,17 +34,12 @@ def list_fields(itemtype: str, csv_path: Path | None) -> None:
     load_dotenv()
 
     async def _run() -> dict:
-        client = GLPIClient(
-            settings.GLPI_BASE_URL,
+        creds = Credentials(
             app_token=settings.GLPI_APP_TOKEN,
             user_token=settings.GLPI_USER_TOKEN,
         )
-        await client.init_session()
-        try:
-            data = await client.list_search_options(itemtype)
-        finally:
-            await client.close()
-        return data
+        async with GLPISession(settings.GLPI_BASE_URL, creds) as client:
+            return await client.list_search_options(itemtype)
 
     data = asyncio.run(_run())
     options = data.get("data", data)

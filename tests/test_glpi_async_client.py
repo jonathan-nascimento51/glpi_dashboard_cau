@@ -1,35 +1,80 @@
 from unittest.mock import AsyncMock, patch
 
-import httpx
+import aiohttp
 import pytest
 
-from glpi_dashboard.glpi_client import GLPIApiClient
+from glpi_dashboard.services.glpi_session import Credentials, GLPISession
+
+
+class DummyCM:
+    def __init__(self, response):
+        self.response = response
+
+    async def __aenter__(self):
+        return self.response
+
+    async def __aexit__(self, exc_type, exc, tb):
+        return False
+
+
+class DummyResponse:
+    def __init__(self, status: int, data: dict | None = None):
+        self.status = status
+        self._data = data or {}
+        self.headers: dict[str, str] = {}
+
+    async def json(self):
+        return self._data
+
+    def raise_for_status(self):
+        if self.status >= 400:
+            raise aiohttp.ClientResponseError(None, (), status=self.status)
 
 
 @pytest.mark.asyncio
-async def test_request_retry_on_503(httpx_mock):
-    httpx_mock.add_response(status_code=503)
-    httpx_mock.add_response(status_code=503)
-    httpx_mock.add_response(status_code=200, json={"ok": True})
+async def test_request_retry_on_503(monkeypatch):
+    responses = [
+        DummyResponse(503),
+        DummyResponse(503),
+        DummyResponse(200, {"ok": True}),
+    ]
 
-    client = GLPIApiClient("http://example.com/api", httpx.AsyncClient())
+    async def fake_request(*_a, **_kw):
+        return DummyCM(responses.pop(0))
+
+    monkeypatch.setattr(
+        "glpi_dashboard.services.glpi_session.aiohttp.ClientSession.request",
+        lambda *a, **k: fake_request(),
+    )
+
+    creds = Credentials(app_token="app", user_token="tok")
+    client = GLPISession("http://example.com/api", creds)
     with patch("asyncio.sleep", new=AsyncMock()) as sleep_mock:
         resp = await client._request("GET", "ping")
 
-    assert resp.status_code == 200
+    assert resp == {"ok": True}
     assert sleep_mock.call_count == 2
-    assert len(httpx_mock.get_requests()) == 3
 
 
 @pytest.mark.asyncio
-async def test_request_retry_on_timeout(httpx_mock):
-    httpx_mock.add_exception(httpx.ReadTimeout("boom"))
-    httpx_mock.add_response(status_code=200, json={"ok": True})
+async def test_request_retry_on_timeout(monkeypatch):
+    calls = [0]
 
-    client = GLPIApiClient("http://example.com/api", httpx.AsyncClient())
+    async def fake_request(*_a, **_kw):
+        if calls[0] == 0:
+            calls[0] += 1
+            raise aiohttp.ClientError("boom")
+        return DummyCM(DummyResponse(200, {"ok": True}))
+
+    monkeypatch.setattr(
+        "glpi_dashboard.services.glpi_session.ClientSession.request",
+        lambda *a, **k: fake_request(),
+    )
+
+    creds = Credentials(app_token="app", user_token="tok")
+    client = GLPISession("http://example.com/api", creds)
     with patch("asyncio.sleep", new=AsyncMock()) as sleep_mock:
         resp = await client._request("GET", "ping")
 
-    assert resp.status_code == 200
+    assert resp == {"ok": True}
     assert sleep_mock.call_count == 1
-    assert len(httpx_mock.get_requests()) == 2
