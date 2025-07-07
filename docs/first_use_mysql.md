@@ -6,7 +6,7 @@ Todas as operações são realizadas online, consumindo diretamente a API do GLP
 
 ## 1. Pré‑requisitos
 
-- Python 3.10 ou superior
+ - Python 3.10\u20133.12
 - MySQL Server (local ou remoto)
 - Acesso aos tokens da API GLPI (quando em modo online)
 
