@@ -4,6 +4,24 @@ set -euo pipefail
 # Controle de instalação de Playwright/Chromium
 # Defina SKIP_PLAYWRIGHT=true para pular a instalação (ex: em builds Docker)
 SKIP_PLAYWRIGHT=${SKIP_PLAYWRIGHT:-true}
+# Permite instalar sem internet usando pacotes em ./wheels
+OFFLINE_INSTALL=${OFFLINE_INSTALL:-false}
+
+PROXY_FILE=/etc/apt/apt.conf.d/01proxy
+
+echo ">>> Verificando acesso à internet..."
+if curl -Is https://pypi.org/simple --max-time 5 >/dev/null 2>&1; then
+  echo "✅ Conexão com a internet detectada"
+else
+  echo "⚠️ Sem acesso à internet. Configure HTTP_PROXY/HTTPS_PROXY ou copie o diretório wheels/ para instalação offline"
+fi
+
+# Configura proxy do apt caso as variáveis estejam definidas
+if [ -n "${HTTP_PROXY:-}" ]; then
+  echo "Acquire::http::Proxy \"${HTTP_PROXY}\";" | sudo tee "$PROXY_FILE" >/dev/null
+  echo "Acquire::https::Proxy \"${HTTPS_PROXY:-$HTTP_PROXY}\";" | sudo tee -a "$PROXY_FILE" >/dev/null
+  echo "Proxy configurado em $PROXY_FILE"
+fi
 
 echo ">>> INICIANDO CONFIGURAÇÃO COMPLETA DO AMBIENTE <<<"
 
@@ -30,7 +48,12 @@ source "$VENV_DIR/bin/activate"
 
 echo ">>> (4/6) Atualizando o pip e instalando dependências Python..."
 pip install --upgrade pip
-pip install -r requirements.txt -r requirements-dev.txt
+if [ "$OFFLINE_INSTALL" = "true" ]; then
+  WHEEL_DIR=${WHEELS_DIR:-./wheels}
+  pip install --no-index --find-links="$WHEEL_DIR" -r requirements.txt -r requirements-dev.txt
+else
+  pip install -r requirements.txt -r requirements-dev.txt
+fi
 pip install -e .
 pip install pytest pytest-cov
 
@@ -72,3 +95,6 @@ echo "  - Dependências Python instaladas"
 echo "  - Ganchos de pre-commit configurados"
 echo "  - Docker instalado"
 echo "  - Chromium instalado (se aplicável)"
+if [ -n "${HTTP_PROXY:-}" ]; then
+  echo "  - Proxy configurado para apt"
+fi
