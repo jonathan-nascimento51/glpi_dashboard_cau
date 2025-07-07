@@ -100,7 +100,7 @@ If the host has no internet access, you can preload all Docker images used by
 the tarball to the offline environment:
 
 ```bash
-./scripts/save_docker_images.sh images.tar
+./scripts/save_docker_images.sh --file docker-compose.yml --output images.tar
 docker load -i images.tar
 ```
 

@@ -169,7 +169,7 @@ Se o host não puder acessar o **Docker Hub**, é possível salvar previamente a
 imagens usadas pelo `docker-compose.yml`:
 
 ```bash
-./scripts/save_docker_images.sh images.tar
+./scripts/save_docker_images.sh --file docker-compose.yml --output images.tar
 ```
 
 Copie `images.tar` para a máquina de destino e carregue com `docker load -i`.
