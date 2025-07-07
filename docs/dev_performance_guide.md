@@ -68,3 +68,11 @@ Use uma abordagem em camadas para obter melhores resultados:
 1. **Camadas de imagem Docker** para dependências base e pacotes Python (`pip`).
 2. **Caches de diretório do CI/CD** para artefatos externos, como os binários do Playwright.
 3. **Proxies ou mirrors** para acelerar requisições de rede, por exemplo durante o `apt-get update`.
+
+## Uma Estratégia Holística para um Ambiente Sub-Minuto
+
+- A scheduled pipeline builds a base image with `--no-cache`, scans for vulnerabilities, tags the result, and pushes it to a private registry.
+- The application pipeline uses this base image, restores the Playwright cache directory, builds the application image reusing Docker layers, and runs the job with `PLAYWRIGHT_BROWSERS_PATH` set.
+
+By layering caches at the image and directory levels, the startup time drops from around 20 minutes to less than a minute.
+
