@@ -579,7 +579,7 @@ cd frontend && npm run perf:profile
 
 Continuous integration runs on GitHub Actions using `.github/workflows/ci.yml`.
 It installs dependencies using `./setup.sh`, initializes the database and
-executes pre-commit hooks and the test suite for Python 3.10 and 3.12.
+executes pre-commit hooks and the test suite for Python 3.10, 3.11 and 3.12.
 
 ## Architecture Decision Records
 
