@@ -24,7 +24,7 @@ A visão é oferecer uma plataforma leve que exponha métricas do GLPI por meio 
 
 ### Não Funcionais
 1. Tempo de carregamento das métricas principais inferior a 1 s.
-2. Código em Python 3.10+ com testes automatizados e PEP 8.
+2. Código em Python 3.10–3.12 com testes automatizados e PEP 8.
 3. Deploy simplificado via Docker Compose e variáveis de ambiente.
 4. Cache de consultas em Redis com TTL configurável.
 5. Suporte aos principais navegadores modernos.
