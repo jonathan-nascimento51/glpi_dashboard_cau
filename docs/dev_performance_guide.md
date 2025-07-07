@@ -47,3 +47,9 @@ These practices help cut the environment setup time from minutes to seconds, esp
 Use `pip install --no-cache-dir` para instalar dependências dentro do Docker. Isso permite reutilizar a camada do Docker, mas evita que arquivos temporários sejam gravados em `~/.cache/pip`.
 
 Para builds reproduzíveis, mantenha um arquivo de lock com as versões exatas dos pacotes. Gere-o via `pip freeze` ou ferramentas como `pip-tools` e compartilhe-o no repositório.
+
+### Gerenciando Navegadores Playwright
+
+Defina a variável de ambiente `PLAYWRIGHT_BROWSERS_PATH` para um diretório persistente. Assim, os binários baixados na primeira execução podem ser reutilizados em contêineres posteriores ou em builds CI.
+
+Caso esteja atrás de um proxy corporativo, configure `PLAYWRIGHT_DOWNLOAD_HOST` apontando para um mirror interno para agilizar o download dos navegadores.
