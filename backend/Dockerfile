@@ -2,11 +2,21 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-# Install runtime dependencies first
-COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
+# ---------------------------
+# 1. Copie apenas os manifestos
+# ---------------------------
+COPY requirements.txt pyproject.toml ./
 
-# Copy project files and install as editable package
+# ---------------------------------------------------
+# 2. Instale dependências usando cache do pip (mais rápido)
+# ---------------------------------------------------
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
+# ---------------------------------------------------
+# 3. Copie o restante do código e instale em modo editável
+# ---------------------------------------------------
 COPY . .
 RUN pip install --no-cache-dir -e .
 
