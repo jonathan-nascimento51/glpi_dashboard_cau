@@ -702,6 +702,7 @@
       padding: 6px 12px;
       border-radius: 16px;
       background: rgba(255, 255, 255, 0.9);
+      -webkit-backdrop-filter: blur(10px);
       backdrop-filter: blur(10px);
       transition: all var(--transition-normal);
     }
@@ -1035,6 +1036,7 @@
       right: 0;
       bottom: 0;
       background: rgba(0, 0, 0, 0.5);
+      -webkit-backdrop-filter: blur(4px);
       backdrop-filter: blur(4px);
       z-index: 2000;
       opacity: 0;
@@ -1121,6 +1123,7 @@
       opacity: 0;
       transition: all var(--transition-normal);
       max-width: 400px;
+      -webkit-backdrop-filter: blur(10px);
       backdrop-filter: blur(10px);
     }
 
