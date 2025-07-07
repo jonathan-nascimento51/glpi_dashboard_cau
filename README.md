@@ -136,7 +136,9 @@ pip install --no-index --find-links=/path/to/wheels -r requirements.txt -r requi
 Then run the setup script with `OFFLINE_INSTALL=true ./setup.sh` to skip online downloads.
 
 More setup tips—including offline usage with mock data—are documented in
-[docs/glpi_tokens_guide.md](docs/glpi_tokens_guide.md).
+[docs/glpi_tokens_guide.md](docs/glpi_tokens_guide.md).  See also
+[docs/dev_performance_guide.md](docs/dev_performance_guide.md) for
+strategies to pre-build Docker images and cache Python wheels.
 
 ## Instalação em rede restrita
 
