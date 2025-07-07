@@ -41,3 +41,9 @@ Load the archive on an isolated machine with `docker load -i images.tar`.
 Combine system package installations inside a single `RUN` layer within the Dockerfile. The current Dockerfile already consolidates packages to take advantage of build cache. Avoid repeating `apt-get update` in separate steps.
 
 These practices help cut the environment setup time from minutes to seconds, especially when running in ephemeral CI/CD jobs or behind a corporate proxy.
+
+## 5. Cache e Configuração Específicos da Aplicação
+
+Use `pip install --no-cache-dir` para instalar dependências dentro do Docker. Isso permite reutilizar a camada do Docker, mas evita que arquivos temporários sejam gravados em `~/.cache/pip`.
+
+Para builds reproduzíveis, mantenha um arquivo de lock com as versões exatas dos pacotes. Gere-o via `pip freeze` ou ferramentas como `pip-tools` e compartilhe-o no repositório.
