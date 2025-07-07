@@ -473,6 +473,8 @@ suite in one step.
 ```bash
 pip install -r requirements.txt -r requirements-dev.txt
 pip install -e .  # ensure local package is discoverable during tests
+# tests rely on OpenTelemetry instrumentation extras
+pip install opentelemetry-instrumentation-fastapi opentelemetry-instrumentation-logging
 # install aiohttp explicitly if using a custom environment
 pip install aiohttp
 # the core suite relies on `aiohttp` and `pandas`
