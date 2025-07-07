@@ -52,6 +52,12 @@ Example usage:
 const { data, isLoading } = useQuery(['tickets'], () => fetcher('/tickets'))
 ```
 
+## Environment variables
+
+The application expects `NEXT_PUBLIC_API_BASE_URL` to be defined in a `.env` file or the shell environment. This variable **must** be set for development, automated tests and production deployments.
+
+Run `npm run check-env` to verify the value before starting the dev server.
+
 ## Lockfile verification
 
 The CI workflow runs `npm install --package-lock-only --dry-run` inside the
