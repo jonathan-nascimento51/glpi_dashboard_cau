@@ -56,21 +56,13 @@ Caso esteja atrás de um proxy corporativo, configure `PLAYWRIGHT_DOWNLOAD_HOST`
 
 ### Cache Avançado em Ambientes de CI/CD
 
-Plataformas de CI/CD fornecem mecanismos integrados de cache de diretórios. No
-**GitLab CI/CD**, utilize a palavra‑chave `cache` em seu `.gitlab-ci.yml`; no
-**GitHub Actions**, empregue a ação `actions/cache`. Outras ferramentas oferecem
-funcionalidades semelhantes. Armazene nos caches:
+Plataformas como **GitLab CI/CD** e **GitHub Actions** permitem definir caches de diretórios para acelerar as execuções. Configure o cache para armazenar:
 
-- O caminho configurado em `PLAYWRIGHT_BROWSERS_PATH`, evitando o download
-  repetido dos binários do Playwright.
-- Diretórios do APT como `/var/cache/apt` e `/var/lib/apt/lists`, acelerando o
-  `apt-get update`.
+- O caminho definido em `PLAYWRIGHT_BROWSERS_PATH`, evitando o download repetido dos binários do Playwright.
+- Diretórios do APT como `/var/cache/apt` e `/var/lib/apt/lists`, reduzindo o tempo de `apt-get update`.
 
-Adote uma estratégia em camadas para resultados superiores:
+Use uma abordagem em camadas para obter melhores resultados:
 
-1. **Camadas de imagem Docker** para dependências base e pacotes Python
-   (`pip`).
-2. **Caches de diretório do CI/CD** para artefatos externos, como os binários do
-   Playwright.
-3. **Proxies ou mirrors internos** para agilizar requisições de rede, especial-
-   mente durante o `apt-get update`.
+1. **Camadas de imagem Docker** para dependências base e pacotes Python (`pip`).
+2. **Caches de diretório do CI/CD** para artefatos externos, como os binários do Playwright.
+3. **Proxies ou mirrors** para acelerar requisições de rede, por exemplo durante o `apt-get update`.
