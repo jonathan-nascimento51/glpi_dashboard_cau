@@ -10,13 +10,13 @@ import scripts.fetch_tickets as fetch_tickets
 @pytest.mark.asyncio
 async def test_fetch_and_save(monkeypatch, tmp_path):
     class FakeSession:
-        def __enter__(self):
+        async def __aenter__(self):
             return self
 
-        def __exit__(self, exc_type, exc, tb):
+        async def __aexit__(self, exc_type, exc, tb):
             pass
 
-        def get_all(self, *args, **kwargs):
+        async def get_all(self, *args, **kwargs):
             return [
                 {
                     "id": 1,
@@ -27,7 +27,7 @@ async def test_fetch_and_save(monkeypatch, tmp_path):
                 }
             ]
 
-    monkeypatch.setattr(fetch_tickets, "GlpiApiClient", lambda *a, **k: FakeSession())
+    monkeypatch.setattr(fetch_tickets, "GLPISession", lambda *a, **k: FakeSession())
     out = tmp_path / "data.json"
     await fetch_tickets.fetch_and_save(output=out)
     with out.open() as f:
@@ -38,16 +38,16 @@ async def test_fetch_and_save(monkeypatch, tmp_path):
 @pytest.mark.asyncio
 async def test_fetch_and_save_bad_payload(monkeypatch, tmp_path):
     class FakeSession:
-        def __enter__(self):
+        async def __aenter__(self):
             return self
 
-        def __exit__(self, exc_type, exc, tb):
+        async def __aexit__(self, exc_type, exc, tb):
             pass
 
-        def get_all(self, *args, **kwargs):
+        async def get_all(self, *args, **kwargs):
             return [{}]
 
-    monkeypatch.setattr(fetch_tickets, "GlpiApiClient", lambda *a, **k: FakeSession())
+    monkeypatch.setattr(fetch_tickets, "GLPISession", lambda *a, **k: FakeSession())
     out = tmp_path / "bad.json"
     await fetch_tickets.fetch_and_save(output=out)
     with out.open() as f:
@@ -66,7 +66,7 @@ def test_fetch_raw_data_missing_env(monkeypatch, caplog):
     def fail(*_a, **_kw):  # pragma: no cover - should not be called
         raise AssertionError("network call attempted")
 
-    monkeypatch.setattr(fetch_tickets, "GlpiApiClient", fail)
+    monkeypatch.setattr(fetch_tickets, "GLPISession", fail)
 
     caplog.set_level("ERROR")
     fetch_tickets.fetch_raw_data()
@@ -78,16 +78,16 @@ async def test_fetch_and_save_tempfile(monkeypatch):
     """Use tempfile.NamedTemporaryFile to validate JSON output."""
 
     class FakeSession:
-        def __enter__(self):
+        async def __aenter__(self):
             return self
 
-        def __exit__(self, exc_type, exc, tb):
+        async def __aexit__(self, exc_type, exc, tb):
             pass
 
-        def get_all(self, *args, **kwargs):
+        async def get_all(self, *args, **kwargs):
             return [{"id": 1, "status": "new"}]
 
-    monkeypatch.setattr(fetch_tickets, "GlpiApiClient", lambda *a, **k: FakeSession())
+    monkeypatch.setattr(fetch_tickets, "GLPISession", lambda *a, **k: FakeSession())
 
     with tempfile.NamedTemporaryFile(delete=False) as tmp:
         out_path = tmp.name

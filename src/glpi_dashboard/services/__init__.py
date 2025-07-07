@@ -15,18 +15,6 @@ from .exceptions import (
     glpi_retry,
     parse_error,
 )
-from .glpi_api_client import (
-    ApiClientParams,
-    GlpiApiClient,
-    GLPIAPIClient,
-    fetch_tickets_tool,
-)
-from .glpi_rest_client import (
-    GLPIClient,
-    GraphQLQueryParams,
-    RestClientParams,
-    graphql_query_tool,
-)
 from .glpi_session import (
     Credentials,
     GLPISession,
@@ -58,14 +46,6 @@ __all__ = [
     "SessionParams",
     "open_session_tool",
     "ToolError",
-    "GLPIAPIClient",
-    "GlpiApiClient",
-    "ApiClientParams",
-    "fetch_tickets_tool",
-    "GLPIClient",
-    "RestClientParams",
-    "GraphQLQueryParams",
-    "graphql_query_tool",
     "GraphQLParams",
     "GraphQLClientQueryParams",
     "graphql_client_tool",

@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import argparse
-import asyncio
 import contextlib
 import json
 import logging
@@ -29,7 +28,6 @@ from glpi_dashboard.services.aggregated_metrics import (
     get_cached_aggregated,
 )
 from glpi_dashboard.services.exceptions import GLPIAPIError, GLPIUnauthorizedError
-from glpi_dashboard.services.glpi_api_client import GlpiApiClient
 from glpi_dashboard.services.glpi_session import Credentials, GLPISession
 from glpi_dashboard.utils.redis_client import redis_client
 
@@ -127,7 +125,7 @@ async def _load_and_translate_tickets(
 
 
 async def _load_tickets(
-    client: Optional[GlpiApiClient] = None,
+    client: Optional[GLPISession] = None,
     cache=None,
 ) -> pd.DataFrame:
     """Return processed ticket data from the API with caching."""
@@ -141,10 +139,6 @@ async def _load_tickets(
             return process_raw(data)
         except (KeyError, ValueError):
             return pd.DataFrame(data)
-
-    def _sync_fetch(c: GlpiApiClient) -> list[dict]:
-        with c as session:
-            return session.get_all("Ticket")
 
     async def _async_fetch() -> list[dict]:
         creds = Credentials(
@@ -160,7 +154,8 @@ async def _load_tickets(
         if client is None:
             data = await _async_fetch()
         else:
-            data = await asyncio.to_thread(_sync_fetch, client)
+            async with client as sess:
+                data = await sess.get_all("Ticket")
     except Exception as exc:  # pragma: no cover - network errors
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
@@ -174,7 +169,7 @@ async def _load_tickets(
 
 
 async def _stream_tickets(
-    client: Optional[GlpiApiClient],
+    client: Optional[GLPISession],
     cache=None,
 ) -> AsyncGenerator[bytes, None]:
     """Yield progress events followed by final ticket data."""
@@ -209,7 +204,7 @@ class Query:
         return Metrics(total=total, opened=opened, closed=closed)  # type: ignore[call-arg]
 
 
-def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
+def create_app(client: Optional[GLPISession] = None, cache=None) -> FastAPI:
     """Create FastAPI app with REST and GraphQL routes."""
     cache = cache or redis_client
     app = FastAPI(title="GLPI Worker API", default_response_class=ORJSONResponse)
@@ -251,10 +246,7 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
             username=GLPI_USERNAME,
             password=GLPI_PASSWORD,
         )
-        client = GlpiApiClient(
-            GLPI_BASE_URL,
-            creds,
-        )
+        client = GLPISession(GLPI_BASE_URL, creds)
 
     @app.get("/tickets", response_model=list[CleanTicketDTO])
     async def tickets(

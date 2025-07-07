@@ -10,8 +10,7 @@ from dotenv import load_dotenv
 from glpi_dashboard.logging_config import init_logging
 
 # Importa o cliente da API do seu projeto
-from glpi_dashboard.services.glpi_api_client import GlpiApiClient
-from glpi_dashboard.services.glpi_session import Credentials
+from glpi_dashboard.services.glpi_session import Credentials, GLPISession
 
 # Carrega as variáveis de ambiente do arquivo .env
 load_dotenv()
@@ -51,13 +50,13 @@ def fetch_raw_data():
     assert app_token is not None
     assert user_token is not None
 
-    try:
+    async def _run() -> None:
         creds = Credentials(app_token=app_token, user_token=user_token)
-        with GlpiApiClient(
-            glpi_url,
-            creds,
-        ) as client:
-            _save_raw_tickets(client)
+        async with GLPISession(glpi_url, creds) as client:
+            await _save_raw_tickets(client)
+
+    try:
+        asyncio.run(_run())
     except Exception as e:
         logger.error(
             f"Ocorreu um erro durante a execução do script de diagnóstico: {e}",
@@ -65,7 +64,7 @@ def fetch_raw_data():
         )
 
 
-def _save_raw_tickets(client):
+async def _save_raw_tickets(client: GLPISession) -> None:
     logger.info("Cliente da API inicializado corretamente. Buscando chamados...")
 
     params = {
@@ -75,7 +74,7 @@ def _save_raw_tickets(client):
         "range": "0-200",
     }
 
-    raw_tickets = client.get_all("Ticket", **params)
+    raw_tickets = await client.get_all("Ticket", **params)
     logger.info(f"Busca concluída. {len(raw_tickets)} chamados recebidos do GLPI.")
 
     output_filename = "data/raw_tickets_sample.json"
@@ -111,17 +110,14 @@ async def fetch_and_save(output):
 
     try:
         creds = Credentials(app_token=app_token, user_token=user_token)
-        with GlpiApiClient(
-            glpi_url,
-            creds,
-        ) as client:
+        async with GLPISession(glpi_url, creds) as client:
             params = {
                 "is_deleted": 0,
                 "sort": "date_mod",
                 "order": "desc",
                 "range": "0-200",
             }
-            raw_tickets = client.get_all("Ticket", **params)
+            raw_tickets = await client.get_all("Ticket", **params)
 
             # Guarantee each ticket has "id" and "status"
             for i, ticket in enumerate(raw_tickets):

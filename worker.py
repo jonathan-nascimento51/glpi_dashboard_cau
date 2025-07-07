@@ -7,7 +7,7 @@ former ``src.glpi_dashboard`` path.
 import os
 
 from glpi_dashboard.logging_config import init_logging
-from glpi_dashboard.services.glpi_api_client import GlpiApiClient
+from glpi_dashboard.services.glpi_session import GLPISession
 from glpi_dashboard.services.worker_api import (
     create_app,
 )
@@ -16,7 +16,7 @@ from glpi_dashboard.services.worker_api import (
     redis_client,
 )
 
-__all__ = ["create_app", "redis_client", "GlpiApiClient", "main"]
+__all__ = ["create_app", "redis_client", "GLPISession", "main"]
 
 
 def main() -> None:

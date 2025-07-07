@@ -239,7 +239,7 @@ def test_client_reused(monkeypatch: pytest.MonkeyPatch, dummy_cache: DummyCache)
             instances.append(self)
 
     monkeypatch.setattr(
-        "glpi_dashboard.services.worker_api.GlpiApiClient",
+        "glpi_dashboard.services.worker_api.GLPISession",
         lambda *a, **k: RecordingSession(),
     )
 
