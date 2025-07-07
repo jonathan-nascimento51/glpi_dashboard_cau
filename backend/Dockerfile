@@ -2,11 +2,9 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-# Install dependencies without a virtualenv
-COPY pyproject.toml poetry.lock* ./
-RUN pip install --no-cache-dir poetry \
-    && poetry config virtualenvs.create false \
-    && poetry install --no-interaction --no-ansi --without dev
+# Install runtime dependencies
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
