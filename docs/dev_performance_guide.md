@@ -56,7 +56,7 @@ Caso esteja atrás de um proxy corporativo, configure `PLAYWRIGHT_DOWNLOAD_HOST`
 
 ### Cache Avançado em Ambientes de CI/CD
 
-Plataformas como **GitLab CI/CD** e **GitHub Actions** permitem definir caches de diretórios para acelerar as execuções. Configure o cache para armazenar:
+Plataformas como **GitLab CI/CD** (usando a chave `cache`), **GitHub Actions** (com a ação `actions/cache`) e outros provedores de CI/CD permitem persistir diretórios entre jobs. Configure o cache para armazenar:
 
 - O caminho definido em `PLAYWRIGHT_BROWSERS_PATH`, evitando o download repetido dos binários do Playwright.
 - Diretórios do APT como `/var/cache/apt` e `/var/lib/apt/lists`, reduzindo o tempo de `apt-get update`.
