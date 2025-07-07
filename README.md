@@ -469,7 +469,7 @@ pip install --no-index --find-links=wheels -r requirements.txt -r requirements-d
 
 ## Tests and linting
 
-Execute the unit tests with coverage:
+Execute the unit tests with coverage. **Before running `pytest` or `make test` make sure both** `requirements.txt` **and** `requirements-dev.txt` **are installed**:
 
 Alternatively you can run `make test` to install dependencies and execute the
 suite in one step.

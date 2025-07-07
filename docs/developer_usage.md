@@ -92,14 +92,15 @@ Execute toda a suíte de testes com cobertura:
 make test
 ```
 
-Before running the tests, install the project in editable mode so imports resolve correctly:
+Before running the tests, **install the dependencies from both** `requirements.txt` **and** `requirements-dev.txt`, then install the project in editable mode so imports resolve correctly:
 
 ```bash
+pip install -r requirements.txt -r requirements-dev.txt
 pip install -e .
 pip install aiohttp  # required for glpi_session tests
 ```
 
-The `make test` target installs both `requirements.txt` and `requirements-dev.txt` before running pytest.
+The `make test` target automatically installs these requirement files before running pytest.
 
 Rodar apenas lint:
 
