@@ -8,7 +8,7 @@ Analise os erros abaixo e sugira correções de código mantendo o estilo do pro
 ### pytest
 ```
 ERROR: usage: pytest [options] [file_or_dir] [file_or_dir] [...]
-pytest: error: unrecognized arguments: --cov=./ --cov-report=term-missing --cov-fail-under=70
+pytest: error: unrecognized arguments: --cov=./ --cov-report=term-missing --cov-fail-under=85
   inifile: /workspace/glpi_dashboard_cau/pytest.ini
   rootdir: /workspace/glpi_dashboard_cau
 
