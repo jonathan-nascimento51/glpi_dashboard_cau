@@ -77,8 +77,9 @@ NEXT_PUBLIC_API_BASE_URL=http://127.0.0.1:8000
 
 If this variable is missing the application will fail to start. The fetcher
 responsible for API calls verifies that `NEXT_PUBLIC_API_BASE_URL` is defined
-and throws an error otherwise. You can run `npm run check-env` to validate the
-configuration before launching the app.
+ and throws an error otherwise. `npm run dev` and `npm test` automatically
+ execute `npm run check-env` to validate the configuration, but you can run it
+ manually before launching the app.
 
 The React code can read this value using `import.meta.env.NEXT_PUBLIC_API_BASE_URL` to send requests to the worker.
 
