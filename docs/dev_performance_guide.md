@@ -76,3 +76,33 @@ Use uma abordagem em camadas para obter melhores resultados:
 
 By layering caches at the image and directory levels, the startup time drops from around 20 minutes to less than a minute.
 
+
+### Exemplo de Dockerfile.base
+
+A imagem base deve ser criada em um job agendado ou sempre que houver atualizacao de dependencias de sistema. Use `docker build --no-cache` para garantir que `apt-get update` traga patches de seguranca.
+
+```Dockerfile
+FROM ubuntu:22.04
+
+# Pacotes essenciais e configuracao do Docker Engine
+RUN --mount=type=cache,target=/var/cache/apt \
+    apt-get update && apt-get install -y \
+        ca-certificates \
+        curl \
+        gnupg \
+        lsb-release \
+        git \
+        wget && \
+    rm -rf /var/lib/apt/lists/* && \
+    mkdir -p /etc/apt/keyrings && \
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg && \
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list && \
+    apt-get update && apt-get install -y docker-ce-cli docker-compose-plugin && \
+    rm -rf /var/lib/apt/lists/*
+
+# Node.js e Playwright
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+    apt-get install -y nodejs && \
+    npm install -g playwright && \
+    playwright install --with-deps chromium
+```
