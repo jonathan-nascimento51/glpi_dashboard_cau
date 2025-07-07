@@ -50,9 +50,11 @@ Para builds reproduzíveis, mantenha um arquivo de lock com as versões exatas d
 
 ### Gerenciando Navegadores Playwright
 
-Defina a variável de ambiente `PLAYWRIGHT_BROWSERS_PATH` para um diretório persistente. Assim, os binários baixados na primeira execução podem ser reutilizados em contêineres posteriores ou em builds CI.
+A imagem base criada com `INSTALL_PLAYWRIGHT=true` já embute o pacote Playwright e os navegadores padrão. Para futuras atualizações desses binários, configure o cache fora do contêiner.
 
-Caso esteja atrás de um proxy corporativo, configure `PLAYWRIGHT_DOWNLOAD_HOST` apontando para um mirror interno para agilizar o download dos navegadores.
+Defina `PLAYWRIGHT_BROWSERS_PATH` apontando para um volume persistente ou diretório de cache do CI/CD. Dessa forma o download ocorre apenas na primeira execução, sendo reutilizado por todos os builds subsequentes.
+
+Times que trabalham atrás de proxy podem definir `PLAYWRIGHT_DOWNLOAD_HOST` para um repositório interno (Artifactory ou Nexus), permitindo a obtenção dos navegadores sem acesso direto à internet.
 
 ### Cache Avançado em Ambientes de CI/CD
 
