@@ -1,14 +1,7 @@
 import React from 'react'
 import { useChamadosPorData } from '../hooks/useChamadosPorData'
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from 'recharts'
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+
 
 function ChamadosTendenciaComponent() {
   const { dados, isLoading, error } = useChamadosPorData()
