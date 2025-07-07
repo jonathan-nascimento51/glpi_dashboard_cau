@@ -4,12 +4,12 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "node scripts/check-env.js && vite",
+    "dev": "npm run check-env && vite",
     "check-env": "node scripts/check-env.js",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "jest",
+    "test": "npm run check-env && jest",
     "test:e2e": "playwright test"
   },
   "dependencies": {
