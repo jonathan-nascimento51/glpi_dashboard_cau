@@ -10,7 +10,7 @@ OUTPUT="docker_images.tar"
 usage() {
   echo "Usage: $0 [--file <compose.yml>] [--output <tar>]" >&2
   echo "Default compose file is docker-compose.yml; output defaults to docker_images.tar" >&2
-  exit 0
+  exit "${1:-0}"
 }
 
 while [[ $# -gt 0 ]]; do
@@ -27,8 +27,7 @@ while [[ $# -gt 0 ]]; do
       usage
       ;;
     *)
-      OUTPUT="$1"
-      shift
+      usage 1
       ;;
   esac
 done
