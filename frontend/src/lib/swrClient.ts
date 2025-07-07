@@ -1,5 +1,5 @@
 export async function fetcher<T>(url: string, init: RequestInit = {}): Promise<T> {
-  const base = process.env.NEXT_PUBLIC_API_BASE_URL
+  const base = import.meta.env.NEXT_PUBLIC_API_BASE_URL
 
   if (!base) {
     console.error('Environment variable NEXT_PUBLIC_API_BASE_URL is not set')
