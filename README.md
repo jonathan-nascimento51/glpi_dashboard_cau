@@ -326,8 +326,10 @@ POSTGRES_USER=postgres  # superuser inside the container
 POSTGRES_PASSWORD=postgres
 ```
 
-Create the application user if it does not exist. Connect as the superuser defined in
-`POSTGRES_USER` and run:
+Create the application user if it does not exist. When running with Docker this
+step happens automatically por meio dos scripts em `docker/db-init`. Para uma
+instalação manual, conecte-se como o superusuário definido em
+`POSTGRES_USER` e execute:
 
 ```bash
 CREATE USER $DB_USER WITH PASSWORD '$DB_PASSWORD';

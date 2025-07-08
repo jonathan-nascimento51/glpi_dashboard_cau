@@ -133,7 +133,11 @@ Certifique-se de que o plugin Docker Compose esteja instalado; caso
 `docker compose` não esteja disponível, instale o pacote `docker-compose-plugin`
 ou atualize seu Docker Engine.
 
-Isso sobe PostgreSQL, Redis, `initdb`, o `worker` e o dashboard em portas 8000 e 5173.
+Isso sobe PostgreSQL, Redis, o `worker` e o dashboard em portas 8000 e 5173.
+O contêiner `db` monta os arquivos de `docker/db-init` em
+`/docker-entrypoint-initdb.d/`, executando-os apenas na primeira
+inicialização do volume. Se algum script for alterado, remova o volume com
+`docker compose down -v` antes de subir novamente.
 
 ## Estrutura de Pastas
 
