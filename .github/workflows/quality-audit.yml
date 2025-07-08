@@ -1,4 +1,8 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
 name: Weekly Quality Audit
+
+permissions:
+  contents: read
 
 on:
   schedule:
@@ -8,8 +12,10 @@ on:
 jobs:
   audit:
     runs-on: ubuntu-latest
+    # ...
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -41,7 +47,7 @@ jobs:
         run: |
           lhci collect --url=https://example.com --settings.preset=desktop
           lhci upload --target=filesystem --outputDir=./lhci-report
-          echo "lcp=$(jq '.runs[0].lhr.audits["largest-contentful-paint"].displayValue' lhci-report/*/lhr.json)" >> $GITHUB_ENV
+          echo "lcp=$(jq '.runs[0].lhr.audits[\"largest-contentful-paint\"].displayValue' lhci-report/*/lhr.json)" >> $GITHUB_ENV
 
       - name: Count open bug issues
         run: |
