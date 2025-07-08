@@ -443,9 +443,12 @@ For a MySQL-specific walkthrough, see [docs/first_use_mysql.md](docs/first_use_m
 ## Docker deployment
 
 You can run the entire stack with Docker. The compose file includes
-`postgres`, `redis`, an `initdb` service, a FastAPI **worker** and the Dash dashboard.
-The `initdb` container checks whether `DB_USER` and `DB_NAME` exist and creates
-them automatically when the stack starts.
+`postgres`, `redis`, a FastAPI **worker** and the Dash dashboard. The database
+service mounts initialization scripts from `docker/db-init` which create the
+non-privileged user and database on first startup. These scripts run only once
+because the PostgreSQL data is persisted in a volume. If you modify any file in
+`docker/db-init` you must recreate the volume with `docker compose down -v`
+before restarting the stack.
 The examples below rely on the Docker Compose plugin (`docker compose`).
 Install the `docker-compose-plugin` package or upgrade to Docker Engine 20.10+
 if the command is unavailable.
