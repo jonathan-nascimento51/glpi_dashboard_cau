@@ -79,3 +79,20 @@ make init-db
 ```
 
 Após esses passos o backend conseguirá autenticar normalmente no PostgreSQL.
+
+## 10. Erro "ReferenceError: require is not defined in ES module scope"
+
+Ao executar scripts Node.js com `"type": "module"` no `package.json`, o runtime trata todos os arquivos `.js` como módulos ESM. Caso o código ainda use `require()` ou variáveis como `__dirname`, o Node exibirá o erro acima.
+
+**Soluções**
+
+1. **Migrar para ESM**: troque `require()` por `import` e crie `__dirname` usando:
+   ```js
+   import { fileURLToPath } from 'node:url'
+   import path from 'node:path'
+   const __filename = fileURLToPath(import.meta.url)
+   const __dirname = path.dirname(__filename)
+   ```
+2. **Manter CommonJS**: renomeie o arquivo para `.cjs` e ajuste os comandos npm.
+
+Consulte [docs/adr/0006-esm-adoption.md](adr/0006-esm-adoption.md) para entender a política de ESM no projeto.

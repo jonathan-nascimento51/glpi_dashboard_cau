@@ -1,5 +1,6 @@
-FROM node:20-alpine
+FROM node:20-slim
 
+RUN npm install -g npm@latest
 ENV NPM_CONFIG_CACHE=/root/.npm
 
 WORKDIR /app

@@ -93,6 +93,7 @@ Create the environment file with `cp frontend/.env.example frontend/.env` before
 ### Node.js ESM conventions
 
 `package.json` declares `"type": "module"`, so all `.js` files use ES Module syntax by default. Configuration files that still rely on `module.exports` have been renamed with the `.cjs` extension. When adding new scripts or configs prefer ESM (`import`/`export`) and only use `.cjs` for legacy CommonJS code.
+If a script still depends on `require()`, rename it with the `.cjs` extension or rewrite it using `import`. When migrating, use `fileURLToPath(import.meta.url)` to recreate `__dirname`.
 
 ## Main modules
 
