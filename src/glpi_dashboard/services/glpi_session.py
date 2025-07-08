@@ -48,12 +48,12 @@ class Credentials(BaseModel):
     )
 
     @model_validator(mode="after")
-    def _check_auth(cls, values: "Credentials") -> "Credentials":
+    def _check_auth(self):
         """Ensure at least one authentication method is supplied."""
         auth_methods = sum(
             [
-                1 if values.user_token else 0,
-                1 if (values.username and values.password) else 0,
+                1 if self.user_token else 0,
+                1 if (self.username and self.password) else 0,
             ]
         )
         if auth_methods == 0:
@@ -62,9 +62,9 @@ class Credentials(BaseModel):
             logger.debug(
                 "Both user_token and username/password provided. Prioritizing user_token."
             )
-            values.username = None
-            values.password = None
-        return values
+            self.username = None
+            self.password = None
+        return self
 
 
 class SessionParams(BaseModel):
@@ -184,8 +184,7 @@ class GLPISession:
                     init_session_url,
                     headers=headers,
                     proxy=self.proxy,
-                    timeout=self._resolve_timeout(),
-                    ssl=self.ssl_ctx,
+                    timeout=self._resolve_timeout(),  # ssl removido
                 ) as response:
                     try:
                         # Raises aiohttp.ClientResponseError for 4xx/5xx
@@ -317,14 +316,13 @@ class GLPISession:
             if self._session is None:
                 self._session = aiohttp.ClientSession()
 
-            async with self._index(
-                kill_session_url,
+            async with self._session.get(
+                url=kill_session_url,
                 headers=headers,
                 proxy=self.proxy,
-                timeout=self._resolve_timeout(),
-                ssl=self.ssl_ctx,
-            ) as response:
-                response.raise_for_status()
+                timeout=self._resolve_timeout(),  # ssl removido
+            ) as resp:
+                resp.raise_for_status()
                 logger.info("GLPI session killed successfully.")
         except aiohttp.ClientResponseError as e:
             logger.error(f"Network or client error during session termination: {e}")
@@ -393,7 +391,6 @@ class GLPISession:
                     params=params,
                     proxy=self.proxy,
                     timeout=self._resolve_timeout(),
-                    ssl=self.ssl_ctx,
                 ) as response:
                     if (
                         response.status == 401
