@@ -6,6 +6,7 @@ import argparse
 import contextlib
 import json
 import logging
+import os
 from typing import Any, AsyncGenerator, List, Optional
 
 import pandas as pd
@@ -30,7 +31,11 @@ from glpi_dashboard.acl import (
     process_raw,
 )
 from glpi_dashboard.services.aggregated_metrics import (
+    cache_aggregated_metrics,
+    compute_aggregated,
     get_cached_aggregated,
+    tickets_by_date,
+    tickets_daily_totals,
 )
 from glpi_dashboard.services.exceptions import (
     GLPIAPIError,
@@ -47,9 +52,12 @@ from ..config.settings import (
     GLPI_USER_TOKEN,
     GLPI_USERNAME,
     KNOWLEDGE_BASE_FILE,
+    USE_MOCK_DATA,
 )
 
 logger = logging.getLogger(__name__)
+
+MOCK_TICKETS_FILE = os.getenv("MOCK_TICKETS_FILE", "data/mock_tickets.json")
 
 
 @strawberry.type
@@ -96,8 +104,11 @@ class TicketSummaryOut(BaseModel):
     opened_at: str
 
 
-def get_ticket_translator() -> TicketTranslator:
-    """Instantiate :class:`TicketTranslator` with configured dependencies."""
+def get_ticket_translator() -> Optional[TicketTranslator]:
+    """Instantiate :class:`TicketTranslator` unless using mock data."""
+
+    if USE_MOCK_DATA:
+        return None
 
     creds = Credentials(
         app_token=GLPI_APP_TOKEN,
@@ -111,10 +122,16 @@ def get_ticket_translator() -> TicketTranslator:
 
 
 async def _load_and_translate_tickets(
-    translator: TicketTranslator,
+    translator: Optional[TicketTranslator],
     cache=None,
 ) -> List[CleanTicketDTO]:
     """Return a list of ``CleanTicketDTO`` using the ACL pipeline."""
+
+    # Offline mode bypasses translator and GLPI session
+    if USE_MOCK_DATA or translator is None:
+        df = await _load_tickets(cache=cache)
+        records = df.astype(object).where(pd.notna(df), None).to_dict("records")
+        return [CleanTicketDTO.model_validate(r) for r in records]
 
     cache = cache or redis_client
     cache_key = "tickets_clean"
@@ -156,6 +173,27 @@ async def _load_tickets(
             return process_raw(data)
         except (KeyError, ValueError):
             return pd.DataFrame(data)
+
+    # In offline mode load tickets from a local JSON file
+    if USE_MOCK_DATA:
+        try:
+            with open(MOCK_TICKETS_FILE, "r", encoding="utf-8") as fh:
+                data = json.load(fh)
+        except Exception as exc:  # pragma: no cover - file errors
+            logger.error("Failed to load mock data: %s", exc)
+            raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+        await cache.set(cache_key, data)
+        df = process_raw(data)
+        metrics = compute_aggregated(df)
+        await cache_aggregated_metrics(cache, "metrics_aggregated", metrics)
+        await cache.set(
+            "chamados_por_data", tickets_by_date(df).to_dict(orient="records")
+        )
+        await cache.set(
+            "chamados_por_dia", tickets_daily_totals(df).to_dict(orient="records")
+        )
+        return df
 
     async def _async_fetch() -> list[dict]:
         creds = Credentials(
@@ -267,7 +305,7 @@ def create_app(client: Optional[GLPISession] = None, cache=None) -> FastAPI:
 
     @app.get("/tickets", response_model=list[CleanTicketDTO])
     async def tickets(
-        translator: TicketTranslator = Depends(get_ticket_translator),
+        translator: Optional[TicketTranslator] = Depends(get_ticket_translator),
     ) -> list[CleanTicketDTO]:  # noqa: F401
         return await _load_and_translate_tickets(translator, cache=cache)
 

@@ -1,6 +1,5 @@
 """Application settings loaded from the environment using Pydantic."""
 
-
 from __future__ import annotations
 
 import contextlib
@@ -26,7 +25,7 @@ class Settings(BaseSettings):
 
     ENVIRONMENT: Literal["dev", "work", "prod"] = "dev"
 
-    GLPI_BASE_URL: str = os.getenv("GLPI_BASE_URL")
+    GLPI_BASE_URL: str = cast(str, os.getenv("GLPI_BASE_URL", ""))
     GLPI_APP_TOKEN: str = cast(str, _env_or_file("GLPI_APP_TOKEN", "your_app_token"))
     GLPI_USERNAME: str = os.getenv("GLPI_USERNAME", "glpi_user")
     GLPI_PASSWORD: str = cast(str, _env_or_file("GLPI_PASSWORD", "glpi_password"))
