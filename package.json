@@ -1,7 +1,9 @@
 {
   "type": "module",
   "scripts": {
-    "check-env": "node ./scripts/check-env.js"
+    "check-env": "node ./scripts/check-env.js",
+    "type-check": "tsc -b",
+    "dev": "vite --config frontend/vite.config.ts"
   },
   "devDependencies": {
     "@testing-library/dom": "^10.4.0",
