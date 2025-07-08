@@ -591,6 +591,17 @@ Continuous integration runs on GitHub Actions using `.github/workflows/ci.yml`.
 It installs dependencies using `./setup.sh`, initializes the database and
 executes pre-commit hooks and the test suite for Python 3.10, 3.11 and 3.12.
 
+### Snyk setup
+
+The [`quality-audit.yml`](.github/workflows/quality-audit.yml) workflow runs a
+Snyk vulnerability scan. Before triggering it ensure your network can reach
+`snyk.io` as described in
+[docs/snyk_setup.md](docs/snyk_setup.md). You can validate connectivity with:
+
+```bash
+./scripts/check_snyk_access.sh
+```
+
 ## Architecture Decision Records
 
 All ADRs live in [`docs/adr`](docs/adr). Create new records with
