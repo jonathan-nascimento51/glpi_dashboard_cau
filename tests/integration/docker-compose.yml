@@ -6,6 +6,8 @@ services:
       POSTGRES_DB: glpi_dashboard
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
+    volumes:
+      - ../../docker/db-init:/docker-entrypoint-initdb.d:ro
     ports:
       - "5432:5432"
     healthcheck:
@@ -13,21 +15,6 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-
-  initdb:
-    image: postgres:16-alpine
-    volumes:
-      - ../../scripts/create_app_user.sh:/create_app_user.sh:ro
-    entrypoint: ["sh", "/create_app_user.sh"]
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      DB_USER: user
-      DB_PASSWORD: password
-      DB_NAME: glpi_dashboard
-    depends_on:
-      postgres-db:
-        condition: service_healthy
 
   api-server:
     build:
