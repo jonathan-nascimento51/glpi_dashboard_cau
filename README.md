@@ -335,28 +335,13 @@ POSTGRES_USER=postgres  # superuser inside the container
 POSTGRES_PASSWORD=postgres
 ```
 
-Create the application user if it does not exist. When running with Docker this
-step happens automatically via the initialization script
-`docker/db-init/01-init-db.sh`. The script reads `DB_USER`, `DB_PASSWORD` and
-`DB_NAME` from the environment. If `DB_USER_FILE` or `DB_PASSWORD_FILE` are
-present, it loads their contents into `DB_USER` and `DB_PASSWORD` before
-configuring the roles and database. For a
-manual installation connect as the superuser defined in `POSTGRES_USER` and
-execute:
-
-```bash
-CREATE USER $DB_USER WITH PASSWORD '$DB_PASSWORD';
-CREATE DATABASE $DB_NAME OWNER $DB_USER;
-```
-
-These credentials are referenced by `DB_USER` and `DB_PASSWORD` when the
-application connects to PostgreSQL. When using Docker Compose the
-`docker/db-init/01-init-db.sh` script performs the same initialization and
-creates the user, roles and database on first startup. Customize `DB_USER`,
-`DB_PASSWORD` and `DB_NAME` in your `.env` file before launching the stack to
-adjust the credentials. Static statements such as extensions can be placed in
-`docker/db-init/00-extensions.sql` which the container also executes on first
-startup.
+When you run `docker compose up` the initialization script
+`docker/db-init/01-init-db.sh` automatically creates the application user and
+database if they do not exist. The script reads `DB_USER`, `DB_PASSWORD` and
+`DB_NAME` (or their `_FILE` variants) from the environment. Customize these
+variables in your `.env` file before launching the stack. Static statements
+such as extensions can be placed in `docker/db-init/00-extensions.sql` which the
+container also executes on first startup.
 
 - `GLPI_BASE_URL` – base URL of the GLPI API (e.g. `https://glpi.company.com/apirest.php`).
   Using HTTPS is recommended for deployments.
@@ -424,21 +409,10 @@ python scripts/setup_env.py
 The Docker services rely on these settings to connect to the database and the
 GLPI API.
 Run `npm run check-env` to verify that all mandatory variables are present
-before building or launching the stack.
-
-> **Troubleshooting**: se o contêiner do PostgreSQL falhar com
-> `FATAL: role "user" does not exist`, crie o usuário manualmente com:
->
-> ```bash
-> docker compose exec db psql -U $POSTGRES_USER -d postgres \
->   -c "CREATE USER $DB_USER WITH PASSWORD '$DB_PASSWORD';" \
->   -c "CREATE DATABASE $DB_NAME OWNER $DB_USER;"
-> ```
->
-> Caso o volume tenha sido criado com credenciais antigas, execute
-> `docker compose down -v` e recrie a stack com
-> `docker compose up --build`. Finalize com
-> `make init-db` para garantir que as tabelas existam.
+before building or launching the stack. The PostgreSQL container reads `DB_NAME`,
+`DB_USER` and `DB_PASSWORD` from `.env` and the initialization script runs
+automatically on the first `docker compose up`. If the container fails to start
+remove any existing volume with `docker compose down -v` and recreate the stack.
 
 You can verify that your credentials work before launching the stack:
 
