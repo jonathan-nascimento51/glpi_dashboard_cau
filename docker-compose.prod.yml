@@ -1,6 +1,8 @@
 services:
   backend:
-    build: .
+    extends:
+      file: docker-compose.yml
+      service: backend
     command: python worker.py
     environment:
       - PYTHONUNBUFFERED=1
@@ -21,8 +23,9 @@ services:
       - db_password
 
   frontend:
-    build:
-      context: ./frontend
+    extends:
+      file: docker-compose.yml
+      service: frontend
     environment:
       - NEXT_PUBLIC_API_BASE_URL=https://api.seudominio.com
     ports:

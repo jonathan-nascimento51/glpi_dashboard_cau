@@ -433,7 +433,7 @@ GLPI API.
 >
 > Caso o volume tenha sido criado com credenciais antigas, execute
 > `docker compose down -v` e recrie a stack com
-> `docker compose -f docker-compose-dev.yml up --build`. Finalize com
+> `docker compose up --build`. Finalize com
 > `make init-db` para garantir que as tabelas existam.
 
 You can verify that your credentials work before launching the stack:
@@ -482,7 +482,9 @@ before restarting the stack.
 The examples below rely on the Docker Compose plugin (`docker compose`).
 Install the `docker-compose-plugin` package or upgrade to Docker Engine 20.10+
 if the command is unavailable.
-Running `docker compose up` will build the image, initialize the database and start all services using `docker-compose.yml`:
+Running `docker compose up` will build the images and start all services using
+`docker-compose.yml` together with `docker-compose.override.yml`. The override
+file mounts the source directories and enables hot reload for development:
 
 ```bash
 docker compose up
@@ -502,19 +504,19 @@ When using Docker Compose the Redis host should be `redis`. Set `REDIS_HOST`,
 `REDIS_URL` and `CACHE_REDIS_HOST` accordingly in your environment or `.env`
 file.
 
-For local development you can use `docker-compose-dev.yml`, which mounts your source files with hot reload:
+For production combine the base file with `docker-compose.prod.yml`:
 
 ```bash
-docker compose -f docker-compose-dev.yml up --build
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 ```
 
-The development compose file also sets Prometheus to `--log.level=warn` so only
-warnings and errors appear in the logs. Adjust the command in
-`docker-compose-dev.yml` if you need more verbose Prometheus output.
+The override file also sets Prometheus to `--log.level=warn` so only warnings
+and errors appear in the logs. Adjust the command in
+`docker-compose.override.yml` if you need more verbose Prometheus output.
 
 The backend Dockerfile allows skipping Playwright browser installation using the
 `INSTALL_PLAYWRIGHT` build argument. This is set to `false` in
-`docker-compose-dev.yml` to speed up development builds. Enable it only when you
+`docker-compose.override.yml` to speed up development builds. Enable it only when you
 need browser automation.
 
 The frontend image takes advantage of BuildKit caching to speed up subsequent `npm ci` runs. Ensure BuildKit is enabled by setting `DOCKER_BUILDKIT=1`.

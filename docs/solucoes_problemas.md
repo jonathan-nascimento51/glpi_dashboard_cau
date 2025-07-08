@@ -71,7 +71,7 @@ iniciar novamente:
 
 ```bash
 docker compose down -v  # remove o volume com a configuração errada
-docker compose -f docker-compose-dev.yml up --build
+docker compose up --build
 make init-db
 ```
 
