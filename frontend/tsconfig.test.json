@@ -2,7 +2,7 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "jsx": "react-jsx",
-    "module": "es2015",
+    "module": "Node16",
     "esModuleInterop": true,
     "verbatimModuleSyntax": false,
     "types": ["jest", "@testing-library/jest-dom", "node"],
