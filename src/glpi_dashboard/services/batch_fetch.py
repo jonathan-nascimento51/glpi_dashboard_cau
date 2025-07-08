@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import asyncio
 import json
-from operator import index
 from typing import List
 
 from pydantic import BaseModel, Field
@@ -51,7 +50,7 @@ async def fetch_all_tickets(ids: List[int]) -> List[dict]:
             while True:
                 async with semaphore:
                     try:
-                        data = await index(f"Ticket/{ticket_id}")
+                        data = await session.get(f"Ticket/{ticket_id}")
                         return data.get("data", data)
                     except GLPIAPIError as exc:
                         if exc.status_code >= 500 and retries < 5:
