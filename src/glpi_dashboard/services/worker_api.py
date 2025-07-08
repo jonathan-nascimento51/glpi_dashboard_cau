@@ -112,18 +112,23 @@ def get_ticket_translator() -> Optional[TicketTranslator]:
     if USE_MOCK_DATA:
         return None
 
-    creds = Credentials(
-        app_token=GLPI_APP_TOKEN,
-        user_token=GLPI_USER_TOKEN,
-        username=GLPI_USERNAME,
-        password=GLPI_PASSWORD,
-    )
-    session = GLPISession(
-        GLPI_BASE_URL,
-        creds,
-        verify_ssl=VERIFY_SSL,
-        timeout=CLIENT_TIMEOUT_SECONDS,
-    )
+    try:
+        creds = Credentials(
+            app_token=GLPI_APP_TOKEN,
+            user_token=GLPI_USER_TOKEN,
+            username=GLPI_USERNAME,
+            password=GLPI_PASSWORD,
+        )
+        session = GLPISession(
+            GLPI_BASE_URL,
+            creds,
+            verify_ssl=VERIFY_SSL,
+            timeout=CLIENT_TIMEOUT_SECONDS,
+        )
+    except Exception as exc:  # pragma: no cover - init failures
+        logger.exception("GLPI session init failed: %s", exc)
+        return None
+
     mapper = MappingService(session)
     return TicketTranslator(mapper)
 
@@ -131,12 +136,13 @@ def get_ticket_translator() -> Optional[TicketTranslator]:
 async def _load_and_translate_tickets(
     translator: Optional[TicketTranslator],
     cache=None,
+    response: Optional[Response] = None,
 ) -> List[CleanTicketDTO]:
     """Return a list of ``CleanTicketDTO`` using the ACL pipeline."""
 
     # Offline mode bypasses translator and GLPI session
     if USE_MOCK_DATA or translator is None:
-        df = await _load_tickets(cache=cache)
+        df = await _load_tickets(cache=cache, response=response)
         records = df.astype(object).where(pd.notna(df), None).to_dict("records")
         return [CleanTicketDTO.model_validate(r) for r in records]
 
@@ -168,8 +174,13 @@ async def _load_and_translate_tickets(
 async def _load_tickets(
     client: Optional[GLPISession] = None,
     cache=None,
+    response: Optional[Response] = None,
 ) -> pd.DataFrame:
-    """Return processed ticket data from the API with caching."""
+    """Return processed ticket data from the API with caching.
+
+    When the GLPI session fails to initialize the function falls back to the
+    local mock dataset and sets a warning header on ``response`` if provided.
+    """
     cache = cache or redis_client
     cache_key = "tickets_api"
     cached = await cache.get(cache_key)
@@ -224,7 +235,26 @@ async def _load_tickets(
             async with client as sess:
                 data = await sess.get_all("Ticket")
     except Exception as exc:  # pragma: no cover - network errors
-        raise HTTPException(status_code=500, detail=str(exc)) from exc
+        logger.exception("Failed to fetch from GLPI: %s", exc)
+        if response is not None:
+            response.headers["X-Warning"] = "using mock data"
+        try:
+            with open(MOCK_TICKETS_FILE, "r", encoding="utf-8") as fh:
+                data = json.load(fh)
+        except Exception as file_exc:  # pragma: no cover - file errors
+            logger.error("Failed to load mock data: %s", file_exc)
+            raise HTTPException(status_code=500, detail=str(file_exc)) from file_exc
+        await cache.set(cache_key, data)
+        df = process_raw(data)
+        metrics = compute_aggregated(df)
+        await cache_aggregated_metrics(cache, "metrics_aggregated", metrics)
+        await cache.set(
+            "chamados_por_data", tickets_by_date(df).to_dict(orient="records")
+        )
+        await cache.set(
+            "chamados_por_dia", tickets_daily_totals(df).to_dict(orient="records")
+        )
+        return df
 
     if isinstance(data, dict):
         data = data.get("data", data)
@@ -238,10 +268,11 @@ async def _load_tickets(
 async def _stream_tickets(
     client: Optional[GLPISession],
     cache=None,
+    response: Optional[Response] = None,
 ) -> AsyncGenerator[bytes, None]:
     """Yield progress events followed by final ticket data."""
     yield b"fetching...\n"
-    df = await _load_tickets(client=client, cache=cache)
+    df = await _load_tickets(client=client, cache=cache, response=response)
     yield b"processing...\n"
     data = df.astype(object).where(pd.notna(df), None).to_dict(orient="records")
     yield json.dumps(data).encode()
@@ -322,19 +353,24 @@ def create_app(client: Optional[GLPISession] = None, cache=None) -> FastAPI:
 
     @app.get("/tickets", response_model=list[CleanTicketDTO])
     async def tickets(
+        response: Response,
         translator: Optional[TicketTranslator] = Depends(get_ticket_translator),
     ) -> list[CleanTicketDTO]:  # noqa: F401
-        return await _load_and_translate_tickets(translator, cache=cache)
+        return await _load_and_translate_tickets(
+            translator, cache=cache, response=response
+        )
 
     @app.get("/tickets/stream")
-    async def tickets_stream() -> StreamingResponse:  # noqa: F401
+    async def tickets_stream(response: Response) -> StreamingResponse:  # noqa: F401
         return StreamingResponse(
-            _stream_tickets(client, cache=cache), media_type="text/plain"
+            _stream_tickets(client, cache=cache, response=response),
+            media_type="text/plain",
+            headers=response.headers,
         )
 
     @app.get("/metrics")
-    async def metrics() -> dict:  # noqa: F401
-        df = await _load_tickets(client=client, cache=cache)
+    async def metrics(response: Response) -> dict:  # noqa: F401
+        df = await _load_tickets(client=client, cache=cache, response=response)
         total = len(df)
         closed = 0
         if "status" in df:
