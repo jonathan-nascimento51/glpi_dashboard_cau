@@ -5,6 +5,6 @@ ignore:
   - .venv
   - env
   - .env
-  - site-packages        # libs vendorizadas dentro do repo (se existirem)
+  - site-packages/**
   - build
   - dist

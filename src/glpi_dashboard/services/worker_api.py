@@ -121,11 +121,8 @@ async def _load_and_translate_tickets(
 
     cached = await cache.get(cache_key)
     if cached is not None:
-        try:
+        with contextlib.suppress(Exception):
             return [CleanTicketDTO.model_validate(d) for d in cached]
-        except Exception:
-            pass
-
     translated: List[CleanTicketDTO] = []
     async with translator.mapper._session as glpi:
         raw_tickets = await glpi.get_all("Ticket")

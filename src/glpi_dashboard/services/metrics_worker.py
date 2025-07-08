@@ -19,9 +19,7 @@ from glpi_dashboard.utils.redis_client import RedisClient, redis_client
 
 async def _load_cached_tickets(cache: RedisClient) -> list[Dict[str, Any]]:
     cached = await cache.get("tickets_api")
-    if cached is None:
-        return []
-    return list(cached)
+    return [] if cached is None else list(cached)
 
 
 async def update_metrics(

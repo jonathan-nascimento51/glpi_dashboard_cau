@@ -180,11 +180,12 @@ class GLPISession:
                     self._session = aiohttp.ClientSession()
 
                 async with self._session.get(
-                    init_session_url,
-                    headers=headers,
-                    proxy=self.proxy,
-                    timeout=self._resolve_timeout(),
-                ) as response:
+                                init_session_url,
+                                headers=headers,
+                                proxy=self.proxy,
+                                timeout=self._resolve_timeout(),
+                                ssl=self.verify_ssl,
+                            ) as response:
                     try:
                         # Raises aiohttp.ClientResponseError for 4xx/5xx
                         response.raise_for_status()
@@ -216,7 +217,7 @@ class GLPISession:
                                 if (response_data or response_text)
                                 else None
                             ),
-                        )
+                        ) from e
 
                     data = await response.json()
                     self._session_token = data.get("session_token")
@@ -236,7 +237,7 @@ class GLPISession:
                 raise GLPIAPIError(
                     0,
                     f"Network or client error during session initiation: {e}",
-                )
+                ) from e
 
     async def _proactive_refresh_loop(self) -> None:
         """
@@ -320,6 +321,7 @@ class GLPISession:
                 headers=headers,
                 proxy=self.proxy,
                 timeout=self._resolve_timeout(),
+                ssl=self.verify_ssl,
             ) as response:
                 response.raise_for_status()
                 logger.info("GLPI session killed successfully.")
@@ -374,7 +376,7 @@ class GLPISession:
         if self._session_token:
             request_headers["Session-Token"] = self._session_token
         if headers:
-            request_headers.update(headers)
+            request_headers |= headers
 
         for attempt in range(max_401_retries + 1):
             try:
@@ -383,14 +385,14 @@ class GLPISession:
                     self._session = aiohttp.ClientSession()
 
                 async with self._session.request(
-                    method,
-                    full_url,
-                    headers=current_headers,
-                    json=json_data,
-                    params=params,
-                    proxy=self.proxy,
-                    timeout=self._resolve_timeout(),
-                ) as response:
+                                method,
+                                full_url,
+                                headers=current_headers,
+                                json=json_data,
+                                params=params,
+                                proxy=self.proxy,
+                                timeout=self._resolve_timeout(),
+                            ) as response:
                     if (
                         response.status == 401
                         and retry_on_401
@@ -402,11 +404,11 @@ class GLPISession:
                         )
                         try:
                             await self._refresh_session_token()
-                        except GLPIUnauthorizedError:
+                        except GLPIUnauthorizedError as e:
                             raise GLPIUnauthorizedError(
                                 401,
                                 "Failed to authenticate after multiple retries",
-                            )
+                            ) from e
                         if self._session_token:  # Update header for retry
                             request_headers["Session-Token"] = self._session_token
                         continue  # Retry the request
@@ -426,18 +428,18 @@ class GLPISession:
                     e.status,
                     parse_error(error_resp, response_data),
                     response_data,
-                )
+                ) from e
             except aiohttp.ClientError as e:
                 # This catches network-level errors before an HTTP status is received
                 # The @glpi_retry decorator will handle retries for these as well
                 raise GLPIAPIError(
                     0, f"Network or client error during API request: {e}"
-                )
+                ) from e
             except Exception as e:
                 if isinstance(e, GLPIAPIError):
                     raise
                 # Catch any other unexpected exceptions and wrap them
-                raise GLPIAPIError(0, f"An unexpected error occurred: {e}")
+                raise GLPIAPIError(0, f"An unexpected error occurred: {e}") from e
 
         # If all 401 retries fail
         raise GLPIUnauthorizedError(
