@@ -59,14 +59,12 @@ usando outro cliente ou script, troque para a versão assíncrona ou remova o
 ## 9. Erro "FATAL: role 'user' does not exist"
 
 A falha indica que o usuário especificado pela aplicação não foi criado no
-PostgreSQL. Certifique-se de que as variáveis abaixo estejam presentes e com o
-mesmo valor no `.env`:
+PostgreSQL. Crie-o conectando-se como superusuário (`POSTGRES_USER`, padrão
+`postgres`) e execute:
 
 ```bash
-DB_USER=user
-DB_PASSWORD=password
-POSTGRES_USER=$DB_USER
-POSTGRES_PASSWORD=$DB_PASSWORD
+CREATE USER $DB_USER WITH PASSWORD '$DB_PASSWORD';
+CREATE DATABASE $DB_NAME OWNER $DB_USER;
 ```
 
 Se o contêiner do banco tiver iniciado anteriormente com valores diferentes,

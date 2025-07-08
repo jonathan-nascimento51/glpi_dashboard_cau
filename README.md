@@ -317,14 +317,25 @@ Example snippet:
 ```bash
 # Database credentials
 DB_NAME=glpi_dashboard
-DB_USER=user
+DB_USER=user  # non-privileged application user
 DB_PASSWORD=password
 
 # Mapped automatically to the Postgres container
 POSTGRES_DB=$DB_NAME
-POSTGRES_USER=$DB_USER
-POSTGRES_PASSWORD=$DB_PASSWORD
+POSTGRES_USER=postgres  # superuser inside the container
+POSTGRES_PASSWORD=postgres
 ```
+
+Create the application user if it does not exist. Connect as the superuser defined in
+`POSTGRES_USER` and run:
+
+```bash
+CREATE USER $DB_USER WITH PASSWORD '$DB_PASSWORD';
+CREATE DATABASE $DB_NAME OWNER $DB_USER;
+```
+
+These credentials are referenced by `DB_USER` and `DB_PASSWORD` when the
+application connects to PostgreSQL.
 
 - `GLPI_BASE_URL` – base URL of the GLPI API (e.g. `https://glpi.company.com/apirest.php`).
   Using HTTPS is recommended for deployments.
@@ -382,10 +393,17 @@ The Docker services rely on these settings to connect to the database and the
 GLPI API.
 
 > **Troubleshooting**: se o contêiner do PostgreSQL falhar com
-> `FATAL: role "user" does not exist`, verifique se as variáveis `DB_USER` e
-> `POSTGRES_USER` têm o mesmo valor no arquivo `.env`. Caso o volume tenha sido
-> criado sem essas variáveis, execute `docker compose down -v` e recrie a stack
-> com `docker compose -f docker-compose-dev.yml up --build`. Finalize com
+> `FATAL: role "user" does not exist`, crie o usuário manualmente com:
+>
+> ```bash
+> docker compose exec db psql -U $POSTGRES_USER -d postgres \
+>   -c "CREATE USER $DB_USER WITH PASSWORD '$DB_PASSWORD';" \
+>   -c "CREATE DATABASE $DB_NAME OWNER $DB_USER;"
+> ```
+>
+> Caso o volume tenha sido criado com credenciais antigas, execute
+> `docker compose down -v` e recrie a stack com
+> `docker compose -f docker-compose-dev.yml up --build`. Finalize com
 > `make init-db` para garantir que as tabelas existam.
 
 You can verify that your credentials work before launching the stack:
@@ -426,6 +444,8 @@ For a MySQL-specific walkthrough, see [docs/first_use_mysql.md](docs/first_use_m
 
 You can run the entire stack with Docker. The compose file includes
 `postgres`, `redis`, an `initdb` service, a FastAPI **worker** and the Dash dashboard.
+The `initdb` container checks whether `DB_USER` and `DB_NAME` exist and creates
+them automatically when the stack starts.
 The examples below rely on the Docker Compose plugin (`docker compose`).
 Install the `docker-compose-plugin` package or upgrade to Docker Engine 20.10+
 if the command is unavailable.
