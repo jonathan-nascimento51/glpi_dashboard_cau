@@ -32,8 +32,12 @@ from glpi_dashboard.acl import (
 from glpi_dashboard.services.aggregated_metrics import (
     get_cached_aggregated,
 )
-from glpi_dashboard.services.exceptions import GLPIAPIError, GLPIUnauthorizedError
+from glpi_dashboard.services.exceptions import (
+    GLPIAPIError,
+    GLPIUnauthorizedError,
+)
 from glpi_dashboard.services.glpi_session import Credentials, GLPISession
+from glpi_dashboard.services.read_model import query_ticket_summary
 from glpi_dashboard.utils.redis_client import redis_client
 
 from ..config.settings import (
@@ -80,6 +84,16 @@ class ChamadosPorDia(BaseModel):
 
     date: str = Field(..., examples=["2024-06-01"])
     total: int = Field(..., examples=[5])
+
+
+class TicketSummaryOut(BaseModel):
+    """Row from the materialized view used as read model."""
+
+    ticket_id: int
+    status: str
+    priority: str
+    group_name: str
+    opened_at: str
 
 
 def get_ticket_translator() -> TicketTranslator:
@@ -311,6 +325,13 @@ def create_app(client: Optional[GLPISession] = None, cache=None) -> FastAPI:
         if data is None:
             raise HTTPException(status_code=503, detail="metrics not available")
         return data
+
+    @app.get("/read-model/tickets", response_model=list[TicketSummaryOut])
+    async def read_model_tickets(
+        limit: int = 100, offset: int = 0
+    ) -> list[TicketSummaryOut]:  # noqa: F401
+        rows = await query_ticket_summary(limit=limit, offset=offset)
+        return [TicketSummaryOut.model_validate(r.__dict__) for r in rows]
 
     @app.get("/cache/stats")
     async def cache_stats() -> dict:  # noqa: F401

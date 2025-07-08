@@ -14,6 +14,10 @@ from glpi_dashboard.config.settings import (
     GLPI_USER_TOKEN,
     GLPI_USERNAME,
 )
+from glpi_dashboard.data.database import (
+    insert_tickets,
+    refresh_materialized_view,
+)
 from glpi_dashboard.services.aggregated_metrics import (
     cache_aggregated_metrics,
     compute_aggregated,
@@ -40,9 +44,12 @@ async def fetch_tickets() -> pd.DataFrame:
 
 
 async def update_metrics(ctx: dict[str, RedisClient]) -> None:
-    """Fetch tickets and cache aggregated metrics."""
+    """Fetch tickets, update the read model and cache aggregated metrics."""
     cache = ctx["cache"]
     df = await fetch_tickets()
+    await insert_tickets(df.to_dict(orient="records"))
+    await refresh_materialized_view()
+
     metrics = compute_aggregated(df)
     await cache_aggregated_metrics(cache, "metrics_aggregated", metrics)
     await cache.set("chamados_por_data", tickets_by_date(df).to_dict(orient="records"))
