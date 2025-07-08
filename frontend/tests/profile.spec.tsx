@@ -53,21 +53,19 @@ type Results = {
   heatmap: number
 }
 
-function profileComponents(useMemo: boolean): Results {
+async function profileComponents(useMemo: boolean): Promise<Results> {
   const origMemo = React.memo
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   React.memo = useMemo ? origMemo : ((c: any) => c)
   jest.resetModules()
-  // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
-  const DashMod = require('../src/features/tickets/TicketStatsPage')
-  const Dashboard = DashMod.default ?? DashMod.Dashboard ?? DashMod
-  // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
-  const TendMod = require('../src/components/ChamadosTendencia')
+  const DashMod = await import('../src/features/tickets/TicketStatsPage')
+  const Dashboard = DashMod.default ?? (DashMod as any).Dashboard ?? DashMod
+  const TendMod = await import('../src/components/ChamadosTendencia')
   const ChamadosTendencia =
-    TendMod.ChamadosTendencia ?? TendMod.default ?? TendMod
-  // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
-  const HeatMod = require('../src/components/ChamadosHeatmap')
-  const ChamadosHeatmap = HeatMod.ChamadosHeatmap ?? HeatMod.default ?? HeatMod
+    (TendMod as any).ChamadosTendencia ?? TendMod.default ?? TendMod
+  const HeatMod = await import('../src/components/ChamadosHeatmap')
+  const ChamadosHeatmap =
+    (HeatMod as any).ChamadosHeatmap ?? HeatMod.default ?? HeatMod
   const res: Results = {
     dashboard: measure(Dashboard),
     tendencia: measure(ChamadosTendencia),
@@ -78,9 +76,9 @@ function profileComponents(useMemo: boolean): Results {
 }
 
 describe.skip('profiling with and without memoization', () => {
-  it('captures render times', () => {
-    const before = profileComponents(false)
-    const after = profileComponents(true)
+  it('captures render times', async () => {
+    const before = await profileComponents(false)
+    const after = await profileComponents(true)
     console.log('Before:', before)
     console.log('After:', after)
     expect(before.dashboard).toBeGreaterThanOrEqual(0)
