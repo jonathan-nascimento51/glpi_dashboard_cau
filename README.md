@@ -486,17 +486,17 @@ pip install --no-index --find-links=wheels -r requirements.txt -r requirements-d
 
 ## Tests and linting
 
-Execute the unit tests with coverage. **Before running `pytest` or `make test`**
-ensure all dependencies are installed **and** the package is available in
-editable mode. Run:
+Execute the unit tests with coverage.
+Before running `pytest` or `make test` you **must** install all dependencies and
+the local package in editable mode:
 
 ```bash
 pip install -r requirements.txt -r requirements-dev.txt && pip install -e .
 ```
 
-The `make test` target performs this installation automatically. You may also
-run `./setup.sh` which installs the requirements, sets up pre-commit hooks and
-prepares the environment in one step.
+Running `./setup.sh` performs the same installation automatically and configures
+pre-commit hooks. After the environment is ready you can run `make test` to
+execute the suite in one step or invoke `pytest` directly.
 
 ```bash
 pip install -r requirements.txt -r requirements-dev.txt
