@@ -1,9 +1,14 @@
 {
+  "type": "module",
+  "scripts": {
+    "check-env": "node ./scripts/check-env.js"
+  },
   "devDependencies": {
     "@testing-library/dom": "^10.4.0",
     "@testing-library/react": "^16.3.0"
   },
   "dependencies": {
-    "recharts": "^3.0.2"
+    "recharts": "^3.0.2",
+    "dotenv": "^17.1.0"
   }
 }

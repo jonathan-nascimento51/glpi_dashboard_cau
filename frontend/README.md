@@ -57,7 +57,8 @@ const { data, isLoading } = useQuery(['tickets'], () => fetcher('/tickets'))
 The application expects `NEXT_PUBLIC_API_BASE_URL` to be defined in a `.env` file or the shell environment. This variable **must** be set for development, automated tests and production deployments.
 
 `npm run dev`, `npm run test`, `npm run build` and `npm run preview` automatically
-run `npm run check-env` to verify this variable. You can also call
+run `npm run check-env` to verify this variable. The wrapper script delegates to
+`../scripts/check-env.js` located at the project root, so you can call
 `npm run check-env` manually before starting the dev server or running a
 production build.
 

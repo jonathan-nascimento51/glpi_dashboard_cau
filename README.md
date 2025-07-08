@@ -421,6 +421,8 @@ python scripts/setup_env.py
 
 The Docker services rely on these settings to connect to the database and the
 GLPI API.
+Run `npm run check-env` to verify that all mandatory variables are present
+before building or launching the stack.
 
 > **Troubleshooting**: se o contêiner do PostgreSQL falhar com
 > `FATAL: role "user" does not exist`, crie o usuário manualmente com:
