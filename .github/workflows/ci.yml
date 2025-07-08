@@ -132,7 +132,7 @@ jobs:
           npm ci
           npx playwright install --with-deps
       - name: Start stack
-        run: docker compose -f docker-compose-dev.yml up -d
+        run: docker compose up -d
       - name: Wait for services
         run: sleep 20
       - name: Run Python E2E tests
@@ -143,5 +143,5 @@ jobs:
           npm run test:e2e -- --reporter=line
       - name: Tear down
         if: always()
-        run: docker compose -f docker-compose-dev.yml down
+        run: docker compose down
 
