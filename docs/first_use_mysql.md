@@ -27,9 +27,13 @@ terminal MySQL:
 ```sql
 CREATE DATABASE glpi_dashboard CHARACTER SET utf8mb4;
 CREATE USER 'dashboard'@'%' IDENTIFIED BY 'senhaSegura';
-GRANT ALL PRIVILEGES ON glpi_dashboard.* TO 'dashboard'@'%';
+GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER ON glpi_dashboard.* TO 'dashboard'@'%';
 FLUSH PRIVILEGES;
 ```
+
+Use esta conta restrita apenas para a aplicação. Para tarefas administrativas
+(como migração ou manutenção do banco), utilize uma conta separada com
+privilégios mais amplos.
 
 Anote o host, porta e credenciais, pois serão usados no arquivo `.env`.
 
