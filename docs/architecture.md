@@ -110,3 +110,26 @@ Dash --> Usuario : exibe gráfico
 ```
 
 Estas visões fornecem um panorama completo da arquitetura e do fluxo de dados, facilitando futuras evoluções e integrações.
+
+## 6. Fluxo orientado a eventos
+
+A replicação das tabelas do GLPI via Debezium gera eventos `TicketCreated` e
+`TicketUpdated` que são publicados em um broker (Kafka ou RabbitMQ). O módulo
+`events/consumer.py` assina esse fluxo e aplica cada alteração ao modelo de
+leitura mantido no Redis. Dessa forma, as métricas são atualizadas
+incrementalmente conforme os tickets mudam sem depender de consultas
+periódicas.
+
+Outros serviços podem consumir o mesmo stream para compor relatórios ou acionar
+webhooks, bastando criar um consumidor para o mesmo tópico. O formato de evento
+é simples:
+
+```json
+{
+  "type": "TicketCreated",
+  "payload": { "id": 123, "status": 1, "priority": 3 }
+}
+```
+
+Esses eventos são processados em ordem e os agregados de cache são recalculados
+apenas com os registros afetados.

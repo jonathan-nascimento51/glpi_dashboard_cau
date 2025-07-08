@@ -28,8 +28,9 @@ def tickets_daily_totals(df: pd.DataFrame) -> pd.DataFrame:
 
 def compute_aggregated(df: pd.DataFrame) -> Dict[str, Any]:
     """Return simple aggregated metrics from ``df``."""
+    raw_status = df.get("status")
     status_series = (
-        df.get("status", pd.Series(dtype="object")).fillna("").astype(str).str.lower()
+        pd.Series(raw_status, dtype="object").fillna("").astype(str).str.lower()
     )
     status_series = status_series.replace({"solved": "closed"})
     status_counts = status_series.value_counts().to_dict()
