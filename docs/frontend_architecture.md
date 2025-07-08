@@ -79,8 +79,9 @@ If this variable is missing the application will fail to start. The fetcher
 responsible for API calls verifies that `NEXT_PUBLIC_API_BASE_URL` is defined
  and throws an error otherwise. `npm run dev`, `npm test`, `npm run build` and
  `npm run preview` automatically execute `npm run check-env` to validate the
- configuration, but you can run it manually before launching the app or building
- for production.
+ configuration. This script imports the shared logic from `scripts/check-env.js`
+ at the project root, so you can also run `npm run check-env` manually before
+ launching the app or building for production.
 
 The React code can read this value using `import.meta.env.NEXT_PUBLIC_API_BASE_URL` to send requests to the worker.
 
