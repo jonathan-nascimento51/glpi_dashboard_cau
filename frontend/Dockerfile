@@ -11,9 +11,9 @@ COPY package.json package-lock.json* ./
 # 2) Copia o .npmrc renomeado
 COPY .npmrc ./
 
-# 3) Instala dependências usando as flags do .npmrc
+# 2) Usa npm install em vez de ci para garantir optionalDependencies
 RUN --mount=type=cache,target=/root/.npm \
-    npm ci --omit=dev          # instala só produção, mas lock está completo
+    npm install --omit=dev
 
 # 4) Copia o restante do código e executa build/dev
 COPY . .
