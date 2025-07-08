@@ -628,6 +628,61 @@ async def test_request_network_error(
 
 
 @pytest.mark.asyncio
+async def test_verify_ssl_disabled_passes_ssl_false(
+    base_url, app_token, user_token, mock_response
+):
+    with (
+        patch("glpi_dashboard.services.glpi_session.ClientSession") as session_cls,
+        patch("glpi_dashboard.services.glpi_session.TCPConnector") as connector_cls,
+    ):
+        session_instance = MagicMock()
+        session_instance.closed = False
+
+        @asynccontextmanager
+        async def default_ctx():
+            yield mock_response(200, {"session_token": user_token})
+
+        session_instance.get = MagicMock(return_value=default_ctx())
+        session_instance.request = MagicMock(return_value=default_ctx())
+        session_instance.__aenter__ = AsyncMock(return_value=session_instance)
+        session_instance.__aexit__ = AsyncMock(return_value=None)
+        session_cls.return_value = session_instance
+        connector_cls.return_value = MagicMock()
+
+        creds = Credentials(app_token=app_token, user_token=user_token)
+        glpi_session = GLPISession(base_url, creds, verify_ssl=False)
+        async with glpi_session as session:
+            await session.get("Ticket/1")
+
+        connector_cls.assert_called_with(ssl=False)
+        session_instance.get.assert_any_call(
+            f"{base_url}/initSession",
+            headers={
+                "Content-Type": "application/json",
+                "App-Token": app_token,
+                "Authorization": f"user_token {user_token}",
+            },
+            proxy=None,
+            timeout=ANY,
+            ssl=False,
+        )
+        session_instance.request.assert_called_with(
+            "GET",
+            f"{base_url}/Ticket/1",
+            headers={
+                "Content-Type": "application/json",
+                "App-Token": app_token,
+                "Session-Token": user_token,
+            },
+            json=None,
+            params=None,
+            proxy=None,
+            timeout=ANY,
+            ssl=False,
+        )
+
+
+@pytest.mark.asyncio
 async def test_open_session_tool_error(monkeypatch):
     class BadSession:
         async def __aenter__(self):

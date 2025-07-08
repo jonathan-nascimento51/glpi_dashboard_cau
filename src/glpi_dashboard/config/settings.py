@@ -49,6 +49,9 @@ class Settings(BaseSettings):
 
     USE_MOCK_DATA: bool = False
 
+    VERIFY_SSL: bool = True
+    CLIENT_TIMEOUT_SECONDS: int = 30
+
     knowledge_base_file: str = os.getenv(
         "KNOWLEDGE_BASE_FILE", "docs/knowledge_base_errors.md"
     )
@@ -117,3 +120,6 @@ OTEL_EXPORTER_OTLP_HEADERS = settings.OTEL_EXPORTER_OTLP_HEADERS
 OTEL_SERVICE_NAME = settings.OTEL_SERVICE_NAME
 
 EVENT_BROKER_URL = settings.EVENT_BROKER_URL
+
+VERIFY_SSL = settings.VERIFY_SSL
+CLIENT_TIMEOUT_SECONDS = settings.CLIENT_TIMEOUT_SECONDS

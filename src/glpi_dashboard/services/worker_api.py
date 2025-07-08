@@ -46,6 +46,7 @@ from glpi_dashboard.services.read_model import query_ticket_summary
 from glpi_dashboard.utils.redis_client import redis_client
 
 from ..config.settings import (
+    CLIENT_TIMEOUT_SECONDS,
     GLPI_APP_TOKEN,
     GLPI_BASE_URL,
     GLPI_PASSWORD,
@@ -53,6 +54,7 @@ from ..config.settings import (
     GLPI_USERNAME,
     KNOWLEDGE_BASE_FILE,
     USE_MOCK_DATA,
+    VERIFY_SSL,
 )
 
 logger = logging.getLogger(__name__)
@@ -116,7 +118,12 @@ def get_ticket_translator() -> Optional[TicketTranslator]:
         username=GLPI_USERNAME,
         password=GLPI_PASSWORD,
     )
-    session = GLPISession(GLPI_BASE_URL, creds)
+    session = GLPISession(
+        GLPI_BASE_URL,
+        creds,
+        verify_ssl=VERIFY_SSL,
+        timeout=CLIENT_TIMEOUT_SECONDS,
+    )
     mapper = MappingService(session)
     return TicketTranslator(mapper)
 
@@ -202,7 +209,12 @@ async def _load_tickets(
             username=GLPI_USERNAME,
             password=GLPI_PASSWORD,
         )
-        async with GLPISession(GLPI_BASE_URL, creds) as session:
+        async with GLPISession(
+            GLPI_BASE_URL,
+            creds,
+            verify_ssl=VERIFY_SSL,
+            timeout=CLIENT_TIMEOUT_SECONDS,
+        ) as session:
             return await session.get_all("Ticket")
 
     try:
@@ -301,7 +313,12 @@ def create_app(client: Optional[GLPISession] = None, cache=None) -> FastAPI:
             username=GLPI_USERNAME,
             password=GLPI_PASSWORD,
         )
-        client = GLPISession(GLPI_BASE_URL, creds)
+        client = GLPISession(
+            GLPI_BASE_URL,
+            creds,
+            verify_ssl=VERIFY_SSL,
+            timeout=CLIENT_TIMEOUT_SECONDS,
+        )
 
     @app.get("/tickets", response_model=list[CleanTicketDTO])
     async def tickets(
@@ -394,7 +411,12 @@ def create_app(client: Optional[GLPISession] = None, cache=None) -> FastAPI:
             password=GLPI_PASSWORD,
         )
         try:
-            async with GLPISession(GLPI_BASE_URL, creds):
+            async with GLPISession(
+                GLPI_BASE_URL,
+                creds,
+                verify_ssl=VERIFY_SSL,
+                timeout=CLIENT_TIMEOUT_SECONDS,
+            ):
                 pass
         except (GLPIAPIError, GLPIUnauthorizedError):
             return 500
