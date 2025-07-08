@@ -1,14 +1,26 @@
 #!/usr/bin/env node
-import path from 'path';
-import { fileURLToPath } from 'url';
+import dotenv from 'dotenv'
+import path from 'path'
+import { fileURLToPath } from 'url'
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const envPath = path.join(__dirname, '..', '.env');
+// 1. Carrega .env
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+dotenv.config({ path: path.join(__dirname, '..', '.env') })
 
-try {
-  assertEnv(['NEXT_PUBLIC_API_BASE_URL'], envPath);
-  console.log(`NEXT_PUBLIC_API_BASE_URL resolved to: ${process.env.NEXT_PUBLIC_API_BASE_URL}`);
-} catch (err) {
-  console.error(err.message);
-  process.exit(1);
+// 2. Função de assert
+function assertEnv(keys) {
+  keys.forEach(key => {
+    if (!process.env[key]) {
+      console.error(`❌ Variável de ambiente obrigatória "${key}" não definida.`)
+      process.exit(1)
+    }
+  })
 }
+
+// 3. Checa as variáveis
+assertEnv(['NEXT_PUBLIC_API_BASE_URL'])
+
+// 4. Log de sucesso
+console.log(
+  `NEXT_PUBLIC_API_BASE_URL resolved to: ${process.env.NEXT_PUBLIC_API_BASE_URL}`
+)
