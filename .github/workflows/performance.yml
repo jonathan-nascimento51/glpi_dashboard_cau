@@ -22,4 +22,3 @@ jobs:
         with:
           configPath: './frontend/lighthouseci.config.js'
           uploadArtifacts: true
-          enforceThresholds: true

@@ -53,7 +53,7 @@ jobs:
         run: ./scripts/check_snyk_access.sh
 
       - name: Snyk vulnerability scan
-        uses: snyk/actions/node@v2
+        uses: snyk/actions/node@master
         with:
           command: test
           args: --json-file-output=snyk.json --severity-threshold=high
