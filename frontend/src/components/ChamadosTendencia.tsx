@@ -7,7 +7,7 @@ function ChamadosTendenciaComponent() {
   const { dados, isLoading, error } = useChamadosPorData()
 
   if (isLoading) return <div>Carregando tendência...</div>
-  if (error) return <div>{(error as Error).message}</div>
+  if (error) return <div>Erro ao carregar dados de tendência</div>
 
   return (
     <div className="bg-white dark:bg-gray-800 p-4 rounded shadow w-full">
