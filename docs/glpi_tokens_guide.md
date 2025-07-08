@@ -117,7 +117,7 @@ pytest --cov=./
 pre-commit run --all-files
 ```
 
-Cobertura mínima de 90 % garantida no CI (GitHub Actions).
+Cobertura mínima de 85 % garantida no CI (GitHub Actions).
 
 ---
 
