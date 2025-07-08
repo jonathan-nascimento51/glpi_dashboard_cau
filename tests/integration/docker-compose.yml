@@ -5,12 +5,12 @@ services:
     env_file:
       - ../../.env
     environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      DB_USER: ${DB_USER}
-      DB_PASSWORD: ${DB_PASSWORD}
-      DB_NAME: ${DB_NAME}
+      POSTGRES_DB: glpi_dashboard
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      DB_NAME: glpi_dashboard
+      DB_USER: user
+      DB_PASSWORD: password
     volumes:
       - ../../docker/db-init:/docker-entrypoint-initdb.d:ro
     ports:
