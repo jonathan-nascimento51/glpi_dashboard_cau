@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import datetime as dt
 import logging
-from operator import index
 from pathlib import Path
 from typing import Optional
 
@@ -50,7 +49,7 @@ async def collect_tickets_with_groups(
         created = True
 
     async def get_all(item: str, **params: dict) -> list[dict]:
-        params = {**params, "expand_dropdowns": 1}
+        params = {**params, "expand_dropdowns": {}}  # ensure value is a dict
         endpoint = f"search/{item}" if not item.startswith("search/") else item
         results: list[dict] = []
         offset = 0
@@ -59,7 +58,7 @@ async def collect_tickets_with_groups(
                 **params,
                 "range": f"{offset}-{offset + FETCH_PAGE_SIZE - 1}",
             }
-            data = await index(endpoint, params=page_params)
+            data = await session.get(endpoint, params=page_params)
             page = data.get("data", data)
             if isinstance(page, dict):
                 page = [page]
@@ -73,7 +72,7 @@ async def collect_tickets_with_groups(
         if endpoint.startswith("search/"):
             item = endpoint.split("/", 1)[1]
             return await get_all(item, **(params or {}))
-        data = await index(endpoint, params=params)
+        data = await session.get(endpoint, params=params)
         if isinstance(data, dict):
             inner = data.get("data")
             if (
@@ -89,7 +88,7 @@ async def collect_tickets_with_groups(
                     ]
                 )
             ):
-                data = await index(endpoint, params=params)
+                data = await session.get(endpoint, params=params)
         return data
 
     async def collect() -> pd.DataFrame:
@@ -137,20 +136,37 @@ async def collect_tickets_with_groups(
                             f"Group/{group_id}",
                             params={"forcedisplay[0]": "completename"},
                         )
-                        group_name = g.get("completename")
+                        if isinstance(g, dict):
+                            group_name = g.get("completename")
+                        elif isinstance(g, list) and g and isinstance(g[0], dict):
+                            group_name = g[0].get("completename")
+                        else:
+                            group_name = None
                     elif user_id:
                         u = await fetch(
                             f"User/{user_id}",
                             params={"forcedisplay[0]": "name"},
                         )
-                        user_name = u.get("name")
-                        group_id = u.get("groups_id")
+                        if isinstance(u, dict):
+                            user_name = u.get("name")
+                            group_id = u.get("groups_id")
+                        elif isinstance(u, list) and u and isinstance(u[0], dict):
+                            user_name = u[0].get("name")
+                            group_id = u[0].get("groups_id")
+                        else:
+                            user_name = None
+                            group_id = None
                         if group_id:
                             g = await fetch(
                                 f"Group/{group_id}",
                                 params={"forcedisplay[0]": "completename"},
                             )
-                            group_name = g.get("completename")
+                            if isinstance(g, dict):
+                                group_name = g.get("completename")
+                            elif isinstance(g, list) and g and isinstance(g[0], dict):
+                                group_name = g[0].get("completename")
+                            else:
+                                group_name = None
                     rows.append(
                         {
                             "ticket_id": tid,
