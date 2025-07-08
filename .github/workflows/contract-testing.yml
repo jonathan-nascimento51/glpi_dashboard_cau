@@ -27,8 +27,8 @@ jobs:
           npm test -- --runTestsByPath tests/contracts/glpi-consumer.pact.js
       - name: Publish pacts
         env:
-          PACT_BROKER_BASE_URL: ${{ secrets.PACT_BROKER_BASE_URL }}
-          PACT_BROKER_TOKEN: ${{ secrets.PACT_BROKER_TOKEN }}
+          PACT_BROKER_BASE_URL: '${{ secrets.PACT_BROKER_BASE_URL }}'
+          PACT_BROKER_TOKEN: '${{ secrets.PACT_BROKER_TOKEN }}'
         run: |
           cd frontend
           npx pact-broker publish pacts \
@@ -51,7 +51,8 @@ jobs:
           pip install -r requirements.txt -r requirements-dev.txt
       - name: Verify provider against broker
         env:
-          PACT_BROKER_URL: ${{ secrets.PACT_BROKER_BASE_URL }}
-          PACT_BROKER_TOKEN: ${{ secrets.PACT_BROKER_TOKEN }}
+          # use mesma key em todo o workflow para evitar confusão
+          PACT_BROKER_BASE_URL: '${{ secrets.PACT_BROKER_BASE_URL }}'
+          PACT_BROKER_TOKEN: '${{ secrets.PACT_BROKER_TOKEN }}'
         run: |
           pytest tests/test_provider_glpi.py::test_verify_against_broker -q

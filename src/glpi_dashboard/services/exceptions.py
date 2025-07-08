@@ -103,7 +103,7 @@ def parse_error(response: aiohttp.ClientResponse, data: Optional[dict] = None) -
     if data and isinstance(data, dict) and "error" in data:
         return data.get("error", "")
     try:
-        status_text = response.reason if response.reason else "Unknown Error"
+        status_text = response.reason or "Unknown Error"
         return f"HTTP {response.status}: {status_text}"
     except Exception as e:
         logger.error(f"Error parsing response for human-readable message: {e}")

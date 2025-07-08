@@ -127,7 +127,7 @@ async def test_get_all_paginated(monkeypatch):
         AsyncMock(side_effect=fake_request),
     )
     with patch("asyncio.sleep", new=AsyncMock()):
-        data = await session.get_all_paginated("Ticket", page_size=2)
+        data = await index_all_paginated("Ticket", page_size=2)
 
     assert call_count == 3
     assert data == [{"id": 1}, {"id": 2}, {"id": 3}]
