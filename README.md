@@ -330,7 +330,8 @@ POSTGRES_PASSWORD=$DB_PASSWORD
 - `GLPI_APP_TOKEN` – your application token
 - `GLPI_USERNAME` / `GLPI_PASSWORD` – login credentials (optional if using a user token)
 - `GLPI_USER_TOKEN` – API token for a specific user (optional)
-- `KNOWLEDGE_BASE_FILE` – path to the JSON dump used by the dashboard and API
+- `KNOWLEDGE_BASE_FILE` – caminho para o arquivo Markdown com erros
+  conhecidos utilizado pelo worker (padrão `docs/knowledge_base_errors.md`)
 - `DB_HOST` – PostgreSQL host
 - `DB_PORT` – PostgreSQL port
 - `DB_NAME` – database name

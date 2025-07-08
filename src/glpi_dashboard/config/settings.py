@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
-from functools import lru_cache
 import os
+from functools import lru_cache
 from typing import Literal
 
 from dotenv import load_dotenv
-
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -40,7 +39,9 @@ class Settings(BaseSettings):
 
     USE_MOCK_DATA: bool = False
 
-    knowledge_base_file: str = ""
+    knowledge_base_file: str = os.getenv(
+        "KNOWLEDGE_BASE_FILE", "docs/knowledge_base_errors.md"
+    )
     database_url: str = ""
     redis_url: str = ""
     cache_type: str = ""
@@ -98,6 +99,8 @@ FETCH_PAGE_SIZE = settings.FETCH_PAGE_SIZE
 MV_REFRESH_INTERVAL_MINUTES = settings.MV_REFRESH_INTERVAL_MINUTES
 
 USE_MOCK_DATA = settings.USE_MOCK_DATA
+
+KNOWLEDGE_BASE_FILE = settings.knowledge_base_file
 
 OTEL_EXPORTER_OTLP_ENDPOINT = settings.OTEL_EXPORTER_OTLP_ENDPOINT
 OTEL_EXPORTER_OTLP_HEADERS = settings.OTEL_EXPORTER_OTLP_HEADERS
