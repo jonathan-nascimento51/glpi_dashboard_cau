@@ -1,7 +1,7 @@
 "use client"
-import React from 'react'
+import type { FC } from 'react'
 
-const SkeletonHeatmap: React.FC<{ heightClass?: string }> = ({
+const SkeletonHeatmap: FC<{ heightClass?: string }> = ({
   heightClass = 'h-[200px]',
 }) => (
   <div className="bg-white dark:bg-gray-800 p-4 rounded shadow">

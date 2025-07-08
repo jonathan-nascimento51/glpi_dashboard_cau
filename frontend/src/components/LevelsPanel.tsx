@@ -1,4 +1,4 @@
-import React from 'react'
+import { memo, type FC } from 'react'
 
 export interface LevelData {
   name: string
@@ -9,7 +9,7 @@ export interface LevelsPanelProps {
   levels: LevelData[]
 }
 
-const LevelsPanelComponent: React.FC<LevelsPanelProps> = ({ levels }) => {
+const LevelsPanelComponent: FC<LevelsPanelProps> = ({ levels }) => {
   return (
     <div className="levels-section">
       <div className="levels-header">
@@ -58,4 +58,4 @@ const LevelsPanelComponent: React.FC<LevelsPanelProps> = ({ levels }) => {
   )
 }
 
-export const LevelsPanel = React.memo(LevelsPanelComponent)
+export const LevelsPanel = memo(LevelsPanelComponent)

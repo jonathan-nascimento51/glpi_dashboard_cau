@@ -1,4 +1,4 @@
-import React from 'react'
+import { memo } from 'react'
 import { useChamadosPorData } from '../hooks/useChamadosPorData'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
 
@@ -25,4 +25,4 @@ function ChamadosTendenciaComponent() {
   )
 }
 
-export const ChamadosTendencia = React.memo(ChamadosTendenciaComponent)
+export const ChamadosTendencia = memo(ChamadosTendenciaComponent)

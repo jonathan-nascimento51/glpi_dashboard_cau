@@ -1,5 +1,13 @@
 /* eslint-disable react/display-name */
-import React, { useCallback, useMemo, useRef, useState } from 'react'
+import {
+  memo,
+  forwardRef,
+  type KeyboardEvent,
+  useCallback,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import { FixedSizeList, type ListChildComponentProps } from 'react-window'
 
 const priorityClasses: Record<string, string> = {
@@ -47,7 +55,7 @@ export interface VirtualizedTicketTableProps {
   rowHeightClass?: string
 }
 
-const Row = React.memo(({ index, style, data }: ListChildComponentProps<RowData>) => {
+const Row = memo(({ index, style, data }: ListChildComponentProps<RowData>) => {
   const row = data.rows[index]
   const handleClick = useCallback(() => data.onRowClick(row), [data, row])
   const handleFocus = useCallback(() => data.onFocus(index), [data, index])
@@ -115,7 +123,7 @@ export function VirtualizedTicketTable({
   )
 
   const handleKeyDown = useCallback(
-    (event: React.KeyboardEvent<HTMLDivElement>) => {
+    (event: KeyboardEvent<HTMLDivElement>) => {
       const visible = Math.floor(height / rowHeight)
       let newIndex = focusedIndex
 
@@ -183,7 +191,7 @@ export function VirtualizedTicketTable({
         itemSize={rowHeight}
         width="100%"
         itemData={itemData}
-        innerElementType={React.forwardRef<HTMLDivElement>((props, ref) => (
+        innerElementType={forwardRef<HTMLDivElement>((props, ref) => (
           <div {...props} ref={ref} role="rowgroup" />
         ))}
       >

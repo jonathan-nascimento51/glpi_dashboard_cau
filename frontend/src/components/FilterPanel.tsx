@@ -1,8 +1,8 @@
 "use client"
-import React, { useCallback } from 'react'
+import { type FC, useCallback } from 'react'
 import { useFilters } from '../hooks/useFilters'
 
-const FilterPanel: React.FC = () => {
+const FilterPanel: FC = () => {
   const { filters, toggleFilters, toggleValue } = useFilters()
 
   const renderOptions = useCallback(
