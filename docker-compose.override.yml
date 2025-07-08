@@ -16,6 +16,11 @@ services:
       start_period: 30s
 
   frontend:
+    build:
+      context: ./frontend
+      # sobrescreve o comando de instalação só neste serviço de dev:
+      args:
+        INSTALL_DEV_DEPS: "true"
     environment:
       - NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
     ports:
