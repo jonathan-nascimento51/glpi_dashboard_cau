@@ -1,4 +1,5 @@
 FROM node:20-slim
+RUN npm install -g npm@latest
 ENV NPM_CONFIG_CACHE=/root/.npm
 
 WORKDIR /app
@@ -12,6 +13,7 @@ COPY .npmrc ./
 # 2) Usa npm install em vez de ci para garantir optionalDependencies
 RUN --mount=type=cache,target=/root/.npm \
     npm install --omit=dev
+RUN npm rebuild esbuild --update-binary
 
 # 4) Copia o restante do código e executa build/dev
 COPY . .

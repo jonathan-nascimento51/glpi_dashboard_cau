@@ -20,7 +20,6 @@ services:
       - "5173:5173"  # Porta padrão do Vite
     volumes:
       - ./frontend:/app/frontend
-      - /app/node_modules
     working_dir: /app/frontend
     command: npm run dev
 
