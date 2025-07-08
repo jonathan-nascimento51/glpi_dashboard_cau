@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
 import { fetcher } from '@/lib/swrClient'
+import type { ChamadoPorData } from '../types/chamado'
 
-export interface ChamadoPorData {
-  date: string
-  total: number
+async function fetchChamadosPorData(): Promise<ChamadoPorData[]> {
+  return fetcher('/chamados/por-data')
 }
 
 async function fetchChamadosPorData(): Promise<ChamadoPorData[]> {
