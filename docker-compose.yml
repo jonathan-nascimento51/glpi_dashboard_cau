@@ -11,6 +11,7 @@ services:
       PYTHONPATH: /app/src
     depends_on:
       - redis
+      - db
     healthcheck:
       test: ["CMD", "curl", "--fail", "http://localhost:8000/health/glpi"]
       interval: 30s
@@ -32,9 +33,21 @@ services:
       context: ./frontend
     depends_on:
       - backend
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./docker/db-init:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5173"]
-      interval: 30s
+      test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER}", "-d", "${POSTGRES_DB}"]
+      interval: 10s
       timeout: 5s
-      retries: 3
-      start_period: 10s
+      retries: 5
+
+volumes:
+  db_data:
