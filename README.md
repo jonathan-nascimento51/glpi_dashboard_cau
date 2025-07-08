@@ -380,6 +380,13 @@ python scripts/setup_env.py
 The Docker services rely on these settings to connect to the database and the
 GLPI API.
 
+> **Troubleshooting**: se o contêiner do PostgreSQL falhar com
+> `FATAL: role "user" does not exist`, verifique se as variáveis `DB_USER` e
+> `POSTGRES_USER` têm o mesmo valor no arquivo `.env`. Caso o volume tenha sido
+> criado sem essas variáveis, execute `docker compose down -v` e recrie a stack
+> com `docker compose -f docker-compose-dev.yml up --build`. Finalize com
+> `make init-db` para garantir que as tabelas existam.
+
 You can verify that your credentials work before launching the stack:
 
 ```bash
