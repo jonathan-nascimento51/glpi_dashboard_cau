@@ -21,6 +21,7 @@ services:
       # sobrescreve o comando de instalação só neste serviço de dev:
       args:
         INSTALL_DEV_DEPS: "true"
+    env_file: ./frontend/.env
     environment:
       - NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
     ports:
