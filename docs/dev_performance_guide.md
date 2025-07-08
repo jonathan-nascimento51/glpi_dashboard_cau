@@ -106,3 +106,16 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     npm install -g playwright && \
     playwright install --with-deps chromium
 ```
+## Manutenção e Governança a Longo Prazo
+
+Versionamento: A imagem de base deve ser estritamente versionada, preferindo o esquema semântico (por exemplo, `1.1.0`). As imagens da aplicação devem referenciar explicitamente a versão utilizada para garantir reprodutibilidade.
+
+Atualizações de Segurança: Agende um pipeline semanal ou quinzenal que reconstrua a imagem de base com `docker build --no-cache` para aplicar as correções do sistema e das dependências.
+
+Varredura de Vulnerabilidades: Integre ferramentas como Trivy ou Grype ao pipeline de construção. A build deve falhar se forem detectadas vulnerabilidades críticas ou altas.
+
+Distribuição e Controlo de Acesso: Publique as imagens em um registro privado e proteja o acesso com políticas de IAM, permitindo apenas que usuários e pipelines autorizados realizem push e pull.
+
+## Conclusões
+
+A demora de 20 minutos na preparação do ambiente decorre da reconstrução completa a cada execução. Ao adotar uma imagem de base pré-configurada, camadas de cache otimizadas e um plano de manutenção contínuo, o tempo de inicialização cai para menos de um minuto. A equipe ganha consistência, segurança e produtividade ao executar builds rápidas e reproduzíveis.
