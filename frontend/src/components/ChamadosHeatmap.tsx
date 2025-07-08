@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import { memo, useMemo } from 'react'
 import { useChamadosPorDia } from '../hooks/useChamadosPorDia'
 import type { ChamadoPorDia } from '../hooks/useChamadosPorDia'
 import ReactCalendarHeatmap from 'react-calendar-heatmap'
@@ -57,4 +57,4 @@ function ChamadosHeatmapComponent() {
   )
 }
 
-export const ChamadosHeatmap = React.memo(ChamadosHeatmapComponent)
+export const ChamadosHeatmap = memo(ChamadosHeatmapComponent)

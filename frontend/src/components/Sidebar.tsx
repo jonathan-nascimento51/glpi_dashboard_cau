@@ -1,4 +1,4 @@
-import React from 'react'
+import { memo, type FC } from 'react'
 
 export interface PerformanceMetric {
   label: string
@@ -25,7 +25,7 @@ export interface SidebarProps {
   alerts: AlertItem[]
 }
 
-const SidebarComponent: React.FC<SidebarProps> = ({ performance, ranking, alerts }) => (
+const SidebarComponent: FC<SidebarProps> = ({ performance, ranking, alerts }) => (
   <aside className="sidebar">
     <div className="sidebar-card">
       <div className="sidebar-header">
@@ -79,4 +79,4 @@ const SidebarComponent: React.FC<SidebarProps> = ({ performance, ranking, alerts
   </aside>
 )
 
-export const Sidebar = React.memo(SidebarComponent)
+export const Sidebar = memo(SidebarComponent)

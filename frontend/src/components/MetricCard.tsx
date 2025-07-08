@@ -1,4 +1,4 @@
-import React from 'react'
+import { memo, type FC } from 'react'
 
 export interface MetricCardProps {
   type: 'new' | 'pending' | 'progress' | 'resolved'
@@ -8,7 +8,7 @@ export interface MetricCardProps {
   canvasRef: React.RefObject<HTMLCanvasElement>
 }
 
-const MetricCardComponent: React.FC<MetricCardProps> = ({
+const MetricCardComponent: FC<MetricCardProps> = ({
   type,
   value,
   change,
@@ -41,4 +41,4 @@ const MetricCardComponent: React.FC<MetricCardProps> = ({
   )
 }
 
-export const MetricCard = React.memo(MetricCardComponent)
+export const MetricCard = memo(MetricCardComponent)
