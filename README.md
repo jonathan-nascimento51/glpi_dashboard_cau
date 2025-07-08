@@ -493,6 +493,23 @@ The frontend image takes advantage of BuildKit caching to speed up subsequent `n
 
 This exposes the worker API on port `8000` and the dashboard on port `5173`.
 
+## Configuration Management
+
+Docker Compose loads variables from the `.env` file at the repository root.
+Each `${VAR}` reference in the compose files is replaced with the value defined
+in this file. The same variables are injected into the containers using the
+`env_file` directive so the services see identical settings at runtime.
+
+Environment variables follow the standard precedence order:
+
+1. Values passed on the command line with `-e` or `--env-file`
+2. Entries under the `environment:` section of a service
+3. Keys loaded from `env_file`
+4. Defaults baked into the Docker image
+
+For production deployments store secrets like tokens and passwords in Docker
+secrets (or an external manager) instead of committing them to the `.env` file.
+
 ## Network
 
 If the host has limited internet access you can pre-download all Python
