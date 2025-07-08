@@ -4,6 +4,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - SKIP_PLAYWRIGHT=true
+      - PYTHONPATH=/app/src
     ports:
       - "8000:8000"
     volumes:
@@ -14,6 +15,8 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
+    env_file:
+      - ./.env
 
   frontend:
     build:
