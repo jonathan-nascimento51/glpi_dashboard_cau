@@ -1,13 +1,12 @@
 """FastAPI service exposing GLPI tickets via REST and GraphQL."""
 
 from __future__ import annotations
-
+from typing import List, Dict, Any, cast, AsyncGenerator, Optional
 import argparse
 import contextlib
 import json
 import logging
 import os
-from typing import Any, AsyncGenerator, List, Optional
 
 import pandas as pd
 import strawberry
@@ -167,7 +166,7 @@ async def _load_and_translate_tickets(
                     exc,
                 )
 
-    await cache.set(cache_key, [t.model_dump() for t in translated])
+    await cache.set(cache_key, {"data": [t.model_dump() for t in translated]})
     return translated
 
 
@@ -206,10 +205,10 @@ async def _load_tickets(
         metrics = compute_aggregated(df)
         await cache_aggregated_metrics(cache, "metrics_aggregated", metrics)
         await cache.set(
-            "chamados_por_data", tickets_by_date(df).to_dict(orient="records")
+            "chamados_por_data", {"data": tickets_by_date(df).to_dict(orient="records")}
         )
         await cache.set(
-            "chamados_por_dia", tickets_daily_totals(df).to_dict(orient="records")
+            "chamados_por_dia", {"data": tickets_daily_totals(df).to_dict(orient="records")}
         )
         return df
 
@@ -249,16 +248,16 @@ async def _load_tickets(
         metrics = compute_aggregated(df)
         await cache_aggregated_metrics(cache, "metrics_aggregated", metrics)
         await cache.set(
-            "chamados_por_data", tickets_by_date(df).to_dict(orient="records")
+            "chamados_por_data", {"data": tickets_by_date(df).to_dict(orient="records")}
         )
         await cache.set(
-            "chamados_por_dia", tickets_daily_totals(df).to_dict(orient="records")
+            "chamados_por_dia", {"data": tickets_daily_totals(df).to_dict(orient="records")}
         )
         return df
 
     if isinstance(data, dict):
         data = data.get("data", data)
-    await cache.set(cache_key, data)
+    await cache.set(cache_key, {"data": data})
     try:
         return process_raw(data)
     except (KeyError, ValueError):
@@ -396,23 +395,24 @@ def create_app(client: Optional[GLPISession] = None, cache=None) -> FastAPI:
 
     @app.get(
         "/chamados/por-data",
-        response_model=list[ChamadoPorData],
+        response_model=List[ChamadoPorData],
     )
-    async def chamados_por_data() -> list[dict]:  # noqa: F401
-        data = await cache.get("chamados_por_data")
-        if data is None:
+    async def chamados_por_data() -> List[Dict[str, Any]]:
+        raw = await cache.get("chamados_por_data")
+        if raw is None:
             raise HTTPException(status_code=503, detail="metrics not available")
-        return data
+        # avisa ao type checker que raw é List[Dict[str, Any]]
+        return cast(List[Dict[str, Any]], raw)
 
     @app.get(
         "/chamados/por-dia",
-        response_model=list[ChamadosPorDia],
+        response_model=List[ChamadosPorDia],
     )
-    async def chamados_por_dia() -> list[dict]:  # noqa: F401
-        data = await cache.get("chamados_por_dia")
-        if data is None:
+    async def chamados_por_dia() -> List[Dict[str, Any]]:
+        raw = await cache.get("chamados_por_dia")
+        if raw is None:
             raise HTTPException(status_code=503, detail="metrics not available")
-        return data
+        return cast(List[Dict[str, Any]], raw)
 
     @app.get("/read-model/tickets", response_model=list[TicketSummaryOut])
     async def read_model_tickets(
