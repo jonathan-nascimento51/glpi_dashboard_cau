@@ -353,6 +353,27 @@ def test_health_glpi_auth_failure(
     assert "unauthorized" in data["details"]
 
 
+def test_session_init_failure_fallback(
+    monkeypatch: pytest.MonkeyPatch, dummy_cache: DummyCache
+) -> None:
+    async def raise_init(self):
+        raise RuntimeError("no network")
+
+    monkeypatch.setattr(
+        "glpi_dashboard.services.worker_api.GLPISession.__aenter__",
+        raise_init,
+    )
+    app = create_app(cache=dummy_cache)
+    app.dependency_overrides[get_ticket_translator] = lambda: None
+    client = TestClient(app)
+
+    resp = client.get("/tickets")
+    assert resp.status_code == 200
+    assert resp.headers.get("X-Warning") == "using mock data"
+    tickets = resp.json()
+    assert tickets and isinstance(tickets, list)
+
+
 def test_breaker_content_type(dummy_cache: DummyCache):
     client = TestClient(create_app(client=FakeSession(), cache=dummy_cache))
     resp = client.get("/breaker")

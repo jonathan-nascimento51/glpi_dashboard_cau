@@ -265,6 +265,13 @@ The service exposes several endpoints:
 - `/cache/stats` – returns cache hit/miss metrics.
 - `/health/glpi` – quick check that the worker can reach the GLPI API.
 
+### Offline fallback
+
+If the GLPI API is unavailable the worker automatically serves data from
+`data/mock_tickets.json`. Set `USE_MOCK_DATA=true` in the environment to force
+this behaviour. Responses include the header `X-Warning: using mock data` when
+the fallback is active.
+
 Make sure the service is running with `python worker.py` and that your
 front-end points to it via `NEXT_PUBLIC_API_BASE_URL` in `frontend/.env`.
 Create the environment file with `cp frontend/.env.example frontend/.env` before starting the front-end.
