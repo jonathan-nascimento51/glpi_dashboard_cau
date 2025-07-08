@@ -125,6 +125,7 @@ class GLPISession:
         self.credentials = credentials
         self.proxy = proxy or os.environ.get("HTTP_PROXY")
         self.verify_ssl = verify_ssl
+        self.ssl_ctx = False if not verify_ssl else None
         self.timeout = timeout
         self.refresh_interval = refresh_interval
 
@@ -143,7 +144,7 @@ class GLPISession:
     async def _init_aiohttp_session(self) -> None:
         """Initializes the aiohttp ClientSession if it's not already open."""
         if self._session is None or self._session.closed:
-            connector = TCPConnector(ssl=self.verify_ssl)
+            connector = TCPConnector(ssl=self.ssl_ctx)
             self._session = ClientSession(connector=connector)
             logger.info("aiohttp ClientSession initialized.")
 
@@ -179,13 +180,13 @@ class GLPISession:
                 if self._session is None:
                     self._session = aiohttp.ClientSession()
 
-                async with self._index(
-                                init_session_url,
-                                headers=headers,
-                                proxy=self.proxy,
-                                timeout=self._resolve_timeout(),
-                                ssl=self.verify_ssl,
-                            ) as response:
+                async with self._session.get(
+                    init_session_url,
+                    headers=headers,
+                    proxy=self.proxy,
+                    timeout=self._resolve_timeout(),
+                    ssl=self.ssl_ctx,
+                ) as response:
                     try:
                         # Raises aiohttp.ClientResponseError for 4xx/5xx
                         response.raise_for_status()
@@ -321,7 +322,7 @@ class GLPISession:
                 headers=headers,
                 proxy=self.proxy,
                 timeout=self._resolve_timeout(),
-                ssl=self.verify_ssl,
+                ssl=self.ssl_ctx,
             ) as response:
                 response.raise_for_status()
                 logger.info("GLPI session killed successfully.")
@@ -385,14 +386,15 @@ class GLPISession:
                     self._session = aiohttp.ClientSession()
 
                 async with self._session.request(
-                                method,
-                                full_url,
-                                headers=current_headers,
-                                json=json_data,
-                                params=params,
-                                proxy=self.proxy,
-                                timeout=self._resolve_timeout(),
-                            ) as response:
+                    method,
+                    full_url,
+                    headers=current_headers,
+                    json=json_data,
+                    params=params,
+                    proxy=self.proxy,
+                    timeout=self._resolve_timeout(),
+                    ssl=self.ssl_ctx,
+                ) as response:
                     if (
                         response.status == 401
                         and retry_on_401

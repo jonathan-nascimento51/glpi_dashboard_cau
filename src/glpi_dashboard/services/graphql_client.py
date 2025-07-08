@@ -46,11 +46,12 @@ class GlpiGraphQLClient:
 
         url = base_url.rstrip("/") + "/graphql"
         headers = {"App-Token": app_token, "Session-Token": session_token}
+        ssl_ctx = False if not verify_ssl else None
         transport = HTTPXTransport(
             url=url,
             headers=headers,
             timeout=timeout,
-            verify=verify_ssl,
+            ssl=ssl_ctx,
         )
         self._client = Client(transport=transport, fetch_schema_from_transport=False)
 

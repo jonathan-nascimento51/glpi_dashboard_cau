@@ -37,6 +37,9 @@ Se a chamada retornar `200 OK` com um `session_token`, as credenciais estão cor
    curl -v http://cau.ppiratini.intra.rs.gov.br/glpi/apirest.php/initSession
    ```
 
+   Se a sua rede intercepta HTTPS com certificados internos,
+   defina `VERIFY_SSL=false` no `.env` para que o worker ignore erros de TLS.
+
 Se o `curl` retornar o mesmo erro 400, a conexão está ocorrendo e o problema é realmente na autenticação ou formatação dos headers.
 
 ## 3. Ajuste do Código e Logs

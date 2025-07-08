@@ -348,6 +348,8 @@ container also executes on first startup.
 - `GLPI_APP_TOKEN` – your application token
 - `GLPI_USERNAME` / `GLPI_PASSWORD` – login credentials (optional if using a user token)
 - `GLPI_USER_TOKEN` – API token for a specific user (optional)
+- `VERIFY_SSL` – set to `false` to ignore invalid TLS certificates
+- `CLIENT_TIMEOUT_SECONDS` – HTTP client timeout in seconds
 - `KNOWLEDGE_BASE_FILE` – caminho para o arquivo Markdown com erros
   conhecidos utilizado pelo worker (padrão `docs/knowledge_base_errors.md`)
 - `DB_HOST` – PostgreSQL host
