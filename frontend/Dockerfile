@@ -21,6 +21,7 @@ RUN --mount=type=cache,target=/root/.npm \
       npm install --omit=dev; \
     fi
 RUN npm rebuild esbuild --update-binary
+RUN npm rebuild lightningcss --update-binary
 
 # 4) Copia o restante do código e executa build/dev
 COPY . .
