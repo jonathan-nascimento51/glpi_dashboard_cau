@@ -133,9 +133,7 @@ Certifique-se de que o plugin Docker Compose esteja instalado; caso
 `docker compose` não esteja disponível, instale o pacote `docker-compose-plugin`
 ou atualize seu Docker Engine.
 
-Isso sobe PostgreSQL, Redis, `initdb`, o `worker` e o dashboard em portas 8000 e 5173.
-Para entender como o Compose carrega as variáveis do `.env` e a ordem de precedência,
-consulte a seção ["Configuration Management"](../README.md#configuration-management) do README.
+Isso sobe PostgreSQL, Redis, o `worker` e o dashboard em portas 8000 e 5173.
 
 ## Estrutura de Pastas
 
