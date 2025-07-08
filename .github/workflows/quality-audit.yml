@@ -34,7 +34,7 @@ jobs:
       - name: Install Node deps
         run: |
           cd frontend
-          npm ci
+          npm install --omit=dev
           npm install -g @lhci/cli
 
       - name: Run Lighthouse CI

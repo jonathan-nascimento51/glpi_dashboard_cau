@@ -1,27 +1,17 @@
-FROM python:3.12-slim
-
+FROM python:3.12-slim AS builder
 WORKDIR /app
-
-# ---------------------------
-# 1. Copie apenas os manifestos
-# ---------------------------
 COPY requirements.txt pyproject.toml ./
-
-# ---------------------------------------------------
-# 2. Instale dependências usando cache do pip (mais rápido)
-# ---------------------------------------------------
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip install --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
-
-# ---------------------------------------------------
-# 3. Copie o restante do código e instale em modo editável
-# ---------------------------------------------------
 COPY . .
 RUN pip install --no-cache-dir -e .
 
+FROM python:3.12-slim
+WORKDIR /app
+COPY --from=builder /usr/local /usr/local
+COPY --from=builder /app /app
 EXPOSE 8000
-
 HEALTHCHECK \
   --interval=30s \
   --timeout=5s \
