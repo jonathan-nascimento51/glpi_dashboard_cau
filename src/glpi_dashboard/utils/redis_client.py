@@ -1,8 +1,8 @@
 from __future__ import annotations
 
+import inspect
 import json
 import logging
-import inspect
 from dataclasses import dataclass
 from typing import Any, Dict, Optional
 
@@ -100,14 +100,13 @@ class RedisClient:
             logger.error("Unexpected error during Redis GET for key %s: %s", key, e)
             return None
 
-    async def set(
-        self, key: str, data: Dict[str, Any], ttl_seconds: Optional[int] = None
-    ) -> None:
-        """Store data in Redis cache with an optional TTL."""
+    async def set(self, key: str, data: Any, ttl_seconds: Optional[int] = None) -> None:
+        """Store JSON-serializable ``data`` in Redis with an optional TTL."""
         try:
             client = await self._connect()
             ttl = ttl_seconds or REDIS_TTL_SECONDS
             redis_key = self._format_key(key)
+            # data should be JSON serializable
             await _maybe_await(client.setex(redis_key, ttl, json.dumps(data)))
             logger.debug("Cache SET for key %s with TTL %s", redis_key, ttl)
         except redis.exceptions.ConnectionError as e:
