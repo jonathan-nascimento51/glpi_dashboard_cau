@@ -59,10 +59,13 @@ usando outro cliente ou script, troque para a versão assíncrona ou remova o
 ## 9. Erro "FATAL: role 'user' does not exist"
 
 O usuário e o banco de dados definidos em `DB_USER` e `DB_NAME` são criados
-automaticamente na primeira execução do contêiner. O script
-[`docker/db-init/01-init.sql`](../docker/db-init/01-init.sql) é copiado para o
-diretório `/docker-entrypoint-initdb.d/` e executado pelo PostgreSQL, garantindo
-as permissões necessárias.
+automaticamente na primeira execução do contêiner. Os scripts
+[`docker/db-init/01-create-roles.sql`](../docker/db-init/01-create-roles.sql)
+e [`docker/db-init/01-init.sql`](../docker/db-init/01-init.sql) são copiados para
+o diretório `/docker-entrypoint-initdb.d/` e executados pelo PostgreSQL. O
+primeiro define as roles `migration_user`, `app_readwrite` e `app_readonly`,
+concedendo `app_readwrite` ao usuário do aplicativo (`DB_USER`). O segundo cria o
+banco de dados caso ele ainda não exista.
 
 Se o volume do banco foi criado com credenciais incorretas, remova-o antes de
 iniciar novamente:

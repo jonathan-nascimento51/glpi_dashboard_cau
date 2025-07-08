@@ -368,6 +368,16 @@ When these variables are present the package will automatically
 initialize LangSmith and record traces for your runs. The project name
 defaults to `default` if `LANGCHAIN_PROJECT` is unset.
 
+### Database roles
+
+The initialization scripts in `docker/db-init` create a least-privilege setup:
+
+- `migration_user` – owner of schema migrations. Tables created by this role
+  automatically grant permissions to the application roles.
+- `app_readwrite` – allows standard CRUD access. This role is granted to
+  `DB_USER` so the application can read and write normally.
+- `app_readonly` – read-only access for future analytics or reporting tasks.
+
 ### Activating LangSmith tracing
 
 Add the following variables to `.env` to record traces in your LangSmith
