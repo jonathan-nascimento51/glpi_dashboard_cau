@@ -13,7 +13,12 @@ import strawberry
 import uvicorn
 from fastapi import Depends, FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, ORJSONResponse, StreamingResponse
+from fastapi.responses import (
+    JSONResponse,
+    ORJSONResponse,
+    PlainTextResponse,
+    StreamingResponse,
+)
 from pydantic import BaseModel, Field
 from strawberry.fastapi import GraphQLRouter
 from strawberry.types import Info
@@ -37,6 +42,7 @@ from ..config.settings import (
     GLPI_PASSWORD,
     GLPI_USER_TOKEN,
     GLPI_USERNAME,
+    KNOWLEDGE_BASE_FILE,
 )
 
 logger = logging.getLogger(__name__)
@@ -313,6 +319,15 @@ def create_app(client: Optional[GLPISession] = None, cache=None) -> FastAPI:
     @app.get("/cache-metrics")  # legacy name
     async def cache_metrics() -> dict:  # noqa: F401
         return cache.get_cache_metrics()
+
+    @app.get("/knowledge-base", response_class=PlainTextResponse)
+    async def knowledge_base() -> PlainTextResponse:  # noqa: F401
+        """Return the contents of the configured knowledge base file."""
+        try:
+            with open(KNOWLEDGE_BASE_FILE, "r", encoding="utf-8") as fh:
+                return PlainTextResponse(fh.read())
+        except FileNotFoundError:
+            raise HTTPException(status_code=404, detail="knowledge base not found")
 
     @app.get("/health/glpi")
     async def health_glpi() -> JSONResponse:  # noqa: F401

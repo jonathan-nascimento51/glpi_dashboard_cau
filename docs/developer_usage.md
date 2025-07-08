@@ -84,6 +84,18 @@ python -m cli.tickets_groups --since 2025-06-01 --until 2025-06-30 --outfile gru
 
 Consulte `data_pipeline.py` para transformar os dados em DataFrame.
 
+## Atualizando a Knowledge Base
+
+O worker lê o arquivo definido em `KNOWLEDGE_BASE_FILE` para servir erros
+conhecidos. Por padrão o caminho é `docs/knowledge_base_errors.md`.
+
+1. Edite esse arquivo adicionando novas entradas em Markdown.
+2. Se mover o arquivo, ajuste `KNOWLEDGE_BASE_FILE` no `.env` ou
+   `.env.example`.
+3. Reinicie o `worker.py` para que o conteúdo seja recarregado.
+
+É possível consultar o material via endpoint `GET /knowledge-base`.
+
 ## Testes e Lint
 
 Execute toda a suíte de testes com cobertura:
