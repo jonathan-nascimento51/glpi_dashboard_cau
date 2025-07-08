@@ -338,7 +338,9 @@ POSTGRES_PASSWORD=postgres
 Create the application user if it does not exist. When running with Docker this
 step happens automatically via the initialization script
 `docker/db-init/01-init-db.sh`. The script reads `DB_USER`, `DB_PASSWORD` and
-`DB_NAME` from the environment and configures the roles and database. For a
+`DB_NAME` from the environment. If `DB_USER_FILE` or `DB_PASSWORD_FILE` are
+present, it loads their contents into `DB_USER` and `DB_PASSWORD` before
+configuring the roles and database. For a
 manual installation connect as the superuser defined in `POSTGRES_USER` and
 execute:
 

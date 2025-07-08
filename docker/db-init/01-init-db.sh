@@ -1,6 +1,14 @@
 #!/bin/sh
 set -euo pipefail
 
+# Allow reading credentials from Docker secrets or mounted files
+if [ -n "${DB_USER_FILE:-}" ] && [ -f "$DB_USER_FILE" ]; then
+  DB_USER="$(cat "$DB_USER_FILE")"
+fi
+if [ -n "${DB_PASSWORD_FILE:-}" ] && [ -f "$DB_PASSWORD_FILE" ]; then
+  DB_PASSWORD="$(cat "$DB_PASSWORD_FILE")"
+fi
+
 : "${DB_USER:?DB_USER is required}"
 : "${DB_PASSWORD:?DB_PASSWORD is required}"
 : "${DB_NAME:?DB_NAME is required}"
