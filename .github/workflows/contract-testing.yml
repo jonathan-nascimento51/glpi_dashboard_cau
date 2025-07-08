@@ -7,6 +7,12 @@ on:
     branches: [ main ]
   pull_request:
   workflow_dispatch:
+  workflow_call:
+    secrets:
+      PACT_BROKER_BASE_URL:
+        required: true
+      PACT_BROKER_TOKEN:
+        required: true
 
 jobs:
   consumer_tests:
