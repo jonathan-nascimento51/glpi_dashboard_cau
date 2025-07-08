@@ -7,5 +7,5 @@ declare module 'react-window' {
     style: React.CSSProperties
     data: T
   }
-  export const FixedSizeList: React.ComponentType<any>
+  export const FixedSizeList: React.ComponentType<unknown>
 }

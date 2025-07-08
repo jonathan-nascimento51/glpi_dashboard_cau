@@ -11,8 +11,15 @@ COPY package.json package-lock.json* ./
 COPY .npmrc ./
 
 # 2) Usa npm install em vez de ci para garantir optionalDependencies
+ARG INSTALL_DEV_DEPS=false
+# Se INSTALL_DEV_DEPS for true, instala dependências de desenvolvimento
+# Caso contrário, instala apenas as dependências de produção
 RUN --mount=type=cache,target=/root/.npm \
-    npm install --omit=dev
+    if [ "$INSTALL_DEV_DEPS" = "true" ]; then \
+      npm install; \
+    else \
+      npm install --omit=dev; \
+    fi
 RUN npm rebuild esbuild --update-binary
 
 # 4) Copia o restante do código e executa build/dev
