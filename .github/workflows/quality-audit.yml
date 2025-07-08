@@ -49,6 +49,9 @@ jobs:
             https://api.github.com/repos/${{ github.repository }}/issues?labels=bug\&state=open | jq length)
           echo "bugs=$BUGS" >> $GITHUB_ENV
 
+      - name: Verify access to snyk.io
+        run: ./scripts/check_snyk_access.sh
+
       - name: Snyk vulnerability scan
         uses: snyk/actions/node@v2
         with:
