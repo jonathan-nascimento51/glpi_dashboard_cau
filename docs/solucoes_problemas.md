@@ -58,25 +58,22 @@ usando outro cliente ou script, troque para a versão assíncrona ou remova o
 
 ## 9. Erro "FATAL: role 'user' does not exist"
 
-A falha indica que o usuário especificado pela aplicação não foi criado no
-PostgreSQL. Crie-o conectando-se como superusuário (`POSTGRES_USER`, padrão
-`postgres`) e execute:
+O usuário e o banco de dados definidos em `DB_USER` e `DB_NAME` são criados
+automaticamente na primeira execução do contêiner. O script
+[`docker/db-init/01-init.sql`](../docker/db-init/01-init.sql) é copiado para o
+diretório `/docker-entrypoint-initdb.d/` e executado pelo PostgreSQL, garantindo
+as permissões necessárias.
+
+Se o volume do banco foi criado com credenciais incorretas, remova-o antes de
+iniciar novamente:
 
 ```bash
-CREATE USER $DB_USER WITH PASSWORD '$DB_PASSWORD';
-CREATE DATABASE $DB_NAME OWNER $DB_USER;
-```
-
-Se o contêiner do banco tiver iniciado anteriormente com valores diferentes,
-elimine o volume antigo e recrie tudo:
-
-```bash
-docker compose down -v
+docker compose down -v  # remove o volume com a configuração errada
 docker compose -f docker-compose-dev.yml up --build
 make init-db
 ```
 
-Após esses passos o backend conseguirá autenticar normalmente no PostgreSQL.
+Após recriar o volume o backend deverá autenticar normalmente no PostgreSQL.
 
 ## 10. Erro "ReferenceError: require is not defined in ES module scope"
 
