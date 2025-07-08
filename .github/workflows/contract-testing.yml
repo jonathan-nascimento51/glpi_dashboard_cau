@@ -1,6 +1,9 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
 name: Contract Testing
 
 on:
+  push:
+    branches: [ main ]
   pull_request:
   workflow_dispatch:
 

@@ -1,24 +1,15 @@
 {
-    "terminal.integrated.allowChords": false,
-    "CodeGPT.apiKey": "CodeGPT Plus Beta",
-    "python.testing.pytestArgs": [
-        "test"
-    ],
-    "python.testing.unittestEnabled": false,
-    "python.testing.pytestEnabled": true,
-    "python.analysis.extraPaths": [
-        "./src"
-    ],
-    "cSpell.words": [
-        "autouse",
-        "creds",
-        "Estrutura",
-        "excinfo",
-        "GLPI",
-        "GLPIAPI",
-        "itemtype",
-        "PYTHONPATH",
-        "uvicorn"
-    ],
-    "docwriter.style": "Auto-detect"
+  "terminal.integrated.allowChords": false,
+  "CodeGPT.apiKey": "CodeGPT Plus Beta",
+  "python.testing.pytestArgs": ["test"],
+  "python.testing.unittestEnabled": false,
+  "python.testing.pytestEnabled": true,
+  "python.analysis.extraPaths": ["./src"],
+  "cSpell.words": [
+    "autouse","creds","Estrutura","excinfo","GLPI","GLPIAPI","itemtype","PYTHONPATH","uvicorn"
+  ],
+  "docwriter.style": "Auto-detect",
+  "yaml.schemas": {
+    "https://json.schemastore.org/github-workflow.json": ".github/workflows/*.yml"
+  }
 }
