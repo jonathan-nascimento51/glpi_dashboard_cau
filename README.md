@@ -523,6 +523,8 @@ create a debugging prompt for other LLMs:
 ```bash
 python scripts/generate_bug_prompt.py --output bug_prompt.md
 ```
+The `bug_prompt.md` file is temporary and ignored by version control.
+Run the command above whenever you need a fresh debugging prompt.
 
 ## Front-end performance
 

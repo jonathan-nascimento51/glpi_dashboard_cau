@@ -21,3 +21,4 @@ frontend/node_modules/
 frontend/.next/
 pacts/
 pact-mock-service.log
+bug_prompt.md
