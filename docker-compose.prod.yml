@@ -5,13 +5,20 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - SKIP_PLAYWRIGHT=true
-      - DATABASE_URL=postgres://user:pass@db.prod:5432/app
+      - DB_HOST=db.prod
+      - DB_PORT=5432
+      - DB_NAME=app
+      - DB_USER_FILE=/run/secrets/db_user
+      - DB_PASSWORD_FILE=/run/secrets/db_password
     deploy:
       replicas: 2
       resources:
         limits:
           cpus: '0.50'
           memory: 512M
+    secrets:
+      - db_user
+      - db_password
 
   frontend:
     build:
@@ -25,3 +32,9 @@ services:
 networks:
   default:
     external: true
+
+secrets:
+  db_user:
+    file: ./secrets/db_user
+  db_password:
+    file: ./secrets/db_password

@@ -4,10 +4,22 @@ from __future__ import annotations
 
 import os
 from functools import lru_cache
-from typing import Literal
+from typing import Literal, cast
 
 from dotenv import load_dotenv
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+def _env_or_file(key: str, default: str | None = None) -> str | None:
+    """Return value from ``key`` or read the path in ``key_FILE`` if present."""
+    file_var = os.getenv(f"{key}_FILE")
+    if file_var:
+        try:
+            with open(file_var, "r", encoding="utf-8") as fh:
+                return fh.read().strip()
+        except OSError:
+            pass
+    return os.getenv(key, default)
 
 
 class Settings(BaseSettings):
@@ -18,16 +30,16 @@ class Settings(BaseSettings):
     GLPI_BASE_URL: str = os.getenv(
         "GLPI_BASE_URL", "https://localhost/glpi/apirest.php"
     )
-    GLPI_APP_TOKEN: str = os.getenv("GLPI_APP_TOKEN", "your_app_token")
+    GLPI_APP_TOKEN: str = cast(str, _env_or_file("GLPI_APP_TOKEN", "your_app_token"))
     GLPI_USERNAME: str = os.getenv("GLPI_USERNAME", "glpi_user")
-    GLPI_PASSWORD: str = os.getenv("GLPI_PASSWORD", "glpi_password")
-    GLPI_USER_TOKEN: str | None = os.getenv("GLPI_USER_TOKEN", None)  # Optional
+    GLPI_PASSWORD: str = cast(str, _env_or_file("GLPI_PASSWORD", "glpi_password"))
+    GLPI_USER_TOKEN: str | None = _env_or_file("GLPI_USER_TOKEN", None)  # Optional
 
     DB_HOST: str = "localhost"
     DB_PORT: str = "5432"
     DB_NAME: str = "glpi_dashboard"
     DB_USER: str = "user"
-    DB_PASSWORD: str = "password"
+    DB_PASSWORD: str = cast(str, _env_or_file("DB_PASSWORD", "password"))
 
     REDIS_HOST: str = "localhost"
     REDIS_PORT: int = 6379

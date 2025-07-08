@@ -70,6 +70,15 @@ Sensitive variables like `GLPI_*` should **never** be committed to the
 repository. The project expects these values in your environment before running
 any scripts.
 
+For production you can mount database credentials as Docker secrets and expose
+them via `DB_USER_FILE` and `DB_PASSWORD_FILE`:
+
+```bash
+echo "appuser" | docker secret create db_user -
+echo "s3cr3t" | docker secret create db_password -
+docker stack deploy -c docker-compose.prod.yml glpi
+```
+
 ## Architecture
 
 ```plaintext
