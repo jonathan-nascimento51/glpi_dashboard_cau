@@ -8,7 +8,10 @@ import dash_bootstrap_components as dbc
 def render_dashboard(df: pd.DataFrame) -> html.Div:
     """Render main dashboard components."""
     statuses = ["All"] + sorted({str(s) for s in df["status"].dropna().unique()})
-    status_options = [{"label": s, "value": s if s != "All" else ""} for s in statuses]
+    status_options = [
+        {"label": s, "value": s if s != "All" else ""}
+        for s in statuses
+    ]
 
     return html.Div(
         [
@@ -17,7 +20,7 @@ def render_dashboard(df: pd.DataFrame) -> html.Div:
             dcc.Store(id="ticket-store"),
             dcc.Dropdown(
                 id="status-filter",
-                options=status_options,
+                options=[{"label": o["label"], "value": o["value"]} for o in status_options],
                 value="",
                 clearable=False,
                 style={"width": "200px"},
@@ -47,8 +50,12 @@ def render_dashboard(df: pd.DataFrame) -> html.Div:
 def build_layout(df: pd.DataFrame | None) -> html.Div:
     """Return dashboard layout or an error message."""
     if df is None:
-        return dbc.Alert(
-            "Erro na conexão com o GLPI. Verifique suas credenciais.",
-            color="danger",
+        return html.Div(
+            [
+                dbc.Alert(
+                    "Erro na conexão com o GLPI. Verifique suas credenciais.",
+                    color="danger",
+                )
+            ]
         )
     return render_dashboard(df)

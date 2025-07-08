@@ -24,6 +24,11 @@ def register_callbacks(app, loader, *, ticket_range: str = "0-99", **filters) ->
         df = loader(ticket_range, **filters)
         fig = _status_fig(df)
         stats = compute_ticket_stats(df)
+        # Convert fig to dict if it's a plotly.graph_objs.Figure
+        if hasattr(fig, "to_dict"):
+            fig = fig.to_dict()
+        elif not isinstance(fig, dict):
+            fig = {}
         return {"ticket_range": ticket_range}, fig, stats
 
     @callback(

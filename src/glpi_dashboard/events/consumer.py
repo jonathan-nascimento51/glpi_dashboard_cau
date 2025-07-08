@@ -20,7 +20,7 @@ async def kafka_event_source(
 ) -> AsyncIterable[Dict[str, Any]]:
     """Yield events from Kafka if ``aiokafka`` is available."""
     try:
-        from aiokafka import AIOKafkaConsumer
+        from aiokafka import AIOKafkaConsumer  # type: ignore[import-unresolved]
     except Exception as exc:  # pragma: no cover - optional dependency
         raise ImportError("aiokafka required for Kafka consumer") from exc
 
