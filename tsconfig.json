@@ -12,7 +12,9 @@
     "skipLibCheck": true
   },
   "include": [
-    "src",           // seu código React
-    "src/**/*.d.ts"  // declarações de módulos (CSS, imagens...)
+    "frontend/src",
+    "frontend/**/*.ts",
+    "frontend/**/*.tsx",
+    "frontend/**/*.d.ts"
   ]
 }
