@@ -21,4 +21,11 @@ COPY . .
 RUN pip install --no-cache-dir -e .
 
 EXPOSE 8000
+
+HEALTHCHECK \
+  --interval=30s \
+  --timeout=5s \
+  --start-period=10s \
+  --retries=3 \
+  CMD curl -f http://localhost:8000/health/glpi || exit 1
 CMD ["python", "worker.py"]
