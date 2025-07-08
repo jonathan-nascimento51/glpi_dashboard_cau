@@ -73,8 +73,7 @@ async def init_db(drop_all: bool = False) -> None:
 
         # Split by semicolon to execute multiple statements
         for statement in schema_sql.split(";"):
-            stripped_statement = statement.strip()
-            if stripped_statement:
+            if stripped_statement := statement.strip():
                 try:
                     await conn.execute(text(stripped_statement))
                 except Exception as e:

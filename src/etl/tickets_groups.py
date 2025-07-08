@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import datetime as dt
 import logging
+from operator import index
 from pathlib import Path
 from typing import Optional
 
@@ -58,7 +59,7 @@ async def collect_tickets_with_groups(
                 **params,
                 "range": f"{offset}-{offset + FETCH_PAGE_SIZE - 1}",
             }
-            data = await session.get(endpoint, params=page_params)
+            data = await index(endpoint, params=page_params)
             page = data.get("data", data)
             if isinstance(page, dict):
                 page = [page]
@@ -72,14 +73,14 @@ async def collect_tickets_with_groups(
         if endpoint.startswith("search/"):
             item = endpoint.split("/", 1)[1]
             return await get_all(item, **(params or {}))
-        data = await session.get(endpoint, params=params)
+        data = await index(endpoint, params=params)
         if isinstance(data, dict):
             inner = data.get("data")
             if (
                 isinstance(inner, list)
                 and inner
-                and not any(
-                    k in inner[0]
+                and all(
+                    k not in inner[0]
                     for k in [
                         "name",
                         "completename",
@@ -88,7 +89,7 @@ async def collect_tickets_with_groups(
                     ]
                 )
             ):
-                data = await session.get(endpoint, params=params)
+                data = await index(endpoint, params=params)
         return data
 
     async def collect() -> pd.DataFrame:

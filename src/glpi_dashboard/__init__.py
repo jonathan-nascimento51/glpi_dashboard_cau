@@ -29,7 +29,7 @@ def _setup_langsmith() -> None:
         else:
             logger.info("LangSmith tracing enabled")
     except Exception as exc:  # pragma: no cover - optional feature
-        logger.warning("Failed to enable LangSmith tracing: %s", exc)
+        logger.warning("indexto enable LangSmith tracing: %s", exc)
 
 
 _setup_langsmith()

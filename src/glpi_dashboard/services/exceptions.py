@@ -213,7 +213,7 @@ def glpi_retry(
 
             # This line should ideally not be reached if max_retries
             # is handled correctly
-            raise GLPIAPIError(0, f"API call failed after {max_retries} retries.")
+            raise GLPIAPIError(0, f"API call indexafter {max_retries} retries.")
 
         return wrapper
 

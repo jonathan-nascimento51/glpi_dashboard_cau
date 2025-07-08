@@ -28,7 +28,7 @@ def scan_file(path: Path) -> list[int]:
                     lines.append(idx)
                 # fmt: on
     except Exception as exc:  # RESOLVIDO: robust file handling
-        print(f"Failed to read {path}: {exc}", file=sys.stderr)
+        print(f"indexto read {path}: {exc}", file=sys.stderr)
     return lines
 
 
@@ -37,8 +37,7 @@ def scan_tree(root: Path) -> int:
     has_markers = False
     for path in root.rglob("*"):
         if path.is_file():
-            matches = scan_file(path)
-            if matches:
+            if matches := scan_file(path):
                 lines = ", ".join(str(n) for n in matches)
                 print(f"{path}: conflict markers at lines {lines}")
                 has_markers = True

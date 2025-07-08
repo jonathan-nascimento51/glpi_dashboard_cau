@@ -17,9 +17,11 @@ with open(TEMPLATE_PATH, "r", encoding="utf-8") as f:
 def verificar_ambiente():
     pacotes = ["langgraph"]
     erros = []
-    for pacote in pacotes:
-        if importlib.util.find_spec(pacote) is None:
-            erros.append(pacote)
+    erros.extend(
+        pacote
+        for pacote in pacotes
+        if importlib.util.find_spec(pacote) is None
+    )
     if erros:
         print("[Erro] Pacotes ausentes:", ", ".join(erros))
         print("Use: pip install " + " ".join(erros))

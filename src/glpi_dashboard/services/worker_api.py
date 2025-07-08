@@ -385,9 +385,8 @@ def create_app(client: Optional[GLPISession] = None, cache=None) -> FastAPI:
         except FileNotFoundError:
             raise HTTPException(status_code=404, detail="knowledge base not found")
 
-    @app.get("/health/glpi")
-    async def health_glpi() -> JSONResponse:  # noqa: F401
-        """Check GLPI connectivity."""
+    async def _check_glpi() -> int:
+        """Return HTTP status based on GLPI connectivity."""
         creds = Credentials(
             app_token=GLPI_APP_TOKEN,
             user_token=GLPI_USER_TOKEN,
@@ -397,13 +396,20 @@ def create_app(client: Optional[GLPISession] = None, cache=None) -> FastAPI:
         try:
             async with GLPISession(GLPI_BASE_URL, creds):
                 pass
-        except (GLPIAPIError, GLPIUnauthorizedError) as exc:
+        except (GLPIAPIError, GLPIUnauthorizedError):
+            return 500
+        return 200
+
+    @app.get("/health/glpi")
+    async def health_glpi() -> JSONResponse:  # noqa: F401
+        """Check GLPI connectivity and return a JSON body."""
+        status = await _check_glpi()
+        if status != 200:
             return JSONResponse(
-                status_code=500,
+                status_code=status,
                 content={
                     "status": "error",
                     "message": "GLPI connection failed",
-                    "details": str(exc),
                 },
                 headers={"Cache-Control": "no-cache"},
             )
@@ -415,6 +421,12 @@ def create_app(client: Optional[GLPISession] = None, cache=None) -> FastAPI:
             },
             headers={"Cache-Control": "no-cache"},
         )
+
+    @app.head("/health/glpi")
+    async def health_glpi_head() -> Response:  # noqa: F401
+        """Same as ``health_glpi`` but returns headers only."""
+        status = await _check_glpi()
+        return Response(status_code=status, headers={"Cache-Control": "no-cache"})
 
     schema = strawberry.Schema(Query)
 
