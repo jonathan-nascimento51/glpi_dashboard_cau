@@ -1,15 +1,4 @@
-DO $$
-BEGIN
-   IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'user') THEN
-      CREATE USER "user" PASSWORD 'password';
-   END IF;
-END
-$$;
-
-DO $$
-BEGIN
-   IF NOT EXISTS (SELECT FROM pg_database WHERE datname = 'glpi_dashboard') THEN
-      CREATE DATABASE glpi_dashboard OWNER "user";
-   END IF;
-END
-$$;
+-- Static initialization statements for the PostgreSQL container
+-- Add extensions or other objects that do not depend on runtime variables
+-- Example: enable pg_trgm extension used by search queries
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
