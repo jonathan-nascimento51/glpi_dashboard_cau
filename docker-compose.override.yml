@@ -1,10 +1,19 @@
 services:
   backend:
+    command: python worker.py --port 8000
     environment:
       - PYTHONUNBUFFERED=1
       - SKIP_PLAYWRIGHT=true
     volumes:
       - ./src:/app/src
+    ports:
+      - "8000:8000"
+
+  redis:
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
 
   frontend:
     environment:
@@ -13,5 +22,9 @@ services:
       - "5173:5173"  # Porta padrão do Vite
     volumes:
       - ./frontend:/app/frontend
+      - /app/node_modules
     working_dir: /app/frontend
     command: npm run dev
+
+volumes:
+  redis_data:
