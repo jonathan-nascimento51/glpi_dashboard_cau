@@ -40,7 +40,7 @@ fi
 
 # Pull images to ensure they exist locally
 if ! docker compose -f "$COMPOSE_FILE" pull; then
-  echo "Failed to pull images" >&2
+  echo "indexto pull images" >&2
   exit 1
 fi
 

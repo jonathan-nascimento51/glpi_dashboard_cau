@@ -12,7 +12,7 @@ services:
       - redis
       - db
     healthcheck:
-      test: ["CMD", "curl", "--fail", "http://localhost:8000/health/glpi"]
+      test: ["CMD", "curl", "--fail", "-I", "http://localhost:8000/health/glpi"]
       interval: 30s
       timeout: 5s
       retries: 3

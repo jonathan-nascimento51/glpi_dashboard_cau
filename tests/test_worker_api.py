@@ -291,6 +291,30 @@ def test_health_glpi(monkeypatch: pytest.MonkeyPatch, dummy_cache: DummyCache):
     assert resp.json()["status"] == "success"
 
 
+def test_health_glpi_head_success(
+    monkeypatch: pytest.MonkeyPatch, dummy_cache: DummyCache
+) -> None:
+    async def fake_enter(self):
+        return self
+
+    async def fake_exit(self, exc_type, exc, tb):
+        return False
+
+    monkeypatch.setattr(
+        "glpi_dashboard.services.worker_api.GLPISession.__aenter__",
+        fake_enter,
+    )
+    monkeypatch.setattr(
+        "glpi_dashboard.services.worker_api.GLPISession.__aexit__",
+        fake_exit,
+    )
+
+    client = TestClient(create_app(client=FakeSession(), cache=dummy_cache))
+    resp = client.head("/health/glpi")
+    assert resp.status_code == 200
+    assert resp.text == ""
+
+
 def test_redis_connection_error(
     monkeypatch: pytest.MonkeyPatch, dummy_cache: DummyCache
 ):

@@ -37,7 +37,7 @@ async def test_init_session_user_token(mocker):
     mock_session = mocker.patch(
         "glpi_dashboard.services.glpi_session.ClientSession"
     ).return_value
-    mock_session.get = AsyncMock(
+    mock_index = AsyncMock(
         return_value=DummyCM(DummyResponse(200, {"session_token": "tok"}))
     )
     mock_session.closed = False
@@ -46,7 +46,7 @@ async def test_init_session_user_token(mocker):
     client = GLPISession("http://example.com/apirest.php", creds)
     await client._refresh_session_token()
 
-    mock_session.get.assert_awaited_once()
+    mock_index.assert_awaited_once()
     assert client._session_token == "tok"
 
 
@@ -55,7 +55,7 @@ async def test_init_session_basic_auth(mocker):
     mock_session = mocker.patch(
         "glpi_dashboard.services.glpi_session.ClientSession"
     ).return_value
-    mock_session.get = AsyncMock(
+    mock_index = AsyncMock(
         return_value=DummyCM(DummyResponse(200, {"session_token": "tok"}))
     )
     mock_session.closed = False
@@ -64,7 +64,7 @@ async def test_init_session_basic_auth(mocker):
     await client._refresh_session_token()
 
     token = base64.b64encode(b"alice:secret").decode()
-    args, kwargs = mock_session.get.call_args
+    args, kwargs = mock_index.call_args
     assert kwargs["headers"]["Authorization"] in {"user_token USER", f"Basic {token}"}
     assert client._session_token == "tok"
 

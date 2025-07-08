@@ -24,10 +24,9 @@ def _json_log(retry_state):
 
 
 def retry_api_call(fn: Callable[..., Any]) -> Callable[..., Any]:
-    decorated = retry(
+    return retry(
         stop=stop_after_attempt(5),
         wait=wait_exponential(multiplier=1, min=1, max=10),
         before_sleep=before_sleep_log(logger, logging.WARNING),
         reraise=True,
     )(fn)
-    return decorated

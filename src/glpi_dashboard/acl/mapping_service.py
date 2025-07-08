@@ -51,9 +51,9 @@ class MappingService:
             return {int(k): v for k, v in cached.items()}
 
         try:
-            records = await self._session.get_all(endpoint)
+            records = await self._index_all(endpoint)
         except Exception as exc:  # pragma: no cover - network failures
-            logger.error("Failed to load mapping for %s: %s", endpoint, exc)
+            logger.error("indexto load mapping for %s: %s", endpoint, exc)
             records = []
 
         mapping: Dict[int, str] = {}

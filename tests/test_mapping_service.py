@@ -8,7 +8,7 @@ from glpi_dashboard.services.glpi_session import GLPISession
 @pytest.mark.asyncio
 async def test_initialize_fetches_all_mappings(mocker):
     session = mocker.Mock(spec=GLPISession)
-    session.get_all = mocker.AsyncMock(
+    index_all = mocker.AsyncMock(
         side_effect=[
             [{"id": 1, "name": "Alice"}],
             [{"id": 10, "name": "Support"}],
@@ -44,13 +44,13 @@ async def test_get_user_map_cache_hit(mocker):
     result = await svc.get_user_map()
 
     assert result == {5: "Alice"}
-    session.get_all.assert_not_called()
+    index_all.assert_not_called()
 
 
 @pytest.mark.asyncio
 async def test_get_user_map_cache_miss(mocker):
     session = mocker.Mock(spec=GLPISession)
-    session.get_all = mocker.AsyncMock(return_value=[{"id": 5, "name": "Bob"}])
+    index_all = mocker.AsyncMock(return_value=[{"id": 5, "name": "Bob"}])
     redis_client = mocker.Mock(spec=Redis)
     redis_client.hgetall = mocker.AsyncMock(return_value={})
     pipe = mocker.AsyncMock()
@@ -61,6 +61,6 @@ async def test_get_user_map_cache_miss(mocker):
     result = await svc.get_user_map()
 
     assert result == {5: "Bob"}
-    session.get_all.assert_awaited_once_with("User")
+    index_all.assert_awaited_once_with("User")
     pipe.hset.assert_called_once()
     pipe.expire.assert_called_once_with("glpi:mappings:users", svc.cache_ttl_seconds)

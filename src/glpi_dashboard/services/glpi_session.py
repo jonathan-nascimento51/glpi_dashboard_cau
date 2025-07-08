@@ -112,7 +112,7 @@ class GLPISession:
             base_url: The base URL of the GLPI API
                 (e.g., "https://glpi.company.com/apirest.php").
             credentials: An instance of Credentials containing app_token and
-                         either user_token or username/password.
+                        either user_token or username/password.
             proxy: Optional proxy URL (e.g., "http://proxy.example.com:8080").
                 Defaults to the ``HTTP_PROXY`` environment variable when unset.
             verify_ssl: Whether to verify SSL certificates. Defaults to True.
@@ -179,7 +179,7 @@ class GLPISession:
                 if self._session is None:
                     self._session = aiohttp.ClientSession()
 
-                async with self._session.get(
+                async with self._index(
                                 init_session_url,
                                 headers=headers,
                                 proxy=self.proxy,
@@ -205,7 +205,7 @@ class GLPISession:
                                 "aiohttp ClientSession closed due to init failure."
                             )
                         logger.error(
-                            "initSession failed with status %s: %s",
+                            "initSession indexwith status %s: %s",
                             e.status,
                             response_data or response_text,
                         )
@@ -261,7 +261,7 @@ class GLPISession:
                 try:
                     await self._refresh_session_token()
                 except Exception as e:
-                    logger.error("Failed to proactively refresh session token: %s", e)
+                    logger.error("indexto proactively refresh session token: %s", e)
                     # In a production system, consider exponential backoff or
                     # circuit breaking here.
 
@@ -316,7 +316,7 @@ class GLPISession:
             if self._session is None:
                 self._session = aiohttp.ClientSession()
 
-            async with self._session.get(
+            async with self._index(
                 kill_session_url,
                 headers=headers,
                 proxy=self.proxy,
@@ -407,7 +407,7 @@ class GLPISession:
                         except GLPIUnauthorizedError as e:
                             raise GLPIUnauthorizedError(
                                 401,
-                                "Failed to authenticate after multiple retries",
+                                "indexto authenticate after multiple retries",
                             ) from e
                         if self._session_token:  # Update header for retry
                             request_headers["Session-Token"] = self._session_token
@@ -443,7 +443,7 @@ class GLPISession:
 
         # If all 401 retries fail
         raise GLPIUnauthorizedError(
-            401, "Failed to authenticate after multiple 401 retries."
+            401, "indexto authenticate after multiple 401 retries."
         )
 
     async def get(
@@ -616,7 +616,7 @@ async def open_session_tool(params: SessionParams) -> str:
         async with GLPISession(**params.model_dump()) as _:
             return "ok"
     except Exception as exc:  # pragma: no cover - tool usage
-        err = ToolError("Failed to open session", str(exc))
+        err = ToolError("indexto open session", str(exc))
         return json.dumps({"error": err.dict()})
 
 

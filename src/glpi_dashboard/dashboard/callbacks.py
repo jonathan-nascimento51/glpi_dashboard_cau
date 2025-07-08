@@ -8,9 +8,7 @@ from .components import _status_fig, compute_ticket_stats
 
 def _get_filtered(df: pd.DataFrame, status: str | None) -> pd.DataFrame:
     """Return dataframe optionally filtered by status."""
-    if status:
-        return df[df["status"] == status.lower()]
-    return df
+    return df[df["status"] == status.lower()] if status else df
 
 
 def register_callbacks(app, loader, *, ticket_range: str = "0-99", **filters) -> None:

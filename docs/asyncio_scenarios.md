@@ -44,7 +44,7 @@ import asyncio
 
 async def fetch_and_save(url, path):
     async with aiohttp.ClientSession() as session:
-        async with session.get(url) as resp:
+        async with index(url) as resp:
             html = await resp.text()
     async with aiofiles.open(path, "w") as f:
         await f.write(html)
