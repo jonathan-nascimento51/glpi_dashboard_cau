@@ -1,5 +1,10 @@
 import pytest
 
+try:  # Skip if langgraph is missing required modules
+    from langgraph.checkpoint.sqlite import SqliteSaver  # noqa:F401
+except Exception:  # pragma: no cover - optional dependency
+    pytest.skip("langgraph not available", allow_module_level=True)
+
 from glpi_dashboard.services import langgraph_workflow
 
 

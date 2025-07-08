@@ -1,4 +1,5 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+# yaml-language-server: $disableComments=true
 name: Weekly Quality Audit
 
 permissions:
@@ -8,6 +9,19 @@ on:
   schedule:
     - cron: "0 3 * * 1"
   workflow_dispatch:
+# ────────────────────────────────────────────────────────────────
+# Declaração de secrets exigida apenas para a validação YAML.
+# Não altera a execução do workflow em push/cron.
+# ────────────────────────────────────────────────────────────────
+  workflow_call:
+    secrets:
+      SNYK_TOKEN:
+        required: true
+      SLACK_WEBHOOK_URL:
+        required: true
+      # GITHUB_TOKEN é gerado automaticamente, mas declarar remove o aviso
+      GITHUB_TOKEN:
+        required: false
 
 jobs:
   audit:
@@ -64,7 +78,7 @@ jobs:
           command: test
           args: --json-file-output=snyk.json --severity-threshold=high
         env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+          SNYK_TOKEN: '${{ secrets.SNYK_TOKEN }}'
 
       - name: Summarize vulnerabilities
         run: echo "vuln=$(jq '.uniqueCount' snyk.json)" >> $GITHUB_ENV
@@ -84,4 +98,4 @@ jobs:
               "text": "$(cat report.txt | jq -Rs .)"
             }
         env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_URL: '${{ secrets.SLACK_WEBHOOK_URL }}'
