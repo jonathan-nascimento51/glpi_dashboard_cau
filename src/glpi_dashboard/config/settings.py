@@ -1,7 +1,9 @@
 """Application settings loaded from the environment using Pydantic."""
 
+
 from __future__ import annotations
 
+import contextlib
 import os
 from functools import lru_cache
 from typing import Literal, cast
@@ -12,13 +14,10 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 def _env_or_file(key: str, default: str | None = None) -> str | None:
     """Return value from ``key`` or read the path in ``key_FILE`` if present."""
-    file_var = os.getenv(f"{key}_FILE")
-    if file_var:
-        try:
+    if file_var := os.getenv(f"{key}_FILE"):
+        with contextlib.suppress(OSError):
             with open(file_var, "r", encoding="utf-8") as fh:
                 return fh.read().strip()
-        except OSError:
-            pass
     return os.getenv(key, default)
 
 
@@ -27,8 +26,8 @@ class Settings(BaseSettings):
 
     ENVIRONMENT: Literal["dev", "work", "prod"] = "dev"
 
-    GLPI_BASE_URL: str = os.getenv(
-        "GLPI_BASE_URL", "https://localhost/glpi/apirest.php"
+    GLPI_API_URL: str = os.getenv(
+        "GLPI_API_URL", "https://localhost/glpi/apirest.php"
     )
     GLPI_APP_TOKEN: str = cast(str, _env_or_file("GLPI_APP_TOKEN", "your_app_token"))
     GLPI_USERNAME: str = os.getenv("GLPI_USERNAME", "glpi_user")
