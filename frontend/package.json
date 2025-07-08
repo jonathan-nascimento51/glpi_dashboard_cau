@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "npm run check-env && vite",
-    "check-env": "node scripts/check-env.js",
+    "check-env": "node ./scripts/check-env.js",
     "build": "npm run check-env && tsc -b && vite build",
     "lint": "eslint .",
     "preview": "npm run check-env && vite preview",
