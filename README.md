@@ -327,9 +327,11 @@ POSTGRES_PASSWORD=postgres
 ```
 
 Create the application user if it does not exist. When running with Docker this
-step happens automatically por meio dos scripts em `docker/db-init`. Para uma
-instalação manual, conecte-se como o superusuário definido em
-`POSTGRES_USER` e execute:
+step happens automatically via the initialization script
+`docker/db-init/01-init-db.sh`. The script reads `DB_USER`, `DB_PASSWORD` and
+`DB_NAME` from the environment and configures the roles and database. For a
+manual installation connect as the superuser defined in `POSTGRES_USER` and
+execute:
 
 ```bash
 CREATE USER $DB_USER WITH PASSWORD '$DB_PASSWORD';
@@ -337,11 +339,13 @@ CREATE DATABASE $DB_NAME OWNER $DB_USER;
 ```
 
 These credentials are referenced by `DB_USER` and `DB_PASSWORD` when the
-application connects to PostgreSQL. When using Docker Compose the script
-`docker/db-init/init-user-db.sh` reads the same variables and automatically
-creates the user and database on first startup. Customize `DB_USER`,
+application connects to PostgreSQL. When using Docker Compose the
+`docker/db-init/01-init-db.sh` script performs the same initialization and
+creates the user, roles and database on first startup. Customize `DB_USER`,
 `DB_PASSWORD` and `DB_NAME` in your `.env` file before launching the stack to
-adjust the credentials.
+adjust the credentials. Static statements such as extensions can be placed in
+`docker/db-init/00-extensions.sql` which the container also executes on first
+startup.
 
 - `GLPI_BASE_URL` – base URL of the GLPI API (e.g. `https://glpi.company.com/apirest.php`).
   Using HTTPS is recommended for deployments.
@@ -374,7 +378,8 @@ defaults to `default` if `LANGCHAIN_PROJECT` is unset.
 
 ### Database roles
 
-The initialization scripts in `docker/db-init` create a least-privilege setup:
+The initialization script `docker/db-init/01-init-db.sh` creates a
+least-privilege setup:
 
 - `migration_user` – owner of schema migrations. Tables created by this role
   automatically grant permissions to the application roles.

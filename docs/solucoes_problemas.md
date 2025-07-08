@@ -60,9 +60,11 @@ usando outro cliente ou script, troque para a versão assíncrona ou remova o
 
 O usuário e o banco de dados definidos em `DB_USER` e `DB_NAME` são criados
 automaticamente na primeira execução do contêiner. O script
-[`docker/db-init/init-user-db.sh`](../docker/db-init/init-user-db.sh) é copiado
-para o diretório `/docker-entrypoint-initdb.d/` e executado pelo PostgreSQL,
-garantindo as permissões necessárias.
+[`docker/db-init/01-init-db.sh`](../docker/db-init/01-init-db.sh) é copiado para
+o diretório `/docker-entrypoint-initdb.d/` e executado pelo PostgreSQL,
+garantindo as permissões necessárias. Esse script também cria as roles de
+aplicação e executa qualquer SQL estático presente em
+`docker/db-init/00-extensions.sql`.
 
 Se o volume do banco foi criado com credenciais incorretas, remova-o antes de
 iniciar novamente:
