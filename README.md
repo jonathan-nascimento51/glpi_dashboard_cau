@@ -76,7 +76,7 @@ them via `DB_USER_FILE` and `DB_PASSWORD_FILE`:
 ```bash
 echo "appuser" | docker secret create db_user -
 echo "s3cr3t" | docker secret create db_password -
-docker stack deploy -c docker-compose.prod.yml glpi
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 ```
 
 ## Architecture
@@ -482,9 +482,11 @@ before restarting the stack.
 The examples below rely on the Docker Compose plugin (`docker compose`).
 Install the `docker-compose-plugin` package or upgrade to Docker Engine 20.10+
 if the command is unavailable.
-Running `docker compose up` will build the images and start all services using
-`docker-compose.yml` together with `docker-compose.override.yml`. The override
-file mounts the source directories and enables hot reload for development:
+
+### Development
+
+Running `docker compose up` loads `docker-compose.override.yml` automatically and
+mounts the source directories for hot reload:
 
 ```bash
 docker compose up
@@ -504,7 +506,9 @@ When using Docker Compose the Redis host should be `redis`. Set `REDIS_HOST`,
 `REDIS_URL` and `CACHE_REDIS_HOST` accordingly in your environment or `.env`
 file.
 
-For production combine the base file with `docker-compose.prod.yml`:
+### Production
+
+Combine the base file with `docker-compose.prod.yml`:
 
 ```bash
 docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
