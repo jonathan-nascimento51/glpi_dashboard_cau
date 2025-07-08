@@ -6,10 +6,6 @@ async function fetchChamadosPorData(): Promise<ChamadoPorData[]> {
   return fetcher('/chamados/por-data')
 }
 
-async function fetchChamadosPorData(): Promise<ChamadoPorData[]> {
-  return fetcher('/chamados/por-data')
-}
-
 export function useChamadosPorData() {
   const query = useQuery<ChamadoPorData[], Error>({
     queryKey: ['chamados-por-data'],
