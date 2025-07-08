@@ -4,7 +4,7 @@ services:
       - PYTHONUNBUFFERED=1
       - SKIP_PLAYWRIGHT=true
     volumes:
-      - .:/app
+      - ./src:/app/src
 
   frontend:
     environment:
