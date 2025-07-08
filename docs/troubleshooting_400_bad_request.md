@@ -70,3 +70,22 @@ Caso os logs mostrem **`ERROR_WRONG_APP_TOKEN_PARAMETER`** após a chamada a `in
 3. **Recriação do cliente** – se houver dúvidas sobre tokens antigos persistentes, exclua o cliente de API e crie um novo, mantendo apenas o token necessário.
 
 Seguindo esses passos, a autenticação deve ser aceita e o dashboard continuará a inicialização normalmente.
+
+## 6. SSL Handshake Errors
+
+Ambientes corporativos podem realizar inspe\u00e7\u00e3o de pacotes TLS, gerando falhas de handshake ao chamar o GLPI via HTTPS. Nesse caso:
+
+1. Abra o arquivo `.env` e defina `VERIFY_SSL=false`.
+2. Recrie o cont\u00eainer do backend para aplicar a vari\u00e1vel:
+
+   ```bash
+   docker compose up -d --build
+   ```
+
+Para testes pontuais utilize `curl` com o par\u00e2metro `-k` (insecure), compat\u00edvel com a op\u00e7\u00e3o acima:
+
+```bash
+curl -vk https://cau.ppiratini.intra.rs.gov.br/glpi/apirest.php/initSession
+```
+
+Se o comando responder com `200 OK`, o certificado foi ignorado corretamente e o problema est\u00e1 limitado \u00e0 verifica\u00e7\u00e3o SSL.
