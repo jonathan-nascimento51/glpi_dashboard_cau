@@ -1,11 +1,9 @@
-import { TicketStatsPage } from './features/tickets/TicketStatsPage'
 import './App.css'
 
 export default function App() {
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Ticket Statistics</h1>
-      <TicketStatsPage />
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <h1 className="text-3xl font-bold">GLPI Dashboard Ok!</h1>
     </div>
   )
 }
