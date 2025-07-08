@@ -55,3 +55,27 @@ instanciar `redis.asyncio.Redis` como mostrado em
 [`utils/redis_client.py`](../src/glpi_dashboard/utils/redis_client.py). Caso esteja
 usando outro cliente ou script, troque para a versão assíncrona ou remova o
 `await` das chamadas.
+
+## 9. Erro "FATAL: role 'user' does not exist"
+
+A falha indica que o usuário especificado pela aplicação não foi criado no
+PostgreSQL. Certifique-se de que as variáveis abaixo estejam presentes e com o
+mesmo valor no `.env`:
+
+```bash
+DB_USER=user
+DB_PASSWORD=password
+POSTGRES_USER=$DB_USER
+POSTGRES_PASSWORD=$DB_PASSWORD
+```
+
+Se o contêiner do banco tiver iniciado anteriormente com valores diferentes,
+elimine o volume antigo e recrie tudo:
+
+```bash
+docker compose down -v
+docker compose -f docker-compose-dev.yml up --build
+make init-db
+```
+
+Após esses passos o backend conseguirá autenticar normalmente no PostgreSQL.
