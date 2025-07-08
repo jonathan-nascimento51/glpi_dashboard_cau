@@ -337,7 +337,11 @@ CREATE DATABASE $DB_NAME OWNER $DB_USER;
 ```
 
 These credentials are referenced by `DB_USER` and `DB_PASSWORD` when the
-application connects to PostgreSQL.
+application connects to PostgreSQL. When using Docker Compose the script
+`docker/db-init/init-user-db.sh` reads the same variables and automatically
+creates the user and database on first startup. Customize `DB_USER`,
+`DB_PASSWORD` and `DB_NAME` in your `.env` file before launching the stack to
+adjust the credentials.
 
 - `GLPI_BASE_URL` – base URL of the GLPI API (e.g. `https://glpi.company.com/apirest.php`).
   Using HTTPS is recommended for deployments.
