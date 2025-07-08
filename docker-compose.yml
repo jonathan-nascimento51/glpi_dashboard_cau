@@ -10,8 +10,7 @@ services:
     ports:
       - "8000:8000"
     depends_on:
-      redis:
-        condition: service_healthy
+      - redis
     healthcheck:
       test: ["CMD","curl","--fail","http://localhost:8000/health/glpi"]
       interval: 30s
@@ -39,8 +38,7 @@ services:
       - ./frontend:/app
       - /app/node_modules
     depends_on:
-      backend:
-        condition: service_healthy
+      - backend
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5173"]
       interval: 30s
