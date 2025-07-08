@@ -1,0 +1,10 @@
+version: '1'
+# Arquivos ou diretórios que o Sourcery deve ignorar
+ignore:
+  - venv
+  - .venv
+  - env
+  - .env
+  - site-packages        # libs vendorizadas dentro do repo (se existirem)
+  - build
+  - dist
