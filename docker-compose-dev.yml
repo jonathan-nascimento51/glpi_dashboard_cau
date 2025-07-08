@@ -18,11 +18,10 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 30s
     depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
+      - db
+      - redis
     ports:
       - "8000:8000"
 
@@ -31,17 +30,18 @@ services:
       context: ./frontend
     command: npm run dev
     env_file: ./frontend/.env
+    volumes:
+      - ./frontend:/app/frontend
     ports:
       - "5173:5173"
     depends_on:
-      backend:
-        condition: service_healthy
+      - backend
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5173"]
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 10s
+      start_period: 20s
 
   db:
     image: postgres:15-alpine
@@ -60,6 +60,19 @@ services:
       timeout: 5s
       retries: 5
 
+  initdb:
+    image: postgres:15-alpine
+    volumes:
+      - ./scripts/create_app_user.sh:/create_app_user.sh:ro
+    entrypoint: ["sh", "/create_app_user.sh"]
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+    depends_on:
+      - db
 
   redis:
     image: redis:7-alpine
@@ -82,8 +95,7 @@ services:
     ports:
       - "9090:9090"
     depends_on:
-      backend:
-        condition: service_healthy
+      - backend
 
   grafana:
     image: grafana/grafana:latest
@@ -102,8 +114,7 @@ services:
       retries: 5
       start_period: 10s
     depends_on:
-      prometheus:
-        condition: service_healthy
+      - prometheus
 
 volumes:
   db_data:
