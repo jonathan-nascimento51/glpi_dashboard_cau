@@ -18,7 +18,7 @@ This short guide explains how the repository is organised and how the main servi
 3. The worker (`src/backend/api/worker_api.py`) exposes `/tickets`, `/metrics` and `/metrics/aggregated` endpoints.
 4. Dash components or the React app request these endpoints to display tables and charts.
 
-```
+```text
 +-------+      +-------------+      +-----------+
 | GLPI  +----->+  Worker API +----->+  Redis    |
 +-------+      +-------------+      +-----------+
