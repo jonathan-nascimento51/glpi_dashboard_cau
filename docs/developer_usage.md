@@ -55,7 +55,7 @@ Scripts utilitários residem em `scripts/` (ex.: `setup/init_db.py`, `fetch/fetc
 Inicie o servidor Dash com:
 
 ```bash
-python main.py
+python dashboard_app.py
 ```
 
 A interface ficará disponível em <http://127.0.0.1:8050>. Use o endpoint `/ping` para verificação de saúde.

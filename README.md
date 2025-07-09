@@ -54,7 +54,7 @@ python worker.py
 Run the dashboard:
 
 ```bash
-python main.py
+python dashboard_app.py
 ```
 
 Open <http://127.0.0.1:8050> in your browser.
@@ -125,7 +125,7 @@ If a script still depends on `require()`, rename it with the `.cjs` extension or
 - **`src/backend/utils/pipeline.py`** – normalizes raw ticket data into a `pandas.DataFrame` and exports JSON.
 - **`src/frontend/layout/layout.py`** – defines tables and charts for the Dash UI.
 - **`glpi_tools/__main__.py`** – exposes the CLI commands such as `list-fields`.
-- **`main.py`** – starts the Dash server.
+- **`dashboard_app.py`** – starts the Dash server.
 - **`worker.py`** – primary backend entry point used by Docker and CI to launch the FastAPI service.
 - **`src/main.py`** – legacy prototype removed in favour of `worker.py`.
 - **`scripts/`** – helper utilities like `filters.py`, `hash_data.py`, `log_exec.py`.
@@ -136,7 +136,7 @@ Run the worker API and dashboard locally:
 
 ```bash
 python worker.py &
-python main.py &
+python dashboard_app.py &
 ```
 
 Launch the React frontend in another terminal:
@@ -271,7 +271,7 @@ Assim a stack sobe mesmo sem internet ou com registro interno.
 Start the dashboard pointing to your GLPI instance:
 
 ```bash
-python main.py
+python dashboard_app.py
 ```
 
 The entry point initializes structured logging via:

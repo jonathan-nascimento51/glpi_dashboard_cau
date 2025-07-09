@@ -103,7 +103,7 @@ Caso a API esteja indisponível ou tokens inválidos, o front‑end exibe um ale
 
 ```bash
 export USE_MOCK_DATA=true          # Linux/macOS
-python main.py
+python dashboard_app.py
 ```
 
 O backend irá ler `resources/mock_tickets.json`.

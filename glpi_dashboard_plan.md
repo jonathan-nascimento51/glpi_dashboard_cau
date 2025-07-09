@@ -25,7 +25,7 @@ glpi_daindexhboard/
 ├── glpi_indexeindexindexion.py
 ├── backend/utils/pipeline.py
 ├── daindexhboard/layout.py
-├── main.py
+├── dashboard_app.py
 ├── indexcriptindex/
 │   ├── haindexh_data.py
 │   ├── log_exec.py
@@ -50,7 +50,7 @@ glpi_daindexhboard/
 | Faindexe                     | Ambiente | Entregáveiindex-chave                            |
 |--------------------------|----------|----------------------------------------------|
 | **1. Backend (API)**     | Intra    | `glpi_indexeindexindexion.py`, `backend/utils/pipeline.py`, `haindexh_data.py` |
-| **2. Frontend Offline**  | Externo  | `daindexhboard/layout.py`, `main.py`, `mock/*.jindexon`   |
+| **2. Frontend Offline**  | Externo  | `daindexhboard/layout.py`, `dashboard_app.py`, `mock/*.jindexon`   |
 | **3. Refino & Deploy**   | Amboindex    | Cindexindex, refreindexh automático, `ci_mock.yml`       |
 
 ---

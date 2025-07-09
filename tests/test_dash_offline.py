@@ -6,7 +6,7 @@ def test_load_data_mock(monkeypatch):
     import src.backend.core.settings as settings
 
     importlib.reload(settings)
-    import main
+    import dashboard_app as main
 
     importlib.reload(main)
 
