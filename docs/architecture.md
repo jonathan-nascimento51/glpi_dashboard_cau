@@ -24,29 +24,31 @@ Worker --> "GLPI REST API"
 
 O repositório é organizado em pacotes Python com responsabilidade clara:
 
-- `glpi_dashboard/` contém o código de domínio (cache, serviços e utilidades).
-- `api/` expõe rotas FastAPI usadas pelo worker.
-- `dashboard/` abriga o layout e callbacks do Dash.
-- `etl/` reúne scripts de ingestão e normalização usando Pandas.
+- `backend/` concentra as rotas FastAPI e os serviços de domínio.
+- `frontend/` reúne o layout do Dash e seus callbacks reativos.
+- `shared/` agrupa modelos e utilidades compartilhadas entre as camadas.
+- `etl/` mantém scripts de ingestão e normalização com Pandas.
 
 Esses módulos trocam dados através de objetos tipados e utilizam `httpx` com `asyncio` para chamadas não bloqueantes.
 
 ```text
 @startuml
-package "glpi_dashboard" {
+package backend {
+  [api]
   [services]
-  [data]
-  [cache]
+  [db]
 }
-package api {
-  [worker_api]
+package frontend {
+  [layout]
 }
-package dashboard {
-  [dashboard.layout]
+package shared {
+  [models]
+  [utils]
 }
-[worker_api] --> [services]
-[dashboard.layout] --> [cache]
-[services] --> [data]
+[layout] --> [api]
+[api] --> [services]
+[services] --> [db]
+[services] --> [models]
 @enduml
 ```
 

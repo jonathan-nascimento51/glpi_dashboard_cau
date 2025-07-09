@@ -7,8 +7,8 @@ former ``src.glpi_dashboard`` path.
 import logging
 import os
 
-from src.backend.adapters.glpi_session import GLPISession
-from src.backend.api.worker_api import (
+from backend.adapters.glpi_session import GLPISession
+from backend.api.worker_api import (
     create_app,
 )
 from backend.api.worker_api import main as _main
