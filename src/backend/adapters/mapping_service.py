@@ -53,7 +53,7 @@ class MappingService:
         try:
             records = await self._index_all(endpoint)  # type: ignore[attr-defined]
         except Exception as exc:  # pragma: no cover - network failures
-            logger.error("indexto load mapping for %s: %s", endpoint, exc)
+            logger.error("failed to load mapping for %s: %s", endpoint, exc)
             records = []
 
         mapping: Dict[int, str] = {}

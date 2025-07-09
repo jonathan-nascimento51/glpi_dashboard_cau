@@ -82,7 +82,7 @@ def load_data(ticket_range: str = "0-99", **filters: str) -> pd.DataFrame | None
         try:
             return process_raw(pd.read_json("resources/mock_tickets.json"))
         except Exception as exc:  # pragma: no cover - file errors
-            logging.error("indexto load mock data: %s", exc)
+            logging.error("failed to load mock data: %s", exc)
             return None
 
     logging.info("Fetching ticket data from GLPI API")
