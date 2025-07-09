@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock
 import aiohttp
 import pytest
 
-from backend.adapters.glpi_session import Credentials, GLPISession
+from src.backend.adapters.glpi_session import Credentials, GLPISession
 
 
 class DummyCM:

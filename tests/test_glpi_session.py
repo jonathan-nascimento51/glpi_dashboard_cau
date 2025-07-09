@@ -6,14 +6,14 @@ from unittest.mock import ANY, AsyncMock, MagicMock, patch
 
 import pytest
 
-from backend.adapters import glpi_session
+from src.backend.adapters import glpi_session
 
 pytest.importorskip(
     "aiohttp", reason="aiohttp package is required to run glpi_session tests"
 )
 import aiohttp
 
-from backend.adapters.glpi_session import (
+from src.backend.adapters.glpi_session import (
     Credentials,
     GLPIAPIError,
     GLPIBadRequestError,
@@ -24,7 +24,7 @@ from backend.adapters.glpi_session import (
     GLPITooManyRequestsError,
     GLPIUnauthorizedError,
 )
-from backend.utils.logging import init_logging
+from src.backend.utils.logging import init_logging
 
 
 @pytest.fixture(autouse=True)

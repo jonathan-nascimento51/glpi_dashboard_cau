@@ -3,7 +3,7 @@ services:
   backend:
     build:
       context: .
-      dockerfile: docker/backend/Dockerfile
+      dockerfile: docker/backend_service/Dockerfile
     env_file:
       - .env
     environment:

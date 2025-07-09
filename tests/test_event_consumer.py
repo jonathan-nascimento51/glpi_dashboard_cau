@@ -1,7 +1,7 @@
 import pytest
 
-from backend.services.events_consumer import TicketEventConsumer
-from backend.services.metrics_worker import update_metrics
+from src.backend.services.events_consumer import TicketEventConsumer
+from src.backend.services.metrics_worker import update_metrics
 
 
 class DummyCache:

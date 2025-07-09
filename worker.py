@@ -1,22 +1,22 @@
 """Convenience wrapper for the worker API entrypoint.
 
-All imports use the ``backend`` package directly instead of the
-older ``src.backend`` module path.
+All imports now reference ``src.backend`` explicitly to avoid
+confusion with the Docker build context.
 """
 
 import logging
 import os
 
-from backend.adapters.glpi_session import GLPISession
-from backend.api.worker_api import (
+from src.backend.adapters.glpi_session import GLPISession
+from src.backend.api.worker_api import (
     create_app,
 )
-from backend.api.worker_api import main as _main
-from backend.api.worker_api import (
+from src.backend.api.worker_api import main as _main
+from src.backend.api.worker_api import (
     redis_client,
 )
-from backend.core.settings import KNOWLEDGE_BASE_FILE
-from backend.utils.logging import init_logging
+from src.backend.core.settings import KNOWLEDGE_BASE_FILE
+from src.backend.utils.logging import init_logging
 
 __all__ = ["create_app", "redis_client", "GLPISession", "main"]
 

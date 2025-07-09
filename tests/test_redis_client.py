@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 import redis.exceptions
 
-from backend.utils.redis_client import RedisClient
+from src.backend.utils.redis_client import RedisClient
 
 
 @pytest.mark.asyncio
