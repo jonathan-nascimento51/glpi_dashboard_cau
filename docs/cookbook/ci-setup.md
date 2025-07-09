@@ -26,6 +26,7 @@ immediate feedback to contributors and keeping the repository stable.
 1. Create `.github/workflows/ci.yml` to store the pipeline definition.
 2. Add a `checkout` step so the workflow can pull the repository contents.
 3. Use `setup-python` to install the required Python version.
-4. Install dependencies.
+4. Install dependencies, including `opentelemetry-instrumentation-fastapi` and
+   `opentelemetry-instrumentation-logging` which the tests expect.
 5. Run `pre-commit` to apply linting hooks.
 6. Execute `pytest` to run the test suite.

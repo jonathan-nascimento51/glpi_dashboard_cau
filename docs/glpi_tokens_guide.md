@@ -25,6 +25,7 @@ source .venv/bin/activate        # Linux/macOS
 # .venv\Scripts\Activate.ps1   # Windows PowerShell
 pip install -r requirements.txt -r requirements-dev.txt
 pip install -e .  # install package locally (packages live under src/)
+pip install opentelemetry-instrumentation-fastapi opentelemetry-instrumentation-logging
 ```
 
 ---
@@ -113,6 +114,7 @@ O backend irá ler `resources/mock_tickets.json`.
 
 ```bash
 pip install -r requirements.txt -r requirements-dev.txt
+pip install opentelemetry-instrumentation-fastapi opentelemetry-instrumentation-logging
 pytest --cov=./
 pre-commit run --all-files
 ```

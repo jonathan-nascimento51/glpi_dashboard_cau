@@ -16,8 +16,9 @@ Install dependencies and prepare the environment:
 
 You can run `./setup.sh` to install all dependencies, set up the editable package
 and enable pre-commit hooks in one step or execute the commands below manually.
-The base requirements now include `opentelemetry-instrumentation-logging` for
-better log instrumentation.
+The base requirements now include `opentelemetry-instrumentation-fastapi` and
+`opentelemetry-instrumentation-logging` for better tracing and log
+instrumentation.
 
 ```bash
 python -m pip install --upgrade pip
@@ -758,6 +759,8 @@ cd frontend && npm run perf:profile
 Continuous integration runs on GitHub Actions using `.github/workflows/ci.yml`.
 It installs dependencies using `./setup.sh`, initializes the database and
 executes pre-commit hooks and the test suite for Python 3.10, 3.11 and 3.12.
+The workflow installs `opentelemetry-instrumentation-fastapi` and
+`opentelemetry-instrumentation-logging` so tracing is enabled during tests.
 
 ### Snyk setup
 
