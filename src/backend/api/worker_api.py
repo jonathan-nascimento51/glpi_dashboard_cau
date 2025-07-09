@@ -1,12 +1,13 @@
 """FastAPI service exposing GLPI tickets via REST and GraphQL."""
 
 from __future__ import annotations
-from typing import List, Dict, Any, cast, AsyncGenerator, Optional
+
 import argparse
 import contextlib
 import json
 import logging
 import os
+from typing import Any, AsyncGenerator, Dict, List, Optional, cast
 
 import pandas as pd
 import strawberry
@@ -23,6 +24,7 @@ from pydantic import BaseModel, Field
 from strawberry.fastapi import GraphQLRouter
 from strawberry.types import Info
 
+from backend.utils.redis_client import redis_client
 from glpi_dashboard.acl import (
     CleanTicketDTO,
     MappingService,
@@ -42,7 +44,6 @@ from glpi_dashboard.services.exceptions import (
 )
 from glpi_dashboard.services.glpi_session import Credentials, GLPISession
 from glpi_dashboard.services.read_model import query_ticket_summary
-from glpi_dashboard.utils.redis_client import redis_client
 
 from ..config.settings import (
     CLIENT_TIMEOUT_SECONDS,
@@ -208,7 +209,8 @@ async def _load_tickets(
             "chamados_por_data", {"data": tickets_by_date(df).to_dict(orient="records")}
         )
         await cache.set(
-            "chamados_por_dia", {"data": tickets_daily_totals(df).to_dict(orient="records")}
+            "chamados_por_dia",
+            {"data": tickets_daily_totals(df).to_dict(orient="records")},
         )
         return df
 
@@ -251,7 +253,8 @@ async def _load_tickets(
             "chamados_por_data", {"data": tickets_by_date(df).to_dict(orient="records")}
         )
         await cache.set(
-            "chamados_por_dia", {"data": tickets_daily_totals(df).to_dict(orient="records")}
+            "chamados_por_dia",
+            {"data": tickets_daily_totals(df).to_dict(orient="records")},
         )
         return df
 

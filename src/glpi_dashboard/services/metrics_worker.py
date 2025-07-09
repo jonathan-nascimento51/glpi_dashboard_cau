@@ -7,6 +7,7 @@ from typing import Any, Dict, Optional
 from arq import run_worker
 from arq.connections import RedisSettings
 
+from backend.utils.redis_client import RedisClient, redis_client
 from glpi_dashboard.acl import process_raw
 from glpi_dashboard.services.aggregated_metrics import (
     cache_aggregated_metrics,
@@ -14,7 +15,6 @@ from glpi_dashboard.services.aggregated_metrics import (
     tickets_by_date,
     tickets_daily_totals,
 )
-from glpi_dashboard.utils.redis_client import RedisClient, redis_client
 
 
 async def _load_cached_tickets(cache: RedisClient) -> list[Dict[str, Any]]:

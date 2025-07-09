@@ -1,17 +1,18 @@
 import pytest
 
 pytest.importorskip("pandas")
+from unittest.mock import AsyncMock
+
 import pandas as pd
 
+from backend.utils.redis_client import RedisClient
 from glpi_dashboard.services import aggregated_metrics
 from glpi_dashboard.services.aggregated_metrics import (
-    tickets_by_date,
-    tickets_daily_totals,
     cache_aggregated_metrics,
     get_cached_aggregated,
+    tickets_by_date,
+    tickets_daily_totals,
 )
-from glpi_dashboard.utils.redis_client import RedisClient
-from unittest.mock import AsyncMock
 
 
 def make_df(dates):
@@ -21,12 +22,14 @@ def make_df(dates):
 
 
 def test_tickets_by_date_counts():
-    df = make_df([
-        "2024-06-01",
-        "2024-06-01",
-        "2024-06-02",
-        None,
-    ])
+    df = make_df(
+        [
+            "2024-06-01",
+            "2024-06-01",
+            "2024-06-02",
+            None,
+        ]
+    )
     result = tickets_by_date(df)
     assert result.to_dict(orient="records") == [
         {"date": "2024-06-01", "total": 2},
@@ -35,11 +38,13 @@ def test_tickets_by_date_counts():
 
 
 def test_tickets_daily_totals_matches_by_date():
-    df = make_df([
-        "2024-06-01",
-        "2024-06-02",
-        "2024-06-02",
-    ])
+    df = make_df(
+        [
+            "2024-06-01",
+            "2024-06-02",
+            "2024-06-02",
+        ]
+    )
     by_date = tickets_by_date(df)
     daily = tickets_daily_totals(df)
     assert by_date.equals(daily)
