@@ -6,7 +6,7 @@ omit =
     src/glpi_tools/*
     worker.py
     scripts/*
-    examples/*
+    labs/*
     docs/*
 
 [report]
