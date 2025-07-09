@@ -26,9 +26,7 @@ class FakeSession:
             return {"data": [{"id": 1, "name": "t", "status": 1, "date": "2024-01-01"}]}
         if "User/2" in endpoint:
             return {"id": 2, "name": "Alice", "groups_id": 3}
-        if "Group/3" in endpoint:
-            return {"id": 3, "completename": "N1"}
-        return {"id": 1}
+        return {"id": 3, "completename": "N1"} if "Group/3" in endpoint else {"id": 1}
 
 
 @pytest.mark.asyncio
