@@ -19,7 +19,7 @@ async def test_refresh_session_token_retries_on_server_error(
     creds = Credentials(app_token=app_token, username=username, password=password)
     session = GLPISession(base_url, creds)
 
-    mock_client_index.side_effect = [
+    mock_client_session.side_effect = [
         mock_response(200, {"session_token": "init"}),
         mock_response(500, {"error": "fail"}, raise_for_status_exc=True),
         mock_response(200, {"session_token": "retry"}),
@@ -36,7 +36,7 @@ async def test_refresh_session_token_retries_on_server_error(
             assert data == {"ok": True}
             assert session._session_token == "retry"
 
-    assert mock_client_index.call_count == 4
+    assert mock_client_session.call_count == 4
     assert mock_client_session.request.call_count == 2
 
 
@@ -51,7 +51,7 @@ async def test_proactive_refresh_loop_triggers_refresh(
     mock_response,
 ):
     creds = Credentials(app_token=app_token, username=username, password=password)
-    session = GLPISession(base_url, creds, refresh_interval=0.05)
+    session = GLPISession(base_url, creds, refresh_interval=5)
 
     tokens = iter(["initial", "refreshed"])
 
@@ -62,10 +62,10 @@ async def test_proactive_refresh_loop_triggers_refresh(
     with patch.object(
         GLPISession, "_refresh_session_token", new=AsyncMock(side_effect=fake_refresh)
     ) as m_refresh:
-        mock_client_index.return_value = mock_response(200, {})
+        mock_client_session.return_value = mock_response(200, {})
         async with session:
             await aio.sleep(0.06)
             assert m_refresh.call_count >= 2
 
-    kill_call = mock_client_index.call_args_list[-1]
+    kill_call = mock_client_session.call_args_list[-1]
     assert kill_call.args[0] == f"{base_url}/killSession"
