@@ -105,7 +105,7 @@ export USE_MOCK_DATA=true          # Linux/macOS
 python main.py
 ```
 
-O backend irá ler `data/mock_tickets.json`.
+O backend irá ler `resources/mock_tickets.json`.
 
 ---
 

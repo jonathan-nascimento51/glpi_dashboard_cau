@@ -295,7 +295,7 @@ The service exposes several endpoints:
 ### Offline fallback
 
 If the GLPI API is unavailable the worker automatically serves data from
-`data/mock_tickets.json`. Set `USE_MOCK_DATA=true` in the environment to force
+`resources/mock_tickets.json`. Set `USE_MOCK_DATA=true` in the environment to force
 this behaviour. Responses include the header `X-Warning: using mock data` when
 the fallback is active.
 
@@ -460,7 +460,7 @@ If the connection succeeds you will see `✅ Conexão com GLPI bem-sucedida!`.
 
 After configuring the environment file you can optionally generate a full JSON
 dump of tickets. The repository only ships with a small sanitized sample under
-`data/raw_tickets_sample.json` for quick tests.
+`tests/resources/raw_tickets_sample.json` for quick tests.
 
 ```bash
 python scripts/fetch_tickets.py --output data/tickets_dump.json
