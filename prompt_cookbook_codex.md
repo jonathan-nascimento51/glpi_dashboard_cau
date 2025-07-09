@@ -21,11 +21,11 @@ Crie **glpi_session.py** com:
 - Type hints e docstrings.
 ```
 
-### 2️⃣ Gerar **data_pipeline.py**
+### 2️⃣ Gerar **backend/utils/pipeline.py**
 
 ```text
 Você é um especialista em ETL.
-Crie data_pipeline.py com:
+Crie backend/utils/pipeline.py com:
 - process_raw(data: List[dict]) -> pandas.DataFrame
 - Campos obrigatórios: id, status, group, date_creation, assigned_to
 - Converta datas para datetime, preencha NaN com None
@@ -74,7 +74,7 @@ Teste que get_tickets() retorna lista não vazia e lança HTTPError em 500.
 ### 7️⃣ Refatorar depois
 
 ```text
-Reescreva data_pipeline.process_raw para aceitar DataFrame e Series.
+Reescreva backend.utils.pipeline.process_raw para aceitar DataFrame e Series.
 Garanta 100% coverage nos testes.
 ```
 

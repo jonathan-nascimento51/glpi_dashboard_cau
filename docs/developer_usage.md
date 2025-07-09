@@ -82,7 +82,7 @@ python scripts/fetch/fetch_tickets.py --output data/tickets.json
 python -m cli.tickets_groups --since 2025-06-01 --until 2025-06-30 --outfile grupos.parquet
 ```
 
-Consulte `data_pipeline.py` para transformar os dados em DataFrame.
+Consulte `backend/utils/pipeline.py` para transformar os dados em DataFrame.
 
 ## Atualizando a Knowledge Base
 
