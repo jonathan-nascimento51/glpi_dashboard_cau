@@ -1,5 +1,6 @@
-from patterns.resilience.circuit_breaker import breaker, call_with_breaker
 import pybreaker
+
+from shared.resilience.circuit_breaker import breaker, call_with_breaker
 
 
 def failing():

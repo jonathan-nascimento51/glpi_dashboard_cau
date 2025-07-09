@@ -2,18 +2,20 @@
 
 from __future__ import annotations
 
-from typing import Callable
+from typing import Callable, TypeVar
 
 import pybreaker
-from prometheus_client import Gauge, Counter
-
+from prometheus_client import Counter, Gauge
 
 breaker = pybreaker.CircuitBreaker(fail_max=5, reset_timeout=60)
 state_gauge = Gauge("payment_circuit_state", "Circuit state", labelnames=["state"])
 fail_counter = Counter("payment_failures", "Payment failures")
 
 
-def call_with_breaker(func: Callable[..., None]) -> Callable[..., None]:
+T = TypeVar("T")
+
+
+def call_with_breaker(func: Callable[..., T]) -> Callable[..., T]:
     def wrapper(*args, **kwargs):
         try:
             result = breaker.call(func, *args, **kwargs)

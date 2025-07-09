@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
-import httpx
 import logging
 
+import httpx
+
+from .circuit_breaker import breaker, call_with_breaker
 from .retry_decorator import retry_api_call
-from .circuit_breaker import call_with_breaker, breaker
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +24,7 @@ class ResilientClient(httpx.AsyncClient):
 
         @retry_api_call
         @call_with_breaker
-        async def do_request():
-            return await super().request(method, url, **kwargs)
+        async def do_request() -> httpx.Response:
+            return await super(ResilientClient, self).request(method, url, **kwargs)
 
         return await do_request()

@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
+import timeit
 from abc import ABC, abstractmethod
 from typing import List
-import timeit
 
 
 class SortStrategy(ABC):
