@@ -11,6 +11,16 @@ This short guide explains how the repository is organised and how the main servi
 - **`src/shared/`** – utilities reused across back‑end modules (DTOs, resilience helpers).
 - **`scripts/`** – helper tools for setup, data fetch and validation.
 
+## Folder Responsibilities
+
+| Diretório | Descrição |
+|-----------|-----------|
+| `src/backend/` | Implementa o worker FastAPI e as rotas REST/GraphQL. |
+| `src/frontend/` | Componentes Dash que exibem métricas no painel. |
+| `frontend/` | Aplicação React/Next.js para visualizações avançadas. |
+| `src/shared/` | Modelos e utilidades reutilizados pelos demais módulos. |
+| `scripts/` | Scripts auxiliares de setup e ingestão de dados. |
+
 ## Data Flow
 
 1. `glpi_session.py` opens an async session with the GLPI REST API.
