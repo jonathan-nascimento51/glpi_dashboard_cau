@@ -11,8 +11,8 @@ from dotenv import load_dotenv
 from rich.console import Console
 from rich.table import Table
 
+from backend.adapters.glpi_session import Credentials, GLPISession
 from glpi_dashboard.config import settings
-from glpi_dashboard.services.glpi_session import Credentials, GLPISession
 
 
 @click.group()

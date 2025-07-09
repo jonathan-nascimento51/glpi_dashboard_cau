@@ -1,11 +1,11 @@
 import asyncio
 import json
+import logging
 import random
 import time
 from enum import Enum
 from functools import wraps
-from typing import Callable, Any, Dict, Optional, Type
-import logging
+from typing import Any, Callable, Dict, Optional, Type
 
 import aiohttp
 

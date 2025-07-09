@@ -2,23 +2,23 @@
 
 from __future__ import annotations
 
+import asyncio
 import datetime as dt
 import logging
+import os
 from pathlib import Path
 from typing import Optional
 
 import pandas as pd
-import os
 
-import asyncio
-from glpi_dashboard.services.glpi_session import GLPISession, Credentials
+from backend.adapters.glpi_session import Credentials, GLPISession
 from glpi_dashboard.config.settings import (
-    GLPI_BASE_URL,
+    FETCH_PAGE_SIZE,
     GLPI_APP_TOKEN,
-    GLPI_USERNAME,
+    GLPI_BASE_URL,
     GLPI_PASSWORD,
     GLPI_USER_TOKEN,
-    FETCH_PAGE_SIZE,
+    GLPI_USERNAME,
 )
 
 log = logging.getLogger(__name__)

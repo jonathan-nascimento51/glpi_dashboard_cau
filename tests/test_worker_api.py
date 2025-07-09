@@ -6,9 +6,9 @@ import redis
 from fastapi.testclient import TestClient
 from prometheus_client import CONTENT_TYPE_LATEST
 
+from backend.api.worker_api import get_ticket_translator
+from backend.services.exceptions import GLPIUnauthorizedError
 from glpi_dashboard.acl import MappingService, TicketTranslator
-from glpi_dashboard.services.exceptions import GLPIUnauthorizedError
-from glpi_dashboard.services.worker_api import get_ticket_translator
 from worker import create_app
 
 sys.modules.setdefault(
@@ -239,7 +239,7 @@ def test_client_reused(monkeypatch: pytest.MonkeyPatch, dummy_cache: DummyCache)
             instances.append(self)
 
     monkeypatch.setattr(
-        "glpi_dashboard.services.worker_api.GLPISession",
+        "backend.api.worker_api.GLPISession",
         lambda *a, **k: RecordingSession(),
     )
 
@@ -278,11 +278,11 @@ def test_health_glpi(monkeypatch: pytest.MonkeyPatch, dummy_cache: DummyCache):
         return False
 
     monkeypatch.setattr(
-        "glpi_dashboard.services.worker_api.GLPISession.__aenter__",
+        "backend.api.worker_api.GLPISession.__aenter__",
         fake_enter,
     )
     monkeypatch.setattr(
-        "glpi_dashboard.services.worker_api.GLPISession.__aexit__",
+        "backend.api.worker_api.GLPISession.__aexit__",
         fake_exit,
     )
     client = TestClient(create_app(client=FakeSession(), cache=dummy_cache))
@@ -301,11 +301,11 @@ def test_health_glpi_head_success(
         return False
 
     monkeypatch.setattr(
-        "glpi_dashboard.services.worker_api.GLPISession.__aenter__",
+        "backend.api.worker_api.GLPISession.__aenter__",
         fake_enter,
     )
     monkeypatch.setattr(
-        "glpi_dashboard.services.worker_api.GLPISession.__aexit__",
+        "backend.api.worker_api.GLPISession.__aexit__",
         fake_exit,
     )
 
@@ -338,7 +338,7 @@ def test_health_glpi_auth_failure(
         raise GLPIUnauthorizedError(401, "unauthorized")
 
     monkeypatch.setattr(
-        "glpi_dashboard.services.worker_api.GLPISession.__aenter__",
+        "backend.api.worker_api.GLPISession.__aenter__",
         raise_auth,
     )
     client = TestClient(
@@ -360,7 +360,7 @@ def test_session_init_failure_fallback(
         raise RuntimeError("no network")
 
     monkeypatch.setattr(
-        "glpi_dashboard.services.worker_api.GLPISession.__aenter__",
+        "backend.api.worker_api.GLPISession.__aenter__",
         raise_init,
     )
     app = create_app(cache=dummy_cache)

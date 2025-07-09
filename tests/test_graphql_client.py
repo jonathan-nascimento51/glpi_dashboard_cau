@@ -1,4 +1,4 @@
-from glpi_dashboard.services.graphql_client import GlpiGraphQLClient
+from backend.adapters.graphql_client import GlpiGraphQLClient
 
 
 def test_client_initialization():

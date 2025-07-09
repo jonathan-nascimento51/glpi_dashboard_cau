@@ -11,9 +11,8 @@ pytest.importorskip(
 )
 import aiohttp
 
-from glpi_dashboard.logging_config import init_logging
-from glpi_dashboard.services import glpi_session
-from glpi_dashboard.services.glpi_session import (
+from backend import adapters as glpi_session
+from backend.adapters.glpi_session import (
     Credentials,
     GLPIAPIError,
     GLPIBadRequestError,
@@ -24,6 +23,7 @@ from glpi_dashboard.services.glpi_session import (
     GLPITooManyRequestsError,
     GLPIUnauthorizedError,
 )
+from glpi_dashboard.logging_config import init_logging
 
 
 @pytest.fixture(autouse=True)
@@ -110,9 +110,7 @@ def mock_client_session(mock_response):
     Fixture to mock aiohttp.ClientSession and its HTTP methods.
     Patches aiohttp.ClientSession globally for tests.
     """
-    with patch(
-        "glpi_dashboard.services.glpi_session.ClientSession"
-    ) as mock_session_cls:
+    with patch("backend.adapters.glpi_session.ClientSession") as mock_session_cls:
         mock_session_instance = MagicMock()
         mock_session_instance.closed = False  # Assume not closed initially
 
@@ -175,9 +173,7 @@ async def test_glpi_session_context_manager_user_token_auth(
     glpi_session = GLPISession(base_url, credentials)
 
     # Mock the initSession call for user_token via GET with headers
-    mock_client_index.return_value = mock_response(
-        200, {"session_token": user_token}
-    )
+    mock_client_index.return_value = mock_response(200, {"session_token": user_token})
 
     async with glpi_session as session:
         assert session._session_token == user_token
@@ -604,9 +600,7 @@ async def test_request_network_error(
     glpi_session = GLPISession(base_url, creds)
 
     # initSession succeeds
-    mock_client_index.return_value = mock_response(
-        200, {"session_token": user_token}
-    )
+    mock_client_index.return_value = mock_response(200, {"session_token": user_token})
 
     err = aiohttp.ClientConnectionError("fail")
 
@@ -632,8 +626,8 @@ async def test_verify_ssl_disabled_passes_ssl_false(
     base_url, app_token, user_token, mock_response
 ):
     with (
-        patch("glpi_dashboard.services.glpi_session.ClientSession") as session_cls,
-        patch("glpi_dashboard.services.glpi_session.TCPConnector") as connector_cls,
+        patch("backend.adapters.glpi_session.ClientSession") as session_cls,
+        patch("backend.adapters.glpi_session.TCPConnector") as connector_cls,
     ):
         session_instance = MagicMock()
         session_instance.closed = False

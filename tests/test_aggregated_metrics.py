@@ -5,14 +5,14 @@ from unittest.mock import AsyncMock
 
 import pandas as pd
 
-from backend.utils.redis_client import RedisClient
-from glpi_dashboard.services import aggregated_metrics
-from glpi_dashboard.services.aggregated_metrics import (
+from backend.services import aggregated_metrics
+from backend.services.aggregated_metrics import (
     cache_aggregated_metrics,
     get_cached_aggregated,
     tickets_by_date,
     tickets_daily_totals,
 )
+from glpi_dashboard.utils.redis_client import RedisClient
 
 
 def make_df(dates):

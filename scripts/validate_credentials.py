@@ -1,22 +1,24 @@
 """Check GLPI credentials before running the stack."""
 
 from __future__ import annotations
-import sys
+
 import asyncio
+import sys
+
 from dotenv import load_dotenv
 
-from glpi_dashboard.services.glpi_session import (
-    GLPISession,
+from backend.adapters.glpi_session import (
     Credentials,
     GLPIAPIError,
+    GLPISession,
     GLPIUnauthorizedError,
 )
 from glpi_dashboard.config.settings import (
-    GLPI_BASE_URL,
     GLPI_APP_TOKEN,
-    GLPI_USERNAME,
+    GLPI_BASE_URL,
     GLPI_PASSWORD,
     GLPI_USER_TOKEN,
+    GLPI_USERNAME,
     USE_MOCK_DATA,
 )
 
