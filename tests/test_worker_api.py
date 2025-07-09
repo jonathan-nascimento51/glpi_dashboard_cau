@@ -6,10 +6,10 @@ import redis
 from fastapi.testclient import TestClient
 from prometheus_client import CONTENT_TYPE_LATEST
 
-from backend.adapters.mapping_service import MappingService
-from backend.api.worker_api import get_ticket_translator
-from backend.services.exceptions import GLPIUnauthorizedError
 from shared.dto import TicketTranslator
+from src.backend.adapters.mapping_service import MappingService
+from src.backend.api.worker_api import get_ticket_translator
+from src.backend.services.exceptions import GLPIUnauthorizedError
 from worker import create_app
 
 sys.modules.setdefault(

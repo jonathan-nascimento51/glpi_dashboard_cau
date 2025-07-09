@@ -7,13 +7,13 @@ import sys
 
 from dotenv import load_dotenv
 
-from backend.adapters.glpi_session import (
+from src.backend.adapters.glpi_session import (
     Credentials,
     GLPIAPIError,
     GLPISession,
     GLPIUnauthorizedError,
 )
-from backend.core.settings import (
+from src.backend.core.settings import (
     GLPI_APP_TOKEN,
     GLPI_BASE_URL,
     GLPI_PASSWORD,

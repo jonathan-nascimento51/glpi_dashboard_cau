@@ -7,7 +7,7 @@ sys.path.insert(
 
 from opentelemetry.sdk.metrics.export import MetricExportResult
 
-from backend.utils import telemetry  # noqa: E402
+from src.backend.utils import telemetry  # noqa: E402
 
 
 class DummyExporter:
