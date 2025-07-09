@@ -179,6 +179,11 @@ pre-commit install  # sets up hooks for black, ruff, isort and mypy
 
 This project also uses the `rich-click` library for colored CLI output. It is included in `requirements.txt`.
 
+Additional tips for running the project inside the Codex environment are documented in
+[docs/codex_setup.md](docs/codex_setup.md). The guide explains how to configure
+proxies, perform offline installations and refresh dependencies when new
+limitations appear.
+
 ## Installing Dependencies Behind a Proxy or Offline
 
 If your machine needs a proxy to reach PyPI, export the proxy variables before
