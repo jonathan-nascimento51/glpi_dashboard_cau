@@ -2,6 +2,18 @@
 
 The development compose file includes Prometheus and Grafana services. Prometheus scrapes metrics from the FastAPI backend at `/metrics` and the circuit breaker endpoint `/breaker`.
 
+## FastAPI instrumentation
+
+Tracing is enabled via OpenTelemetry. After the FastAPI app is created in
+`worker_api.py` the following call instruments all routes:
+
+```python
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+
+app = FastAPI(...)
+FastAPIInstrumentor().instrument_app(app)
+```
+
 `resources/prometheus.yml`:
 
 ```yaml
