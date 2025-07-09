@@ -37,7 +37,7 @@ python scripts/setup_env.py  # copies .env.example
 Initialize the database:
 
 ```bash
-PYTHONPATH=$(pwd) python scripts/init_db.py --drop-all
+PYTHONPATH=$(pwd) python scripts/setup/init_db.py --drop-all
 ```
 
 Start the backend API (required by the dashboard):
@@ -463,7 +463,7 @@ dump of tickets. The repository only ships with a small sanitized sample under
 `tests/resources/raw_tickets_sample.json` for quick tests.
 
 ```bash
-python scripts/fetch_tickets.py --output data/tickets_dump.json
+python scripts/fetch/fetch_tickets.py --output data/tickets_dump.json
 ```
 
 ## Database setup
@@ -479,7 +479,7 @@ Pass `--drop-all` to recreate everything from scratch.
 The script can also be invoked directly:
 
 ```bash
-PYTHONPATH=$(pwd) python scripts/init_db.py --drop-all
+PYTHONPATH=$(pwd) python scripts/setup/init_db.py --drop-all
 ```
 
 For a MySQL-specific walkthrough, see [docs/first_use_mysql.md](docs/first_use_mysql.md) which lists all required environment variables and setup steps.

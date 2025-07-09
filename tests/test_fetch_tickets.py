@@ -4,7 +4,7 @@ import tempfile
 
 import pytest
 
-import scripts.fetch_tickets as fetch_tickets
+import scripts.fetch.fetch_tickets as fetch_tickets
 
 
 @pytest.mark.asyncio

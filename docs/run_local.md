@@ -67,7 +67,7 @@ Optionally generate a JSON dump from GLPI. A small sanitized sample is already
 available in `tests/resources/raw_tickets_sample.json`:
 
 ```bash
-python scripts/fetch_tickets.py --output data/tickets_dump.json
+python scripts/fetch/fetch_tickets.py --output data/tickets_dump.json
 ```
 
 ## 6. Start the Dash server
