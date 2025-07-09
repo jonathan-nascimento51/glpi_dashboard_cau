@@ -6,15 +6,16 @@ Este documento resume todos os componentes do projeto **GLPI Dashboard CAU**, ex
 
 A aplicação coleta dados do GLPI via REST API, normaliza resultados em PostgreSQL/Redis e disponibiliza um painel interativo em Dash. Há também um serviço `worker.py` que expõe endpoints REST e GraphQL.
 
-Principais módulos em `src/backend`:
+Principais módulos do projeto:
 
 | Arquivo | Função |
 | ------- | ------ |
-| `glpi_session.py` | Cliente assíncrono para autenticação e chamadas à API GLPI |
+| `backend/glpi_session.py` | Cliente assíncrono para autenticação e chamadas à API GLPI |
 | `backend/utils/pipeline.py` | Normaliza tickets em `pandas.DataFrame` e gera JSON |
-| `dashboard/layout.py` | Layout e callbacks do dashboard em Dash |
-| `services/worker_api.py` | Lógica de cache e métricas usadas pelo `worker.py` |
-| `config/settings.py` | Carrega variáveis de ambiente (GLPI, DB, Redis) |
+| `frontend/layout/layout.py` | Layout e callbacks do dashboard em Dash |
+| `backend/services/worker_api.py` | Lógica de cache e métricas usadas pelo `worker.py` |
+| `shared/config/settings.py` | Carrega variáveis de ambiente (GLPI, DB, Redis) |
+| `frontend/` | Projeto Next.js que consome o worker API |
 
 Scripts utilitários residem em `scripts/` (ex.: `setup/init_db.py`, `fetch/fetch_tickets.py`, `validate_credentials_script.py`).
 
@@ -139,12 +140,16 @@ Isso sobe PostgreSQL, Redis, o `worker` e o dashboard em portas 8000 e 5173.
 ## Estrutura de Pastas
 
 ```plaintext
-├── src/                 # código principal do pacote
-│   └── backend/
-├── tests/               # suíte pytest
-├── scripts/             # utilidades de linha de comando
-├── data/                # local para dumps e arquivos temporários
-└── docs/                # documentação adicional
+├── src/
+│   ├── backend/   # serviços FastAPI e integrações GLPI
+│   ├── frontend/  # layout do dashboard em Dash
+│   └── shared/    # modelos e utilidades comuns
+├── frontend/      # projeto React/Next.js
+├── examples/      # códigos de referência e testes
+├── tests/         # suíte pytest
+├── scripts/       # utilidades de linha de comando
+├── data/          # dumps temporários
+└── docs/          # documentação adicional
 ```
 
 Para detalhes de arquitetura e troubleshooting, consulte também:

@@ -24,9 +24,10 @@ Worker --> "GLPI REST API"
 
 O repositório é organizado em pacotes Python com responsabilidade clara:
 
-- `backend/` concentra as rotas FastAPI e os serviços de domínio.
-- `frontend/` reúne o layout do Dash e seus callbacks reativos.
-- `shared/` agrupa modelos e utilidades compartilhadas entre as camadas.
+- `src/backend/` concentra as rotas FastAPI e os serviços de domínio.
+- `src/frontend/` reúne o layout do Dash e seus callbacks reativos.
+- `src/shared/` agrupa modelos e utilidades compartilhadas entre as camadas.
+- `frontend/` na raiz contém a aplicação React/Next.js que consome o worker API.
 - `backend/services/` reune scripts de ingestao e normalizacao de dados.
 
 Esses módulos trocam dados através de objetos tipados e utilizam `httpx` com `asyncio` para chamadas não bloqueantes.

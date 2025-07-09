@@ -9,6 +9,7 @@ This project provides a minimal dashboard to visualize service desk tickets from
 ## Purpose
 
 The goal is to inspect backlog, ticket status and productivity metrics without a live GLPI connection. Data is fetched via the API and normalized into JSON that the Dash app loads on startup.
+Additional sample scripts and pattern demos reside under [`examples/`](examples/).
 
 ## Getting Started
 
