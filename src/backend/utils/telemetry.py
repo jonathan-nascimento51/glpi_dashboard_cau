@@ -7,9 +7,9 @@ import os
 from typing import Optional
 
 from opentelemetry import metrics
+from opentelemetry.exporter.otlp.proto.http.metric_exporter import OTLPMetricExporter
 from opentelemetry.sdk.metrics import MeterProvider
 from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
-from opentelemetry.exporter.otlp.proto.http.metric_exporter import OTLPMetricExporter
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.semconv.resource import ResourceAttributes
 
@@ -29,13 +29,7 @@ def setup_telemetry() -> None:
     endpoint = os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT")
     raw_headers = os.getenv("OTEL_EXPORTER_OTLP_HEADERS", "")
     headers = (
-        dict(
-            (
-                item.split("=", 1)
-                for item in raw_headers.split(",")
-                if "=" in item
-            )
-        )
+        dict((item.split("=", 1) for item in raw_headers.split(",") if "=" in item))
         if raw_headers
         else None
     )

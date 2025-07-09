@@ -8,7 +8,7 @@ from typing import Any, Type, TypeVar
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from ..ticket_status import Impact, Priority, TicketStatus, Urgency, _BaseIntEnum
+from .ticket_status import Impact, Priority, TicketStatus, Urgency, _BaseIntEnum
 
 logger = logging.getLogger(__name__)
 

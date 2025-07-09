@@ -19,7 +19,7 @@ from backend.services.exceptions import (
     glpi_retry,
     parse_error,
 )
-from glpi_dashboard.logging_config import init_logging
+from backend.utils.logging_config import init_logging
 
 
 @pytest.fixture(autouse=True)
