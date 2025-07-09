@@ -183,6 +183,19 @@ pip install --no-index --find-links=wheels/ -r requirements.txt
 O front-end já executa `npm ci --prefer-offline`, reutilizando o cache de
 dependências sempre que possível.
 
+## GitHub access
+
+Repositórios privados ou actions personalizadas exigem autenticação. Utilize o
+script auxiliar para configurar o GitHub CLI:
+
+```bash
+export GITHUB_TOKEN=<token com permissao repo>
+bash scripts/setup_github_access.sh
+```
+
+O utilitário instala o `gh` caso esteja ausente e armazena as credenciais para o
+usuário atual.
+
 ## Docker offline
 
 Se o host não puder acessar o **Docker Hub**, é possível salvar previamente as
