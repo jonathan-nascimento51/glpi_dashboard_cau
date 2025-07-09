@@ -11,7 +11,6 @@ pytest.importorskip(
 )
 import aiohttp
 
-from backend import adapters as glpi_session
 from backend.adapters.glpi_session import (
     Credentials,
     GLPIAPIError,
