@@ -6,7 +6,6 @@ import argparse
 import contextlib
 import json
 import logging
-import os
 from typing import Any, AsyncGenerator, Dict, List, Optional, cast
 
 import pandas as pd
@@ -25,37 +24,20 @@ from strawberry.fastapi import GraphQLRouter
 from strawberry.types import Info
 
 from backend.adapters.dto import CleanTicketDTO, TicketTranslator
-from backend.adapters.glpi_session import Credentials, GLPISession
-from backend.adapters.mapping_service import MappingService
-from backend.adapters.normalization import process_raw
-from backend.core.settings import (
-    CLIENT_TIMEOUT_SECONDS,
-    GLPI_APP_TOKEN,
-    GLPI_BASE_URL,
-    GLPI_PASSWORD,
-    GLPI_USER_TOKEN,
-    GLPI_USERNAME,
-    KNOWLEDGE_BASE_FILE,
-    USE_MOCK_DATA,
-    VERIFY_SSL,
-)
-from backend.services.aggregated_metrics import (
-    cache_aggregated_metrics,
-    compute_aggregated,
-    get_cached_aggregated,
-    tickets_by_date,
-    tickets_daily_totals,
-)
-from backend.services.exceptions import (
-    GLPIAPIError,
-    GLPIUnauthorizedError,
-)
+from backend.adapters.factory import create_glpi_session, create_ticket_translator
+from backend.adapters.glpi_session import GLPISession
+from backend.core.settings import KNOWLEDGE_BASE_FILE
+from backend.services.aggregated_metrics import get_cached_aggregated
 from backend.services.read_model import query_ticket_summary
+from backend.services.ticket_loader import (
+    check_glpi_connection,
+    load_and_translate_tickets,
+    load_tickets,
+    stream_tickets,
+)
 from backend.utils.redis_client import redis_client
 
 logger = logging.getLogger(__name__)
-
-MOCK_TICKETS_FILE = os.getenv("MOCK_TICKETS_FILE", "resources/mock_tickets.json")
 
 
 @strawberry.type
@@ -102,185 +84,11 @@ class TicketSummaryOut(BaseModel):
     opened_at: str
 
 
-def get_ticket_translator() -> Optional[TicketTranslator]:
-    """Instantiate :class:`TicketTranslator` unless using mock data."""
-
-    if USE_MOCK_DATA:
-        return None
-
-    try:
-        creds = Credentials(
-            app_token=GLPI_APP_TOKEN,
-            user_token=GLPI_USER_TOKEN,
-            username=GLPI_USERNAME,
-            password=GLPI_PASSWORD,
-        )
-        session = GLPISession(
-            GLPI_BASE_URL,
-            creds,
-            verify_ssl=VERIFY_SSL,
-            timeout=CLIENT_TIMEOUT_SECONDS,
-        )
-    except Exception as exc:  # pragma: no cover - init failures
-        logger.exception("GLPI session init failed: %s", exc)
-        return None
-
-    mapper = MappingService(session)
-    return TicketTranslator(mapper)
-
-
-async def _load_and_translate_tickets(
-    translator: Optional[TicketTranslator],
-    cache=None,
-    response: Optional[Response] = None,
-) -> List[CleanTicketDTO]:
-    """Return a list of ``CleanTicketDTO`` using the ACL pipeline."""
-
-    # Offline mode bypasses translator and GLPI session
-    if USE_MOCK_DATA or translator is None:
-        df = await _load_tickets(cache=cache, response=response)
-        records = df.astype(object).where(pd.notna(df), None).to_dict("records")
-        return [CleanTicketDTO.model_validate(r) for r in records]
-
-    cache = cache or redis_client
-    cache_key = "tickets_clean"
-
-    cached = await cache.get(cache_key)
-    if cached is not None:
-        with contextlib.suppress(Exception):
-            return [CleanTicketDTO.model_validate(d) for d in cached]
-    translated: List[CleanTicketDTO] = []
-    async with translator.mapper._session as glpi:
-        raw_tickets = await glpi.get_all("Ticket")
-        for raw_ticket in raw_tickets:
-            try:
-                clean_ticket = await translator.translate_ticket(raw_ticket)
-                translated.append(clean_ticket)
-            except Exception as exc:  # pragma: no cover - translation errors
-                logger.error(
-                    "Falha ao traduzir o ticket ID %s: %s",
-                    raw_ticket.get("id"),
-                    exc,
-                )
-
-    await cache.set(cache_key, {"data": [t.model_dump() for t in translated]})
-    return translated
-
-
-async def _load_tickets(
-    client: Optional[GLPISession] = None,
-    cache=None,
-    response: Optional[Response] = None,
-) -> pd.DataFrame:
-    """Return processed ticket data from the API with caching.
-
-    When the GLPI session fails to initialize the function falls back to the
-    local mock dataset and sets a warning header on ``response`` if provided.
-    """
-    cache = cache or redis_client
-    cache_key = "tickets_api"
-    cached = await cache.get(cache_key)
-    if cached is not None:
-        try:
-            # Extract the actual ticket list if cached is a dict
-            data = cached.get("data", cached) if isinstance(cached, dict) else cached
-            return process_raw(data)
-        except (KeyError, ValueError):
-            return pd.DataFrame(data)
-
-    # In offline mode load tickets from a local JSON file
-    if USE_MOCK_DATA:
-        try:
-            with open(MOCK_TICKETS_FILE, "r", encoding="utf-8") as fh:
-                data = json.load(fh)
-        except Exception as exc:  # pragma: no cover - file errors
-            logger.error("Failed to load mock data: %s", exc)
-            raise HTTPException(status_code=500, detail=str(exc)) from exc
-
-        await cache.set(cache_key, data)
-        df = process_raw(data)
-        metrics = compute_aggregated(df)
-        await cache_aggregated_metrics(cache, "metrics_aggregated", metrics)
-        await cache.set(
-            "chamados_por_data", {"data": tickets_by_date(df).to_dict(orient="records")}
-        )
-        await cache.set(
-            "chamados_por_dia",
-            {"data": tickets_daily_totals(df).to_dict(orient="records")},
-        )
-        return df
-
-    async def _async_fetch() -> list[dict]:
-        creds = Credentials(
-            app_token=GLPI_APP_TOKEN,
-            user_token=GLPI_USER_TOKEN,
-            username=GLPI_USERNAME,
-            password=GLPI_PASSWORD,
-        )
-        async with GLPISession(
-            GLPI_BASE_URL,
-            creds,
-            verify_ssl=VERIFY_SSL,
-            timeout=CLIENT_TIMEOUT_SECONDS,
-        ) as session:
-            return await session.get_all("Ticket")
-
-    try:
-        if client is None:
-            data = await _async_fetch()
-        else:
-            async with client as sess:
-                data = await sess.get_all("Ticket")
-    except Exception as exc:  # pragma: no cover - network errors
-        logger.exception("Failed to fetch from GLPI: %s", exc)
-        if response is not None:
-            response.headers["X-Warning"] = "using mock data"
-        try:
-            with open(MOCK_TICKETS_FILE, "r", encoding="utf-8") as fh:
-                data = json.load(fh)
-        except Exception as file_exc:  # pragma: no cover - file errors
-            logger.error("Failed to load mock data: %s", file_exc)
-            raise HTTPException(status_code=500, detail=str(file_exc)) from file_exc
-        await cache.set(cache_key, data)
-        df = process_raw(data)
-        metrics = compute_aggregated(df)
-        await cache_aggregated_metrics(cache, "metrics_aggregated", metrics)
-        await cache.set(
-            "chamados_por_data", {"data": tickets_by_date(df).to_dict(orient="records")}
-        )
-        await cache.set(
-            "chamados_por_dia",
-            {"data": tickets_daily_totals(df).to_dict(orient="records")},
-        )
-        return df
-
-    if isinstance(data, dict):
-        data = data.get("data", data)
-    await cache.set(cache_key, {"data": data})
-    try:
-        return process_raw(data)
-    except (KeyError, ValueError):
-        return pd.DataFrame(data)
-
-
-async def _stream_tickets(
-    client: Optional[GLPISession],
-    cache=None,
-    response: Optional[Response] = None,
-) -> AsyncGenerator[bytes, None]:
-    """Yield progress events followed by final ticket data."""
-    yield b"fetching...\n"
-    df = await _load_tickets(client=client, cache=cache, response=response)
-    yield b"processing...\n"
-    data = df.astype(object).where(pd.notna(df), None).to_dict(orient="records")
-    yield json.dumps(data).encode()
-
-
 @strawberry.type
 class Query:
     @strawberry.field
     async def tickets(self, info: Info) -> List[Ticket]:  # pragma: no cover
-        df = await _load_tickets(
+        df = await load_tickets(
             client=info.context.get("client"), cache=info.context.get("cache")
         )
         records = df.astype(object).where(pd.notna(df), None).to_dict("records")
@@ -288,7 +96,7 @@ class Query:
 
     @strawberry.field
     async def metrics(self, info: Info) -> Metrics:
-        df = await _load_tickets(
+        df = await load_tickets(
             client=info.context.get("client"), cache=info.context.get("cache")
         )
         total = len(df)
@@ -336,39 +144,28 @@ def create_app(client: Optional[GLPISession] = None, cache=None) -> FastAPI:
         return response
 
     if client is None:
-        creds = Credentials(
-            app_token=GLPI_APP_TOKEN,
-            user_token=GLPI_USER_TOKEN,
-            username=GLPI_USERNAME,
-            password=GLPI_PASSWORD,
-        )
-        client = GLPISession(
-            GLPI_BASE_URL,
-            creds,
-            verify_ssl=VERIFY_SSL,
-            timeout=CLIENT_TIMEOUT_SECONDS,
-        )
+        client = create_glpi_session()
 
     @app.get("/tickets", response_model=list[CleanTicketDTO])
     async def tickets(
         response: Response,
-        translator: Optional[TicketTranslator] = Depends(get_ticket_translator),
+        translator: Optional[TicketTranslator] = Depends(create_ticket_translator),
     ) -> list[CleanTicketDTO]:  # noqa: F401
-        return await _load_and_translate_tickets(
+        return await load_and_translate_tickets(
             translator, cache=cache, response=response
         )
 
     @app.get("/tickets/stream")
     async def tickets_stream(response: Response) -> StreamingResponse:  # noqa: F401
         return StreamingResponse(
-            _stream_tickets(client, cache=cache, response=response),
+            stream_tickets(client, cache=cache, response=response),
             media_type="text/plain",
             headers=response.headers,
         )
 
     @app.get("/metrics")
     async def metrics(response: Response) -> dict:  # noqa: F401
-        df = await _load_tickets(client=client, cache=cache, response=response)
+        df = await load_tickets(client=client, cache=cache, response=response)
         total = len(df)
         closed = 0
         if "status" in df:
@@ -439,23 +236,7 @@ def create_app(client: Optional[GLPISession] = None, cache=None) -> FastAPI:
 
     async def _check_glpi() -> int:
         """Return HTTP status based on GLPI connectivity."""
-        creds = Credentials(
-            app_token=GLPI_APP_TOKEN,
-            user_token=GLPI_USER_TOKEN,
-            username=GLPI_USERNAME,
-            password=GLPI_PASSWORD,
-        )
-        try:
-            async with GLPISession(
-                GLPI_BASE_URL,
-                creds,
-                verify_ssl=VERIFY_SSL,
-                timeout=CLIENT_TIMEOUT_SECONDS,
-            ):
-                pass
-        except (GLPIAPIError, GLPIUnauthorizedError):
-            return 500
-        return 200
+        return await check_glpi_connection()
 
     @app.get("/health/glpi")
     async def health_glpi() -> JSONResponse:  # noqa: F401

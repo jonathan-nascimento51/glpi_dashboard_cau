@@ -8,7 +8,7 @@ jest.mock('react-window', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     FixedSizeList: jest.fn((props: any) => (
       <div data-testid="virtual-list">
-        {Array.from({ length: props.itemCount }).map((_: any, idx: number) =>
+        {Array.from({ length: props.itemCount }).map((_: unknown, idx: number) =>
           React.createElement(props.children, {
             index: idx,
             style: {},

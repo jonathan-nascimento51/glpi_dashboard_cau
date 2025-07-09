@@ -1,4 +1,3 @@
-/* eslint-disable react/display-name */
 import {
   memo,
   forwardRef,
@@ -91,7 +90,7 @@ export function VirtualizedTicketTable({
 }: VirtualizedTicketTableProps) {
   const [focusedIndex, setFocusedIndex] = useState(0)
   const containerRef = useRef<HTMLDivElement>(null)
-  const listRef = useRef<any>(null)
+  const listRef = useRef<unknown>(null)
 
   const handleRowClick = useCallback(
     (row: TicketRow) => {
