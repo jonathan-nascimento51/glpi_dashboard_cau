@@ -26,12 +26,14 @@ mapping = {
     "glpi_dashboard/services/langgraph_workflow.py": "backend/services/langgraph_workflow.py",
     "glpi_dashboard/services/worker_api.py": "backend/api/worker_api.py",
     "glpi_dashboard/utils/redis_client.py": "backend/utils/redis_client.py",
-    "patterns/resilience/retry_decorator.py": "shared/resilience/retry_decorator.py",
+    "patterns/resilience/retry_decorator.py": "shared/utils/resilience/retry_decorator.py",
     "patterns/order_observer.py": "shared/order_observer.py",
 }
 
+
 def ensure_dir(path):
     path.parent.mkdir(parents=True, exist_ok=True)
+
 
 def move_file(src_rel, dst_rel):
     src = BASE_DIR / src_rel
@@ -42,6 +44,7 @@ def move_file(src_rel, dst_rel):
     ensure_dir(dst)
     shutil.move(str(src), str(dst))
     print(f"✅ {src_rel} → {dst_rel}")
+
 
 if __name__ == "__main__":
     for src_rel, dst_rel in mapping.items():

@@ -1,6 +1,6 @@
 import asyncio
 
-from shared.resilience.resilient_client import ResilientClient
+from shared.utils.resilience import ResilientClient
 
 
 async def main():
