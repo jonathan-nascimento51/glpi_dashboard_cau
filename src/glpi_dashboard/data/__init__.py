@@ -1,4 +1,7 @@
-"""Compatibility exports for legacy ``glpi_dashboard.data`` imports."""
+"""Compatibility exports for legacy data imports.
+
+New code should import modules from :mod:`backend.db` or :mod:`backend.services`.
+"""
 
 import sys
 from importlib import import_module

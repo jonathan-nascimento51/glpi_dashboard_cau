@@ -19,6 +19,7 @@ from langgraph.checkpoint.sqlite import SqliteSaver
 from langgraph.graph import END, StateGraph
 from pydantic import BaseModel, Field
 
+from backend.adapters.normalization import process_raw
 from backend.core.settings import (
     GLPI_APP_TOKEN,
     GLPI_BASE_URL,
@@ -27,7 +28,6 @@ from backend.core.settings import (
     GLPI_USERNAME,
 )
 from backend.utils import sanitize_message
-from glpi_dashboard.acl import process_raw
 
 from .glpi_session import Credentials, GLPISession
 

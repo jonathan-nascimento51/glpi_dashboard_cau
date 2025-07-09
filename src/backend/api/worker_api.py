@@ -24,7 +24,10 @@ from pydantic import BaseModel, Field
 from strawberry.fastapi import GraphQLRouter
 from strawberry.types import Info
 
+from backend.adapters.dto import CleanTicketDTO, TicketTranslator
 from backend.adapters.glpi_session import Credentials, GLPISession
+from backend.adapters.mapping_service import MappingService
+from backend.adapters.normalization import process_raw
 from backend.services.aggregated_metrics import (
     cache_aggregated_metrics,
     compute_aggregated,
@@ -37,13 +40,7 @@ from backend.services.exceptions import (
     GLPIUnauthorizedError,
 )
 from backend.services.read_model import query_ticket_summary
-from glpi_dashboard.acl import (
-    CleanTicketDTO,
-    MappingService,
-    TicketTranslator,
-    process_raw,
-)
-from glpi_dashboard.utils.redis_client import redis_client
+from backend.utils.redis_client import redis_client
 
 from ..config.settings import (
     CLIENT_TIMEOUT_SECONDS,

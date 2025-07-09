@@ -6,7 +6,7 @@ import pandas as pd
 import pytest
 from dash import Dash
 
-from glpi_dashboard.dashboard.layout import build_layout
+from frontend.layout.layout import build_layout
 
 _chromedriver = shutil.which("chromedriver")
 try:

@@ -3,7 +3,7 @@ import importlib
 
 def test_load_data_mock(monkeypatch):
     monkeypatch.setenv("USE_MOCK_DATA", "true")
-    import glpi_dashboard.config.settings as settings
+    import backend.core.settings as settings
 
     importlib.reload(settings)
     import main

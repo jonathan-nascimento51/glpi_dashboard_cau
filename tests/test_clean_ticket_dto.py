@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from glpi_dashboard.acl.dto import CleanTicketDTO
+from backend.adapters.dto import CleanTicketDTO
 
 
 @pytest.mark.unit

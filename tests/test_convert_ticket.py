@@ -2,7 +2,7 @@ import logging
 
 import pytest
 
-from glpi_dashboard.acl import (
+from backend.models.ticket_models import (
     Impact,
     Priority,
     RawTicketDTO,

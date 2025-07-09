@@ -7,9 +7,8 @@ from typing import Any, Dict, Optional
 from arq import run_worker
 from arq.connections import RedisSettings
 
+from backend.adapters.normalization import process_raw
 from backend.utils.redis_client import RedisClient, redis_client
-from glpi_dashboard.acl import process_raw
-from glpi_dashboard.utils.redis_client import RedisClient, redis_client
 
 from .aggregated_metrics import (
     cache_aggregated_metrics,

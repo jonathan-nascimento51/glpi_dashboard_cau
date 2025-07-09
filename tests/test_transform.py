@@ -3,7 +3,7 @@ import pytest
 pytest.importorskip("pandas")
 import pandas as pd
 
-from glpi_dashboard.data import transform
+from backend.utils import transform
 
 
 def test_to_dataframe_dtypes():
