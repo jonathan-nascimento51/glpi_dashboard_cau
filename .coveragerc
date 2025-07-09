@@ -2,7 +2,7 @@
 omit =
     */__dishka_*
     */tests/*
-    src/patterns/*
+    examples/*
     src/glpi_tools/*
     worker.py
     scripts/*
