@@ -55,6 +55,9 @@ class Settings(BaseSettings):
     knowledge_base_file: str = os.getenv(
         "KNOWLEDGE_BASE_FILE", "docs/knowledge_base_errors.md"
     )
+    mock_tickets_file: str = os.getenv(
+        "MOCK_TICKETS_FILE", "resources/mock_tickets.json"
+    )
     database_url: str = ""
     redis_url: str = ""
     cache_type: str = ""
@@ -114,6 +117,7 @@ MV_REFRESH_INTERVAL_MINUTES = settings.MV_REFRESH_INTERVAL_MINUTES
 USE_MOCK_DATA = settings.USE_MOCK_DATA
 
 KNOWLEDGE_BASE_FILE = settings.knowledge_base_file
+MOCK_TICKETS_FILE = settings.mock_tickets_file
 
 OTEL_EXPORTER_OTLP_ENDPOINT = settings.OTEL_EXPORTER_OTLP_ENDPOINT
 OTEL_EXPORTER_OTLP_HEADERS = settings.OTEL_EXPORTER_OTLP_HEADERS
