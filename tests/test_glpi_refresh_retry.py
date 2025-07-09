@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from glpi_dashboard.services.glpi_session import Credentials, GLPISession
+from backend.adapters.glpi_session import Credentials, GLPISession
 
 
 @pytest.mark.asyncio

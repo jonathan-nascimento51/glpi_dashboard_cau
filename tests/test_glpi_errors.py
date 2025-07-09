@@ -6,8 +6,7 @@ import pytest
 pytest.importorskip("aiohttp")
 import aiohttp
 
-from glpi_dashboard.logging_config import init_logging
-from glpi_dashboard.services.exceptions import (
+from backend.services.exceptions import (
     HTTP_STATUS_ERROR_MAP,
     GLPIAPIError,
     GLPIBadRequestError,
@@ -20,6 +19,7 @@ from glpi_dashboard.services.exceptions import (
     glpi_retry,
     parse_error,
 )
+from glpi_dashboard.logging_config import init_logging
 
 
 @pytest.fixture(autouse=True)

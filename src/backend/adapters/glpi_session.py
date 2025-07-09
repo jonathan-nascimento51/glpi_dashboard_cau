@@ -11,7 +11,7 @@ from aiohttp import ClientSession, TCPConnector
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 # Import custom exceptions and decorator from sibling module
-from .exceptions import (
+from backend.services.exceptions import (
     HTTP_STATUS_ERROR_MAP,
     GLPIAPIError,
     GLPIBadRequestError,
@@ -23,7 +23,7 @@ from .exceptions import (
     glpi_retry,
     parse_error,
 )
-from .tool_error import ToolError
+from backend.services.tool_error import ToolError
 
 logger = logging.getLogger(__name__)
 

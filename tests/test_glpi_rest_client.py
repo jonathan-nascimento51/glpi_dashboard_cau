@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock, patch
 import aiohttp
 import pytest
 
-from glpi_dashboard.services.glpi_session import Credentials, GLPISession
+from backend.adapters.glpi_session import Credentials, GLPISession
 
 
 class DummyCM:
@@ -43,7 +43,7 @@ async def test_list_search_options(monkeypatch):
         return DummyCM(DummyResponse(200, {"1": {"name": "ID", "datatype": "int"}}))
 
     monkeypatch.setattr(
-        "glpi_dashboard.services.glpi_session.ClientSession.request",
+        "backend.adapters.glpi_session.ClientSession.request",
         AsyncMock(side_effect=fake_request),
     )
     data = await session.list_search_options("Ticket")
@@ -66,7 +66,7 @@ async def test_search_rest_retry_on_500(monkeypatch):
         return DummyCM(DummyResponse(200, {"data": []}))
 
     monkeypatch.setattr(
-        "glpi_dashboard.services.glpi_session.ClientSession.request",
+        "backend.adapters.glpi_session.ClientSession.request",
         AsyncMock(side_effect=fake_request),
     )
     with patch("asyncio.sleep", new=AsyncMock()):
@@ -92,7 +92,7 @@ async def test_query_graphql_retry_on_429(monkeypatch):
         return DummyCM(DummyResponse(200, {"data": {"ok": True}}))
 
     monkeypatch.setattr(
-        "glpi_dashboard.services.glpi_session.ClientSession.request",
+        "backend.adapters.glpi_session.ClientSession.request",
         AsyncMock(side_effect=fake_request),
     )
     with patch("asyncio.sleep", new=AsyncMock()):
@@ -123,7 +123,7 @@ async def test_get_all_paginated(monkeypatch):
         return DummyCM(resp)
 
     monkeypatch.setattr(
-        "glpi_dashboard.services.glpi_session.ClientSession.request",
+        "backend.adapters.glpi_session.ClientSession.request",
         AsyncMock(side_effect=fake_request),
     )
     with patch("asyncio.sleep", new=AsyncMock()):

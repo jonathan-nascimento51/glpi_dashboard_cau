@@ -44,7 +44,7 @@ Se o `curl` retornar o mesmo erro 400, a conexão está ocorrendo e o problema �
 
 ## 3. Ajuste do Código e Logs
 
-Caso esteja utilizando a versão padrão do projeto, verifique `src/glpi_dashboard/services/glpi_session.py`. A partir da versão atual, erros de inicialização registram o corpo da resposta para facilitar o diagnóstico. Veja o log com `docker compose logs dash`.
+Caso esteja utilizando a versão padrão do projeto, verifique `src/backend/adapters/glpi_session.py`. A partir da versão atual, erros de inicialização registram o corpo da resposta para facilitar o diagnóstico. Veja o log com `docker compose logs dash`.
 
 ## 4. Otimize o Build do Docker
 

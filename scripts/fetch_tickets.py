@@ -7,10 +7,9 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-from glpi_dashboard.logging_config import init_logging
-
 # Importa o cliente da API do seu projeto
-from glpi_dashboard.services.glpi_session import Credentials, GLPISession
+from backend.adapters.glpi_session import Credentials, GLPISession
+from glpi_dashboard.logging_config import init_logging
 
 # Carrega as variáveis de ambiente do arquivo .env
 load_dotenv()

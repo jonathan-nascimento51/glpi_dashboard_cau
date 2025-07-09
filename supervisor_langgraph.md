@@ -52,11 +52,11 @@ Empregue o Supervisor pattern sempre que for necessário direcionar dinamicament
 
 ### Exemplo completo
 
-O módulo [`langgraph_workflow.py`](src/glpi_dashboard/services/langgraph_workflow.py) demonstra o padrão em ação. Compile e execute o grafo com o comando abaixo:
+O módulo [`langgraph_workflow.py`](src/backend/services/langgraph_workflow.py) demonstra o padrão em ação. Compile e execute o grafo com o comando abaixo:
 
 ```bash
 PYTHONPATH=src python - <<'PY'
-from glpi_dashboard.services.langgraph_workflow import build_workflow
+from backend.services.langgraph_workflow import build_workflow
 wf = build_workflow().compile()
 state = {"messages": ["fetch"], "next_agent": "", "iteration_count": 0}
 print(wf.invoke(state)["messages"][-1])

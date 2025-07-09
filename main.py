@@ -9,6 +9,8 @@ from dash import Dash
 from flask import Flask
 from flask_caching import Cache
 
+from backend.adapters.glpi_session import Credentials, GLPISession
+from backend.services.exceptions import GLPIAPIError
 from glpi_dashboard.config.settings import (
     GLPI_APP_TOKEN,
     GLPI_BASE_URL,
@@ -21,8 +23,6 @@ from glpi_dashboard.dashboard.callbacks import register_callbacks
 from glpi_dashboard.dashboard.layout import build_layout
 from glpi_dashboard.data.pipeline import process_raw
 from glpi_dashboard.logging_config import init_logging
-from glpi_dashboard.services.exceptions import GLPIAPIError
-from glpi_dashboard.services.glpi_session import Credentials, GLPISession
 
 app = Flask(__name__)
 cache = Cache(

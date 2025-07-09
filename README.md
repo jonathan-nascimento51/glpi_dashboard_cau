@@ -250,7 +250,7 @@ The API uses **ORJSONResponse** for fast serialization. Heavy aggregations are
 pre-computed by an ARQ worker. Start it separately with:
 
 ```bash
-python -m glpi_dashboard.services.metrics_worker
+python -m backend.services.metrics_worker
 ```
 
 The service exposes several endpoints:

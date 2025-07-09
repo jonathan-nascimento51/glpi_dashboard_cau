@@ -4,7 +4,7 @@ import time
 
 import pytest
 
-from glpi_dashboard.services import batch_fetch
+from backend.services import batch_fetch
 
 
 class DummySession:

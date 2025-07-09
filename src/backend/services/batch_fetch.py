@@ -16,8 +16,8 @@ from glpi_dashboard.config.settings import (
     GLPI_USERNAME,
 )
 
+from ..adapters.glpi_session import Credentials, GLPISession
 from .exceptions import GLPIAPIError
-from .glpi_session import Credentials, GLPISession
 from .tool_error import ToolError
 
 

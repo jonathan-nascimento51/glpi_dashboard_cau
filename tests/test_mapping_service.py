@@ -1,8 +1,8 @@
 import pytest
 from redis.asyncio import Redis
 
+from backend.adapters.glpi_session import GLPISession
 from glpi_dashboard.acl import MappingService
-from glpi_dashboard.services.glpi_session import GLPISession
 
 
 @pytest.mark.asyncio

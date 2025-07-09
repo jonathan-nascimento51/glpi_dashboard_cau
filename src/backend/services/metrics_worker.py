@@ -9,7 +9,9 @@ from arq.connections import RedisSettings
 
 from backend.utils.redis_client import RedisClient, redis_client
 from glpi_dashboard.acl import process_raw
-from glpi_dashboard.services.aggregated_metrics import (
+from glpi_dashboard.utils.redis_client import RedisClient, redis_client
+
+from .aggregated_metrics import (
     cache_aggregated_metrics,
     compute_aggregated,
     tickets_by_date,
