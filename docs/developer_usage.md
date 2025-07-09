@@ -6,7 +6,7 @@ Este documento resume todos os componentes do projeto **GLPI Dashboard CAU**, ex
 
 A aplicação coleta dados do GLPI via REST API, normaliza resultados em PostgreSQL/Redis e disponibiliza um painel interativo em Dash. Há também um serviço `worker.py` que expõe endpoints REST e GraphQL.
 
-Principais módulos em `src/glpi_dashboard`:
+Principais módulos em `src/backend`:
 
 | Arquivo | Função |
 | ------- | ------ |
@@ -139,7 +139,7 @@ Isso sobe PostgreSQL, Redis, o `worker` e o dashboard em portas 8000 e 5173.
 
 ```plaintext
 ├── src/                 # código principal do pacote
-│   └── glpi_dashboard/
+│   └── backend/
 ├── tests/               # suíte pytest
 ├── scripts/             # utilidades de linha de comando
 ├── data/                # local para dumps e arquivos temporários
