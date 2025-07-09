@@ -165,6 +165,8 @@ This command installs all requirements, builds the local package and runs `pytes
 ```bash
 python -m pip install --upgrade pip
 pip install -r requirements.txt -r requirements-dev.txt
+pip install opentelemetry-instrumentation-fastapi opentelemetry-instrumentation-logging
+pip install -e .  # install the backend package in editable mode
 pre-commit install  # sets up hooks for black, ruff, isort and mypy
 # Ruff version pinned to 0.12.2 is included in requirements-dev.txt
 # Reinstall dev dependencies before running pre-commit if your environment is outdated
