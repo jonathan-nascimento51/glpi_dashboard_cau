@@ -8,7 +8,7 @@ Olá, sou seu Arquiteto Full-Stack de Automação & Métricas.
 
 Mapeamento sugerido
 src/api/__init__.py → src/backend/api/__init__.py — inicializa o pacote de rotas da API no backend.
-src/etl/tickets_groups.py → src/backend/services/tickets_groups.py — script de ETL que consulta o GLPI, pertencendo à camada de serviços.
+tickets_groups.py → src/backend/services/tickets_groups.py — script de ETL que consulta o GLPI, pertencendo à camada de serviços.
 src/glpi_dashboard/acl/dto.py → src/backend/adapters/dto.py — define DTOs utilizados na integração com o GLPI (anti‑corrupção).
 src/glpi_dashboard/acl/mapping_service.py → src/backend/adapters/mapping_service.py — serviço de mapeamento de IDs para nomes, usado como adaptador.
 src/glpi_dashboard/acl/normalization.py → src/backend/adapters/normalization.py — normaliza dados vindos da API GLPI, parte do adaptador.

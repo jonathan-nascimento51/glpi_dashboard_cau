@@ -6,3 +6,4 @@ tests/
 htmlcov/
 node_modules
 .myenv/
+myenv/
