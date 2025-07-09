@@ -7,7 +7,6 @@ BASE_DIR = Path(__file__).resolve().parents[1] / "src"
 # Mapeamento de arquivos: origem relativa -> destino relativa
 mapping = {
     "api/__init__.py": "backend/api/__init__.py",
-    "etl/tickets_groups.py": "backend/services/tickets_groups.py",
     "glpi_dashboard/acl/dto.py": "backend/adapters/dto.py",
     "glpi_dashboard/acl/mapping_service.py": "backend/adapters/mapping_service.py",
     "glpi_dashboard/acl/normalization.py": "backend/adapters/normalization.py",

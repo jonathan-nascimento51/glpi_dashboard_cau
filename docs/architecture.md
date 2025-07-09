@@ -27,7 +27,7 @@ O repositório é organizado em pacotes Python com responsabilidade clara:
 - `backend/` concentra as rotas FastAPI e os serviços de domínio.
 - `frontend/` reúne o layout do Dash e seus callbacks reativos.
 - `shared/` agrupa modelos e utilidades compartilhadas entre as camadas.
-- `etl/` mantém scripts de ingestão e normalização com Pandas.
+- `backend/services/` reune scripts de ingestao e normalizacao de dados.
 
 Esses módulos trocam dados através de objetos tipados e utilizam `httpx` com `asyncio` para chamadas não bloqueantes.
 
