@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 import random
-import requests
+
+import requests  # type: ignore
 
 from .retry_decorator import retry_api_call
 

@@ -1,6 +1,6 @@
 from unittest.mock import MagicMock
 
-from patterns.order_observer import Order
+from shared.order_observer import Order
 
 
 def test_finalize_notifies_observers():
