@@ -1,5 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
-import { fetcher } from '@/lib/swrClient'
+import { useApiQuery } from '@/hooks/useApiQuery'
 
 export interface Metrics {
   total: number
@@ -8,5 +7,5 @@ export interface Metrics {
 }
 
 export function useTicketMetrics() {
-  return useQuery<Metrics>(['metrics'], () => fetcher('/metrics'))
+  return useApiQuery<Metrics>(['metrics'], '/metrics')
 }

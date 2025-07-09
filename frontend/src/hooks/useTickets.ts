@@ -1,5 +1,5 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { fetcher } from '@/lib/swrClient'
+import { useQueryClient } from '@tanstack/react-query'
+import { useApiQuery } from './useApiQuery'
 
 export interface Ticket {
   id: number | string
@@ -9,10 +9,7 @@ export interface Ticket {
 
 export function useTickets() {
   const queryClient = useQueryClient()
-  const query = useQuery<Ticket[], Error>({
-    queryKey: ['tickets'],
-    queryFn: () => fetcher('/tickets'),
-  })
+  const query = useApiQuery<Ticket[], Error>(['tickets'], '/tickets')
 
   const refreshTickets = () =>
     queryClient.invalidateQueries({ queryKey: ['tickets'] })

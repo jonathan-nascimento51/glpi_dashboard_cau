@@ -1,5 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
-import { fetcher } from '@/lib/swrClient'
+import { useApiQuery } from './useApiQuery'
 
 export interface ChamadoPorDia {
   date: string
@@ -7,13 +6,15 @@ export interface ChamadoPorDia {
 }
 
 export function useChamadosPorDia() {
-  const query = useQuery<ChamadoPorDia[], Error>({
-    queryKey: ['chamados-por-dia'],
-    queryFn: () => fetcher('/chamados/por-dia'),
-    select: (data: ChamadoPorDia[]) =>
-      data.map((d) => ({ date: d.date, total: Number(d.total) })),
-    refetchInterval: 60000,
-  })
+  const query = useApiQuery<ChamadoPorDia[], Error>(
+    ['chamados-por-dia'],
+    '/chamados/por-dia',
+    {
+      select: (data: ChamadoPorDia[]) =>
+        data.map((d) => ({ date: d.date, total: Number(d.total) })),
+      refetchInterval: 60000,
+    },
+  )
 
   return {
     dados: query.data ?? [],
