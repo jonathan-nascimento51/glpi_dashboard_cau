@@ -75,7 +75,7 @@ Para detalhes completos sobre cada variável, consulte a seção "Environment va
 Após configurar o `.env`, execute a criação das tabelas:
 
 ```bash
-python scripts/setup/init_db.py --drop-all
+PYTHONPATH=$(pwd) python scripts/setup/init_db.py --drop-all
 ```
 
 O script lê o arquivo `schema.sql` localizado na raiz do projeto e cria as tabelas necessárias em seu servidor MySQL.
