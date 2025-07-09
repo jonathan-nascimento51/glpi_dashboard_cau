@@ -1,9 +1,5 @@
 import { useApiQuery } from './useApiQuery'
-
-export interface ChamadoPorDia {
-  date: string
-  total: number
-}
+import type { ChamadoPorDia } from '../types/chamado'
 
 export function useChamadosPorDia() {
   const query = useApiQuery<ChamadoPorDia[], Error>(

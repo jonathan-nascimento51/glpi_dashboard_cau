@@ -4,6 +4,7 @@ import os
 import pytest
 
 from src.backend.services import tickets_groups
+from src.backend.api.worker_api import GLPISession
 
 
 def setup_env() -> None:
@@ -12,7 +13,10 @@ def setup_env() -> None:
     os.environ["GLPI_USER_TOKEN"] = "user"
 
 
-class FakeSession:
+class FakeSession(GLPISession):
+    def __init__(self, *args, **kwargs):
+        pass
+
     async def __aenter__(self):
         return self
 

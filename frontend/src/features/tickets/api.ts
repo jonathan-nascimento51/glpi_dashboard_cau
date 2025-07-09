@@ -1,11 +1,6 @@
-import { useApiQuery } from '@/hooks/useApiQuery'
-
-export interface Metrics {
-  total: number
-  opened: number
-  closed: number
-}
+import { useApiQuery } from '../../hooks/useApiQuery'
+import type { TicketMetrics } from '../../types/dashboard'
 
 export function useTicketMetrics() {
-  return useApiQuery<Metrics>(['metrics'], '/metrics')
+  return useApiQuery<TicketMetrics, Error>(['metrics'], '/metrics')
 }

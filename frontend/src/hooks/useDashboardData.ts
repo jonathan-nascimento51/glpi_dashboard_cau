@@ -4,13 +4,9 @@ import { useEffect, useRef } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useApiQuery } from './useApiQuery'
 import type { Chart as ChartType } from 'chart.js'
+import type { DashboardStats } from '../types/dashboard'
 
-export interface Metrics {
-  new: number
-  pending: number
-  progress: number
-  resolved: number
-}
+export type Metrics = DashboardStats
 
 interface Aggregated {
   status: Record<string, number>
@@ -18,7 +14,7 @@ interface Aggregated {
 
 export function useDashboardData() {
   const queryClient = useQueryClient()
-  const query = useApiQuery<Aggregated>(
+  const query = useApiQuery<Aggregated, Error>(
     ['metrics-aggregated'],
     '/metrics/aggregated',
   )
