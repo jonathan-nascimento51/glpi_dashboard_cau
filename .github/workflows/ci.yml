@@ -82,7 +82,7 @@ jobs:
             exit 1
           fi
       - name: Init DB
-        run: python scripts/init_db.py
+        run: python scripts/setup/init_db.py
       - name: Pre-commit
         run: pre-commit run --color always --show-diff-on-failure --all-files
       - name: Check merge conflicts

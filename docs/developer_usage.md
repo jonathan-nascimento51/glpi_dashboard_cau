@@ -16,7 +16,7 @@ Principais módulos em `src/glpi_dashboard`:
 | `services/worker_api.py` | Lógica de cache e métricas usadas pelo `worker.py` |
 | `config/settings.py` | Carrega variáveis de ambiente (GLPI, DB, Redis) |
 
-Scripts utilitários residem em `scripts/` (ex.: `init_db.py`, `fetch_tickets.py`, `validate_credentials_script.py`).
+Scripts utilitários residem em `scripts/` (ex.: `setup/init_db.py`, `fetch/fetch_tickets.py`, `validate_credentials_script.py`).
 
 ## Configuração
 
@@ -78,7 +78,7 @@ Endpoints relevantes:
 Para gerar um dump de tickets em JSON ou Parquet:
 
 ```bash
-python scripts/fetch_tickets.py --output data/tickets.json
+python scripts/fetch/fetch_tickets.py --output data/tickets.json
 python -m cli.tickets_groups --since 2025-06-01 --until 2025-06-30 --outfile grupos.parquet
 ```
 
