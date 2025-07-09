@@ -81,6 +81,11 @@ const Row = memo(({ index, style, data }: ListChildComponentProps<RowData>) => {
 })
 Row.displayName = 'Row'
 
+const RowGroup = forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  (props, ref) => <div {...props} ref={ref} role="rowgroup" />,
+)
+RowGroup.displayName = 'RowGroup'
+
 export function VirtualizedTicketTable({
   rows,
   onRowClick,
@@ -90,7 +95,7 @@ export function VirtualizedTicketTable({
 }: VirtualizedTicketTableProps) {
   const [focusedIndex, setFocusedIndex] = useState(0)
   const containerRef = useRef<HTMLDivElement>(null)
-  const listRef = useRef<unknown>(null)
+  const listRef = useRef<any>(null)
 
   const handleRowClick = useCallback(
     (row: TicketRow) => {
@@ -183,6 +188,7 @@ export function VirtualizedTicketTable({
       ref={containerRef}
       onKeyDown={handleKeyDown}
     >
+      {/* @ts-ignore `FixedSizeList` props are untyped in our stub */}
       <FixedSizeList
         ref={listRef}
         height={height}
@@ -190,9 +196,7 @@ export function VirtualizedTicketTable({
         itemSize={rowHeight}
         width="100%"
         itemData={itemData}
-        innerElementType={forwardRef<HTMLDivElement>((props, ref) => (
-          <div {...props} ref={ref} role="rowgroup" />
-        ))}
+        innerElementType={RowGroup}
       >
         {Row}
       </FixedSizeList>

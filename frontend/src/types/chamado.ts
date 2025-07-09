@@ -3,3 +3,8 @@ export interface ChamadoPorData {
   total: number
 }
 
+export interface ChamadoPorDia {
+  date: string
+  total: number
+}
+

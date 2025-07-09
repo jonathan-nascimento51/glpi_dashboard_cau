@@ -6,7 +6,7 @@ interface Props {
 
 export function TicketTable({ tickets }: Props) {
   return (
-    <div className="border rounded" role="table" aria-label="Lista de chamados">
+    <div className="border rounded" aria-label="Lista de chamados">
       <div role="rowgroup">
         <div
           className="grid grid-cols-[80px_auto_120px_100px_160px] bg-gray-50 px-2 py-1 text-sm font-semibold"
