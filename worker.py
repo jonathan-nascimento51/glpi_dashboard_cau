@@ -1,7 +1,7 @@
 """Convenience wrapper for the worker API entrypoint.
 
-All imports use the installed ``glpi_dashboard`` package instead of the
-former ``src.glpi_dashboard`` path.
+All imports use the ``backend`` package directly instead of the
+older ``src.backend`` module path.
 """
 
 import logging
