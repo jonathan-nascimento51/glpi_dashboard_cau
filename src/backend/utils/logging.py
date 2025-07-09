@@ -78,5 +78,5 @@ def set_correlation_id(value: str | None) -> None:
     _correlation_id.set(value)
 
 
-# Backwards compatibility
+# Backwards compatibility for legacy modules (log_config.py, logging_config.py)
 setup_logging = init_logging
