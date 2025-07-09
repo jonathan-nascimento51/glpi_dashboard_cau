@@ -54,6 +54,14 @@ python main.py
 
 Open <http://127.0.0.1:8050> in your browser.
 
+To launch the entire stack with Docker use:
+
+```bash
+docker compose up
+```
+
+This starts PostgreSQL, Redis, the FastAPI worker and the Dash app. Access the dashboard at `http://localhost:5173` when the build finishes.
+
 ## Dependencies
 
 - Python 3.10\u20133.12
@@ -106,13 +114,49 @@ If a script still depends on `require()`, rename it with the `.cjs` extension or
 
 ## Main modules
 
-- **`glpi_session.py`** – asynchronous client for the GLPI REST API used by the worker and ETL modules. This file replaces the former `glpi_api.py` referenced in early docs.
-- **`data_pipeline.py`** – normalizes raw ticket data into a `pandas.DataFrame` and exports JSON.
-- **`dashboard/layout.py`** – defines tables and charts for the Dash UI.
+- **`backend/adapters/glpi_session.py`** – asynchronous client for the GLPI REST API used by the worker and ETL modules. This file replaces the former `glpi_api.py` referenced in early docs.
+- **`backend/utils/pipeline.py`** – normalizes raw ticket data into a `pandas.DataFrame` and exports JSON.
+- **`frontend/layout/layout.py`** – defines tables and charts for the Dash UI.
+- **`glpi_tools/__main__.py`** – exposes the CLI commands such as `list-fields`.
 - **`main.py`** – starts the Dash server.
 - **`worker.py`** – primary backend entry point used by Docker and CI to launch the FastAPI service.
 - **`src/main.py`** – legacy prototype removed in favour of `worker.py`.
 - **`scripts/`** – helper utilities like `filters.py`, `hash_data.py`, `log_exec.py`.
+
+### Quick usage examples
+
+Run the worker API and dashboard locally:
+
+```bash
+python worker.py &
+python main.py &
+```
+
+Launch the React frontend in another terminal:
+
+```bash
+cd frontend && npm run dev
+```
+
+Inspect available CLI commands:
+
+```bash
+python -m glpi_tools --help
+```
+
+Query a list of fields for a GLPI item:
+
+```bash
+python -m glpi_tools list-fields Ticket
+```
+
+### Running tests
+
+```bash
+make test
+```
+
+This command installs all requirements, builds the local package and runs `pytest` with coverage.
 
 ## Installation
 
