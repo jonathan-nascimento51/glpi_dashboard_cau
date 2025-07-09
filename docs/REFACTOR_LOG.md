@@ -22,7 +22,7 @@ src/glpi_dashboard/dashboard/layout.py → src/frontend/layout/layout.py — mon
 src/glpi_dashboard/data/database.py → src/backend/db/database.py — definição do modelo e acesso ao banco PostgreSQL.
 O antigo `src/glpi_dashboard/data/transform.py` foi movido para `src/backend/utils/transform.py` — funções auxiliares de transformação de DataFrame.
 src/glpi_dashboard/events/consumer.py → src/backend/services/events_consumer.py — consumo de eventos (Kafka) e atualização de métricas.
-src/glpi_dashboard/glpi_adapter.py → src/backend/adapters/glpi_adapter.py — wrapper legado exportando a camada ACL.
+src/glpi_dashboard/glpi_adapter.py — removido; a ACL é importada diretamente dos módulos em `backend/adapters`.
 src/glpi_dashboard/services/aggregated_metrics.py → src/backend/services/aggregated_metrics.py — cálculo e cache de métricas agregadas.
 src/glpi_dashboard/services/langgraph_workflow.py → src/backend/services/langgraph_workflow.py — orquestração de workflow com LangGraph.
 src/glpi_dashboard/services/worker_api.py → src/backend/api/worker_api.py — implementação da API FastAPI/GraphQL do worker.
