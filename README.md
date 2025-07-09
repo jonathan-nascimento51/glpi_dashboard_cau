@@ -774,9 +774,10 @@ cd frontend && npm run perf:profile
 ## CI
 
 Continuous integration runs on GitHub Actions using `.github/workflows/ci.yml`.
-It installs dependencies using `./setup.sh`, initializes the database and
-executes pre-commit hooks and the test suite for Python 3.10, 3.11 and 3.12.
-The workflow installs `opentelemetry-instrumentation-fastapi` and
+It installs dependencies using `./setup.sh`, runs `pre-commit` for linting and
+executes the test suite for Python 3.10, 3.11 and 3.12. Tagged commits also
+trigger a Docker build that publishes an image to GHCR. The workflow installs
+`opentelemetry-instrumentation-fastapi` and
 `opentelemetry-instrumentation-logging` so tracing is enabled during tests.
 
 ### Snyk setup

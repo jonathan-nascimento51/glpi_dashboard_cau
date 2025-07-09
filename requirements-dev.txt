@@ -18,3 +18,8 @@ aiohttp>=3.9
 pandas
 pact-python
 pydantic-to-typescript
+opentelemetry-instrumentation-fastapi
+opentelemetry-instrumentation-logging
+opentelemetry-instrumentation-redis
+opentelemetry-instrumentation-requests
+opentelemetry-instrumentation-aiohttp-client
