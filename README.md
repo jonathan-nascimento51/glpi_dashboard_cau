@@ -518,7 +518,7 @@ LANGCHAIN_PROJECT=glpi-dashboard
 ```
 
 With these set, the application will automatically initialize LangSmith when
-importing `glpi_dashboard`.
+importing `backend`.
 
 Before running Docker make sure this `.env` file exists and that `DB_NAME`,
 `DB_USER`, `DB_PASSWORD` and all GLPI credentials have non-empty values. The
