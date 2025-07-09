@@ -84,12 +84,14 @@ Ao executar scripts Node.js com `"type": "module"` no `package.json`, o runtime 
 **Soluções**
 
 1. **Migrar para ESM**: troque `require()` por `import` e crie `__dirname` usando:
+
    ```js
    import { fileURLToPath } from 'node:url'
    import path from 'node:path'
    const __filename = fileURLToPath(import.meta.url)
    const __dirname = path.dirname(__filename)
    ```
+
 2. **Manter CommonJS**: renomeie o arquivo para `.cjs` e ajuste os comandos npm.
 
 Consulte [docs/adr/0006-esm-adoption.md](adr/0006-esm-adoption.md) para entender a política de ESM no projeto.
