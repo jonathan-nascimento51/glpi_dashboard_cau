@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from backend.adapters.dto import CleanTicketDTO
+from shared.dto import CleanTicketDTO
 
 
 @pytest.mark.unit
