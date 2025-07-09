@@ -22,7 +22,8 @@ better log instrumentation.
 ```bash
 python -m pip install --upgrade pip
 pip install -r requirements.txt -r requirements-dev.txt
-pip install -e .  # install package locally (packages live under src/)
+pip install -e .  # install the backend packages in editable mode
+# dependencies are declared in pyproject.toml using PEP 621
 pre-commit install  # sets up hooks for black, ruff, isort and mypy
 # Ruff version pinned to 0.12.2 is included in requirements-dev.txt
 # Reinstall dev dependencies before running pre-commit if your environment is outdated
@@ -650,6 +651,7 @@ the local package in editable mode:
 
 ```bash
 pip install -r requirements.txt -r requirements-dev.txt && pip install -e .
+# the editable install exposes `backend` and `frontend` modules for tests
 ```
 
 Running `./setup.sh` performs the same installation automatically and configures
@@ -658,7 +660,7 @@ execute the suite in one step or invoke `pytest` directly.
 
 ```bash
 pip install -r requirements.txt -r requirements-dev.txt
-pip install -e .  # ensure local package is discoverable during tests
+pip install -e .  # ensure local packages are discoverable during tests
 # tests rely on OpenTelemetry instrumentation extras
 pip install opentelemetry-instrumentation-fastapi opentelemetry-instrumentation-logging
 # install aiohttp explicitly if using a custom environment
