@@ -277,6 +277,11 @@ The API uses **ORJSONResponse** for fast serialization. Heavy aggregations are
 pre-computed by an ARQ worker. Start it separately with:
 
 ```bash
+PYTHONPATH=src python src/backend/services/metrics_worker.py
+```
+Alternatively you can use the module form:
+
+```bash
 python -m backend.services.metrics_worker
 ```
 
@@ -343,6 +348,25 @@ python -m cli.tickets_groups --since 2025-06-01 --until 2025-06-30 \
 ```
 
 Adjust the dates and destination file as needed. The command prints the resulting path after completion.
+
+## LangGraph workflow demo
+
+To experiment with the supervisor pattern in isolation compile the graph and invoke it manually:
+
+```bash
+PYTHONPATH=src python - <<'PY'
+import asyncio
+from backend.services.langgraph_workflow import build_workflow
+
+async def main():
+    wf = build_workflow().compile()
+    state = {"messages": ["fetch"], "next_agent": "", "iteration_count": 0}
+    result = await wf.ainvoke(state)
+    print(result["messages"][-1])
+
+asyncio.run(main())
+PY
+```
 
 ## Environment variables
 
