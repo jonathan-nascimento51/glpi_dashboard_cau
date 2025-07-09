@@ -12,7 +12,7 @@ from rich.console import Console
 from rich.table import Table
 
 from backend.adapters.glpi_session import Credentials, GLPISession
-from glpi_dashboard.config import settings
+from backend.core.settings import settings
 
 
 @click.group()
