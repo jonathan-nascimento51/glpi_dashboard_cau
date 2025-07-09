@@ -42,7 +42,7 @@ from backend.services.exceptions import (
 from backend.services.read_model import query_ticket_summary
 from backend.utils.redis_client import redis_client
 
-from ..config.settings import (
+from backend.core.settings import (
     CLIENT_TIMEOUT_SECONDS,
     GLPI_APP_TOKEN,
     GLPI_BASE_URL,

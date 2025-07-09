@@ -27,9 +27,9 @@ from backend.core.settings import (
     GLPI_USER_TOKEN,
     GLPI_USERNAME,
 )
-from backend.utils import sanitize_message
+from backend.utils.messages import sanitize_message
 
-from .glpi_session import Credentials, GLPISession
+from backend.adapters.glpi_session import Credentials, GLPISession
 
 
 def create_structured_output_runnable(

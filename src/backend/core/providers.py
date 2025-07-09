@@ -10,7 +10,7 @@ from fastapi import FastAPI
 from opentelemetry.sdk.metrics import MeterProvider
 from purgatory import AsyncCircuitBreakerFactory
 
-from .services.glpi_session import Credentials, GLPISession
+from backend.adapters.glpi_session import Credentials, GLPISession
 
 
 class AnalyticsService:

@@ -1,10 +1,13 @@
 import asyncio as aio
 import json
 from contextlib import asynccontextmanager
+from operator import index
 from typing import Optional
 from unittest.mock import ANY, AsyncMock, MagicMock, patch
 
 import pytest
+
+from backend.adapters import glpi_session
 
 pytest.importorskip(
     "aiohttp", reason="aiohttp package is required to run glpi_session tests"
@@ -172,12 +175,12 @@ async def test_glpi_session_context_manager_user_token_auth(
     glpi_session = GLPISession(base_url, credentials)
 
     # Mock the initSession call for user_token via GET with headers
-    mock_client_index.return_value = mock_response(200, {"session_token": user_token})
+    mock_client_session.return_value = mock_response(200, {"session_token": user_token})
 
     async with glpi_session as session:
         assert session._session_token == user_token
         # Verify initSession was called with the user_token in the payload
-        mock_client_index.assert_called_once_with(
+        mock_client_session.assert_called_once_with(
             f"{base_url}/initSession",
             headers={
                 "Content-Type": "application/json",
@@ -196,7 +199,7 @@ async def test_glpi_session_context_manager_user_token_auth(
     assert session._session_token is None
     assert session._session.closed
     # Verify killSession was called with the correct headers as the last call
-    kill_call = mock_client_index.call_args_list[-1]
+    kill_call = mock_client_session.call_args_list[-1]
     assert kill_call.args[0] == f"{base_url}/killSession"
     assert kill_call.kwargs["headers"] == {
         "Content-Type": "application/json",
@@ -217,14 +220,14 @@ async def test_glpi_session_context_manager_username_password_auth(
     glpi_session = GLPISession(base_url, credentials)
 
     # Mock the initSession call for username/password using GET with Basic Auth
-    mock_client_index.return_value = mock_response(
+    mock_client_session.return_value = mock_response(
         200, {"session_token": "initial_session_token"}
     )
 
     async with glpi_session as session:
         assert session._session_token == "initial_session_token"
         # Verify initSession was called with username/password in the payload
-        mock_client_index.assert_called_once_with(
+        mock_client_session.assert_called_once_with(
             f"{base_url}/initSession",
             headers={
                 "Content-Type": "application/json",
@@ -241,7 +244,7 @@ async def test_glpi_session_context_manager_username_password_auth(
     assert glpi_session._session_token is None
     assert session._session.closed
     # Verify killSession was called with the correct headers as the last call
-    kill_call = mock_client_index.call_args_list[-1]
+    kill_call = mock_client_session.call_args_list[-1]
     assert kill_call.args[0] == f"{base_url}/killSession"
     assert kill_call.kwargs["headers"] == {
         "Content-Type": "application/json",
@@ -258,7 +261,7 @@ async def test_get_request_success(
     credentials = Credentials(app_token=app_token, user_token=user_token)
     glpi_session = GLPISession(base_url, credentials)
 
-    mock_client_index.return_value = mock_response(
+    mock_client_session.return_value = mock_response(
         200, {"session_token": user_token}
     )  # Mock initSession
     mock_client_session.request.return_value = mock_response(
@@ -266,7 +269,7 @@ async def test_get_request_success(
     )
 
     async with glpi_session as session:
-        response_data = await index("Ticket/123")
+        response_data = await session.get("Ticket/123")
         assert response_data == {"data": "ticket_info"}
         mock_client_session.request.assert_called_once_with(
             "GET",
@@ -292,7 +295,7 @@ async def test_post_request_success(
     glpi_session = GLPISession(base_url, credentials)
 
     # Mock initSession call and then the actual POST request
-    mock_client_index.return_value = mock_response(
+    mock_client_session.return_value = mock_response(
         200, {"session_token": "initial_session_token"}
     )
     mock_client_session.request.return_value = mock_response(
@@ -326,7 +329,7 @@ async def test_put_request_success(
     credentials = Credentials(app_token=app_token, user_token=user_token)
     glpi_session = GLPISession(base_url, credentials)
 
-    mock_client_index.return_value = mock_response(
+    mock_client_session.return_value = mock_response(
         200, {"session_token": user_token}
     )  # Mock initSession
     mock_client_session.request.return_value = mock_response(
@@ -360,7 +363,7 @@ async def test_delete_request_success(
     credentials = Credentials(app_token=app_token, user_token=user_token)
     glpi_session = GLPISession(base_url, credentials)
 
-    mock_client_index.return_value = mock_response(
+    mock_client_session.return_value = mock_response(
         200, {"session_token": user_token}
     )  # Mock initSession
     mock_client_session.request.return_value = mock_response(
@@ -412,7 +415,7 @@ async def test_api_error_handling(
     credentials = Credentials(app_token=app_token, user_token=user_token)
     glpi_session = GLPISession(base_url, credentials)
 
-    mock_client_index.return_value = mock_response(
+    mock_client_session.return_value = mock_response(
         200, {"session_token": user_token}
     )  # Mock initSession
     mock_client_session.request.return_value = mock_response(
@@ -421,7 +424,7 @@ async def test_api_error_handling(
 
     async with glpi_session as session:
         with pytest.raises(expected_exception) as excinfo:
-            await index("some_endpoint")
+            await session.get("some_endpoint")
         assert excinfo.value.status_code == status_code
         assert "test error" in str(excinfo.value)
         assert excinfo.value.response_data == {"error": "test error"}
@@ -441,7 +444,7 @@ async def test_session_refresh_on_401_success(
     # Configure side_effect for mock_client_index:
     # 1. Initial initSession call (from __aenter__)
     # 2. Second initSession call (for refresh after 401)
-    mock_client_index.side_effect = [
+    mock_client_session.side_effect = [
         mock_response(200, {"session_token": "expired_session_token"}),
         mock_response(200, {"session_token": "refreshed_session_token"}),
         mock_response(200, {}),
@@ -459,7 +462,7 @@ async def test_session_refresh_on_401_success(
         # Verify initial session token
         assert session._session_token == "expired_session_token"
 
-        response_data = await index("Ticket/123")
+        response_data = await session.get("Ticket/123")
         assert response_data == {"data": "refreshed_data"}
         assert session._session_token == "refreshed_session_token"
 
@@ -485,7 +488,7 @@ async def test_session_refresh_on_401_success(
         )
 
     # After exiting the context, killSession is called
-    assert mock_client_index.call_count == 3
+    assert mock_client_session.call_count == 3
 
 
 @pytest.mark.asyncio
@@ -499,7 +502,7 @@ async def test_session_refresh_on_401_failure(
     glpi_session = GLPISession(base_url, credentials)
 
     # Initial initSession call succeeds, but refresh attempt fails
-    mock_client_index.side_effect = [
+    mock_client_session.side_effect = [
         mock_response(200, {"session_token": "expired_session_token"}),
         mock_response(401, {"error": "Unauthorized"}, raise_for_status_exc=True),
         mock_response(200, {}),
@@ -512,14 +515,14 @@ async def test_session_refresh_on_401_failure(
 
     async with glpi_session as session:
         with pytest.raises(GLPIUnauthorizedError) as excinfo:
-            await index("Ticket/123")
-        assert "indexto authenticate after multiple retries" in str(excinfo.value)
+            await session.get("Ticket/123")
+        assert "index to authenticate after multiple retries" in str(excinfo.value)
         assert excinfo.value.status_code == 401
         assert (
             mock_client_session.request.call_count == 1
         )  # Only one request attempt before giving up
 
-    assert mock_client_index.call_count == 3  # init, refresh, killSession
+    assert mock_client_session.call_count == 3  # init, refresh, killSession
 
 
 @pytest.mark.asyncio
@@ -536,7 +539,7 @@ async def test_proactive_refresh_loop_username_password(
     )  # Set a short interval
 
     # Mock initSession for initial and subsequent proactive refreshes
-    mock_client_index.side_effect = [
+    mock_client_session.side_effect = [
         mock_response(200, {"session_token": "initial_token"}),
         mock_response(200, {"session_token": "proactive_token_1"}),
         mock_response(200, {"session_token": "proactive_token_2"}),
@@ -551,7 +554,7 @@ async def test_proactive_refresh_loop_username_password(
         assert session._session_token == "proactive_token_2"
 
     # Check that get was called for init + two refreshes + killSession
-    assert mock_client_index.call_count == 4
+    assert mock_client_session.call_count == 4
 
 
 @pytest.mark.asyncio
@@ -562,7 +565,7 @@ async def test_kill_session_no_token(base_url, app_token, mock_client_session):
     session._session = mock_client_session
     session._session_token = None
     await session._kill_session()
-    mock_client_index.assert_not_called()
+    mock_client_session.assert_not_called()
 
 
 @pytest.mark.asyncio
@@ -574,9 +577,9 @@ async def test_kill_session_success(
     session = GLPISession(base_url, creds)
     session._session = mock_client_session
     session._session_token = user_token
-    mock_client_index.return_value = mock_response(200, {})
+    mock_client_session.return_value = mock_response(200, {})
     await session._kill_session()
-    mock_client_index.assert_called_once_with(
+    mock_client_session.assert_called_once_with(
         f"{base_url}/killSession",
         headers={
             "Content-Type": "application/json",
@@ -599,7 +602,7 @@ async def test_request_network_error(
     glpi_session = GLPISession(base_url, creds)
 
     # initSession succeeds
-    mock_client_index.return_value = mock_response(200, {"session_token": user_token})
+    mock_client_session.return_value = mock_response(200, {"session_token": user_token})
 
     err = aiohttp.ClientConnectionError("fail")
 
@@ -615,7 +618,7 @@ async def test_request_network_error(
     with patch("asyncio.sleep", new=AsyncMock()):
         async with glpi_session as session:
             with pytest.raises(GLPIAPIError):
-                await index("Ticket/1")
+                await session.get("Ticket/1")
 
     assert mock_client_session.request.call_count == 1
 
