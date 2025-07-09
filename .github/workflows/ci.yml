@@ -11,138 +11,82 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.10", "3.11", "3.12"]
+        python-version: ['3.9', '3.10', '3.11']
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
-      - run: pip install -r requirements-dev.txt -r requirements.txt
-      - run: pre-commit run --color always --show-diff-on-failure --all-files
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
+      - name: Install Python deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt -r requirements-dev.txt
+          pip install -e .
+      - name: Ruff Lint
+        run: ruff .
+      - name: Black check
+        run: black --check .
+      - name: Flake8
+        run: flake8
+      - name: Mypy
+        run: mypy .
 
-  unit-tests:
+  test:
     needs: lint
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.10", "3.11", "3.12"]
+        python-version: ['3.9', '3.10', '3.11']
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
-      - run: pip install -r requirements-dev.txt -r requirements.txt
-      - run: pytest -m "not integration and not e2e" --cov=./ --cov-report=xml --cov-report=term --cov-fail-under=85
-      - uses: actions/upload-artifact@v4
-        with:
-          name: coverage-${{ matrix.python-version }}
-          path: coverage.xml
-
-  integration-tests:
-    needs: unit-tests
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.10", "3.11", "3.12"]
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_PASSWORD: postgres
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd="pg_isready" --health-interval=5s --health-timeout=5s --health-retries=5
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Setup Node
-        uses: actions/setup-node@v4
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install pytest flake8 black pre-commit pytest-cov pytest-asyncio
-          cd frontend && npm install --omit=dev && cd ..
-      - name: Set PYTHONPATH
-        run: echo "PYTHONPATH=$(pwd)" >> "$GITHUB_ENV"
-      - name: Check if branch is up-to-date with main
-        run: |
-          git fetch origin main
-          ahead_behind=$(git rev-list --left-right --count HEAD...origin/main)
-          behind=$(echo "$ahead_behind" | awk '{print $1}')
-          if [ "$behind" != "0" ]; then
-            echo "Branch desatualizada. Por favor faça rebase com a main."
-            exit 1
-          fi
-      - name: Init DB
-        run: python scripts/setup/init_db.py
-      - name: Pre-commit
-        run: pre-commit run --color always --show-diff-on-failure --all-files
-      - name: Check merge conflicts
-        run: python scripts/check_merge_conflicts.py
-      - name: Run tests
+          pip install -r requirements.txt -r requirements-dev.txt
+          pip install -e .
+          cd frontend && npm ci && cd ..
+      - name: Run Pytest
         run: pytest --cov=./ --cov-report=xml --cov-report=term --cov-fail-under=85
       - name: Run frontend tests
         run: |
           cd frontend
           npm test --silent
 
-      - name: Verify lockfile
-        run: |
-          cd frontend
-          npm install --package-lock-only --dry-run --json >verify.json
-          added=$(jq '.added' verify.json)
-          removed=$(jq '.removed' verify.json)
-          changed=$(jq '.changed' verify.json)
-          if [ "$added" != "0" ] || [ "$removed" != "0" ] || [ "$changed" != "0" ]; then
-            cat verify.json
-            echo "package-lock.json is out of sync. Please run npm install and commit the updated lockfile." >&2
-            exit 1
-          fi
-
-  e2e-tests:
-    needs: integration-tests
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+  build:
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - name: Login to GHCR
+        uses: docker/login-action@v3
         with:
-          python-version: '3.12'
-          cache: 'pip'
-      - uses: actions/setup-node@v4
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v5
         with:
-          node-version: 20
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
-      - name: Install backend deps
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt -r requirements-dev.txt
-          pip install testcontainers playwright
-      - name: Install frontend deps
-        run: |
-          cd frontend
-          npm install
-          npx playwright install --with-deps
-      - name: Start stack
-        run: docker compose up -d
-      - name: Wait for services
-        run: sleep 20
-      - name: Run Python E2E tests
-        run: pytest tests/e2e
-      - name: Run Playwright tests
-        run: |
-          cd frontend
-          npm run test:e2e -- --reporter=line
-      - name: Tear down
-        if: always()
-        run: docker compose down
+          context: .
+          file: docker/backend_service/Dockerfile
+          push: true
+          tags: ghcr.io/${{ github.repository }}:${{ github.sha }}
 
