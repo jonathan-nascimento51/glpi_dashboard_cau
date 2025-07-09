@@ -20,7 +20,12 @@ from .aggregated_metrics import (
 
 async def _load_cached_tickets(cache: RedisClient) -> list[Dict[str, Any]]:
     cached = await cache.get("tickets_api")
-    return [] if cached is None else list(cached)
+    if cached is None:
+        return []
+    # Ensure the result is always a list of dicts
+    if isinstance(cached, list) and all(isinstance(item, dict) for item in cached):
+        return cached
+    return []
 
 
 async def update_metrics(
