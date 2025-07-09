@@ -318,8 +318,13 @@ python worker.py
 Call `init_logging()` early in the main function to capture logs:
 
 ```python
+from fastapi import FastAPI
 from backend.utils.logging import init_logging
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+
 init_logging()
+app = FastAPI(...)
+FastAPIInstrumentor().instrument_app(app)
 ```
 
 The API uses **ORJSONResponse** for fast serialization. Heavy aggregations are
