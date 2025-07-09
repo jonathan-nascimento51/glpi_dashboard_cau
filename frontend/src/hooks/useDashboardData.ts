@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useRef } from 'react'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { fetcher } from '@/lib/swrClient'
+import { useQueryClient } from '@tanstack/react-query'
+import { useApiQuery } from './useApiQuery'
 import type { Chart as ChartType } from 'chart.js'
 
 export interface Metrics {
@@ -18,8 +18,9 @@ interface Aggregated {
 
 export function useDashboardData() {
   const queryClient = useQueryClient()
-  const query = useQuery<Aggregated>(['metrics-aggregated'], () =>
-    fetcher('/metrics/aggregated'),
+  const query = useApiQuery<Aggregated>(
+    ['metrics-aggregated'],
+    '/metrics/aggregated',
   )
 
   const metrics: Metrics = {
