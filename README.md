@@ -203,6 +203,13 @@ Start the dashboard pointing to your GLPI instance:
 python main.py
 ```
 
+The entry point initializes structured logging via:
+
+```python
+from backend.utils.logging import init_logging
+init_logging()
+```
+
 The Dash server uses gzip compression via `flask-compress` and loads data lazily on first render.
 
 Use the `/ping` endpoint for health checks; it returns `OK` when the server is running.
@@ -244,6 +251,13 @@ Run the service:
 
 ```bash
 python worker.py
+```
+
+Call `init_logging()` early in the main function to capture logs:
+
+```python
+from backend.utils.logging import init_logging
+init_logging()
 ```
 
 The API uses **ORJSONResponse** for fast serialization. Heavy aggregations are
