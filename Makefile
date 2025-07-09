@@ -31,7 +31,7 @@ init-db:
 test:
 	$(PIP) install --break-system-packages -r requirements.txt -r requirements-dev.txt
 	$(PIP) install -e .
-	$(PYTHON) -m pytest
+	$(VENV)/bin/pytest
 
 lint:
 	flake8 .
