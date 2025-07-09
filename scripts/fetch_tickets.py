@@ -76,7 +76,7 @@ async def _save_raw_tickets(client: GLPISession) -> None:
     raw_tickets = await client.get_all("Ticket", **params)
     logger.info(f"Busca concluída. {len(raw_tickets)} chamados recebidos do GLPI.")
 
-    output_filename = "data/raw_tickets_sample.json"
+    output_filename = "tests/resources/raw_tickets_sample.json"
     with open(output_filename, "w", encoding="utf-8") as f:
         json.dump(raw_tickets, f, indent=2, ensure_ascii=False)
 

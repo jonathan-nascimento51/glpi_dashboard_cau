@@ -2,7 +2,7 @@
 
 The development compose file includes Prometheus and Grafana services. Prometheus scrapes metrics from the FastAPI backend at `/metrics` and the circuit breaker endpoint `/breaker`.
 
-`monitoring/prometheus.yml`:
+`resources/prometheus.yml`:
 
 ```yaml
 scrape_configs:
@@ -16,7 +16,7 @@ scrape_configs:
     metrics_path: /breaker
 ```
 
-Grafana loads dashboards from JSON. An example (`monitoring/grafana_dashboard.json`):
+Grafana loads dashboards from JSON. An example (`resources/grafana_dashboard.json`):
 
 ```json
 {
