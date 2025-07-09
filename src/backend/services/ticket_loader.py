@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 import contextlib
 import json
 import logging
@@ -43,9 +42,8 @@ async def load_and_translate_tickets(
 
     cached = await cache.get(cache_key)
     if cached is not None:
-        records = cached.get("data", cached) if isinstance(cached, dict) else cached
         with contextlib.suppress(Exception):
-            return [CleanTicketDTO.model_validate(d) for d in records]
+            return [CleanTicketDTO.model_validate(d) for d in cached]
     translated: List[CleanTicketDTO] = []
     async with translator.mapper._session as glpi:
         raw_tickets = await glpi.get_all("Ticket")
@@ -108,19 +106,8 @@ async def load_tickets(
         session_created = True
 
     async def _fetch(sess: GLPISession) -> list[dict]:
-        if hasattr(sess, "__aenter__"):
-            async with sess:
-                return await sess.get_all("Ticket")
-        if hasattr(sess, "__enter__"):
-            with sess:
-                result = sess.get_all("Ticket")
-            return result
-        get_all = sess.get_all
-        return (
-            await get_all("Ticket")
-            if asyncio.iscoroutinefunction(get_all)
-            else get_all("Ticket")
-        )
+        async with sess:
+            return await sess.get_all("Ticket")
 
     try:
         data = await _fetch(client) if client else []

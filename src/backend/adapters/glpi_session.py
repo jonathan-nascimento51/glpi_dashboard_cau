@@ -10,6 +10,14 @@ import aiohttp
 from aiohttp import ClientSession, TCPConnector
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from backend.core.settings import (
+    GLPI_APP_TOKEN,
+    GLPI_BASE_URL,
+    GLPI_PASSWORD,
+    GLPI_USER_TOKEN,
+    GLPI_USERNAME,
+)
+
 # Import custom exceptions and decorator from sibling module
 from backend.services.exceptions import (
     HTTP_STATUS_ERROR_MAP,
@@ -48,7 +56,7 @@ class Credentials(BaseModel):
     )
 
     @model_validator(mode="after")
-    def _check_auth(self):
+    def _check_auth(self, new_parameter="Both user_token and username/password provided. Prioritizing user_token."):
         """Ensure at least one authentication method is supplied."""
         auth_methods = sum(
             [
@@ -59,9 +67,7 @@ class Credentials(BaseModel):
         if auth_methods == 0:
             raise ValueError("Either user_token or username/password must be provided.")
         if auth_methods > 1:
-            logger.debug(
-                "Both user_token and username/password provided. Prioritizing user_token."
-            )
+            logger.debug(         "Both user_token and username/password provided. Prioritizing user_token.")
             self.username = None
             self.password = None
         return self
@@ -619,6 +625,21 @@ async def open_session_tool(params: SessionParams) -> str:
         return json.dumps({"error": err.dict()})
 
 
+async def index_all_paginated(
+    itemtype: str, page_size: int = 100, **params: Any
+) -> List[Dict[str, Any]]:
+    """Fetch all records for ``itemtype`` using a short-lived session."""
+    creds = Credentials(
+        app_token=GLPI_APP_TOKEN,
+        user_token=GLPI_USER_TOKEN,
+        username=GLPI_USERNAME,
+        password=GLPI_PASSWORD,
+    )
+    session = GLPISession(GLPI_BASE_URL, creds)
+    async with session:
+        return await session.get_all_paginated(itemtype, page_size=page_size, **params)
+
+
 __all__ = [
     "GLPISession",
     "Credentials",
@@ -630,4 +651,5 @@ __all__ = [
     "GLPINotFoundError",
     "GLPITooManyRequestsError",
     "GLPIInternalServerError",
+    "index_all_paginated",
 ]

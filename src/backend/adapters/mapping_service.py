@@ -44,6 +44,10 @@ class MappingService:
             mapping = await self._get_mapping(cache_key, endpoint)
             self._data[key] = mapping
 
+    async def _index_all(self, endpoint: str) -> list[dict]:
+        """Return all records for ``endpoint`` using the GLPI session."""
+        return await self._session.get_all(endpoint)
+
     async def _get_mapping(self, cache_key: str, endpoint: str) -> Dict[int, str]:
         """Return mapping from cache or fetch from GLPI and populate cache."""
         cached = await self.redis.hgetall(cache_key)
