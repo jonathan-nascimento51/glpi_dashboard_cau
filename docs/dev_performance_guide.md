@@ -76,7 +76,6 @@ Use uma abordagem em camadas para obter melhores resultados:
 
 By layering caches at the image and directory levels, the startup time drops from around 20 minutes to less than a minute.
 
-
 ### Exemplo de Dockerfile.base
 
 A imagem base deve ser criada em um job agendado ou sempre que houver atualizacao de dependencias de sistema. Use `docker build --no-cache` para garantir que `apt-get update` traga patches de seguranca.
@@ -106,6 +105,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     npm install -g playwright && \
     playwright install --with-deps chromium
 ```
+
 ## Manutenção e Governança a Longo Prazo
 
 Versionamento: A imagem de base deve ser estritamente versionada, preferindo o esquema semântico (por exemplo, `1.1.0`). As imagens da aplicação devem referenciar explicitamente a versão utilizada para garantir reprodutibilidade.
