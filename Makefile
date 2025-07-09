@@ -48,6 +48,6 @@ bug-prompt:
 	$(PYTHON) scripts/generate_bug_prompt.py --output bug_prompt.md
 
 gen-types:
-	PYTHONPATH=src pydantic2ts --module glpi_dashboard.ts_models --output frontend/src/types/api.ts
+       PYTHONPATH=src pydantic2ts --module backend.models.ts_models --output frontend/src/types/api.ts
 
 .PHONY: setup build up reset logs down init-db test lint format bug-prompt gen-types

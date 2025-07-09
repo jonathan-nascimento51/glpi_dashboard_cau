@@ -1,0 +1,887 @@
+diff --git a/Makefile b/Makefile
+index fe2fdaa24844c0a2072fae5c862e8c9611aa6a62..a3bf93771d4f5d6cf5b34e8accda1cdfd6245aa4 100644
+--- a/Makefile
++++ b/Makefile
+@@ -26,28 +26,28 @@ down:
+ 	docker compose down
+ 
+ init-db:
+ 	$(PYTHON) scripts/init_db.py
+ 
+ test:
+ 	$(PIP) install --break-system-packages -r requirements.txt -r requirements-dev.txt
+ 	$(PIP) install -e .
+ 	pytest
+ 
+ lint:
+ 	flake8 .
+ 	black --check .
+ 	isort --check-only .
+ 	ruff check .
+ 
+ format:
+ 	black .
+ 	isort .
+ 	ruff check --fix .
+ 
+ bug-prompt:
+ 	$(PYTHON) scripts/generate_bug_prompt.py --output bug_prompt.md
+ 
+ gen-types:
+-	PYTHONPATH=src pydantic2ts --module glpi_dashboard.ts_models --output frontend/src/types/api.ts
++       PYTHONPATH=src pydantic2ts --module backend.models.ts_models --output frontend/src/types/api.ts
+ 
+ .PHONY: setup build up reset logs down init-db test lint format bug-prompt gen-types
+diff --git a/README.md b/README.md
+index f975eb2c9154e07b6df59f67bcfbb2c58d08af3d..6f8bb80462f75b13abec4d22dd4d879aee831ee5 100644
+--- a/README.md
++++ b/README.md
+@@ -267,51 +267,51 @@ The service exposes several endpoints:
+ 
+ ### Offline fallback
+ 
+ If the GLPI API is unavailable the worker automatically serves data from
+ `data/mock_tickets.json`. Set `USE_MOCK_DATA=true` in the environment to force
+ this behaviour. Responses include the header `X-Warning: using mock data` when
+ the fallback is active.
+ 
+ Make sure the service is running with `python worker.py` and that your
+ front-end points to it via `NEXT_PUBLIC_API_BASE_URL` in `frontend/.env`.
+ Create the environment file with `cp frontend/.env.example frontend/.env` before starting the front-end.
+ Run npm scripts from inside the `frontend` directory (`cd frontend && npm run dev`) or launch Docker.
+ 
+ Vite loads environment variables that start with `NEXT_PUBLIC_` thanks to `envPrefix` in `frontend/vite.config.ts`. Imports that begin with `@/` resolve to the `src` directory so paths stay short.
+ Copy `frontend/.env.example` to `frontend/.env` if the file doesn't exist and
+ adjust the URL as needed.
+ 
+ ### Generating TypeScript interfaces
+ 
+ Run the following command to sync the frontend types with the backend models:
+ 
+ ```bash
+ make gen-types
+ ```
+ 
+-This converts the Pydantic models in `src/glpi_dashboard/ts_models.py` into TypeScript definitions under `frontend/src/types/api.ts`.
++This converts the Pydantic models in `src/backend/models/ts_models.py` into TypeScript definitions under `frontend/src/types/api.ts`.
+ 
+ Example GraphQL query to retrieve ticket data:
+ 
+ ```graphql
+ query GetTickets {
+   tickets {
+     id
+     name
+     status
+     user {
+       name
+     }
+   }
+ }
+ ```
+ 
+ ## Collecting ticket/group assignments
+ 
+ Use the helper CLI to dump assignments into a Parquet dataset:
+ 
+ ```bash
+ python -m cli.tickets_groups --since 2025-06-01 --until 2025-06-30 \
+     --outfile datasets/tickets_groups.parquet
+ ```
+ 
+diff --git a/scripts/fetch_tickets.py b/scripts/fetch_tickets.py
+index 015319f249bffb2a2533638f7e454b97c8fa28c5..e3c5d4da2db3f6f6c227f9a5b5dc804c52eee871 100644
+--- a/scripts/fetch_tickets.py
++++ b/scripts/fetch_tickets.py
+@@ -1,37 +1,37 @@
+ import asyncio
+ import json
+ import logging
+ import os  # Importamos o módulo 'os' para ler as variáveis de ambiente
+ import sys
+ from pathlib import Path
+ 
+ from dotenv import load_dotenv
+ 
+ # Importa o cliente da API do seu projeto
+ from backend.adapters.glpi_session import Credentials, GLPISession
+-from glpi_dashboard.logging_config import init_logging
++from backend.utils.logging_config import init_logging
+ 
+ # Carrega as variáveis de ambiente do arquivo .env
+ load_dotenv()
+ 
+ # Configuração básica de logging
+ init_logging(logging.INFO)
+ logger = logging.getLogger(__name__)
+ 
+ if sys.platform.startswith("win"):
+     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+ 
+ 
+ def fetch_raw_data():
+     """
+     Função de diagnóstico para buscar dados brutos da API do GLPI e
+     salvá-los diretamente em um arquivo, sem processamento.
+     """
+     logger.info("Iniciando o script de diagnóstico CORRIGIDO...")
+ 
+     # --- CORREÇÃO APLICADA AQUI ---
+     # Carregamos as credenciais do ambiente para variáveis
+     glpi_url = os.getenv("GLPI_BASE_URL")
+     app_token = os.getenv("GLPI_APP_TOKEN")
+     user_token = os.getenv("GLPI_USER_TOKEN")
+ 
+diff --git a/src/backend/adapters/glpi_session.py b/src/backend/adapters/glpi_session.py
+index 45275ec62900e7b1e2bf185751f1b14bbd72ca88..643e1f40b379ea062e032403b4a180954f20a832 100644
+--- a/src/backend/adapters/glpi_session.py
++++ b/src/backend/adapters/glpi_session.py
+@@ -493,51 +493,51 @@ class GLPISession:
+ 
+         Args:
+             endpoint: The API endpoint (e.g., "Ticket/123").
+             json_data: JSON payload to send in the request body.
+             headers: Additional headers for the request.
+         """
+         return await self._request(
+             "PUT", endpoint, headers=headers, json_data=json_data
+         )
+ 
+     async def delete(
+         self, endpoint: str, headers: Optional[Dict[str, str]] = None
+     ) -> Dict[str, Any]:
+         """
+         Performs a DELETE request to the GLPI API.
+ 
+         Args:
+             endpoint: The API endpoint (e.g., "Ticket/123").
+             headers: Additional headers for the request.
+         """
+         return await self._request("DELETE", endpoint, headers=headers)
+ 
+     async def get_all(self, itemtype: str, **params: Any) -> list[dict]:
+         """Retrieve all items for a given GLPI type using pagination."""
+ 
+-        from glpi_dashboard.config.settings import FETCH_PAGE_SIZE
++        from backend.core.settings import FETCH_PAGE_SIZE
+ 
+         params = {**params, "expand_dropdowns": 1}
+         endpoint = itemtype if itemtype.startswith("search/") else f"search/{itemtype}"
+         results: list[dict] = []
+         offset = 0
+         while True:
+             page_params = {
+                 **params,
+                 "range": f"{offset}-{offset + FETCH_PAGE_SIZE - 1}",
+             }
+             data = await self.get(endpoint, params=page_params)
+             page = data.get("data", data)
+             if isinstance(page, dict):
+                 page = [page]
+             results.extend(page)
+             if len(page) < FETCH_PAGE_SIZE:
+                 break
+             offset += FETCH_PAGE_SIZE
+         return results
+ 
+     # ------------------------------------------------------------------
+     # Convenience helpers matching the deprecated clients
+     # ------------------------------------------------------------------
+     async def search_rest(
+         self, itemtype: str, params: Optional[Dict[str, Any]] = None
+diff --git a/src/backend/adapters/mapping_service.py b/src/backend/adapters/mapping_service.py
+index 3d6432dcebfa72245f80c8b6b4ead1c4276e9bcd..4c38b362ef84b73669ec1230457d3f9cdc6c0f17 100644
+--- a/src/backend/adapters/mapping_service.py
++++ b/src/backend/adapters/mapping_service.py
+@@ -1,35 +1,35 @@
+ from __future__ import annotations
+ 
+ import logging
+ from typing import Dict, Optional
+ 
+ import redis.asyncio as redis
+ 
+-from glpi_dashboard.config.settings import REDIS_DB, REDIS_HOST, REDIS_PORT
++from backend.core.settings import REDIS_DB, REDIS_HOST, REDIS_PORT
+ 
+-from ..services.glpi_session import GLPISession
++from .glpi_session import GLPISession
+ 
+ logger = logging.getLogger(__name__)
+ 
+ 
+ class MappingService:
+     """Fetch and cache dynamic ID-to-name mappings from GLPI."""
+ 
+     def __init__(
+         self,
+         session: GLPISession,
+         redis_client: Optional[redis.Redis] = None,
+         cache_ttl_seconds: int = 86400,
+     ) -> None:
+         self._session = session
+         self._data: Dict[str, Dict[int, str]] = {}
+         self.cache_ttl_seconds = cache_ttl_seconds
+         self.redis = redis_client or redis.Redis(
+             host=REDIS_HOST,
+             port=REDIS_PORT,
+             db=REDIS_DB,
+             decode_responses=True,
+         )
+ 
+     async def initialize(self) -> None:
+         """Load all mappings from the GLPI API into memory and cache."""
+diff --git a/src/glpi_dashboard/providers.py b/src/backend/core/providers.py
+similarity index 100%
+rename from src/glpi_dashboard/providers.py
+rename to src/backend/core/providers.py
+diff --git a/src/backend/db/database.py b/src/backend/db/database.py
+index 7bcf3032cc468cb9974bc863ac5c45295e89dabf..aec2dcf62f97280e53b39e74c6d1559535fb1754 100644
+--- a/src/backend/db/database.py
++++ b/src/backend/db/database.py
+@@ -1,38 +1,38 @@
+ import logging
+ import time
+ from datetime import datetime
+ from pathlib import Path
+ from typing import Any, Dict, List
+ 
+ from sqlalchemy import Column, DateTime, Integer, text
+ from sqlalchemy.dialects.postgresql import JSONB
+ from sqlalchemy.exc import SQLAlchemyError
+ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+ from sqlalchemy.orm import declarative_base
+ 
+-from glpi_dashboard.config.settings import DATABASE_URL
++from backend.core.settings import DATABASE_URL
+ 
+ logger = logging.getLogger(__name__)
+ 
+ # Path to schema.sql at the project root. `parents[3]` traverses
+ # data/ -> glpi_dashboard/ -> src/ -> repository root.
+ SCHEMA_FILE = Path(__file__).resolve().parents[3] / "schema.sql"
+ 
+ Base = declarative_base()
+ 
+ 
+ class Ticket(Base):
+     """SQLAlchemy model for raw GLPI ticket data."""
+ 
+     __tablename__ = "tickets"
+ 
+     id = Column(Integer, primary_key=True, autoincrement=True)
+     glpi_ticket_id = Column(Integer, unique=True, nullable=False)
+     raw_data = Column(JSONB, nullable=False)
+     status = Column(Integer, nullable=False)
+     priority = Column(Integer, nullable=False)
+     assignee_id = Column(
+         Integer, nullable=True
+     )  # Assuming this maps to a user/group ID
+     opened_at = Column(DateTime(timezone=True), nullable=False)
+     ingested_at = Column(DateTime(timezone=True), default=datetime.now)
+diff --git a/src/backend/models/ticket_models.py b/src/backend/models/ticket_models.py
+index fb9fe0712e180ecd7f7d432ef1db478b3b8277cd..f0538e0f7f67daa2e80c3c14eb1ff4b55620f40f 100644
+--- a/src/backend/models/ticket_models.py
++++ b/src/backend/models/ticket_models.py
+@@ -1,36 +1,36 @@
+ """Data transfer models for GLPI tickets used by the Anti-Corruption Layer."""
+ 
+ from __future__ import annotations
+ 
+ import logging
+ from datetime import datetime
+ from typing import Any, Type, TypeVar
+ 
+ from pydantic import BaseModel, ConfigDict, Field
+ 
+-from ..ticket_status import Impact, Priority, TicketStatus, Urgency, _BaseIntEnum
++from .ticket_status import Impact, Priority, TicketStatus, Urgency, _BaseIntEnum
+ 
+ logger = logging.getLogger(__name__)
+ 
+ 
+ class TicketType(_BaseIntEnum):
+     """Category of ticket."""
+ 
+     UNKNOWN = 0
+     INCIDENT = 1
+     REQUEST = 2
+ 
+ 
+ class RawTicketDTO(BaseModel):
+     """Representation of the unprocessed GLPI ticket payload."""
+ 
+     id: int | str | None = Field(None, description="Ticket identifier")
+     name: str | None = Field(None, description="Short summary")
+     content: str | None = Field(None, description="Detailed description")
+     status: int | None = Field(None, description="Status code")
+     priority: int | None = Field(None, description="Priority code")
+     urgency: int | None = Field(None, description="Urgency code")
+     impact: int | None = Field(None, description="Impact code")
+     type: int | None = Field(None, description="Ticket type code")
+     date_creation: str | None = Field(None, description="ISO date string")
+ 
+diff --git a/src/glpi_dashboard/ticket_status.py b/src/backend/models/ticket_status.py
+similarity index 100%
+rename from src/glpi_dashboard/ticket_status.py
+rename to src/backend/models/ticket_status.py
+diff --git a/src/glpi_dashboard/ts_models.py b/src/backend/models/ts_models.py
+similarity index 100%
+rename from src/glpi_dashboard/ts_models.py
+rename to src/backend/models/ts_models.py
+diff --git a/src/backend/services/batch_fetch.py b/src/backend/services/batch_fetch.py
+index 0529ffbe650e47c9b70a15fe5e1f334410d3640e..2b5ec45026bab048beebc90e51cb72768b3b7599 100644
+--- a/src/backend/services/batch_fetch.py
++++ b/src/backend/services/batch_fetch.py
+@@ -1,36 +1,36 @@
+ """Utilities for fetching multiple tickets concurrently."""
+ 
+ from __future__ import annotations
+ 
+ import asyncio
+ import json
+ from typing import List
+ 
+ from pydantic import BaseModel, Field
+ 
+-from glpi_dashboard.config.settings import (
++from backend.core.settings import (
+     GLPI_APP_TOKEN,
+     GLPI_BASE_URL,
+     GLPI_PASSWORD,
+     GLPI_USER_TOKEN,
+     GLPI_USERNAME,
+ )
+ 
+ from ..adapters.glpi_session import Credentials, GLPISession
+ from .exceptions import GLPIAPIError
+ from .tool_error import ToolError
+ 
+ 
+ class BatchFetchParams(BaseModel):
+     """Input IDs for :func:`fetch_all_tickets`."""
+ 
+     ids: List[int] = Field(..., description="Ticket IDs to fetch")
+ 
+ 
+ async def fetch_all_tickets(ids: List[int]) -> List[dict]:
+     """Fetch multiple tickets concurrently with limited concurrency.
+ 
+     Retries on server errors (HTTP status >=500) using exponential backoff.
+     """
+ 
+     creds = Credentials(
+diff --git a/src/backend/services/events_consumer.py b/src/backend/services/events_consumer.py
+index 0f673f71a1476ab6c198c626e39be4b7bed12f76..5f9ba176a7f7ba2f6f9a3672df6f66dd72c37088 100644
+--- a/src/backend/services/events_consumer.py
++++ b/src/backend/services/events_consumer.py
+@@ -1,37 +1,37 @@
+ """Kafka/RabbitMQ consumer for ticket events."""
+ 
+ from __future__ import annotations
+ 
+ import asyncio
+ import json
+ import logging
+ from collections.abc import AsyncIterable, Callable
+ from typing import Any, Dict, Optional
+ 
++from backend.core.settings import EVENT_BROKER_URL
+ from backend.services.metrics_worker import update_metrics
+-from glpi_dashboard.config.settings import EVENT_BROKER_URL
+ from glpi_dashboard.utils.redis_client import RedisClient, redis_client
+ 
+ logger = logging.getLogger(__name__)
+ 
+ 
+ async def kafka_event_source(
+     topic: str, bootstrap_servers: str
+ ) -> AsyncIterable[Dict[str, Any]]:
+     """Yield events from Kafka if ``aiokafka`` is available."""
+     try:
+         from aiokafka import AIOKafkaConsumer  # type: ignore[import-unresolved]
+     except Exception as exc:  # pragma: no cover - optional dependency
+         raise ImportError("aiokafka required for Kafka consumer") from exc
+ 
+     consumer = AIOKafkaConsumer(topic, bootstrap_servers=bootstrap_servers)
+     await consumer.start()
+     try:
+         async for msg in consumer:
+             try:
+                 yield json.loads(msg.value)
+             except (
+                 json.JSONDecodeError
+             ) as exc:  # pragma: no cover - guard against bad payloads
+                 logger.error("Invalid JSON payload: %s", exc)
+     finally:
+diff --git a/src/backend/services/langgraph_workflow.py b/src/backend/services/langgraph_workflow.py
+index ef3bc3f5ad127d7a9215e5ea759a1b2bee60666f..f87747e315383f36cb60833e382bc70f29387235 100644
+--- a/src/backend/services/langgraph_workflow.py
++++ b/src/backend/services/langgraph_workflow.py
+@@ -1,55 +1,55 @@
+ """LangGraph workflow for GLPI data operations."""
+ 
+ # mypy: ignore-errors
+ 
+ from __future__ import annotations
+ 
+ import ast
+ import tempfile
+ from enum import Enum
+ from pathlib import Path
+ from typing import List, Optional, TypedDict
+ 
+ import pandas as pd
+ from langchain_core.language_models.fake import FakeListLLM
+ from langchain_core.output_parsers import PydanticOutputParser
+ from langchain_core.prompts import PromptTemplate
+ from langchain_core.runnables import Runnable
+ from langgraph.checkpoint.sqlite import SqliteSaver
+ from langgraph.graph import END, StateGraph
+ from pydantic import BaseModel, Field
+ 
+-from backend.utils import sanitize_message
+-from glpi_dashboard.acl import process_raw
+-from glpi_dashboard.config.settings import (
++from backend.core.settings import (
+     GLPI_APP_TOKEN,
+     GLPI_BASE_URL,
+     GLPI_PASSWORD,
+     GLPI_USER_TOKEN,
+     GLPI_USERNAME,
+ )
++from backend.utils import sanitize_message
++from glpi_dashboard.acl import process_raw
+ 
+ from .glpi_session import Credentials, GLPISession
+ 
+ 
+ def create_structured_output_runnable(
+     prompt: PromptTemplate, llm: FakeListLLM, model: type[BaseModel]
+ ) -> Runnable:
+     """Return a runnable that validates LLM output as a Pydantic model."""
+     parser = PydanticOutputParser(pydantic_object=model)
+     return prompt | llm | parser
+ 
+ 
+ class AgentState(TypedDict):
+     """Simple state container shared across agents."""
+ 
+     messages: List[str]
+     next_agent: str
+     iteration_count: int
+     data: Optional[pd.DataFrame]
+     error: Optional[str]
+ 
+ 
+ class NextAgent(BaseModel):
+     """Structured output deciding the next node."""
+ 
+diff --git a/src/backend/services/tickets_groups.py b/src/backend/services/tickets_groups.py
+index 0c4f23e0263600aacefdb46e2214e2d60b33f059..08bdd9fcf465e834520ef9851c45d397fcc1c9c6 100644
+--- a/src/backend/services/tickets_groups.py
++++ b/src/backend/services/tickets_groups.py
+@@ -1,40 +1,40 @@
+ """Pipeline to collect tickets and their group assignments."""
+ 
+ from __future__ import annotations
+ 
+ import asyncio
+ import datetime as dt
+ import logging
+ import os
+ from pathlib import Path
+ from typing import Optional
+ 
+ import pandas as pd
+ 
+ from backend.adapters.glpi_session import Credentials, GLPISession
+-from glpi_dashboard.config.settings import (
++from backend.core.settings import (
+     FETCH_PAGE_SIZE,
+     GLPI_APP_TOKEN,
+     GLPI_BASE_URL,
+     GLPI_PASSWORD,
+     GLPI_USER_TOKEN,
+     GLPI_USERNAME,
+ )
+ 
+ log = logging.getLogger(__name__)
+ 
+ STATUS = {1: "New", 2: "Processing", 3: "Assigned", 5: "Solved", 6: "Closed"}
+ 
+ 
+ async def collect_tickets_with_groups(
+     start: str, end: str, session: Optional[GLPISession] = None
+ ) -> pd.DataFrame:
+     """Return a dataframe with ticket/group/user assignments."""
+ 
+     base_url = os.getenv("GLPI_BASE_URL", GLPI_BASE_URL)
+     app_token = os.getenv("GLPI_APP_TOKEN", GLPI_APP_TOKEN)
+     user_token = os.getenv("GLPI_USER_TOKEN", GLPI_USER_TOKEN)
+     username = os.getenv("GLPI_USERNAME", GLPI_USERNAME)
+     password = os.getenv("GLPI_PASSWORD", GLPI_PASSWORD)
+ 
+     created = False
+diff --git a/src/glpi_dashboard/logging_config.py b/src/backend/utils/logging_config.py
+similarity index 100%
+rename from src/glpi_dashboard/logging_config.py
+rename to src/backend/utils/logging_config.py
+diff --git a/src/backend/utils/redis_client.py b/src/backend/utils/redis_client.py
+index e76eec7f09f5a16f76f345d92ba3c03d5c7405b5..c7f55376a955bc81b40bb5722ae1f43f3c5f2e8d 100644
+--- a/src/backend/utils/redis_client.py
++++ b/src/backend/utils/redis_client.py
+@@ -1,37 +1,37 @@
+ from __future__ import annotations
+ 
+ import inspect
+ import json
+ import logging
+ from dataclasses import dataclass
+ from typing import Any, Dict, Optional
+ 
+ import redis.asyncio as redis
+ import redis.exceptions
+ 
+-from glpi_dashboard.config.settings import (
++from backend.core.settings import (
+     REDIS_DB,
+     REDIS_HOST,
+     REDIS_PORT,
+     REDIS_TTL_SECONDS,
+ )
+ 
+ logger = logging.getLogger(__name__)
+ 
+ 
+ async def _maybe_await(result: Any) -> Any:
+     """Await result if it is awaitable."""
+     return await result if inspect.isawaitable(result) else result
+ 
+ 
+ @dataclass
+ class CacheMetrics:
+     """Simple structure to expose cache statistics."""
+ 
+     hits: int = 0
+     misses: int = 0
+ 
+     def as_dict(self) -> Dict[str, float]:
+         total = self.hits + self.misses
+         hit_rate = (self.hits / total) * 100 if total else 0.0
+         return {
+diff --git a/src/glpi_dashboard/telemetry.py b/src/backend/utils/telemetry.py
+similarity index 95%
+rename from src/glpi_dashboard/telemetry.py
+rename to src/backend/utils/telemetry.py
+index e852514934e0821bd1cf95e07b1e0a69d16e836b..caf0aeca39ba470f9fa56367438c630eeeeeca4b 100644
+--- a/src/glpi_dashboard/telemetry.py
++++ b/src/backend/utils/telemetry.py
+@@ -1,63 +1,57 @@
+ """OpenTelemetry metrics setup and helpers."""
+ 
+ from __future__ import annotations
+ 
+ import logging
+ import os
+ from typing import Optional
+ 
+ from opentelemetry import metrics
++from opentelemetry.exporter.otlp.proto.http.metric_exporter import OTLPMetricExporter
+ from opentelemetry.sdk.metrics import MeterProvider
+ from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
+-from opentelemetry.exporter.otlp.proto.http.metric_exporter import OTLPMetricExporter
+ from opentelemetry.sdk.resources import Resource
+ from opentelemetry.semconv.resource import ResourceAttributes
+ 
+ logger = logging.getLogger(__name__)
+ 
+ _unknown_enum_counter: Optional[metrics.Counter] = None
+ _api_failure_counter: Optional[metrics.Counter] = None
+ _api_latency_histogram: Optional[metrics.Histogram] = None
+ _ticket_process_histogram: Optional[metrics.Histogram] = None
+ 
+ 
+ def setup_telemetry() -> None:
+     """Initialize MeterProvider and metric instruments."""
+     if isinstance(metrics.get_meter_provider(), MeterProvider):
+         return
+ 
+     endpoint = os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT")
+     raw_headers = os.getenv("OTEL_EXPORTER_OTLP_HEADERS", "")
+     headers = (
+-        dict(
+-            (
+-                item.split("=", 1)
+-                for item in raw_headers.split(",")
+-                if "=" in item
+-            )
+-        )
++        dict((item.split("=", 1) for item in raw_headers.split(",") if "=" in item))
+         if raw_headers
+         else None
+     )
+     service_name = os.getenv("OTEL_SERVICE_NAME", "glpi_dashboard_cau")
+ 
+     exporter = OTLPMetricExporter(endpoint=endpoint, headers=headers)
+     reader = PeriodicExportingMetricReader(exporter)
+     provider = MeterProvider(
+         resource=Resource.create({ResourceAttributes.SERVICE_NAME: service_name}),
+         metric_readers=[reader],
+     )
+     metrics.set_meter_provider(provider)
+     meter = metrics.get_meter(__name__)
+ 
+     global _unknown_enum_counter, _api_failure_counter
+     global _api_latency_histogram, _ticket_process_histogram
+ 
+     _unknown_enum_counter = meter.create_counter(
+         "glpi_unknown_enum_total",
+         description="Total number of unmapped enum values.",
+     )
+     _api_failure_counter = meter.create_counter(
+         "glpi_api_failure_total",
+         description="Total number of API failures.",
+     )
+diff --git a/src/glpi_dashboard/acl/dto.py b/src/glpi_dashboard/acl/dto.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..30ab2f26c8764d37c40fc2c2a5c77085f096a743
+--- /dev/null
++++ b/src/glpi_dashboard/acl/dto.py
+@@ -0,0 +1,3 @@
++from backend.adapters.dto import CleanTicketDTO, RawTicketFromAPI, TicketTranslator
++
++__all__ = ["CleanTicketDTO", "RawTicketFromAPI", "TicketTranslator"]
+diff --git a/src/glpi_dashboard/acl/mapping_service.py b/src/glpi_dashboard/acl/mapping_service.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..9dfb8bf1d49a8272520ff1b396ccdfcefd4c7d67
+--- /dev/null
++++ b/src/glpi_dashboard/acl/mapping_service.py
+@@ -0,0 +1,3 @@
++from backend.adapters.mapping_service import MappingService
++
++__all__ = ["MappingService"]
+diff --git a/src/glpi_dashboard/acl/normalization.py b/src/glpi_dashboard/acl/normalization.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..531421559ccfa1479ebf39fb502b63abd5878ce6
+--- /dev/null
++++ b/src/glpi_dashboard/acl/normalization.py
+@@ -0,0 +1,3 @@
++from backend.adapters.normalization import FIELD_ALIASES, REQUIRED_FIELDS, process_raw
++
++__all__ = ["FIELD_ALIASES", "REQUIRED_FIELDS", "process_raw"]
+diff --git a/src/glpi_dashboard/acl/ticket_models.py b/src/glpi_dashboard/acl/ticket_models.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..e34ac6308e1756db9c256c2f119cee8ca4b60778
+--- /dev/null
++++ b/src/glpi_dashboard/acl/ticket_models.py
+@@ -0,0 +1,19 @@
++from backend.models.ticket_models import (
++    Impact,
++    Priority,
++    RawTicketDTO,
++    TicketStatus,
++    TicketType,
++    Urgency,
++    convert_ticket,
++)
++
++__all__ = [
++    "RawTicketDTO",
++    "TicketType",
++    "convert_ticket",
++    "TicketStatus",
++    "Priority",
++    "Urgency",
++    "Impact",
++]
+diff --git a/tests/test_glpi_errors.py b/tests/test_glpi_errors.py
+index e25ea29fb5e1b2d2fe4d2c1098f45765996f96a6..f2c943d2558d95fb8782e3dc549284518810cf28 100644
+--- a/tests/test_glpi_errors.py
++++ b/tests/test_glpi_errors.py
+@@ -1,47 +1,47 @@
+ from typing import Optional
+ from unittest.mock import AsyncMock, MagicMock, patch
+ 
+ import pytest
+ 
+ pytest.importorskip("aiohttp")
+ import aiohttp
+ 
+ from backend.services.exceptions import (
+     HTTP_STATUS_ERROR_MAP,
+     GLPIAPIError,
+     GLPIBadRequestError,
+     GLPIForbiddenError,
+     GlpiHttpError,
+     GLPIInternalServerError,
+     GLPINotFoundError,
+     GLPITooManyRequestsError,
+     GLPIUnauthorizedError,
+     glpi_retry,
+     parse_error,
+ )
+-from glpi_dashboard.logging_config import init_logging
++from backend.utils.logging_config import init_logging
+ 
+ 
+ @pytest.fixture(autouse=True)
+ def _configure_logging() -> None:
+     """Ensure logging is configured for tests."""
+     init_logging()
+ 
+ 
+ @pytest.fixture
+ def mock_response_obj():
+     """Fixture to create a mock aiohttp ClientResponse object."""
+ 
+     def _mock_response_obj(
+         status: int, reason: str = "OK", json_data: Optional[dict] = None
+     ):
+         mock_resp = MagicMock(spec=aiohttp.ClientResponse)
+         mock_resp.status = status
+         mock_resp.reason = reason
+         mock_resp.json = AsyncMock(
+             return_value=json_data if json_data is not None else {}
+         )
+         mock_resp.text = AsyncMock(
+             return_value=str(json_data) if json_data is not None else ""
+         )
+         mock_resp.request_info = MagicMock()  # Required for ClientResponseError
+diff --git a/tests/test_glpi_session.py b/tests/test_glpi_session.py
+index 8ba897be6dd1dcb008568f570b9b5af19659a49b..88e6feead3763cbc4b92bd0037263ba65d06c7b4 100644
+--- a/tests/test_glpi_session.py
++++ b/tests/test_glpi_session.py
+@@ -1,51 +1,51 @@
+ import asyncio as aio
+ import json
+ from contextlib import asynccontextmanager
+ from typing import Optional
+ from unittest.mock import ANY, AsyncMock, MagicMock, patch
+ 
+ import pytest
+ 
+ pytest.importorskip(
+     "aiohttp", reason="aiohttp package is required to run glpi_session tests"
+ )
+ import aiohttp
+ 
+ from backend import adapters as glpi_session
+ from backend.adapters.glpi_session import (
+     Credentials,
+     GLPIAPIError,
+     GLPIBadRequestError,
+     GLPIForbiddenError,
+     GLPIInternalServerError,
+     GLPINotFoundError,
+     GLPISession,
+     GLPITooManyRequestsError,
+     GLPIUnauthorizedError,
+ )
+-from glpi_dashboard.logging_config import init_logging
++from backend.utils.logging_config import init_logging
+ 
+ 
+ @pytest.fixture(autouse=True)
+ def _configure_logging() -> None:
+     """Ensure logging is configured for tests."""
+     init_logging()
+ 
+ 
+ @pytest.fixture
+ def base_url() -> str:
+     """Fixture for the base GLPI API URL."""
+     return "https://glpi.company.com/apirest.php"
+ 
+ 
+ @pytest.fixture
+ def app_token() -> str:
+     """Fixture for the GLPI App-Token."""
+     return "test_app_token"
+ 
+ 
+ @pytest.fixture
+ def user_token() -> str:
+     """Fixture for a GLPI user token."""
+     return "test_user_token_123"
+ 
+diff --git a/tests/test_telemetry.py b/tests/test_telemetry.py
+index f694ade969b2e921c6c35bfb25912374eef2fa75..02522b7188c510ccb0c7ceaee0e7b4973105b5c0 100644
+--- a/tests/test_telemetry.py
++++ b/tests/test_telemetry.py
+@@ -1,33 +1,36 @@
+ import os
+ import sys
+ 
+-sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src"))  # noqa: E402
++sys.path.insert(
++    0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src")
++)  # noqa: E402
+ 
+-from glpi_dashboard import telemetry  # noqa: E402
+ from opentelemetry.sdk.metrics.export import MetricExportResult
+ 
++from backend.utils import telemetry  # noqa: E402
++
+ 
+ class DummyExporter:
+     """Exporter that records metrics locally to avoid HTTP calls."""
+ 
+     def __init__(self, *args, **kwargs) -> None:  # noqa: D401
+         """Ignore initialization parameters."""
+         self.records = []
+         self._preferred_temporality = {}
+         self._preferred_aggregation = {}
+ 
+     def export(self, batch, *args, **kwargs) -> MetricExportResult:  # noqa: D401
+         """Store exported metrics in memory."""
+         self.records.append(batch)
+         return MetricExportResult.SUCCESS
+ 
+     def force_flush(self, *args, **kwargs) -> MetricExportResult:
+         return MetricExportResult.SUCCESS
+ 
+     def shutdown(self, *args, **kwargs) -> None:  # noqa: D401
+         """No-op shutdown."""
+         self.records.clear()
+ 
+ 
+ def test_setup_and_record(monkeypatch):
+     monkeypatch.setattr(telemetry, "OTLPMetricExporter", DummyExporter)
+diff --git a/worker.py b/worker.py
+index f198d018214217a2ea7affe27755de49a04b19f3..61d301173bbea50990eca7dfc9b9516a3851c15a 100644
+--- a/worker.py
++++ b/worker.py
+@@ -1,31 +1,31 @@
+ """Convenience wrapper for the worker API entrypoint.
+ 
+ All imports use the installed ``glpi_dashboard`` package instead of the
+ former ``src.glpi_dashboard`` path.
+ """
+ 
+ import logging
+ import os
+ 
+ from backend.adapters.glpi_session import GLPISession
+ from backend.api.worker_api import (
+     create_app,
+ )
+ from backend.api.worker_api import main as _main
+ from backend.api.worker_api import (
+     redis_client,
+ )
++from backend.utils.logging_config import init_logging
+ from glpi_dashboard.config.settings import KNOWLEDGE_BASE_FILE
+-from glpi_dashboard.logging_config import init_logging
+ 
+ __all__ = ["create_app", "redis_client", "GLPISession", "main"]
+ 
+ 
+ def main() -> None:
+     init_logging(os.getenv("LOG_LEVEL"))
+     logging.getLogger(__name__).info("Knowledge base file: %s", KNOWLEDGE_BASE_FILE)
+     _main()
+ 
+ 
+ if __name__ == "__main__":
+     main()
