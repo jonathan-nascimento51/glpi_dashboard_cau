@@ -30,6 +30,7 @@ py -m venv .venv
 ```bash
 pip install -r requirements.txt -r requirements-dev.txt
 pip install -e .  # install package locally (packages live under src/)
+pip install opentelemetry-instrumentation-fastapi opentelemetry-instrumentation-logging
 pre-commit install  # optional
 ```
 
