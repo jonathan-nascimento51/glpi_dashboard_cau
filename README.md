@@ -601,7 +601,7 @@ The override file also sets Prometheus to `--log.level=warn` so only warnings
 and errors appear in the logs. Adjust the command in
 `docker-compose.override.yml` if you need more verbose Prometheus output.
 
-The backend Dockerfile allows skipping Playwright browser installation using the
+The Dockerfile at `docker/backend/Dockerfile` allows skipping Playwright browser installation using the
 `INSTALL_PLAYWRIGHT` build argument. This is set to `false` in
 `docker-compose.override.yml` to speed up development builds. Enable it only when you
 need browser automation.
