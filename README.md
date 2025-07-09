@@ -25,6 +25,8 @@ instrumentation.
 python -m pip install --upgrade pip
 pip install -r requirements.txt -r requirements-dev.txt
 pip install -e .  # install the backend packages in editable mode
+# install pre-commit if not already available
+pip install pre-commit
 # dependencies are declared in pyproject.toml using PEP 621
 pre-commit install  # sets up hooks for black, ruff, isort and mypy
 # Ruff version pinned to 0.12.2 is included in requirements-dev.txt

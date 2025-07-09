@@ -158,3 +158,63 @@ Para detalhes de arquitetura e troubleshooting, consulte também:
 - `docs/error_map.md`
 - `docs/revisao_arquitetural_glpi_dashboard.md`
 - `docs/windows_dev_setup.md`
+
+## React Query e hooks personalizados
+
+A dashboard React emprega [@tanstack/react-query](https://tanstack.com/query)
+para cache e sincronização em segundo plano.
+
+### QueryClientProvider
+
+O `QueryClient` é criado em `frontend/src/lib/queryClient.ts` e fornecido ao
+`QueryClientProvider` dentro de `frontend/src/main.tsx`:
+
+```tsx
+import { QueryClientProvider } from '@tanstack/react-query'
+import { queryClient } from '@/lib/queryClient'
+
+root.render(
+  <React.StrictMode>
+    <QueryClientProvider client={queryClient}>
+      <App />
+    </QueryClientProvider>
+  </React.StrictMode>,
+)
+```
+
+Altere as opções padrão do `queryClient` nesse arquivo para ajustar
+`staleTime` ou `cacheTime` conforme necessário.
+
+### Padrão de uso do `useApiQuery`
+
+O helper `useApiQuery` padroniza chamadas ao worker API. Ele recebe um
+`queryKey`, o `endpoint` e quaisquer opções do React Query:
+
+```ts
+const { data, isLoading } = useApiQuery(['tickets'], '/tickets')
+```
+
+Internamente a função utiliza o `fetcher` definido em `src/lib/swrClient.ts`.
+
+### Exemplos de novos hooks
+
+Crie funções que reutilizem `useApiQuery` ou `useQuery` quando você precisar
+de lógica adicional:
+
+```ts
+export function useUsuarios() {
+  return useApiQuery(['usuarios'], '/usuarios')
+}
+```
+
+Para atualizar dados manualmente, invoque
+`queryClient.invalidateQueries(['usuarios'])` ou atualize o cache com
+`queryClient.setQueryData`.
+
+### Cache e estratégias de invalidação
+
+O React Query segue a estratégia *stale-while-revalidate*: o cache é exibido
+imediatamente enquanto uma nova solicitação é executada em segundo plano.
+Defina `staleTime` para controlar quando os dados tornam-se obsoletos e use
+`invalidateQueries` após operações de gravação. Também é possível definir
+`refetchInterval` em hooks específicos para manter métricas em tempo real.
