@@ -20,10 +20,10 @@ from backend.services.exceptions import (
     GLPINotFoundError,
     GLPITooManyRequestsError,
     GLPIUnauthorizedError,
-    glpi_retry,
     parse_error,
 )
 from backend.services.tool_error import ToolError
+from shared.resilience import retry_api_call
 
 logger = logging.getLogger(__name__)
 
@@ -329,7 +329,7 @@ class GLPISession:
         finally:
             self._session_token = None  # Always clear token after attempt to kill
 
-    @glpi_retry(max_retries=5)  # Apply the retry decorator here
+    @retry_api_call  # Apply the retry decorator here
     async def _request(
         self,
         method: str,
@@ -344,8 +344,8 @@ class GLPISession:
         Makes an authenticated request to the GLPI API.
 
         This method includes specific retry logic for 401 Unauthorized errors
-        (token refresh) and leverages the ``@glpi_retry`` decorator for other
-        transient errors (429, 500, network issues).
+        (token refresh) and leverages the ``@retry_api_call`` decorator for
+        other transient errors.
 
         Args:
             method: HTTP method (e.g., "GET", "POST", "PUT", "DELETE").
@@ -421,7 +421,7 @@ class GLPISession:
                     response_data = await response.json()
                 error_resp = getattr(e, "response", response)
                 error_class = HTTP_STATUS_ERROR_MAP.get(e.status, GLPIAPIError)
-                # Raise the specific GLPIAPIError, which the @glpi_retry
+                # Raise the specific GLPIAPIError, which the @retry_api_call
                 # decorator will then catch
                 raise error_class(
                     e.status,
@@ -430,7 +430,7 @@ class GLPISession:
                 ) from e
             except aiohttp.ClientError as e:
                 # This catches network-level errors before an HTTP status is received
-                # The @glpi_retry decorator will handle retries for these as well
+                # The @retry_api_call decorator will handle retries for these as well
                 raise GLPIAPIError(
                     0, f"Network or client error during API request: {e}"
                 ) from e

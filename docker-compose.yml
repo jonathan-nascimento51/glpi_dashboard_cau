@@ -1,3 +1,4 @@
+name: glpi_dashboard_cau
 services:
   backend:
     build:
