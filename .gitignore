@@ -3,6 +3,7 @@
 *.env
 *.secret
 venv312
+.myenv
 # Runtime
 *.sha256
 log.jsonl

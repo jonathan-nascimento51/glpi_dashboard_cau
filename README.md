@@ -775,6 +775,12 @@ Snyk vulnerability scan. Before triggering it ensure your network can reach
 All ADRs live in [`docs/adr`](docs/adr). Create new records with
 `./scripts/adr-new "Título"` which fills in the MADR template automatically.
 
+## Examples Directory
+
+Code samples and pattern demos now reside in [`examples/`](examples/). These
+files replace the old `labs/patterns` paths and are meant solely for
+reference, not production use.
+
 ## License
 
 This project is released under the [MIT License](LICENSE).

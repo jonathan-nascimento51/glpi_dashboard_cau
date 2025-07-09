@@ -1,4 +1,4 @@
-## 🚚 Refatoração Estrutural – Mapeamento Inicial (Codex)
+# 🚚 Refatoração Estrutural – Mapeamento Inicial (Codex)
 
 Data: 2025-07-09
 Responsável: RefatorAgent (Codex)
@@ -27,11 +27,12 @@ src/glpi_dashboard/services/aggregated_metrics.py → src/backend/services/aggre
 src/glpi_dashboard/services/langgraph_workflow.py → src/backend/services/langgraph_workflow.py — orquestração de workflow com LangGraph.
 src/glpi_dashboard/services/worker_api.py → src/backend/api/worker_api.py — implementação da API FastAPI/GraphQL do worker.
 src/backend/utils/redis_client.py — cliente Redis assíncrono com métricas de cache.
-src/patterns/resilience/retry_decorator.py → src/shared/utils/resilience/retry_decorator.py — decorator genérico de retry, útil em qualquer módulo.
-src/patterns/order_observer.py → src/shared/order_observer.py — exemplo de padrão observer, independente do backend.
+examples/resilience/retry_decorator.py → src/shared/utils/resilience/retry_decorator.py — decorator genérico de retry, útil em qualquer módulo.
+examples/order_observer.py → src/shared/order_observer.py — exemplo de padrão observer, independente do backend.
 Essas movimentações alinham cada módulo com responsabilidades semelhantes dentro da nova estrutura, separando claramente backend, frontend e utilidades compartilhadas.
 
 ## 🚚 Refatoração Estrutural Aplicada (auto_mover.py)
+
 Data: 2025-07-09
 Ferramenta: scripts/auto_mover.py
 Descrição: Arquivos foram movidos de acordo com o mapeamento fornecido por Codex (RefatorAgent).
@@ -39,6 +40,7 @@ Status: ✅ Concluído com sucesso
 Verificado via: ./init_refactor.sh + inspeção visual
 
 ## \ud83d\udcc6 Atualizacao 2025-07-09
+
 - Executado `bash init_refactor.sh` para listar a nova estrutura de arquivos.
 - Verificado que persistem pastas extras como `glpi_dashboard` e `etl`.
 - Dependencias instaladas via `requirements.txt` e `requirements-dev.txt`.

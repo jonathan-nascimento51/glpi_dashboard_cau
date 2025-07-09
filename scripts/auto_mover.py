@@ -26,8 +26,8 @@ mapping = {
     "glpi_dashboard/services/langgraph_workflow.py": "backend/services/langgraph_workflow.py",
     "glpi_dashboard/services/worker_api.py": "backend/api/worker_api.py",
     "glpi_dashboard/utils/redis_client.py": "backend/utils/redis_client.py",
-    "patterns/resilience/retry_decorator.py": "shared/utils/resilience/retry_decorator.py",
-    "patterns/order_observer.py": "shared/order_observer.py",
+    "examples/resilience/retry_decorator.py": "shared/utils/resilience/retry_decorator.py",
+    "examples/order_observer.py": "shared/order_observer.py",
 }
 
 

@@ -5,3 +5,4 @@ tests/
 *.pytest_cache/
 htmlcov/
 node_modules
+.myenv/

@@ -2,7 +2,7 @@
   "terminal.integrated.allowChords": false,
 
   // ▼ IA / extensões ----------------------------------------------------------
-  "CodeGPT.apiKey": "CodeGPT Plus Beta",
+  "CodeGPT.apiKey": "CodeGPT Plus",
 
   // ▼ Python ------------------------------------------------------------------
   "python.testing.pytestArgs": ["test"],
@@ -36,5 +36,6 @@
   ],
 
   // ▼ Outros ------------------------------------------------------------------
-  "docwriter.style": "Auto-detect"
+  "docwriter.style": "Auto-detect",
+  "makefile.makefilePath": "Makefile"
 }
