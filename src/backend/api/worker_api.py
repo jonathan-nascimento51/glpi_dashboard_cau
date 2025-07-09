@@ -24,30 +24,12 @@ from strawberry.fastapi import GraphQLRouter
 from strawberry.types import Info
 
 from backend.adapters.factory import create_glpi_session, create_ticket_translator
-from backend.adapters.glpi_session import Credentials, GLPISession
-from backend.adapters.mapping_service import MappingService
-from backend.adapters.normalization import process_raw
+from backend.adapters.glpi_session import GLPISession
 from backend.core.settings import (
-    CLIENT_TIMEOUT_SECONDS,
-    GLPI_APP_TOKEN,
-    GLPI_BASE_URL,
-    GLPI_PASSWORD,
-    GLPI_USER_TOKEN,
-    GLPI_USERNAME,
     KNOWLEDGE_BASE_FILE,
-    USE_MOCK_DATA,
-    VERIFY_SSL,
 )
 from backend.services.aggregated_metrics import (
-    cache_aggregated_metrics,
-    compute_aggregated,
     get_cached_aggregated,
-    tickets_by_date,
-    tickets_daily_totals,
-)
-from backend.services.exceptions import (
-    GLPIAPIError,
-    GLPIUnauthorizedError,
 )
 from backend.services.read_model import query_ticket_summary
 from backend.services.ticket_loader import (
@@ -60,6 +42,11 @@ from backend.utils.redis_client import redis_client
 from shared.dto import CleanTicketDTO, TicketTranslator
 
 logger = logging.getLogger(__name__)
+
+
+def get_ticket_translator() -> Optional[TicketTranslator]:
+    """Return an instance of :class:`TicketTranslator` or ``None``."""
+    return create_ticket_translator()
 
 
 @strawberry.type
@@ -171,7 +158,7 @@ def create_app(client: Optional[GLPISession] = None, cache=None) -> FastAPI:
     @app.get("/tickets", response_model=list[CleanTicketDTO])
     async def tickets(
         response: Response,
-        translator: Optional[TicketTranslator] = Depends(create_ticket_translator),
+        translator: Optional[TicketTranslator] = Depends(get_ticket_translator),
     ) -> list[CleanTicketDTO]:  # noqa: F401
         return await load_and_translate_tickets(
             translator, cache=cache, response=response
