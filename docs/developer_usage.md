@@ -11,7 +11,7 @@ Principais módulos em `src/glpi_dashboard`:
 | Arquivo | Função |
 | ------- | ------ |
 | `glpi_session.py` | Cliente assíncrono para autenticação e chamadas à API GLPI |
-| `data_pipeline.py` | Normaliza tickets em `pandas.DataFrame` e gera JSON |
+| `backend/utils/pipeline.py` | Normaliza tickets em `pandas.DataFrame` e gera JSON |
 | `dashboard/layout.py` | Layout e callbacks do dashboard em Dash |
 | `services/worker_api.py` | Lógica de cache e métricas usadas pelo `worker.py` |
 | `config/settings.py` | Carrega variáveis de ambiente (GLPI, DB, Redis) |
