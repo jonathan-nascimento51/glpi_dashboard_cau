@@ -10,7 +10,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import declarative_base
 
-from glpi_dashboard.config.settings import DATABASE_URL
+from backend.core.settings import DATABASE_URL
 
 logger = logging.getLogger(__name__)
 
@@ -18,10 +18,10 @@ logger = logging.getLogger(__name__)
 # data/ -> glpi_dashboard/ -> src/ -> repository root.
 SCHEMA_FILE = Path(__file__).resolve().parents[3] / "schema.sql"
 
-Base = declarative_base()
+Base: Any = declarative_base()
 
 
-class Ticket(Base):
+class Ticket(Base):  # type: ignore[misc]
     """SQLAlchemy model for raw GLPI ticket data."""
 
     __tablename__ = "tickets"

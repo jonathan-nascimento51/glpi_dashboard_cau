@@ -289,7 +289,7 @@ Run the following command to sync the frontend types with the backend models:
 make gen-types
 ```
 
-This converts the Pydantic models in `src/glpi_dashboard/ts_models.py` into TypeScript definitions under `frontend/src/types/api.ts`.
+This converts the Pydantic models in `src/backend/models/ts_models.py` into TypeScript definitions under `frontend/src/types/api.ts`.
 
 Example GraphQL query to retrieve ticket data:
 

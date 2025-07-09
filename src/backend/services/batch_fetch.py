@@ -8,7 +8,7 @@ from typing import List
 
 from pydantic import BaseModel, Field
 
-from glpi_dashboard.config.settings import (
+from backend.core.settings import (
     GLPI_APP_TOKEN,
     GLPI_BASE_URL,
     GLPI_PASSWORD,

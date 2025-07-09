@@ -9,7 +9,7 @@ from typing import Any, Dict, Optional
 import redis.asyncio as redis
 import redis.exceptions
 
-from glpi_dashboard.config.settings import (
+from backend.core.settings import (
     REDIS_DB,
     REDIS_HOST,
     REDIS_PORT,

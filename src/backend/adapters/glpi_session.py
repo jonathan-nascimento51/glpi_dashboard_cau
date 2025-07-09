@@ -515,7 +515,7 @@ class GLPISession:
     async def get_all(self, itemtype: str, **params: Any) -> list[dict]:
         """Retrieve all items for a given GLPI type using pagination."""
 
-        from glpi_dashboard.config.settings import FETCH_PAGE_SIZE
+        from backend.core.settings import FETCH_PAGE_SIZE
 
         params = {**params, "expand_dropdowns": 1}
         endpoint = itemtype if itemtype.startswith("search/") else f"search/{itemtype}"

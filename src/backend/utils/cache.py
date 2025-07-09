@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import os
+
 from flask_caching import Cache
 
-from .config.settings import REDIS_HOST, REDIS_PORT, REDIS_DB
+from backend.core.settings import REDIS_DB, REDIS_HOST, REDIS_PORT
 
 cache_config = {
     "CACHE_TYPE": "RedisCache",
