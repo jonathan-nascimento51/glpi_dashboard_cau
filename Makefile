@@ -26,7 +26,7 @@ down:
 	docker compose down
 
 init-db:
-	$(PYTHON) scripts/init_db.py
+	$(PYTHON) scripts/setup/init_db.py
 
 test:
 	$(PIP) install --break-system-packages -r requirements.txt -r requirements-dev.txt
