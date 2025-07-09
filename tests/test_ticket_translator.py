@@ -1,7 +1,7 @@
 import pytest
 
-from backend.adapters.dto import CleanTicketDTO, TicketTranslator
 from backend.adapters.mapping_service import MappingService
+from shared.dto import CleanTicketDTO, TicketTranslator
 
 
 @pytest.mark.asyncio

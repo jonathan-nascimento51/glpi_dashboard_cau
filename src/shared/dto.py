@@ -7,7 +7,7 @@ from typing import Dict, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from .mapping_service import MappingService
+from backend.adapters.mapping_service import MappingService
 
 # Static mappings from numeric codes returned by the GLPI API
 STATUS_MAP = {

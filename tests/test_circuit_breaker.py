@@ -1,6 +1,6 @@
 import pybreaker
 
-from shared.utils.resilience import breaker, call_with_breaker
+from shared.resilience import breaker, call_with_breaker
 
 
 def failing():

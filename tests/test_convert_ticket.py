@@ -2,7 +2,7 @@ import logging
 
 import pytest
 
-from backend.models.ticket_models import (
+from shared.models import (
     Impact,
     Priority,
     RawTicketDTO,
