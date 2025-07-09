@@ -59,6 +59,16 @@ dev = [
     "black",
     "mypy",
     "ruff",
+    "flake8",
+    "isort",
+    "pytest-mock",
+    "pytest-httpx",
+    "testcontainers",
+    "playwright",
+    "pact-python",
+    "types-requests",
+    "types-redis",
+    "pydantic-to-typescript",
 ]
 
 [tool.setuptools]
