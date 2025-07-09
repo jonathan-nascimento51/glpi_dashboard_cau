@@ -3,24 +3,30 @@
 from __future__ import annotations
 
 import runpy
-from pathlib import Path
-from types import ModuleType
 import shutil
 import subprocess
+from pathlib import Path
+from types import ModuleType
 
 import pytest
 from aiohttp import web
 
 ROOT = Path(__file__).resolve().parents[2]
-main_globals = runpy.run_path(str(ROOT / "main.py"))
-main = ModuleType("main")
+main_globals = runpy.run_path(str(ROOT / "dashboard_app.py"))
+main = ModuleType("dashboard_app")
 main.__dict__.update(main_globals)
 
 _chromedriver = shutil.which("chromedriver")
 try:
-    if _chromedriver is None or subprocess.run(
-        [_chromedriver, "--version"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
-    ).returncode != 0:
+    if (
+        _chromedriver is None
+        or subprocess.run(
+            [_chromedriver, "--version"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        ).returncode
+        != 0
+    ):
         pytest.skip("chromedriver not installed", allow_module_level=True)
 except OSError:
     pytest.skip("chromedriver not installed", allow_module_level=True)

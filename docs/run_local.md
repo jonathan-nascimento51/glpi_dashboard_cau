@@ -76,19 +76,19 @@ python scripts/fetch/fetch_tickets.py --output data/tickets_dump.json
 ### 6.1 Linux / macOS
 
 ```bash
-python main.py
+python dashboard_app.py
 ```
 
 ### 6.2 Windows (CMD)
 
 ```bat
-python main.py
+python dashboard_app.py
 ```
 
 ### 6.3 Windows (PowerShell)
 
 ```powershell
-python main.py
+python dashboard_app.py
 ```
 
 The application will start at <http://127.0.0.1:8050>. Check the logs for any

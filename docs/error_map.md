@@ -4,7 +4,7 @@ Este guia relaciona os principais problemas que podem ocorrer na primeira execuc
 
 | Sintoma | Causa provavel | Passos para solucao | Instrucao para Codex |
 | ------- | -------------- | ------------------ | -------------------- |
-| `401 Unauthorized` ao chamar a API GLPI | `GLPI_APP_TOKEN` ou credenciais incorretas | Verifique as variaveis em `.env` e tente autenticar manualmente com `curl` | "Atualize .env com tokens validos e execute novamente `python main.py`" |
+| `401 Unauthorized` ao chamar a API GLPI | `GLPI_APP_TOKEN` ou credenciais incorretas | Verifique as variaveis em `.env` e tente autenticar manualmente com `curl` | "Atualize .env com tokens validos e execute novamente `python dashboard_app.py`" |
 | `400 Bad Request` com `ERROR_WRONG_APP_TOKEN_PARAMETER` | app-token invalido ou IP nao autorizado | Confirme o valor do token em `Configuração > Geral > API` e ajuste o intervalo de IP permitido | "Atualize `GLPI_APP_TOKEN` e verifique IPs autorizados" |
 | Erro `pymysql.err.OperationalError` na inicializacao | Servico MySQL inativo ou credenciais invalidas | Teste a conexao via `mysql -h $DB_HOST -u $DB_USER -p` | "Substitua valores `DB_*` em `.env` e rode `PYTHONPATH=$(pwd) python scripts/setup/init_db.py`" |
 | Mensagem "Arquivo JSON nao encontrado" | Caminho incorreto para o dump | Confirme a existencia do arquivo com `ls -l` | "Ajuste o caminho do dump gerado por `scripts/fetch/fetch_tickets.py`" |

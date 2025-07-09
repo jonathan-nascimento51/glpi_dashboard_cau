@@ -86,7 +86,7 @@ O script lê o arquivo `schema.sql` localizado na raiz do projeto e cria as tabe
 Execute a aplicação conectando diretamente na API GLPI:
 
 ```bash
-python main.py
+python dashboard_app.py
 ```
 
 O aplicativo utilizará as credenciais GLPI definidas no `.env` e registrará eventuais falhas de autenticação no console.
