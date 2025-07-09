@@ -26,7 +26,7 @@ src/glpi_dashboard/glpi_adapter.py → src/backend/adapters/glpi_adapter.py — 
 src/glpi_dashboard/services/aggregated_metrics.py → src/backend/services/aggregated_metrics.py — cálculo e cache de métricas agregadas.
 src/glpi_dashboard/services/langgraph_workflow.py → src/backend/services/langgraph_workflow.py — orquestração de workflow com LangGraph.
 src/glpi_dashboard/services/worker_api.py → src/backend/api/worker_api.py — implementação da API FastAPI/GraphQL do worker.
-src/glpi_dashboard/utils/redis_client.py → src/backend/utils/redis_client.py — cliente Redis assíncrono com métricas de cache.
+src/backend/utils/redis_client.py — cliente Redis assíncrono com métricas de cache.
 src/patterns/resilience/retry_decorator.py → src/shared/resilience/retry_decorator.py — decorator genérico de retry, útil em qualquer módulo.
 src/patterns/order_observer.py → src/shared/order_observer.py — exemplo de padrão observer, independente do backend.
 Essas movimentações alinham cada módulo com responsabilidades semelhantes dentro da nova estrutura, separando claramente backend, frontend e utilidades compartilhadas.

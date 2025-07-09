@@ -45,6 +45,8 @@ dependencies = [
     "loguru>=0.7",
     "orjson>=3.10",
     "arq>=0.26",
+    "pybreaker",
+    "prometheus-client",
 ]
 
 [project.optional-dependencies]
