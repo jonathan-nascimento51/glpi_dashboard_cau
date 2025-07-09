@@ -5,9 +5,9 @@ from __future__ import annotations
 import json
 import logging
 from datetime import datetime
-from typing import Callable, Any
+from typing import Any, Callable
 
-from tenacity import retry, stop_after_attempt, wait_exponential, before_sleep_log
+from tenacity import before_sleep_log, retry, stop_after_attempt, wait_exponential
 
 logger = logging.getLogger(__name__)
 
