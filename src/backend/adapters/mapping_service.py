@@ -5,7 +5,7 @@ from typing import Dict, Optional
 
 import redis.asyncio as redis
 
-from glpi_dashboard.config.settings import REDIS_DB, REDIS_HOST, REDIS_PORT
+from backend.core.settings import REDIS_DB, REDIS_HOST, REDIS_PORT
 
 from ..services.glpi_session import GLPISession
 
@@ -51,7 +51,7 @@ class MappingService:
             return {int(k): v for k, v in cached.items()}
 
         try:
-            records = await self._index_all(endpoint)
+            records = await self._index_all(endpoint)  # type: ignore[attr-defined]
         except Exception as exc:  # pragma: no cover - network failures
             logger.error("indexto load mapping for %s: %s", endpoint, exc)
             records = []

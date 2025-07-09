@@ -2,7 +2,7 @@
 
 from typing import List
 
-from glpi_dashboard.read_model import TicketSummary, get_ticket_summary
+from backend.db.read_model import TicketSummary, get_ticket_summary
 
 
 async def query_ticket_summary(

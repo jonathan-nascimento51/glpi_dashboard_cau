@@ -12,7 +12,7 @@ from typing import Optional
 import pandas as pd
 
 from backend.adapters.glpi_session import Credentials, GLPISession
-from glpi_dashboard.config.settings import (
+from backend.core.settings import (
     FETCH_PAGE_SIZE,
     GLPI_APP_TOKEN,
     GLPI_BASE_URL,

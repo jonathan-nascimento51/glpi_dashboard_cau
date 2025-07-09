@@ -8,7 +8,7 @@ from typing import List
 
 from sqlalchemy import text
 
-from glpi_dashboard.data.database import AsyncSessionLocal, refresh_materialized_view
+from backend.db.database import AsyncSessionLocal, refresh_materialized_view
 
 
 @dataclass
