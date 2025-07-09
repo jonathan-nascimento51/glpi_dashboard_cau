@@ -515,7 +515,7 @@ async def test_session_refresh_on_401_failure(
     async with glpi_session as session:
         with pytest.raises(GLPIUnauthorizedError) as excinfo:
             await session.get("Ticket/123")
-        assert "index to authenticate after multiple retries" in str(excinfo.value)
+        assert "failed to authenticate after multiple retries" in str(excinfo.value)
         assert excinfo.value.status_code == 401
         assert (
             mock_client_session.request.call_count == 1

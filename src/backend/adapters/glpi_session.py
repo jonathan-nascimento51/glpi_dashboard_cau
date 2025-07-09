@@ -261,7 +261,7 @@ class GLPISession:
                 try:
                     await self._refresh_session_token()
                 except Exception as e:
-                    logger.error("indexto proactively refresh session token: %s", e)
+                    logger.error("failed to proactively refresh session token: %s", e)
                     # In a production system, consider exponential backoff or
                     # circuit breaking here.
 
@@ -406,7 +406,7 @@ class GLPISession:
                         except GLPIUnauthorizedError as e:
                             raise GLPIUnauthorizedError(
                                 401,
-                                "indexto authenticate after multiple retries",
+                                "failed to authenticate after multiple retries",
                             ) from e
                         if self._session_token:  # Update header for retry
                             request_headers["Session-Token"] = self._session_token
@@ -442,7 +442,7 @@ class GLPISession:
 
         # If all 401 retries fail
         raise GLPIUnauthorizedError(
-            401, "indexto authenticate after multiple 401 retries."
+            401, "failed to authenticate after multiple 401 retries."
         )
 
     async def get(
@@ -615,7 +615,7 @@ async def open_session_tool(params: SessionParams) -> str:
         async with GLPISession(**params.model_dump()) as _:
             return "ok"
     except Exception as exc:  # pragma: no cover - tool usage
-        err = ToolError("indexto open session", str(exc))
+        err = ToolError("failed to open session", str(exc))
         return json.dumps({"error": err.dict()})
 
 

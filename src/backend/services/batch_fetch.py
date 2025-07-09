@@ -76,7 +76,7 @@ async def fetch_all_tickets_tool(params: BatchFetchParams) -> str:
         data = await fetch_all_tickets(params.ids)
         return json.dumps(data)
     except Exception as exc:  # pragma: no cover - tool usage
-        err = ToolError("indexto fetch tickets", str(exc))
+        err = ToolError("failed to fetch tickets", str(exc))
         return json.dumps({"error": err.dict()})
 
 

@@ -28,7 +28,7 @@ def scan_file(path: Path) -> list[int]:
                     lines.append(idx)
                 # fmt: on
     except Exception as exc:  # RESOLVIDO: robust file handling
-        print(f"indexto read {path}: {exc}", file=sys.stderr)
+        print(f"failed to read {path}: {exc}", file=sys.stderr)
     return lines
 
 
