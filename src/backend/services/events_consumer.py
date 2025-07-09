@@ -8,9 +8,9 @@ import logging
 from collections.abc import AsyncIterable, Callable
 from typing import Any, Dict, Optional
 
+from backend.utils.redis_client import RedisClient, redis_client
 from glpi_dashboard.config.settings import EVENT_BROKER_URL
 from glpi_dashboard.services.metrics_worker import update_metrics
-from glpi_dashboard.utils.redis_client import RedisClient, redis_client
 
 logger = logging.getLogger(__name__)
 

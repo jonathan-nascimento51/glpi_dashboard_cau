@@ -2,9 +2,9 @@ import json
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
-
-from glpi_dashboard.utils.redis_client import RedisClient
 import redis.exceptions
+
+from backend.utils.redis_client import RedisClient
 
 
 @pytest.mark.asyncio

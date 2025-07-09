@@ -52,7 +52,7 @@ Esses tópicos complementam o guia [docs/error_map.md](docs/error_map.md) com so
 Esse problema indica que o cliente Redis foi criado de forma **síncrona** (`redis.Redis`),
 mas a chamada foi feita com `await`. Certifique‑se de importar `redis.asyncio` e
 instanciar `redis.asyncio.Redis` como mostrado em
-[`utils/redis_client.py`](../src/glpi_dashboard/utils/redis_client.py). Caso esteja
+[`utils/redis_client.py`](../src/backend/utils/redis_client.py). Caso esteja
 usando outro cliente ou script, troque para a versão assíncrona ou remova o
 `await` das chamadas.
 

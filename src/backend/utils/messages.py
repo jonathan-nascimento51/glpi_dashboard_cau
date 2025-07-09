@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import re
 
-
 _CONTROL_CHARS_RE = re.compile(r"[\x00-\x1f\x7f]")
 
 
