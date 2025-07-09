@@ -13,7 +13,7 @@ from backend.adapters.glpi_session import (
     GLPISession,
     GLPIUnauthorizedError,
 )
-from glpi_dashboard.config.settings import (
+from backend.core.settings import (
     GLPI_APP_TOKEN,
     GLPI_BASE_URL,
     GLPI_PASSWORD,
