@@ -46,7 +46,8 @@ The dashboard aggregates GLPI service desk metrics using a FastAPI backend and a
 ## Folder Layout
 
 ```text
-├── src/           # backend source code
+├── src/backend/   # worker FastAPI modules
+├── src/frontend/  # Dash components
 ├── frontend/      # Next.js application
 ├── docs/          # documentation and ADRs
 ├── monitoring/    # Prometheus/Grafana config
