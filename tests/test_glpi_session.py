@@ -1,7 +1,6 @@
 import asyncio as aio
 import json
 from contextlib import asynccontextmanager
-from operator import index
 from typing import Optional
 from unittest.mock import ANY, AsyncMock, MagicMock, patch
 
@@ -25,7 +24,7 @@ from backend.adapters.glpi_session import (
     GLPITooManyRequestsError,
     GLPIUnauthorizedError,
 )
-from backend.utils.logging_config import init_logging
+from backend.utils.logging import init_logging
 
 
 @pytest.fixture(autouse=True)
