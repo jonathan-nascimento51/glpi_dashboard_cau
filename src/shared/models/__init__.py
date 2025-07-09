@@ -1,5 +1,10 @@
-from .ticket_models import CleanTicketDTO, RawTicketDTO, TicketType, convert_ticket
-from .ticket_status import Impact, Priority, TicketStatus, Urgency
+from backend.models.ticket_models import (
+    CleanTicketDTO,
+    RawTicketDTO,
+    TicketType,
+    convert_ticket,
+)
+from backend.models.ticket_status import Impact, Priority, TicketStatus, Urgency
 
 __all__ = [
     "TicketStatus",
