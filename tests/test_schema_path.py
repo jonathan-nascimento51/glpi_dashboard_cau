@@ -1,4 +1,4 @@
-from glpi_dashboard.data.database import SCHEMA_FILE
+from backend.db.database import SCHEMA_FILE
 
 
 def test_schema_file_exists() -> None:

@@ -1,7 +1,7 @@
 import pytest
 
+from backend.services.events_consumer import TicketEventConsumer
 from backend.services.metrics_worker import update_metrics
-from glpi_dashboard.events.consumer import TicketEventConsumer
 
 
 class DummyCache:

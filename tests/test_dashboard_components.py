@@ -2,11 +2,10 @@ import pytest
 
 pytest.importorskip("pandas")
 import pandas as pd
-
 import plotly.graph_objs as go
 from dash import html
 
-from glpi_dashboard.dashboard.components import _status_fig, compute_ticket_stats
+from frontend.components.components import _status_fig, compute_ticket_stats
 
 
 def test_status_fig_bar_counts() -> None:

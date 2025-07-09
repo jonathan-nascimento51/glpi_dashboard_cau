@@ -3,8 +3,8 @@ import pytest
 pytest.importorskip("pandas")
 import pandas as pd
 
-from glpi_dashboard.acl import process_raw
-from glpi_dashboard.data import transform
+from backend.adapters.normalization import process_raw
+from backend.utils import transform
 
 
 def test_process_raw_sanitization():

@@ -10,7 +10,7 @@ from typing import Any, Dict, Optional
 
 from backend.core.settings import EVENT_BROKER_URL
 from backend.services.metrics_worker import update_metrics
-from glpi_dashboard.utils.redis_client import RedisClient, redis_client
+from backend.utils.redis_client import RedisClient, redis_client
 
 logger = logging.getLogger(__name__)
 

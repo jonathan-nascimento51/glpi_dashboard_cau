@@ -7,7 +7,7 @@ from typing import Any, Dict, Optional
 import pandas as pd
 
 from backend.utils.redis_client import RedisClient, redis_client
-from glpi_dashboard.data.transform import aggregate_by_user
+from backend.utils.transform import aggregate_by_user
 
 
 def tickets_by_date(df: pd.DataFrame) -> pd.DataFrame:

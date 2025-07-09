@@ -1,7 +1,7 @@
 import pytest
 
-from glpi_dashboard.acl import MappingService, TicketTranslator
-from glpi_dashboard.acl.dto import CleanTicketDTO
+from backend.adapters.dto import CleanTicketDTO, TicketTranslator
+from backend.adapters.mapping_service import MappingService
 
 
 @pytest.mark.asyncio

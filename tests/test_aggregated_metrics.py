@@ -12,7 +12,7 @@ from backend.services.aggregated_metrics import (
     tickets_by_date,
     tickets_daily_totals,
 )
-from glpi_dashboard.utils.redis_client import RedisClient
+from backend.utils.redis_client import RedisClient
 
 
 def make_df(dates):

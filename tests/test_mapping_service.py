@@ -2,7 +2,7 @@ import pytest
 from redis.asyncio import Redis
 
 from backend.adapters.glpi_session import GLPISession
-from glpi_dashboard.acl import MappingService
+from backend.adapters.mapping_service import MappingService
 
 
 @pytest.mark.asyncio
@@ -23,6 +23,7 @@ async def test_initialize_fetches_all_mappings(mocker):
     pipe = mocker.AsyncMock()
     pipe.__aenter__.return_value = pipe
     redis_client.pipeline.return_value = pipe
+    mocker.patch.object(MappingService, "_index_all", index_all)
 
     svc = MappingService(session, redis_client=redis_client)
     await svc.initialize()
@@ -39,6 +40,8 @@ async def test_get_user_map_cache_hit(mocker):
     session = mocker.Mock(spec=GLPISession)
     redis_client = mocker.Mock(spec=Redis)
     redis_client.hgetall = mocker.AsyncMock(return_value={"5": "Alice"})
+    index_all = mocker.AsyncMock()
+    mocker.patch.object(MappingService, "_index_all", index_all)
     svc = MappingService(session, redis_client=redis_client)
 
     result = await svc.get_user_map()
@@ -51,6 +54,7 @@ async def test_get_user_map_cache_hit(mocker):
 async def test_get_user_map_cache_miss(mocker):
     session = mocker.Mock(spec=GLPISession)
     index_all = mocker.AsyncMock(return_value=[{"id": 5, "name": "Bob"}])
+    mocker.patch.object(MappingService, "_index_all", index_all)
     redis_client = mocker.Mock(spec=Redis)
     redis_client.hgetall = mocker.AsyncMock(return_value={})
     pipe = mocker.AsyncMock()

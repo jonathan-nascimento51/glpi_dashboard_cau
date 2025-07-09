@@ -3,7 +3,7 @@ import os
 
 import pytest
 
-from glpi_dashboard.data import tickets_groups
+from backend.services import tickets_groups
 
 
 def setup_env() -> None:

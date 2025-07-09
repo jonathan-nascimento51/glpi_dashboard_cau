@@ -4,7 +4,7 @@ pytest.importorskip("pandas")
 import pandas as pd
 
 from backend.utils import sanitize_status_column
-from glpi_dashboard.dashboard.components import compute_ticket_stats
+from frontend.components.components import compute_ticket_stats
 
 
 def test_sanitize_status_column():
