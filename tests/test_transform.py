@@ -3,7 +3,7 @@ import pytest
 pytest.importorskip("pandas")
 import pandas as pd
 
-from backend.utils import transform
+from backend.adapters import normalization as transform
 
 
 def test_to_dataframe_dtypes():
