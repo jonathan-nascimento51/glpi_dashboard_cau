@@ -1,10 +1,13 @@
 import os
 import sys
 
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src"))  # noqa: E402
+sys.path.insert(
+    0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src")
+)  # noqa: E402
 
-from glpi_dashboard import telemetry  # noqa: E402
 from opentelemetry.sdk.metrics.export import MetricExportResult
+
+from backend.utils import telemetry  # noqa: E402
 
 
 class DummyExporter:

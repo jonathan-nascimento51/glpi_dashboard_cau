@@ -7,7 +7,7 @@ import redis.asyncio as redis
 
 from backend.core.settings import REDIS_DB, REDIS_HOST, REDIS_PORT
 
-from ..services.glpi_session import GLPISession
+from .glpi_session import GLPISession
 
 logger = logging.getLogger(__name__)
 
