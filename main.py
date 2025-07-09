@@ -10,8 +10,7 @@ from flask import Flask
 from flask_caching import Cache
 
 from backend.adapters.glpi_session import Credentials, GLPISession
-from backend.services.exceptions import GLPIAPIError
-from glpi_dashboard.config.settings import (
+from backend.core.settings import (
     GLPI_APP_TOKEN,
     GLPI_BASE_URL,
     GLPI_PASSWORD,
@@ -19,10 +18,11 @@ from glpi_dashboard.config.settings import (
     GLPI_USERNAME,
     USE_MOCK_DATA,
 )
-from glpi_dashboard.dashboard.callbacks import register_callbacks
-from glpi_dashboard.dashboard.layout import build_layout
-from glpi_dashboard.data.pipeline import process_raw
-from glpi_dashboard.logging_config import init_logging
+from backend.services.exceptions import GLPIAPIError
+from backend.utils import process_raw
+from backend.utils.logging_config import init_logging
+from frontend.callbacks.callbacks import register_callbacks
+from frontend.layout.layout import build_layout
 
 app = Flask(__name__)
 cache = Cache(

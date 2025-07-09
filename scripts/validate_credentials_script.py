@@ -6,7 +6,7 @@ import textwrap
 
 from aiohttp import ClientSession
 
-from glpi_dashboard.config.settings import get_settings
+from backend.core.settings import get_settings
 
 
 async def check_glpi_connection():
