@@ -9,7 +9,6 @@ import pandas as pd
 from fastapi import HTTPException
 from fastapi.responses import Response
 
-from backend.adapters.dto import CleanTicketDTO, TicketTranslator
 from backend.adapters.factory import create_glpi_session
 from backend.adapters.glpi_session import GLPISession
 from backend.adapters.normalization import process_raw
@@ -21,6 +20,7 @@ from backend.services.aggregated_metrics import (
     tickets_daily_totals,
 )
 from backend.utils.redis_client import redis_client
+from shared.dto import CleanTicketDTO, TicketTranslator
 
 logger = logging.getLogger(__name__)
 
