@@ -4,7 +4,7 @@ This short guide explains how the repository is organised and how the main servi
 
 ## Directory Overview
 
-- **`backend/`** – Dockerfile and config for running the FastAPI worker.
+- **`docker/backend/`** – Dockerfile and config for running the FastAPI worker.
 - **`src/backend/`** – actual worker implementation exposing REST and GraphQL endpoints. Integration with GLPI lives under `adapters/` and service logic under `services/`.
 - **`src/frontend/`** – Dash components and callbacks that render metrics. `layout/layout.py` defines the main dashboard view.
 - **`frontend/`** – Next.js project for a richer React front‑end. It consumes the worker API using `NEXT_PUBLIC_API_BASE_URL`.
