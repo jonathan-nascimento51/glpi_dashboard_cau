@@ -8,7 +8,7 @@ from pathlib import Path
 # from any working directory without manually setting PYTHONPATH.
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from src.backend.db.database import init_db  # noqa: E402
+from backend.db.database import init_db  # noqa: E402
 
 
 async def _run(drop_all: bool) -> None:

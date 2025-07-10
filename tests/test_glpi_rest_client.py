@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import aiohttp
 import pytest
 
-from src.backend.adapters.glpi_session import (
+from backend.adapters.glpi_session import (
     Credentials,
     GLPISession,
     index_all_paginated,

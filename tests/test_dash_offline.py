@@ -3,7 +3,7 @@ import importlib
 
 def test_load_data_mock(monkeypatch):
     monkeypatch.setenv("USE_MOCK_DATA", "true")
-    import src.backend.core.settings as settings
+    import backend.core.settings as settings
 
     importlib.reload(settings)
     import dashboard_app as main

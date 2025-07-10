@@ -10,13 +10,13 @@ import textwrap
 from aiohttp import ClientSession
 from dotenv import load_dotenv
 
-from src.backend.adapters.glpi_session import (
+from backend.adapters.glpi_session import (
     Credentials,
     GLPIAPIError,
     GLPISession,
     GLPIUnauthorizedError,
 )
-from src.backend.core.settings import (
+from backend.core.settings import (
     GLPI_APP_TOKEN,
     GLPI_BASE_URL,
     GLPI_PASSWORD,

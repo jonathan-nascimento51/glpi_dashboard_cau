@@ -7,15 +7,14 @@ from unittest.mock import ANY, AsyncMock, MagicMock, patch
 import aiohttp
 import pytest
 
-from src.backend.adapters import glpi_session
+from backend.adapters import glpi_session
 
 pytest.importorskip(
     "aiohttp", reason="aiohttp package is required to run glpi_session tests"
 )
 
 
-from shared.utils.logging import init_logging
-from src.backend.adapters.glpi_session import (
+from backend.adapters.glpi_session import (
     Credentials,
     GLPIAPIError,
     GLPIBadRequestError,
@@ -26,6 +25,7 @@ from src.backend.adapters.glpi_session import (
     GLPITooManyRequestsError,
     GLPIUnauthorizedError,
 )
+from shared.utils.logging import init_logging
 
 
 @pytest.fixture(autouse=True)
@@ -113,7 +113,7 @@ def mock_client_session(mock_response):
     Patches aiohttp.ClientSession globally for tests.
     """
     # Patch the ClientSession used inside the glpi_session module
-    with patch("src.backend.adapters.glpi_session.ClientSession") as mock_session_cls:
+    with patch("backend.adapters.glpi_session.ClientSession") as mock_session_cls:
         mock_session_instance = MagicMock()
         mock_session_instance.closed = False  # Assume not closed initially
 
@@ -639,8 +639,8 @@ async def test_verify_ssl_disabled_passes_ssl_false(
     base_url, app_token, user_token, mock_response
 ):
     with (
-        patch("src.backend.adapters.glpi_session.ClientSession") as session_cls,
-        patch("src.backend.adapters.glpi_session.TCPConnector") as connector_cls,
+        patch("backend.adapters.glpi_session.ClientSession") as session_cls,
+        patch("backend.adapters.glpi_session.TCPConnector") as connector_cls,
     ):
         session_instance = MagicMock()
         session_instance.closed = False
