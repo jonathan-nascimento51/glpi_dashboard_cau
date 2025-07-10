@@ -1,138 +1,101 @@
-# Visão de Arquitetura
+Visão de Arquitetura (Plano de Melhoria)
+Este documento descreve as principais visões da arquitetura do GLPI Dashboard CAU. Esta versão foi atualizada para refletir a estrutura de pastas refatorada e ideal do projeto, que visa a máxima organização e clareza.
 
-Este documento descreve as principais visões da arquitetura do **GLPI Dashboard CAU** utilizando a stack oficial baseada em **Python (FastAPI/Dash)**, `httpx`/`asyncio`, **Pandas** e **Redis**. As seções abaixo seguem o modelo 4+1 de Kruchten.
+1. Visão Lógica
+A arquitetura lógica da aplicação permanece a mesma, dividida em componentes com responsabilidades claras:
 
-## 1. Visão Lógica
+Worker API (FastAPI): O backend responsável pela coleta, processamento e exposição dos dados do GLPI.
 
-A aplicação é dividida em dois microsserviços principais:
+Dashboard App (Dash): A interface de análise interna, construída em Python com Dash.
 
-- **Dash App**: interface web construída com Dash que apresenta gráficos e tabelas em tempo real.
-- **Worker API**: serviço FastAPI responsável por coletar dados do GLPI, armazenar em Redis/PostgreSQL e expor endpoints REST/GraphQL.
+Frontend App (React): A interface principal para o usuário, rica e interativa, construída com React/TypeScript.
 
-```text
+Plaintext
+
 @startuml
-actor Usuario
-Usuario --> Dash
-Dash --> Worker
+actor Usuario as User
+participant "Frontend (React)" as ReactApp
+participant "Dashboard (Dash)" as DashApp
+participant "Worker (FastAPI)" as Worker
+database "Redis" as Redis
+database "PostgreSQL" as DB
+cloud "GLPI REST API" as GLPI
+
+User --> ReactApp
+User --> DashApp
+ReactApp --> Worker
+DashApp --> Worker
 Worker --> Redis
-Worker --> "Banco de Dados"
-Worker --> "GLPI REST API"
+Worker --> DB
+Worker --> GLPI
 @enduml
-```
+2. Visão de Implementação (Estrutura Alvo)
+O repositório será organizado com uma separação de responsabilidades estrita, movendo os diferentes tipos de arquivos para pastas dedicadas e limpando a raiz do projeto.
 
-## 2. Visão de Implementação
+app/: (Refatorado) Pasta principal que abrigará todo o código-fonte Python, unificando o backend e o dashboard Dash em um único local.
 
-O repositório é organizado em pacotes Python com responsabilidade clara:
+app/api/: Módulos e rotas do Worker API (FastAPI).
 
-- `src/backend/` concentra as rotas FastAPI e os serviços de domínio.
-- `src/frontend/` reúne o layout do Dash e seus callbacks reativos.
-- `src/shared/` agrupa modelos e utilidades compartilhadas entre as camadas.
-- `frontend/` na raiz contém a aplicação React/Next.js que consome o worker API.
-- `src/backend/services/` reune scripts de ingestao e normalizacao de dados.
+app/services/: Toda a lógica de negócio, serviços de domínio, ingestão de dados e integração com o GLPI.
 
-Esses módulos trocam dados através de objetos tipados e utilizam `httpx` com `asyncio` para chamadas não bloqueantes.
+app/dashboard/: Módulos da aplicação Dash, incluindo layouts e callbacks.
 
-```text
+app/shared/: Modelos Pydantic, DTOs e utilitários compartilhados entre os diferentes componentes Python.
+
+app/tools/: Ferramentas de linha de comando (antes em src/glpi_tools).
+
+frontend/: Diretório dedicado exclusivamente à aplicação principal em React/TypeScript/Vite. Ele é autocontido, com suas próprias dependências e scripts.
+
+documentation/: (Refatorado) Pasta central para toda a documentação do projeto. Arquivos como ARCHITECTURE.md, README.md (exceto o principal), ADRs e outros guias serão movidos para cá.
+
+scripts/: (Refatorado) Centralizará todos os scripts utilitários (.py, .sh, .js) que auxiliam em tarefas de desenvolvimento e automação.
+
+docker/: (Refatorado) Conterá arquivos de configuração auxiliares do Docker, como docker-compose.override.yml e docker-compose.prod.yml, além de scripts de inicialização de contêineres.
+
+Raiz do Projeto: A raiz será mantida o mais limpa possível, contendo apenas arquivos essenciais para a inicialização e configuração do projeto:
+
+Configuração Docker: docker-compose.yml, Dockerfile.
+
+Configuração do Projeto: pyproject.toml, package.json, requirements.txt.
+
+CI/CD e Qualidade: .github/, .gitignore, .pre-commit-config.yaml.
+
+Documentação Essencial: README.md.
+
+Plaintext
+
 @startuml
-package backend {
-  [api]
+package "app (Python)" as app {
+  [api (FastAPI)]
+  [dashboard (Dash)]
   [services]
-  [db]
+  [shared]
 }
-package frontend {
-  [layout]
+
+package "frontend (React/TS)" as fe {
+  [components]
+  [hooks]
 }
-package shared {
-  [models]
-  [utils]
-}
-[layout] --> [api]
-[api] --> [services]
-[services] --> [db]
-[services] --> [models]
+
+package "documentation" as docs
+package "scripts"
+package "docker"
+
+fe ..> [api] : HTTP
+[dashboard] ..> [api] : (Uso interno de dados)
+[api] -> [services]
+[services] -> [shared]
 @enduml
-```
+3. Visão de Processo
+O fluxo de execução não se altera. O Worker continua sendo a peça central que processa os dados, e as aplicações frontend (React e Dash) consomem esses dados via API.
 
-## 3. Visão de Processo
+4. Visão de Implantação
+A estratégia de implantação com contêineres Docker permanece a mesma, sendo beneficiada pela organização dos arquivos que simplifica a construção das imagens.
 
-Em tempo de execução, o worker executa tarefas assíncronas que obtêm dados do GLPI e atualizam o cache. A aplicação Dash lê esse cache periodicamente para renderizar indicadores. O fluxo típico é:
+5. Visão de Cenários
+Os cenários de uso continuam idênticos, uma vez que a refatoração da estrutura de arquivos não afeta a funcionalidade externa da aplicação.
 
-1. Usuário acessa o Dash e solicita métricas.
-2. Dash consulta o Worker via HTTP.
-3. Worker verifica Redis; se necessário, chama a API do GLPI usando `httpx`.
-4. Os resultados são transformados em `pandas.DataFrame` e armazenados.
-5. Dash exibe os dados atualizados ao usuário.
+6. Fluxo orientado a eventos
+A lógica de consumo de eventos continuará a mesma, porém o arquivo responsável será realocado para seguir a nova estrutura. O consumidor estará em app/services/events_consumer.py (caminho atualizado).
 
-## 4. Visão de Implantação
-
-A solução é distribuída em contêineres Docker orquestrados via `docker compose`:
-
-- `dash`: executa o servidor Dash em Gunicorn/Uvicorn.
-- `worker`: serviço FastAPI para integrações e cálculos.
-- `redis`: cache de acesso rápido para dados de tickets.
-- `db` (opcional): armazena históricos e metadados adicionais.
-
-```text
-@startuml
-node dash
-node worker
-database Redis
-database DB
-cloud "GLPI" as glpi
-
-user -- dash
-Dash --> worker
-worker --> Redis
-worker --> DB
-worker --> glpi
-@enduml
-```
-
-## 5. Visão de Cenários
-
-Um cenário comum envolve a visualização de backlog de chamados em tempo real:
-
-1. O usuário abre o painel e solicita o gráfico de SLA.
-2. Dash dispara uma requisição ao endpoint `/metrics/sla` do Worker.
-3. O Worker consulta o cache Redis; se estiver expirado, faz `GET` na API do GLPI.
-4. Os dados são normalizados com Pandas e gravados no cache.
-5. Dash recebe os resultados e atualiza as figuras na tela.
-
-```text
-@startuml
-actor Usuario
-Usuario -> Dash : abrir painel
-Dash -> Worker : GET /metrics/sla
-Worker -> Redis : consultar
-Redis --> Worker : hit/miss
-Worker -> "GLPI API" : GET /Ticket
-Worker --> Redis : salvar
-Worker --> Dash : JSON c/ SLA
-Dash --> Usuario : exibe gráfico
-@enduml
-```
-
-Estas visões fornecem um panorama completo da arquitetura e do fluxo de dados, facilitando futuras evoluções e integrações.
-
-## 6. Fluxo orientado a eventos
-
-A replicação das tabelas do GLPI via Debezium gera eventos `TicketCreated` e
-`TicketUpdated` que são publicados em um broker (Kafka ou RabbitMQ). O módulo
-`events/consumer.py` assina esse fluxo e aplica cada alteração ao modelo de
-leitura mantido no Redis. Dessa forma, as métricas são atualizadas
-incrementalmente conforme os tickets mudam sem depender de consultas
-periódicas.
-
-Outros serviços podem consumir o mesmo stream para compor relatórios ou acionar
-webhooks, bastando criar um consumidor para o mesmo tópico. O formato de evento
-é simples:
-
-```json
-{
-  "type": "TicketCreated",
-  "payload": { "id": 123, "status": 1, "priority": 3 }
-}
-```
-
-Esses eventos são processados em ordem e os agregados de cache são recalculados
-apenas com os registros afetados.
+Esta versão do documento serve como o "plano diretor" para a refatoração, garantindo que todos os envolvidos tenham uma visão clara da estrutura organizada que queremos alcançar.
