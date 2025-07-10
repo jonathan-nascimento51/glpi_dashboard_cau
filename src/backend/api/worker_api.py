@@ -114,12 +114,10 @@ class Query:
         total = len(df)
         closed = 0
         if "status" in df:
-            status_series = (
-                df["status"].astype(str).str.lower()
-            )
+            status_series = df["status"].astype(str).str.lower()
             closed = df[status_series.isin(["closed", "solved"])].shape[0]
         opened = total - closed
-        return Metrics(total=total, opened=opened, closed=closed)
+        return Metrics(total=total, opened=opened, closed=closed)  # type: ignore[call-arg]
 
 
 def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
@@ -292,8 +290,7 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
     return app
 
 
-# Expose ASGI app for uvicorn
-app = create_app()
+app: FastAPI | None = None
 
 
 def main() -> None:  # pragma: no cover - manual run
@@ -302,6 +299,9 @@ def main() -> None:  # pragma: no cover - manual run
     parser.add_argument("--port", type=int, default=8000, help="Port to bind")
     args = parser.parse_args()
 
+    global app
+    if app is None:
+        app = create_app()
     uvicorn.run(app, host="0.0.0.0", port=args.port)
 
 
