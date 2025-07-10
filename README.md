@@ -126,8 +126,8 @@ If a script still depends on `require()`, rename it with the `.cjs` extension or
 - **`src/frontend/layout/layout.py`** – defines tables and charts for the Dash UI.
 - **`glpi_tools/__main__.py`** – exposes the CLI commands such as `list-fields`.
 - **`dashboard_app.py`** – starts the Dash server.
-- **`worker.py`** – primary backend entry point used by Docker and CI to launch the FastAPI service.
-- **`src/main.py`** – legacy prototype removed in favour of `worker.py`.
+ - **`worker.py`** – primary backend entry point used by Docker and CI to launch the FastAPI service.
+ - **`main.py`** – the previous example file has been removed; all services start via `worker.py`.
 - **`scripts/`** – helper utilities like `filters.py`, `hash_data.py`, `log_exec.py`.
 
 ### Quick usage examples
