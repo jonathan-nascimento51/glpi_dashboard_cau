@@ -41,8 +41,8 @@ from backend.services.ticket_loader import (
     load_tickets,
     stream_tickets,
 )
-from backend.utils.redis_client import redis_client
 from shared.dto import CleanTicketDTO
+from shared.utils.redis_client import redis_client
 
 logger = logging.getLogger(__name__)
 

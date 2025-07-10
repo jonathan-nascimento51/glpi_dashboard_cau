@@ -7,7 +7,7 @@ confusion with the Docker build context.
 import logging
 import os
 
-from backend.utils.logging import init_logging
+from shared.utils.logging import init_logging
 from src.backend.adapters.glpi_session import GLPISession
 from src.backend.api.worker_api import (
     create_app,

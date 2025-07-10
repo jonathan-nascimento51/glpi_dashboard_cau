@@ -14,7 +14,7 @@ pytest.importorskip(
 )
 
 
-from backend.utils.logging import init_logging
+from shared.utils.logging import init_logging
 from src.backend.adapters.glpi_session import (
     Credentials,
     GLPIAPIError,

@@ -12,7 +12,7 @@ from src.backend.services.aggregated_metrics import (
     tickets_by_date,
     tickets_daily_totals,
 )
-from src.backend.utils.redis_client import RedisClient
+from src.shared.utils.redis_client import RedisClient
 
 
 def make_df(dates):

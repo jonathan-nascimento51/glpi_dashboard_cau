@@ -9,7 +9,7 @@ from gql import Client, gql
 from gql.transport.httpx import HTTPXTransport
 from pydantic import BaseModel, Field
 
-from shared.resilience import retry_api_call
+from shared.utils.resilience import retry_api_call
 
 
 class GraphQLParams(BaseModel):

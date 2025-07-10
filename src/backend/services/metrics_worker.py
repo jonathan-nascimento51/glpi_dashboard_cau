@@ -8,14 +8,13 @@ from arq import run_worker
 from arq.connections import RedisSettings
 
 from backend.adapters.normalization import process_raw
-from backend.utils.redis_client import RedisClient, redis_client
-
 from backend.services.aggregated_metrics import (
     cache_aggregated_metrics,
     compute_aggregated,
     tickets_by_date,
     tickets_daily_totals,
 )
+from shared.utils.redis_client import RedisClient, redis_client
 
 
 async def _load_cached_tickets(cache: RedisClient) -> list[Dict[str, Any]]:
@@ -28,9 +27,7 @@ async def _load_cached_tickets(cache: RedisClient) -> list[Dict[str, Any]]:
     return []
 
 
-async def update_metrics(
-    ctx: Dict[str, Any], ticket: Dict[str, Any]
-) -> None:
+async def update_metrics(ctx: Dict[str, Any], ticket: Dict[str, Any]) -> None:
     """Update the Redis read model using a single ticket payload."""
 
     cache: RedisClient = ctx.get("cache") or redis_client
