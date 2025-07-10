@@ -1,5 +1,7 @@
 import datetime as dt
 import os
+from typing import Any
+from unittest.mock import AsyncMock
 
 import pytest
 
@@ -13,37 +15,27 @@ def setup_env() -> None:
     os.environ["GLPI_USER_TOKEN"] = "user"
 
 
-class FakeSession(GLPISession):
-    def __init__(self, *args, **kwargs):
-        pass
-
-    async def __aenter__(self):
-        return self
-
-    async def __aexit__(self, exc_type, exc, tb):
-        pass
-
-    async def get(
-        self,
-        endpoint: str,
-        params: dict | None = None,
-        headers: dict | None = None,
-        **kwargs: object,
-    ) -> dict:
-        if endpoint.startswith("search/Ticket_User"):
-            return {"data": [{"users_id": 2, "groups_id": 3}]}
-        if endpoint.startswith("search/Ticket"):
-            return {"data": [{"id": 1, "name": "t", "status": 1, "date": "2024-01-01"}]}
-        if "User/2" in endpoint:
-            return {"id": 2, "name": "Alice", "groups_id": 3}
-        return {"id": 3, "completename": "N1"} if "Group/3" in endpoint else {"id": 1}
+async def _fake_get_side_effect(
+    endpoint: str, params: dict | None = None, **kwargs: Any
+) -> dict:
+    """Simulate responses from the GLPI API for different endpoints."""
+    if endpoint.startswith("search/Ticket_User"):
+        return {"data": [{"users_id": 2, "groups_id": 3}]}
+    if endpoint.startswith("search/Ticket"):
+        return {"data": [{"id": 1, "name": "t", "status": 1, "date": "2024-01-01"}]}
+    if "User/2" in endpoint:
+        return {"id": 2, "name": "Alice", "groups_id": 3}
+    if "Group/3" in endpoint:
+        return {"id": 3, "completename": "N1"}
+    return {"id": 1}
 
 
 @pytest.mark.asyncio
 async def test_collect_basic():
     setup_env()
 
-    session = FakeSession()
+    session = AsyncMock(spec=GLPISession)
+    session.get.side_effect = _fake_get_side_effect
     df = await tickets_groups.collect_tickets_with_groups(
         "2024-01-01", "2024-01-02", session=session
     )
