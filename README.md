@@ -1,6 +1,6 @@
 # GLPI Dashboard CAU
 
-![Coverage](https://img.shields.io/badge/coverage-85%25-brightgreen.svg)
+![Coverage](coverage.svg)
 [![Security](https://snyk.io/test/github/jonathan-nascimento51/glpi_dashboard_cau/badge.svg)](https://snyk.io/test/github/jonathan-nascimento51/glpi_dashboard_cau)
 [![Draft v0.1](https://img.shields.io/badge/DRAFT-v0.1-informational)](docs/vision.md)
 
