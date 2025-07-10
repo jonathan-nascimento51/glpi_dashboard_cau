@@ -29,22 +29,21 @@ Worker --> Redis
 Worker --> DB
 Worker --> GLPI
 @enduml
-2. Visão de Implementação (Estrutura Alvo)
-O repositório será organizado com uma separação de responsabilidades estrita, movendo os diferentes tipos de arquivos para pastas dedicadas e limpando a raiz do projeto.
 
-app/: (Refatorado) Pasta principal que abrigará todo o código-fonte Python, unificando o backend e o dashboard Dash em um único local.
+2. Visão de Implementação (Estrutura Atual)
+O repositório mantém uma separação de responsabilidades sob o diretório `src/`, que concentra todo o código Python do projeto.
 
-app/api/: Módulos e rotas do Worker API (FastAPI).
+src/backend/: Módulos e rotas do Worker API (FastAPI).
 
-app/services/: Toda a lógica de negócio, serviços de domínio, ingestão de dados e integração com o GLPI.
+src/frontend/: Módulos da aplicação Dash, incluindo layouts e callbacks.
 
-app/dashboard/: Módulos da aplicação Dash, incluindo layouts e callbacks.
+src/services/: Toda a lógica de negócio, serviços de domínio, ingestão de dados e integração com o GLPI.
 
-app/shared/: Modelos Pydantic, DTOs e utilitários compartilhados entre os diferentes componentes Python.
+src/shared/: Modelos Pydantic, DTOs e utilitários compartilhados entre os diferentes componentes Python.
 
-app/tools/: Ferramentas de linha de comando (antes em src/glpi_tools).
+src/glpi_tools/: Ferramentas de linha de comando.
 
-frontend/: Diretório dedicado exclusivamente à aplicação principal em React/TypeScript/Vite. Ele é autocontido, com suas próprias dependências e scripts.
+src/frontend/react_app/: Diretório dedicado exclusivamente à aplicação principal em React/TypeScript/Vite. Ele é autocontido, com suas próprias dependências e scripts.
 
 documentation/: (Refatorado) Pasta central para toda a documentação do projeto. Arquivos como ARCHITECTURE.md, README.md (exceto o principal), ADRs e outros guias serão movidos para cá.
 
@@ -65,9 +64,9 @@ Documentação Essencial: README.md.
 Plaintext
 
 @startuml
-package "app (Python)" as app {
-  [api (FastAPI)]
-  [dashboard (Dash)]
+package "src (Python)" as src {
+  [backend]
+  [frontend]
   [services]
   [shared]
 }
@@ -81,9 +80,9 @@ package "documentation" as docs
 package "scripts"
 package "docker"
 
-fe ..> [api] : HTTP
-[dashboard] ..> [api] : (Uso interno de dados)
-[api] -> [services]
+fe ..> [backend] : HTTP
+[frontend] ..> [backend] : (Uso interno de dados)
+[backend] -> [services]
 [services] -> [shared]
 @enduml
 3. Visão de Processo
@@ -96,6 +95,6 @@ A estratégia de implantação com contêineres Docker permanece a mesma, sendo 
 Os cenários de uso continuam idênticos, uma vez que a refatoração da estrutura de arquivos não afeta a funcionalidade externa da aplicação.
 
 6. Fluxo orientado a eventos
-A lógica de consumo de eventos continuará a mesma, porém o arquivo responsável será realocado para seguir a nova estrutura. O consumidor estará em app/services/events_consumer.py (caminho atualizado).
+A lógica de consumo de eventos continuará a mesma, porém o arquivo responsável será realocado para seguir a nova estrutura. O consumidor estará em src/services/events_consumer.py (caminho atualizado).
 
 Esta versão do documento serve como o "plano diretor" para a refatoração, garantindo que todos os envolvidos tenham uma visão clara da estrutura organizada que queremos alcançar.

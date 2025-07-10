@@ -6,7 +6,7 @@ This document provides a quick overview of how the repository is structured, the
 
 - **`src/backend/`** – FastAPI worker that talks to the GLPI API and exposes REST/GraphQL endpoints.
 - **`src/frontend/`** – Dash application composed of callbacks and layout files.
-- **`frontend/`** – Stand‑alone React/Next.js dashboard that consumes the worker API.
+- **`src/frontend/react_app/`** – Stand‑alone React/Next.js dashboard that consumes the worker API.
 - **`src/shared/`** – Shared models and utilities reused by both back‑end and front‑end modules.
 - **`scripts/`** – Helper scripts for setup, data fetching and maintenance tasks.
 
@@ -41,4 +41,4 @@ Aggregated metrics are computed under `src/backend/services/aggregated_metrics.p
 
 ## GLPI Integration and Metrics
 
-The worker reads `GLPI_URL`, `GLPI_APP_TOKEN` and `GLPI_USER_TOKEN` from the `.env` file to authenticate with GLPI. Normalised ticket data is stored in Redis/PostgreSQL. Dash visualisations live in `src/frontend/`, while additional widgets and analytics for managers reside in the React app inside `frontend/`.
+The worker reads `GLPI_URL`, `GLPI_APP_TOKEN` and `GLPI_USER_TOKEN` from the `.env` file to authenticate with GLPI. Normalised ticket data is stored in Redis/PostgreSQL. Dash visualisations live in `src/frontend/`, while additional widgets and analytics for managers reside in the React app inside `src/frontend/react_app/`.

@@ -19,7 +19,7 @@ This document summarizes the high level guidelines for implementing the dashboar
 ## 3. Structure
 
 ```text
-frontend/
+src/frontend/react_app/
 ├── src/
 │   ├── features/             # slices of business logic
 │   ├── components/           # shared UI components
@@ -43,16 +43,16 @@ Follow the testing pyramid:
 
 ## 5. Next Steps
 
-1. Scaffold a Vite React project inside the `frontend` directory.
+1. Scaffold a Vite React project inside the `src/frontend/react_app` directory.
 2. Implement the first feature slice for displaying ticket statistics.
 3. Configure GitHub Actions to run npm CI alongside the existing Python pipeline.
 
 ## 6. Running the Front-End
 
-Follow these steps inside the `frontend` folder to start developing:
+Follow these steps inside the `src/frontend/react_app` folder to start developing:
 
 ```bash
-cd frontend
+cd src/frontend/react_app
 npm install         # install dependencies
 npm run dev         # launch Vite dev server
 ```
@@ -69,7 +69,7 @@ npx prettier --write "src/**/*.{ts,tsx}"  # format code
 
 ### Environment Variables
 
-Create a `.env` file in the `frontend` directory to configure the URL of the worker API. This value must be provided in **development**, **testing** and **production** environments:
+Create a `.env` file in the `src/frontend/react_app` directory to configure the URL of the worker API. This value must be provided in **development**, **testing** and **production** environments:
 
 ```bash
 NEXT_PUBLIC_API_BASE_URL=http://127.0.0.1:8000

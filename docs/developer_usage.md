@@ -15,7 +15,7 @@ Principais módulos do projeto:
 | `src/frontend/layout/layout.py` | Layout e callbacks do dashboard em Dash |
 | `src/backend/services/worker_api.py` | Lógica de cache e métricas usadas pelo `worker.py` |
 | `shared/config/settings.py` | Carrega variáveis de ambiente (GLPI, DB, Redis) |
-| `frontend/` | Projeto Next.js que consome o worker API |
+| `src/frontend/react_app/` | Projeto Next.js que consome o worker API |
 
 Os módulos da Anti-Corruption Layer residem em `src/backend/adapters`. Importe-os diretamente desse pacote. O antigo `glpi_adapter.py` foi removido durante a refatoração.
 
@@ -145,8 +145,8 @@ Isso sobe PostgreSQL, Redis, o `worker` e o dashboard em portas 8000 e 5173.
 ├── src/
 │   ├── backend/   # serviços FastAPI e integrações GLPI
 │   ├── frontend/  # layout do dashboard em Dash
+│   ├── frontend/react_app/  # projeto React/Next.js
 │   └── shared/    # modelos e utilidades comuns
-├── frontend/      # projeto React/Next.js
 ├── examples/      # códigos de referência e testes
 ├── tests/         # suíte pytest
 ├── scripts/       # utilidades de linha de comando
@@ -168,8 +168,8 @@ para cache e sincronização em segundo plano.
 
 ### QueryClientProvider
 
-O `QueryClient` é criado em `frontend/src/lib/queryClient.ts` e fornecido ao
-`QueryClientProvider` dentro de `frontend/src/main.tsx`:
+O `QueryClient` é criado em `src/frontend/react_app/src/lib/queryClient.ts` e fornecido ao
+`QueryClientProvider` dentro de `src/frontend/react_app/src/main.tsx`:
 
 ```tsx
 import { QueryClientProvider } from '@tanstack/react-query'

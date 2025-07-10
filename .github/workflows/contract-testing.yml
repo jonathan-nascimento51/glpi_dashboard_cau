@@ -23,21 +23,21 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
+          cache-dependency-path: src/frontend/react_app/package-lock.json
       - name: Install dependencies
         run: |
-          cd frontend
+          cd src/frontend/react_app
           npm install
       - name: Run consumer contract tests
         run: |
-          cd frontend
+          cd src/frontend/react_app
           npm test -- --runTestsByPath tests/contracts/glpi-consumer.pact.js
       - name: Publish pacts
         env:
           PACT_BROKER_BASE_URL: '${{ secrets.PACT_BROKER_BASE_URL }}'
           PACT_BROKER_TOKEN: '${{ secrets.PACT_BROKER_TOKEN }}'
         run: |
-          cd frontend
+          cd src/frontend/react_app
           npx pact-broker publish pacts \
             --consumer-app-version=${{ github.sha }} \
             --branch=${{ github.ref_name }} \
