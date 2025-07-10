@@ -20,7 +20,6 @@ mapping = {
     "glpi_dashboard/data/database.py": "backend/db/database.py",
     "glpi_dashboard/data/transform.py": "backend/utils/transform.py",
     "glpi_dashboard/events/consumer.py": "backend/services/events_consumer.py",
-    "glpi_dashboard/glpi_adapter.py": "backend/adapters/glpi_adapter.py",
     "glpi_dashboard/services/aggregated_metrics.py": "backend/services/aggregated_metrics.py",
     "glpi_dashboard/services/langgraph_workflow.py": "backend/services/langgraph_workflow.py",
     "glpi_dashboard/services/worker_api.py": "backend/api/worker_api.py",

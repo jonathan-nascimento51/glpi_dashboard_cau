@@ -72,7 +72,7 @@ class FetcherArgs(BaseModel):
     status: TicketStatus | None = Field(
         default=None, description="Optional status filter for tickets"
     )
-    limit: int = Field(50, description="Maximum number of tickets to fetch")
+    limit: int = Field(..., description="Maximum number of tickets to fetch")
 
 
 class Metrics(BaseModel):
@@ -135,7 +135,8 @@ async def fetcher(state: AgentState, args: FetcherArgs | None = None) -> AgentSt
     args:
         Optional :class:`FetcherArgs` specifying filters.
     """
-    args = args or FetcherArgs()
+    if args is None:
+        args = FetcherArgs(limit=50)
     creds = Credentials(
         app_token=GLPI_APP_TOKEN,
         user_token=GLPI_USER_TOKEN,
@@ -240,7 +241,7 @@ def build_workflow(path: str | None = None) -> StateGraph:
     if path is None:
         path = tempfile.gettempdir()
     db_path = Path(path) / "workflow_state.sqlite"
-    checkpointer = SqliteSaver(str(db_path))
+    checkpointer = SqliteSaver.from_conn_string(str(db_path))
     workflow = StateGraph(AgentState, checkpointer=checkpointer)
 
     workflow.add_node("supervisor", supervisor)

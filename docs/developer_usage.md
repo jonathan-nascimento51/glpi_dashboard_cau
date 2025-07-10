@@ -10,12 +10,14 @@ Principais módulos do projeto:
 
 | Arquivo | Função |
 | ------- | ------ |
-| `src/backend/glpi_session.py` | Cliente assíncrono para autenticação e chamadas à API GLPI |
+| `src/backend/adapters/glpi_session.py` | Cliente assíncrono para autenticação e chamadas à API GLPI |
 | `src/backend/utils/pipeline.py` | Normaliza tickets em `pandas.DataFrame` e gera JSON |
 | `src/frontend/layout/layout.py` | Layout e callbacks do dashboard em Dash |
 | `src/backend/services/worker_api.py` | Lógica de cache e métricas usadas pelo `worker.py` |
 | `shared/config/settings.py` | Carrega variáveis de ambiente (GLPI, DB, Redis) |
 | `frontend/` | Projeto Next.js que consome o worker API |
+
+Os módulos da Anti-Corruption Layer residem em `src/backend/adapters`. Importe-os diretamente desse pacote. O antigo `glpi_adapter.py` foi removido durante a refatoração.
 
 Scripts utilitários residem em `scripts/` (ex.: `setup/init_db.py`, `fetch/fetch_tickets.py`, `validate_credentials.py`).
 
