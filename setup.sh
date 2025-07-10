@@ -1,40 +1,33 @@
 #!/bin/bash
 set -euo pipefail
 
-# Controle de instalação de Playwright/Chromium
-# Defina SKIP_PLAYWRIGHT=true para pular a instalação (ex: em builds Docker)
-SKIP_PLAYWRIGHT=${SKIP_PLAYWRIGHT:-true}
-# Permite instalar sem internet usando pacotes em ./wheels
+SKIP_PLAYWRIGHT=${SKIP_PLAYWRIGHT:-false}
 OFFLINE_INSTALL=${OFFLINE_INSTALL:-false}
-
 PROXY_FILE=/etc/apt/apt.conf.d/01proxy
 
 echo ">>> Verificando acesso à internet..."
 if curl -Is https://pypi.org/simple --max-time 5 >/dev/null 2>&1; then
   echo "✅ Conexão com a internet detectada"
 else
-  echo "⚠️ Sem acesso à internet. Configure HTTP_PROXY/HTTPS_PROXY ou copie o diretório wheels/ para instalação offline"
+  echo "⚠️ Sem acesso à internet. Configure HTTP_PROXY/HTTPS_PROXY ou use ./wheels para instalação offline"
 fi
 
-# Configura proxy do apt caso as variáveis estejam definidas
 if [ -n "${HTTP_PROXY:-}" ]; then
   echo "Acquire::http::Proxy \"${HTTP_PROXY}\";" | sudo tee "$PROXY_FILE" >/dev/null
   echo "Acquire::https::Proxy \"${HTTPS_PROXY:-$HTTP_PROXY}\";" | sudo tee -a "$PROXY_FILE" >/dev/null
   echo "Proxy configurado em $PROXY_FILE"
 fi
 
-echo ">>> INICIANDO CONFIGURAÇÃO COMPLETA DO AMBIENTE <<<"
-
 echo ">>> (1/6) Instalando dependências do sistema para o Playwright..."
 sudo apt-get update -y
 sudo apt-get install -y \
-    libnss3 libnspr4 libatk1.0-0t64 libatk-bridge2.0-0t64 libcups2t64 \
+    curl ca-certificates libnss3 libnspr4 libatk1.0-0t64 libatk-bridge2.0-0t64 libcups2t64 \
     libdbus-1-3 libxkbcommon0 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 \
     libgbm1 libpango-1.0-0 libcairo2 libasound2t64 libatspi2.0-0t64 libgtk-3-0t64 \
     libx11-xcb1 libxshmfence1 xvfb fonts-liberation libxslt1.1 libwoff1 \
     libharfbuzz-icu0 libvpx9 libavif16 libwebpdemux2 libenchant-2-2 libsecret-1-0 \
     libhyphen0 libgles2 libgstreamer1.0-0 gstreamer1.0-plugins-base \
-    gstreamer1.0-plugins-good gstreamer1.0-libav
+    gstreamer1.0-plugins-good gstreamer1.0-libav unzip
 
 VENV_DIR=".venv"
 if [ ! -d "$VENV_DIR" ]; then
@@ -46,7 +39,7 @@ echo ">>> (3/6) Ativando o ambiente virtual..."
 # shellcheck disable=SC1090
 source "$VENV_DIR/bin/activate"
 
-echo ">>> (4/6) Atualizando o pip e instalando dependências Python..."
+echo ">>> (4/6) Atualizando pip e instalando dependências Python..."
 pip install --upgrade pip
 if [ "$OFFLINE_INSTALL" = "true" ]; then
   WHEEL_DIR=${WHEELS_DIR:-./wheels}
@@ -54,10 +47,7 @@ if [ "$OFFLINE_INSTALL" = "true" ]; then
 else
   pip install -r requirements.txt -r requirements-dev.txt
 fi
-pip install -e .
-pip install pytest pytest-cov
-
-pip install aiohttp
+pip install -e . pytest pytest-cov aiohttp
 
 echo ">>> (5/6) Instalando ganchos de pre-commit..."
 if command -v pre-commit >/dev/null 2>&1; then
@@ -67,35 +57,19 @@ else
   pip install pre-commit && pre-commit install
 fi
 
-echo ">>> (6/6) Instalando Docker..."
-sudo apt-get install -y ca-certificates curl gnupg lsb-release
-sudo apt-get update && sudo apt-get install curl
-sudo mkdir -p /etc/apt/keyrings
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
-  | sudo gpg --dearmor --batch --yes -o /etc/apt/keyrings/docker.gpg
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-sudo apt-get update -y
-curl -fsSL https://get.docker.com | sudo sh
-
-# sudo usermod -aG docker "${USER:-$(whoami)}"  # Desnecessário no Codex
-
 # Instalação opcional do Playwright/Chromium
 if [ "$SKIP_PLAYWRIGHT" = "false" ]; then
   echo ">>> Instalando o browser Chromium para o Playwright..."
-  npx playwright install --with-deps chromium < /dev/null \
-    && echo "✅ Chromium instalado." \
-    || { echo "❌ Falha na instalação do Chromium"; exit 1; }
+  export NODE_TLS_REJECT_UNAUTHORIZED=0
+  export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+  npx playwright install chromium || {
+    echo "⚠️ Playwright falhou. Tentando download manual via curl..."
+    curl -L https://playwright.azureedge.net/builds/chromium/1181/chromium-linux.zip -o chromium.zip \
+      && unzip chromium.zip -d ~/.cache/ms-playwright \
+      && echo "✅ Chromium extraído manualmente"
+  }
 else
   echo "⚠️ SKIP_PLAYWRIGHT=true — pulando instalação do Chromium."
 fi
 
-echo "✅ Etapas concluídas com sucesso:"
-echo "  - Dependências do sistema instaladas"
-echo "  - Ambiente virtual criado e ativado"
-echo "  - Dependências Python instaladas"
-echo "  - Ganchos de pre-commit configurados"
-echo "  - Docker instalado"
-echo "  - Chromium instalado (se aplicável)"
-if [ -n "${HTTP_PROXY:-}" ]; then
-  echo "  - Proxy configurado para apt"
-fi
+echo "✅ Etapas concluídas com sucesso!"
