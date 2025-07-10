@@ -12,6 +12,7 @@ from contextvars import ContextVar
 from loguru import logger
 from opentelemetry.instrumentation.logging import LoggingInstrumentor
 
+_is_initialized: bool = False
 _correlation_id: ContextVar[str | None] = ContextVar("correlation_id", default=None)
 
 
@@ -30,7 +31,7 @@ class _InterceptHandler(logging.Handler):
 def init_logging(
     level: str | int | None = None,
     *,
-    serialize: bool = True,
+    serialize: bool | None = None,
     enable_instrumentation: bool = True,
 ) -> None:
     """Initialize structured logging with Loguru.
@@ -40,7 +41,8 @@ def init_logging(
     level:
         Logging level or string (e.g. ``"INFO"``). Defaults to ``LOG_LEVEL`` env var.
     serialize:
-        If ``True``, logs are emitted in JSON format.
+        If ``True``, logs are emitted in JSON format. Defaults to ``True`` unless the
+        ``LOG_FORMAT`` environment variable is set to ``"text"``.
     enable_instrumentation:
         Whether to enable OpenTelemetry logging instrumentation.
 
@@ -49,27 +51,40 @@ def init_logging(
     >>> from backend.utils.logging import init_logging
     >>> init_logging("DEBUG")
     """
+    global _is_initialized
+    if _is_initialized:
+        return
+
     if level is None:
         env_level = os.getenv("LOG_LEVEL", "INFO")
         level = getattr(logging, env_level.upper(), logging.INFO)
+
+    # Default to JSON logs unless LOG_FORMAT is 'text'
+    if serialize is None:
+        serialize = os.getenv("LOG_FORMAT", "json").lower() != "text"
+
+    # Enable verbose diagnostics only if LOG_DEBUG is set
+    debug_mode = os.getenv("LOG_DEBUG", "false").lower() in ("true", "1", "t")
 
     logger.remove()
     logger.configure(extra={"correlation_id": None})
     logger.add(
         sys.stdout,
-        level=level,
+        level=level if level is not None else "INFO",  # Default to "INFO" if level is None
         serialize=serialize,
-        filter=_CorrelationFilter(),
+        filter=_CorrelationFilter(),  # type: ignore[arg-type]
         enqueue=True,
-        backtrace=True,
-        diagnose=True,
+        backtrace=debug_mode,
+        diagnose=debug_mode,
     )
 
     logging.basicConfig(handlers=[_InterceptHandler()], level=0, force=True)
-    logging.getLogger().setLevel(level)
+    logging.getLogger().setLevel(level if level is not None else logging.INFO)
 
     if enable_instrumentation:
         LoggingInstrumentor().instrument(set_logging_format=True)
+
+    _is_initialized = True
 
 
 def set_correlation_id(value: str | None) -> None:
