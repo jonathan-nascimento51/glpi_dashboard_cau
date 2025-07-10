@@ -19,8 +19,8 @@ elif curl -Is --max-time 5 "$INTERNAL_TEST_URL" >/dev/null 2>&1; then
   USE_PROXY=true
 
   # Define variáveis padrão de proxy, caso não estejam setadas
-  export HTTP_PROXY="${HTTP_PROXY:-http://proxy.rs.gov.br:3128}"
-  export HTTPS_PROXY="${HTTPS_PROXY:-http://proxy.rs.gov.br:3128}"
+  export HTTP_PROXY="${HTTP_PROXY:-http://proxymwg.ppiratini.intra.rs.gov.br:3128}"
+  export HTTPS_PROXY="${HTTPS_PROXY:-http://proxymwg.ppiratini.intra.rs.gov.br:3128}"
 
   # Configura proxy no APT
   echo "Acquire::http::Proxy \"$HTTP_PROXY\";" | sudo tee /etc/apt/apt.conf.d/01proxy >/dev/null
