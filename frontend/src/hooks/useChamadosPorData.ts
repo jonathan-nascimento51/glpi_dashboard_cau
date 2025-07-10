@@ -1,4 +1,4 @@
-import { useApiQuery } from './useApiQuery'
+import { useApiQuery } from '@/hooks/useApiQuery'
 import type { ChamadoPorData } from '../types/chamado'
 
 export function useChamadosPorData() {
