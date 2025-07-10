@@ -30,11 +30,11 @@ services:
 
   frontend:
     build:
-      context: ./frontend
+      context: ./src/frontend/react_app
     depends_on:
       - backend
     env_file:
-      - ./frontend/.env
+      - ./src/frontend/react_app/.env
     environment:
       # (opcional, você pode sobrescrever aqui)
       - NEXT_PUBLIC_API_BASE_URL=http://localhost:8000

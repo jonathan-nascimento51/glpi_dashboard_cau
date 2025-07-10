@@ -112,7 +112,7 @@ The dashboard reads data produced by the worker and stored in PostgreSQL. More d
 available in [docs/langgraph_workflow.md](docs/langgraph_workflow.md).
 Instructions for running the React front-end—including npm scripts and required environment variables—are available in
 [docs/frontend_architecture.md](docs/frontend_architecture.md). That document also covers how the front-end communicates with the worker API via `NEXT_PUBLIC_API_BASE_URL` and how to run the Jest and Playwright test suites.
-Create the environment file with `cp frontend/.env.example frontend/.env` before running the dashboard. Execute all npm commands from inside the `frontend` directory, e.g. `cd frontend && npm run dev`, or launch Docker.
+Create the environment file with `cp src/frontend/react_app/.env.example src/frontend/react_app/.env` before running the dashboard. Execute all npm commands from inside the `src/frontend/react_app` directory, e.g. `cd src/frontend/react_app && npm run dev`, or launch Docker.
 
 ### Node.js ESM conventions
 
@@ -367,12 +367,12 @@ this behaviour. Responses include the header `X-Warning: using mock data` when
 the fallback is active.
 
 Make sure the service is running with `python worker.py` and that your
-front-end points to it via `NEXT_PUBLIC_API_BASE_URL` in `frontend/.env`.
-Create the environment file with `cp frontend/.env.example frontend/.env` before starting the front-end.
-Run npm scripts from inside the `frontend` directory (`cd frontend && npm run dev`) or launch Docker.
+front-end points to it via `NEXT_PUBLIC_API_BASE_URL` in `src/frontend/react_app/.env`.
+Create the environment file with `cp src/frontend/react_app/.env.example src/frontend/react_app/.env` before starting the front-end.
+Run npm scripts from inside the `src/frontend/react_app` directory (`cd src/frontend/react_app && npm run dev`) or launch Docker.
 
-Vite loads environment variables that start with `NEXT_PUBLIC_` thanks to `envPrefix` in `frontend/vite.config.ts`. Imports that begin with `@/` resolve to the `src` directory so paths stay short.
-Copy `frontend/.env.example` to `frontend/.env` if the file doesn't exist and
+Vite loads environment variables that start with `NEXT_PUBLIC_` thanks to `envPrefix` in `src/frontend/react_app/vite.config.ts`. Imports that begin with `@/` resolve to the `src` directory so paths stay short.
+Copy `src/frontend/react_app/.env.example` to `src/frontend/react_app/.env` if the file doesn't exist and
 adjust the URL as needed.
 
 ### Generating TypeScript interfaces
@@ -383,7 +383,7 @@ Run the following command to sync the frontend types with the backend models:
 make gen-types
 ```
 
-This converts the Pydantic models in `backend.models.ts_models` into TypeScript definitions under `frontend/src/types/api.ts`.
+This converts the Pydantic models in `backend.models.ts_models` into TypeScript definitions under `src/frontend/react_app/src/types/api.ts`.
 
 Example GraphQL query to retrieve ticket data:
 
