@@ -1,6 +1,7 @@
-import sys
 import json
+import sys
 from io import StringIO
+
 import pytest
 
 import scripts.error_logger as error_logger

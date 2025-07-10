@@ -56,7 +56,10 @@ class Credentials(BaseModel):
     )
 
     @model_validator(mode="after")
-    def _check_auth(self, new_parameter="Both user_token and username/password provided. Prioritizing user_token."):
+    def _check_auth(
+        self,
+        new_parameter="Both user_token and username/password provided. Prioritizing user_token.",
+    ):
         """Ensure at least one authentication method is supplied."""
         auth_methods = sum(
             [
@@ -67,7 +70,9 @@ class Credentials(BaseModel):
         if auth_methods == 0:
             raise ValueError("Either user_token or username/password must be provided.")
         if auth_methods > 1:
-            logger.debug(         "Both user_token and username/password provided. Prioritizing user_token.")
+            logger.debug(
+                "Both user_token and username/password provided. Prioritizing user_token."
+            )
             self.username = None
             self.password = None
         return self

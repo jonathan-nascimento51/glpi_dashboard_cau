@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import pandas as pd
-from dash import callback, Output, Input
+from dash import Input, Output, callback
 
 from frontend.components.components import _status_fig, compute_ticket_stats
 

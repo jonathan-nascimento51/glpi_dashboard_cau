@@ -3,8 +3,8 @@ import os
 
 import pytest
 
-from src.backend.services import tickets_groups
 from src.backend.api.worker_api import GLPISession
+from src.backend.services import tickets_groups
 
 
 def setup_env() -> None:

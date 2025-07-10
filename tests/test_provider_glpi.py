@@ -1,4 +1,5 @@
 """Provider verification for GLPI API using Pact-Python."""
+
 from __future__ import annotations
 
 import os
@@ -10,7 +11,6 @@ import pytest
 import requests
 from fastapi import FastAPI, HTTPException
 from pact import Verifier
-
 
 PROVIDER_STATE: str = "valid user"
 

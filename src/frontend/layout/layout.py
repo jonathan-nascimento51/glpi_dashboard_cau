@@ -1,17 +1,14 @@
 from __future__ import annotations
 
+import dash_bootstrap_components as dbc
 import pandas as pd
 from dash import dash_table, dcc, html
-import dash_bootstrap_components as dbc
 
 
 def render_dashboard(df: pd.DataFrame) -> html.Div:
     """Render main dashboard components."""
     statuses = ["All"] + sorted({str(s) for s in df["status"].dropna().unique()})
-    status_options = [
-        {"label": s, "value": s if s != "All" else ""}
-        for s in statuses
-    ]
+    status_options = [{"label": s, "value": s if s != "All" else ""} for s in statuses]
 
     return html.Div(
         [
@@ -20,7 +17,9 @@ def render_dashboard(df: pd.DataFrame) -> html.Div:
             dcc.Store(id="ticket-store"),
             dcc.Dropdown(
                 id="status-filter",
-                options=[{"label": o["label"], "value": o["value"]} for o in status_options],
+                options=[
+                    {"label": o["label"], "value": o["value"]} for o in status_options
+                ],
                 value="",
                 clearable=False,
                 style={"width": "200px"},

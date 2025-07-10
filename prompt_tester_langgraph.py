@@ -1,9 +1,10 @@
-import sys
 import importlib.util
 import json
+import sys
 from pathlib import Path
+from typing import Optional, TypedDict
+
 from langgraph.graph import StateGraph
-from typing import TypedDict, Optional
 
 # Carregamento externo dos templates
 TEMPLATE_PATH = Path("prompt_template.json")
@@ -18,9 +19,7 @@ def verificar_ambiente():
     pacotes = ["langgraph"]
     erros = []
     erros.extend(
-        pacote
-        for pacote in pacotes
-        if importlib.util.find_spec(pacote) is None
+        pacote for pacote in pacotes if importlib.util.find_spec(pacote) is None
     )
     if erros:
         print("[Erro] Pacotes ausentes:", ", ".join(erros))

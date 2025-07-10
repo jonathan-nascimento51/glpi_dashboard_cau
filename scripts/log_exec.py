@@ -3,8 +3,8 @@
 import argparse
 import json
 import os
-from datetime import datetime
 import uuid
+from datetime import datetime
 
 
 def main() -> None:
