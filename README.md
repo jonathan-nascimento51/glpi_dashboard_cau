@@ -773,11 +773,18 @@ cd frontend && npm run perf:profile
 ## CI
 
 Continuous integration runs on GitHub Actions using `.github/workflows/ci.yml`.
-It installs dependencies using `./setup.sh`, runs `pre-commit` for linting and
-executes the test suite for Python 3.10, 3.11 and 3.12. Tagged commits also
-trigger a Docker build that publishes an image to GHCR. The workflow installs
+The workflow is split into three jobs:
+
+1. **Lint** – installs dependencies via `./setup.sh`, checks Python code with
+   `pre-commit` and runs `npm run lint` inside `frontend`.
+2. **Test** – executed for Python 3.10, 3.11 and 3.12 through a matrix build.
+   It runs `pytest` and the Jest suite for the React app.
+3. **Build** – tagged commits trigger a Docker build that publishes the image to
+   GHCR.
+
+Tracing is enabled during tests thanks to
 `opentelemetry-instrumentation-fastapi` and
-`opentelemetry-instrumentation-logging` so tracing is enabled during tests.
+`opentelemetry-instrumentation-logging`.
 
 ### Snyk setup
 

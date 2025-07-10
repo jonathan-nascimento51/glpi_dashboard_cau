@@ -13,7 +13,11 @@ catching integration issues early.
 Use GitHub Actions to provide a repeatable CI pipeline. The workflow is named
 `ci.yml` and lives in `.github/workflows/`. It runs automatically on every push
 and pull request, allowing the project to test multiple Python versions through
-a matrix build.
+a matrix build. The file defines three jobs:
+
+1. `lint` – installs dependencies via `./setup.sh` and runs both `pre-commit` and `npm run lint`.
+2. `test` – runs `pytest` and the frontend Jest suite for each Python version in the matrix.
+3. `build` – builds and publishes a Docker image when a tag is pushed.
 
 ## Consequences
 
