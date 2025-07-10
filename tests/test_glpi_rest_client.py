@@ -3,7 +3,11 @@ from unittest.mock import AsyncMock, patch
 import aiohttp
 import pytest
 
-from src.backend.adapters.glpi_session import Credentials, GLPISession
+from src.backend.adapters.glpi_session import (
+    Credentials,
+    GLPISession,
+    index_all_paginated,
+)
 
 
 class DummyCM:
@@ -103,9 +107,6 @@ async def test_query_graphql_retry_on_429(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_get_all_paginated(monkeypatch):
-    session = GLPISession(
-        "http://example.com/apirest.php", Credentials(app_token="app", user_token="tok")
-    )
 
     ranges = ["0-1", "2-3", "4-5"]
     responses = [
