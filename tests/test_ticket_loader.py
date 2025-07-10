@@ -24,13 +24,8 @@ async def test_load_and_translate_tickets_cache_hit(mocker):
     cache.get = AsyncMock(return_value=cached)
     cache.set = AsyncMock()
 
-    translator = mocker.Mock()
-    translator.mapper = mocker.Mock()
-    translator.translate_ticket = AsyncMock()
-
-    result = await ticket_loader.load_and_translate_tickets(translator, cache=cache)
+    result = await ticket_loader.load_and_translate_tickets(cache=cache)
 
     assert isinstance(result, list)
     assert all(isinstance(t, CleanTicketDTO) for t in result)
-    translator.translate_ticket.assert_not_awaited()
     cache.get.assert_awaited_once_with("tickets_clean")

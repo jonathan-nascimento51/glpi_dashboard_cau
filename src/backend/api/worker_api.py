@@ -11,7 +11,7 @@ from typing import Any, AsyncGenerator, Dict, List, Optional, cast
 import pandas as pd
 import strawberry
 import uvicorn
-from fastapi import Depends, FastAPI, HTTPException, Request, Response
+from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import (
     JSONResponse,
@@ -24,13 +24,15 @@ from pydantic import BaseModel, Field
 from strawberry.fastapi import GraphQLRouter
 from strawberry.types import Info
 
-from backend.adapters.factory import create_glpi_session, create_ticket_translator
-from backend.adapters.glpi_session import GLPISession
 from backend.core.settings import (
     KNOWLEDGE_BASE_FILE,
 )
 from backend.services.aggregated_metrics import (
     get_cached_aggregated,
+)
+from backend.services.glpi_api_client import (
+    GlpiApiClient,
+    create_glpi_api_client,
 )
 from backend.services.read_model import query_ticket_summary
 from backend.services.ticket_loader import (
@@ -40,14 +42,14 @@ from backend.services.ticket_loader import (
     stream_tickets,
 )
 from backend.utils.redis_client import redis_client
-from shared.dto import CleanTicketDTO, TicketTranslator
+from shared.dto import CleanTicketDTO
 
 logger = logging.getLogger(__name__)
 
 
-def get_ticket_translator() -> Optional[TicketTranslator]:
-    """Return an instance of :class:`TicketTranslator` or ``None``."""
-    return create_ticket_translator()
+def get_glpi_client() -> Optional[GlpiApiClient]:
+    """Return an instance of :class:`GlpiApiClient` or ``None``."""
+    return create_glpi_api_client()
 
 
 @strawberry.type
@@ -118,7 +120,7 @@ class Query:
         return Metrics(total=total, opened=opened, closed=closed)  # type: ignore[call-arg]
 
 
-def create_app(client: Optional[GLPISession] = None, cache=None) -> FastAPI:
+def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
     """Create FastAPI app with REST and GraphQL routes."""
     cache = cache or redis_client
     app = FastAPI(title="GLPI Worker API", default_response_class=ORJSONResponse)
@@ -155,15 +157,12 @@ def create_app(client: Optional[GLPISession] = None, cache=None) -> FastAPI:
         return response
 
     if client is None:
-        client = create_glpi_session()
+        client = create_glpi_api_client()
 
     @app.get("/tickets", response_model=list[CleanTicketDTO])
-    async def tickets(
-        response: Response,
-        translator: Optional[TicketTranslator] = Depends(get_ticket_translator),
-    ) -> list[CleanTicketDTO]:  # noqa: F401
+    async def tickets(response: Response) -> list[CleanTicketDTO]:  # noqa: F401
         return await load_and_translate_tickets(
-            translator, cache=cache, response=response
+            client=client, cache=cache, response=response
         )
 
     @app.get("/tickets/stream")

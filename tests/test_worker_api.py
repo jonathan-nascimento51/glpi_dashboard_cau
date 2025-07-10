@@ -6,9 +6,8 @@ import redis
 from fastapi.testclient import TestClient
 from prometheus_client import CONTENT_TYPE_LATEST
 
-from shared.dto import TicketTranslator
-from src.backend.adapters.mapping_service import MappingService
-from src.backend.api.worker_api import get_ticket_translator
+from shared.dto import CleanTicketDTO
+from src.backend.api.worker_api import get_glpi_client
 from src.backend.services.exceptions import GLPIUnauthorizedError
 from worker import create_app
 
@@ -50,52 +49,38 @@ def dummy_cache() -> DummyCache:
     return DummyCache()
 
 
-class FakeSession:
-    def __enter__(self):  # pragma: no cover - legacy sync path
-        return self
-
-    def __exit__(self, exc_type, exc, tb):  # pragma: no cover - legacy sync path
-        pass
-
-    def get_all(self, *args, **kwargs):  # pragma: no cover - legacy sync path
-        return [
-            {"id": 1, "date_creation": "2024-06-01", "status": "Solved"},
-            {"id": 2, "date_creation": "2024-06-02", "status": "Closed"},
-        ]
-
-
-class FakeAsyncSession:
+class FakeClient:
     async def __aenter__(self):
         return self
 
     async def __aexit__(self, exc_type, exc, tb):
         pass
 
-    async def get_all(self, *args, **kwargs):
-        return [
+    async def fetch_tickets(self, *args, **kwargs):
+        raw = [
             {
                 "id": 1,
                 "name": "A",
-                "status": 1,
+                "status": 5,
                 "priority": 3,
                 "date_creation": "2024-06-01T00:00:00",
-                "users_id_assign": None,
+                "assigned_to": "",
             },
             {
                 "id": 2,
                 "name": "B",
-                "status": 2,
+                "status": 6,
                 "priority": 2,
                 "date_creation": "2024-06-02T00:00:00",
-                "users_id_assign": None,
+                "assigned_to": "",
             },
         ]
+        return [CleanTicketDTO.model_validate(r) for r in raw]
 
 
 def test_rest_endpoints(dummy_cache: DummyCache):
-    translator = TicketTranslator(MappingService(FakeAsyncSession()))
-    app = create_app(client=FakeSession(), cache=dummy_cache)
-    app.dependency_overrides[get_ticket_translator] = lambda: translator
+    app = create_app(client=FakeClient(), cache=dummy_cache)
+    app.dependency_overrides[get_glpi_client] = lambda: FakeClient()
     client = TestClient(app)
 
     resp = client.get("/tickets")
@@ -112,7 +97,7 @@ def test_rest_endpoints(dummy_cache: DummyCache):
 
 def test_aggregated_metrics(dummy_cache: DummyCache):
     dummy_cache.data["metrics_aggregated"] = {"status": {}, "per_user": {}}
-    client = TestClient(create_app(client=FakeSession(), cache=dummy_cache))
+    client = TestClient(create_app(client=FakeClient(), cache=dummy_cache))
     resp = client.get("/metrics/aggregated")
     assert resp.status_code == 200
     data = resp.json()
@@ -125,7 +110,7 @@ def test_chamados_por_data(dummy_cache: DummyCache):
         {"date": "2024-06-01", "total": 1},
         {"date": "2024-06-02", "total": 1},
     ]
-    client = TestClient(create_app(client=FakeSession(), cache=dummy_cache))
+    client = TestClient(create_app(client=FakeClient(), cache=dummy_cache))
     resp = client.get("/chamados/por-data")
     assert resp.status_code == 200
     data = resp.json()
@@ -140,7 +125,7 @@ def test_chamados_por_dia(dummy_cache: DummyCache):
         {"date": "2024-06-01", "total": 1},
         {"date": "2024-06-02", "total": 1},
     ]
-    client = TestClient(create_app(client=FakeSession(), cache=dummy_cache))
+    client = TestClient(create_app(client=FakeClient(), cache=dummy_cache))
     resp = client.get("/chamados/por-dia")
     assert resp.status_code == 200
     data = resp.json()
@@ -151,17 +136,30 @@ def test_chamados_por_dia(dummy_cache: DummyCache):
 
 
 def test_chamados_por_data_cache(dummy_cache: DummyCache):
-    session = FakeSession()
+    session = FakeClient()
     client = TestClient(create_app(client=session, cache=dummy_cache))
     first = client.get("/chamados/por-data").json()
 
     def later_data(*args, **kwargs):
-        return [
-            {"id": 1, "date_creation": "2024-06-03"},
-            {"id": 2, "date_creation": "2024-06-04"},
+        raw = [
+            {
+                "id": 1,
+                "name": "X",
+                "status": 5,
+                "priority": 2,
+                "date_creation": "2024-06-03",
+            },
+            {
+                "id": 2,
+                "name": "Y",
+                "status": 6,
+                "priority": 3,
+                "date_creation": "2024-06-04",
+            },
         ]
+        return [CleanTicketDTO.model_validate(r) for r in raw]
 
-    session.get_all = later_data  # type: ignore[assignment]
+    session.fetch_tickets = later_data  # type: ignore[assignment]
     second = client.get("/chamados/por-data").json()
     assert first == second
     stats = client.get("/cache/stats").json()
@@ -170,17 +168,30 @@ def test_chamados_por_data_cache(dummy_cache: DummyCache):
 
 
 def test_chamados_por_dia_cache(dummy_cache: DummyCache):
-    session = FakeSession()
+    session = FakeClient()
     client = TestClient(create_app(client=session, cache=dummy_cache))
     first = client.get("/chamados/por-dia").json()
 
     def later_data(*args, **kwargs):
-        return [
-            {"id": 1, "date_creation": "2024-06-03"},
-            {"id": 2, "date_creation": "2024-06-04"},
+        raw = [
+            {
+                "id": 1,
+                "name": "X",
+                "status": 5,
+                "priority": 2,
+                "date_creation": "2024-06-03",
+            },
+            {
+                "id": 2,
+                "name": "Y",
+                "status": 6,
+                "priority": 3,
+                "date_creation": "2024-06-04",
+            },
         ]
+        return [CleanTicketDTO.model_validate(r) for r in raw]
 
-    session.get_all = later_data  # type: ignore[assignment]
+    session.fetch_tickets = later_data  # type: ignore[assignment]
     second = client.get("/chamados/por-dia").json()
     assert first == second
     stats = client.get("/cache/stats").json()
@@ -189,7 +200,7 @@ def test_chamados_por_dia_cache(dummy_cache: DummyCache):
 
 
 def test_openapi_schema_models(dummy_cache: DummyCache):
-    app = create_app(client=FakeSession(), cache=dummy_cache)
+    app = create_app(client=FakeClient(), cache=dummy_cache)
     schema = app.openapi()
     por_data = schema["paths"]["/chamados/por-data"]["get"]["responses"]["200"][
         "content"
@@ -212,20 +223,20 @@ def test_tickets_stream(monkeypatch: pytest.MonkeyPatch, dummy_cache: DummyCache
         lambda client, cache=None: fake_gen(client),
     )
 
-    client = TestClient(create_app(client=FakeSession(), cache=dummy_cache))
+    client = TestClient(create_app(client=FakeClient(), cache=dummy_cache))
     resp = client.get("/tickets/stream")
     assert resp.status_code == 200
     assert resp.text.splitlines() == ["fetching...", "done"]
 
 
 def test_graphql_metrics(dummy_cache: DummyCache):
-    app = create_app(client=FakeSession(), cache=dummy_cache)
+    app = create_app(client=FakeClient(), cache=dummy_cache)
     paths = [getattr(r, "path", None) for r in app.router.routes if hasattr(r, "path")]
     assert "/graphql/" in paths
 
 
 def test_graphql_query(dummy_cache: DummyCache):
-    client = TestClient(create_app(client=FakeSession(), cache=dummy_cache))
+    client = TestClient(create_app(client=FakeClient(), cache=dummy_cache))
     query = "{ metrics { total } }"
     resp = client.post("/graphql/", params={"r": ""}, json={"query": query})
     assert resp.status_code == 200
@@ -235,12 +246,12 @@ def test_graphql_query(dummy_cache: DummyCache):
 def test_client_reused(monkeypatch: pytest.MonkeyPatch, dummy_cache: DummyCache):
     instances = []
 
-    class RecordingSession(FakeSession):
+    class RecordingSession(FakeClient):
         def __init__(self):
             instances.append(self)
 
     monkeypatch.setattr(
-        "backend.api.worker_api.GLPISession",
+        "backend.api.worker_api.GlpiApiClient",
         lambda *a, **k: RecordingSession(),
     )
 
@@ -252,7 +263,7 @@ def test_client_reused(monkeypatch: pytest.MonkeyPatch, dummy_cache: DummyCache)
 
 
 def test_cache_stats_endpoint(dummy_cache: DummyCache):
-    client = TestClient(create_app(client=FakeSession(), cache=dummy_cache))
+    client = TestClient(create_app(client=FakeClient(), cache=dummy_cache))
     client.get("/tickets")
     resp = client.get("/cache/stats")
     assert resp.status_code == 200
@@ -262,7 +273,7 @@ def test_cache_stats_endpoint(dummy_cache: DummyCache):
 
 
 def test_cache_middleware(dummy_cache: DummyCache):
-    client = TestClient(create_app(client=FakeSession(), cache=dummy_cache))
+    client = TestClient(create_app(client=FakeClient(), cache=dummy_cache))
     client.get("/tickets")
     client.get("/tickets")
     resp = client.get("/cache/stats")
@@ -279,14 +290,14 @@ def test_health_glpi(monkeypatch: pytest.MonkeyPatch, dummy_cache: DummyCache):
         return False
 
     monkeypatch.setattr(
-        "backend.api.worker_api.GLPISession.__aenter__",
+        "backend.services.glpi_api_client.GlpiApiClient.__aenter__",
         fake_enter,
     )
     monkeypatch.setattr(
-        "backend.api.worker_api.GLPISession.__aexit__",
+        "backend.services.glpi_api_client.GlpiApiClient.__aexit__",
         fake_exit,
     )
-    client = TestClient(create_app(client=FakeSession(), cache=dummy_cache))
+    client = TestClient(create_app(client=FakeClient(), cache=dummy_cache))
     resp = client.get("/health/glpi")
     assert resp.status_code == 200
     assert resp.json()["status"] == "success"
@@ -302,15 +313,15 @@ def test_health_glpi_head_success(
         return False
 
     monkeypatch.setattr(
-        "backend.api.worker_api.GLPISession.__aenter__",
+        "backend.services.glpi_api_client.GlpiApiClient.__aenter__",
         fake_enter,
     )
     monkeypatch.setattr(
-        "backend.api.worker_api.GLPISession.__aexit__",
+        "backend.services.glpi_api_client.GlpiApiClient.__aexit__",
         fake_exit,
     )
 
-    client = TestClient(create_app(client=FakeSession(), cache=dummy_cache))
+    client = TestClient(create_app(client=FakeClient(), cache=dummy_cache))
     resp = client.head("/health/glpi")
     assert resp.status_code == 200
     assert resp.text == ""
@@ -324,7 +335,7 @@ def test_redis_connection_error(
 
     monkeypatch.setattr(dummy_cache, "get", raise_conn)
     client = TestClient(
-        create_app(client=FakeSession(), cache=dummy_cache),
+        create_app(client=FakeClient(), cache=dummy_cache),
         raise_server_exceptions=False,
     )
     resp = client.get("/tickets")
@@ -339,11 +350,11 @@ def test_health_glpi_auth_failure(
         raise GLPIUnauthorizedError(401, "unauthorized")
 
     monkeypatch.setattr(
-        "backend.api.worker_api.GLPISession.__aenter__",
+        "backend.services.glpi_api_client.GlpiApiClient.__aenter__",
         raise_auth,
     )
     client = TestClient(
-        create_app(client=FakeSession(), cache=dummy_cache),
+        create_app(client=FakeClient(), cache=dummy_cache),
         raise_server_exceptions=False,
     )
     resp = client.get("/health/glpi")
@@ -361,11 +372,11 @@ def test_session_init_failure_fallback(
         raise RuntimeError("no network")
 
     monkeypatch.setattr(
-        "backend.api.worker_api.GLPISession.__aenter__",
+        "backend.services.glpi_api_client.GlpiApiClient.__aenter__",
         raise_init,
     )
     app = create_app(cache=dummy_cache)
-    app.dependency_overrides[get_ticket_translator] = lambda: None
+    app.dependency_overrides[get_glpi_client] = lambda: None
     client = TestClient(app)
 
     resp = client.get("/tickets")
@@ -376,14 +387,14 @@ def test_session_init_failure_fallback(
 
 
 def test_breaker_content_type(dummy_cache: DummyCache):
-    client = TestClient(create_app(client=FakeSession(), cache=dummy_cache))
+    client = TestClient(create_app(client=FakeClient(), cache=dummy_cache))
     resp = client.get("/breaker")
     assert resp.status_code == 200
     assert resp.headers["content-type"] == CONTENT_TYPE_LATEST
 
 
 def test_cache_metrics_legacy(dummy_cache: DummyCache):
-    client = TestClient(create_app(client=FakeSession(), cache=dummy_cache))
+    client = TestClient(create_app(client=FakeClient(), cache=dummy_cache))
     client.get("/tickets")
     legacy = client.get("/cache-metrics")
     stats = client.get("/cache/stats")
@@ -393,14 +404,23 @@ def test_cache_metrics_legacy(dummy_cache: DummyCache):
 
 def test_metrics_aggregated_cache(dummy_cache: DummyCache):
     dummy_cache.data["metrics_aggregated"] = {"status": {}, "per_user": {}}
-    session = FakeSession()
+    session = FakeClient()
     client = TestClient(create_app(client=session, cache=dummy_cache))
     first = client.get("/metrics/aggregated").json()
 
     def later_data(*args, **kwargs):
-        return [{"id": 99, "date_creation": "2024-07-01"}]
+        raw = [
+            {
+                "id": 99,
+                "name": "Z",
+                "status": 5,
+                "priority": 2,
+                "date_creation": "2024-07-01",
+            }
+        ]
+        return [CleanTicketDTO.model_validate(r) for r in raw]
 
-    session.get_all = later_data  # type: ignore[assignment]
+    session.fetch_tickets = later_data  # type: ignore[assignment]
     second = client.get("/metrics/aggregated").json()
 
     assert first == second
