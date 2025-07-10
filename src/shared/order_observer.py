@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from typing import List, Protocol
 from dataclasses import dataclass, field
+from typing import List, Protocol
 
 
 @dataclass

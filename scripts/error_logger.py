@@ -10,7 +10,6 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-
 STACK_RE = re.compile(r'File "(?P<file>.+?)", line (?P<line>\d+)')
 
 

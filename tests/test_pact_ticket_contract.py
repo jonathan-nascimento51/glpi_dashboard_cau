@@ -1,6 +1,7 @@
+from pathlib import Path
+
 import pytest
 import requests
-from pathlib import Path
 
 pact = pytest.importorskip("pact")
 Consumer = pact.Consumer
