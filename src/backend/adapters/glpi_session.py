@@ -159,6 +159,7 @@ class GLPISession:
             self._session = ClientSession(connector=connector)
             logger.info("aiohttp ClientSession initialized.")
 
+    @retry_api_call
     async def _refresh_session_token(self) -> None:
         """
         Refreshes the GLPI session token by calling the initSession endpoint.
@@ -310,6 +311,7 @@ class GLPISession:
         """Public method to close the session without a context manager."""
         await self.__aexit__(None, None, None)
 
+    @retry_api_call
     async def _kill_session(self) -> None:
         """Kills the current GLPI session by calling the killSession endpoint."""
         if not self._session_token:
