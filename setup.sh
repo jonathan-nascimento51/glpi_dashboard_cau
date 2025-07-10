@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-SKIP_PLAYWRIGHT=${SKIP_PLAYWRIGHT:-false}
+SKIP_PLAYWRIGHT=${SKIP_PLAYWRIGHT:-true}
 OFFLINE_INSTALL=${OFFLINE_INSTALL:-false}
 PROXY_FILE=/etc/apt/apt.conf.d/01proxy
 
@@ -16,6 +16,9 @@ if [ -n "${HTTP_PROXY:-}" ]; then
   echo "Acquire::http::Proxy \"${HTTP_PROXY}\";" | sudo tee "$PROXY_FILE" >/dev/null
   echo "Acquire::https::Proxy \"${HTTPS_PROXY:-$HTTP_PROXY}\";" | sudo tee -a "$PROXY_FILE" >/dev/null
   echo "Proxy configurado em $PROXY_FILE"
+  echo "Configurando proxy para npm..."
+  npm config set proxy "${HTTP_PROXY}"
+  npm config set https-proxy "${HTTPS_PROXY:-$HTTP_PROXY}"
 fi
 
 echo ">>> (1/6) Instalando dependências do sistema para o Playwright..."
@@ -40,6 +43,7 @@ echo ">>> (3/6) Ativando o ambiente virtual..."
 source "$VENV_DIR/bin/activate"
 
 echo ">>> (4/6) Atualizando pip e instalando dependências Python..."
+export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 pip install --upgrade pip
 if [ "$OFFLINE_INSTALL" = "true" ]; then
   WHEEL_DIR=${WHEELS_DIR:-./wheels}
@@ -48,6 +52,7 @@ else
   pip install -r requirements.txt -r requirements-dev.txt
 fi
 pip install -e . pytest pytest-cov aiohttp
+unset PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD
 
 echo ">>> (5/6) Instalando ganchos de pre-commit..."
 if command -v pre-commit >/dev/null 2>&1; then
@@ -60,8 +65,7 @@ fi
 # Instalação opcional do Playwright/Chromium
 if [ "$SKIP_PLAYWRIGHT" = "false" ]; then
   echo ">>> Instalando o browser Chromium para o Playwright..."
-  export NODE_TLS_REJECT_UNAUTHORIZED=0
-  export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+  export NODE_TLS_REJECT_UNAUTHORIZED=0 # Cuidado: desativa a verificação de certificado TLS
   npx playwright install chromium || {
     echo "⚠️ Playwright falhou. Tentando download manual via curl..."
     curl -L https://playwright.azureedge.net/builds/chromium/1181/chromium-linux.zip -o chromium.zip \
