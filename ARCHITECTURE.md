@@ -48,3 +48,11 @@ Aggregated metrics are computed in `src/backend/services/aggregated_metrics.py` 
 ## GLPI Integration & Metrics
 
 The GLPI credentials and base URL are read from `.env` variables. When `metrics_worker.py` runs, it updates cached counts like total tickets and daily totals. Dash visualisations live under `src/frontend/` while the separate React dashboard resides in `frontend/`.
+
+## CI Pipeline
+
+Automated checks run through [`ci.yml`](.github/workflows/ci.yml). The workflow is split into three jobs:
+
+1. **lint** – installs dependencies and runs `pre-commit` across the repository.
+2. **test** – executes `pytest` and the frontend unit tests after lint passes.
+3. **build** – triggered only for tagged commits. It builds the Docker image with `docker/build-push-action` and pushes it to GHCR.
