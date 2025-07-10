@@ -7,7 +7,6 @@ from src.backend.adapters.glpi_session import Credentials, GLPISession
 
 
 @pytest.mark.asyncio
-@pytest.mark.xfail(reason="Intermittent token refresh behaviour")
 async def test_refresh_session_token_retries_on_server_error(
     base_url,
     app_token,
@@ -41,7 +40,6 @@ async def test_refresh_session_token_retries_on_server_error(
 
 
 @pytest.mark.asyncio
-@pytest.mark.xfail(reason="Intermittent token refresh behaviour")
 async def test_proactive_refresh_loop_triggers_refresh(
     base_url,
     app_token,

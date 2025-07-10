@@ -9,6 +9,8 @@ from gql import Client, gql
 from gql.transport.httpx import HTTPXTransport
 from pydantic import BaseModel, Field
 
+from shared.resilience import retry_api_call
+
 
 class GraphQLParams(BaseModel):
     """Parameters for constructing :class:`GlpiGraphQLClient`."""
@@ -55,6 +57,7 @@ class GlpiGraphQLClient:
         )
         self._client = Client(transport=transport, fetch_schema_from_transport=False)
 
+    @retry_api_call
     def execute(
         self, query: str, variables: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
