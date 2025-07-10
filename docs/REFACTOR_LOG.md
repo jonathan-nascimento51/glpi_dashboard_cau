@@ -20,7 +20,7 @@ src/glpi_dashboard/dashboard/callbacks.py → src/frontend/callbacks/callbacks.p
 src/glpi_dashboard/dashboard/components.py → src/frontend/components/components.py — componentes visuais reutilizáveis do dashboard.
 src/glpi_dashboard/dashboard/layout.py → src/frontend/layout/layout.py — montagem do layout principal do frontend.
 src/glpi_dashboard/data/database.py → src/backend/db/database.py — definição do modelo e acesso ao banco PostgreSQL.
-O antigo `src/glpi_dashboard/data/transform.py` foi movido para `src/backend/utils/transform.py` — funções auxiliares de transformação de DataFrame.
+O antigo `src/glpi_dashboard/data/transform.py` foi migrado para `src/backend/adapters/normalization.py` — funções de limpeza e agregação.
 src/glpi_dashboard/events/consumer.py → src/backend/services/events_consumer.py — consumo de eventos (Kafka) e atualização de métricas.
 src/glpi_dashboard/glpi_adapter.py — removido; a ACL é importada diretamente dos módulos em `backend/adapters`.
 src/glpi_dashboard/services/aggregated_metrics.py → src/backend/services/aggregated_metrics.py — cálculo e cache de métricas agregadas.
