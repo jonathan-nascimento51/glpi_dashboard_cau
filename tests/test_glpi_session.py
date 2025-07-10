@@ -1,5 +1,6 @@
 import asyncio as aio
 import json
+import aiohttp
 from contextlib import asynccontextmanager
 from typing import Optional
 from unittest.mock import ANY, AsyncMock, MagicMock, patch
@@ -11,7 +12,7 @@ from src.backend.adapters import glpi_session
 pytest.importorskip(
     "aiohttp", reason="aiohttp package is required to run glpi_session tests"
 )
-import aiohttp
+
 
 from src.backend.adapters.glpi_session import (
     Credentials,
