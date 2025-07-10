@@ -1,4 +1,5 @@
-from unittest.mock import AsyncMock, patch
+from typing import Any, Optional
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import aiohttp
 import pytest
@@ -22,17 +23,25 @@ class DummyCM:
 
 
 class DummyResponse:
-    def __init__(self, status: int, data=None):
+    def __init__(self, status: int, data: Optional[Any] = None):
         self.status = status
-        self._data = data or {}
+        self._data = data if data is not None else {}
         self.headers: dict[str, str] = {}
+        # Add attributes required by ClientResponseError for more realistic mocking
+        self.request_info = MagicMock()
+        self.history = ()
 
-    async def json(self):
+    async def json(self) -> Any:
         return self._data
 
-    def raise_for_status(self):
+    def raise_for_status(self) -> None:
         if self.status >= 400:
-            raise aiohttp.ClientResponseError(None, (), status=self.status)
+            raise aiohttp.ClientResponseError(
+                self.request_info,
+                self.history,
+                status=self.status,
+                message="Simulated HTTP Error",
+            )
 
 
 @pytest.mark.asyncio

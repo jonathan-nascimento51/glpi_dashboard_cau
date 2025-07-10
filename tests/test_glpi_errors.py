@@ -7,12 +7,12 @@ pytest.importorskip("aiohttp")
 import aiohttp
 
 from shared.resilience import retry_api_call
-from src.backend.services.exceptions import (
+from backend.services.exceptions import (
     GLPIAPIError,
     GlpiHttpError,
     parse_error,
 )
-from src.backend.utils.logging import init_logging
+from backend.utils.logging import init_logging
 
 
 @pytest.fixture(autouse=True)
