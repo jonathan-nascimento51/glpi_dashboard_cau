@@ -1,10 +1,10 @@
 import asyncio as aio
 import json
-import aiohttp
 from contextlib import asynccontextmanager
 from typing import Optional
 from unittest.mock import ANY, AsyncMock, MagicMock, patch
 
+import aiohttp
 import pytest
 
 from src.backend.adapters import glpi_session
@@ -14,6 +14,7 @@ pytest.importorskip(
 )
 
 
+from backend.utils.logging import init_logging
 from src.backend.adapters.glpi_session import (
     Credentials,
     GLPIAPIError,
@@ -25,7 +26,6 @@ from src.backend.adapters.glpi_session import (
     GLPITooManyRequestsError,
     GLPIUnauthorizedError,
 )
-from src.backend.utils.logging import init_logging
 
 
 @pytest.fixture(autouse=True)

@@ -7,6 +7,7 @@ confusion with the Docker build context.
 import logging
 import os
 
+from backend.utils.logging import init_logging
 from src.backend.adapters.glpi_session import GLPISession
 from src.backend.api.worker_api import (
     create_app,
@@ -16,7 +17,6 @@ from src.backend.api.worker_api import (
     redis_client,
 )
 from src.backend.core.settings import KNOWLEDGE_BASE_FILE
-from src.backend.utils.logging import init_logging
 
 __all__ = ["create_app", "redis_client", "GLPISession", "main"]
 
