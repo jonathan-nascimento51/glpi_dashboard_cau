@@ -112,7 +112,8 @@ def mock_client_session(mock_response):
     Fixture to mock aiohttp.ClientSession and its HTTP methods.
     Patches aiohttp.ClientSession globally for tests.
     """
-    with patch("backend.adapters.glpi_session.ClientSession") as mock_session_cls:
+    # Patch the ClientSession used inside the glpi_session module
+    with patch("src.backend.adapters.glpi_session.ClientSession") as mock_session_cls:
         mock_session_instance = MagicMock()
         mock_session_instance.closed = False  # Assume not closed initially
 
@@ -124,12 +125,22 @@ def mock_client_session(mock_response):
         async def default_request():
             yield mock_response(200, {})
 
-        # Mock HTTP methods to return async context managers
-        mock_session_instance.post = MagicMock(return_value=default_post())
-        mock_session_instance.get = MagicMock(return_value=default_request())
-        mock_session_instance.put = MagicMock(return_value=default_request())
-        mock_session_instance.delete = MagicMock(return_value=default_request())
-        mock_session_instance.request = MagicMock(return_value=default_request())
+        # Mock HTTP methods to return a fresh async context manager on each call
+        mock_session_instance.post = MagicMock(
+            side_effect=lambda *a, **k: default_post()
+        )
+        mock_session_instance.get = MagicMock(
+            side_effect=lambda *a, **k: default_request()
+        )
+        mock_session_instance.put = MagicMock(
+            side_effect=lambda *a, **k: default_request()
+        )
+        mock_session_instance.delete = MagicMock(
+            side_effect=lambda *a, **k: default_request()
+        )
+        mock_session_instance.request = MagicMock(
+            side_effect=lambda *a, **k: default_request()
+        )
 
         # Mocking async context manager for session
         mock_session_instance.__aenter__ = AsyncMock(return_value=mock_session_instance)
@@ -628,8 +639,8 @@ async def test_verify_ssl_disabled_passes_ssl_false(
     base_url, app_token, user_token, mock_response
 ):
     with (
-        patch("backend.adapters.glpi_session.ClientSession") as session_cls,
-        patch("backend.adapters.glpi_session.TCPConnector") as connector_cls,
+        patch("src.backend.adapters.glpi_session.ClientSession") as session_cls,
+        patch("src.backend.adapters.glpi_session.TCPConnector") as connector_cls,
     ):
         session_instance = MagicMock()
         session_instance.closed = False
