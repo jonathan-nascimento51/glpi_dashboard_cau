@@ -10,7 +10,7 @@ from arq.connections import RedisSettings
 from backend.adapters.normalization import process_raw
 from backend.utils.redis_client import RedisClient, redis_client
 
-from .aggregated_metrics import (
+from backend.services.aggregated_metrics import (
     cache_aggregated_metrics,
     compute_aggregated,
     tickets_by_date,

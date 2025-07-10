@@ -3,7 +3,7 @@ import os
 
 import pytest
 
-from src.backend.api.worker_api import GLPISession
+from src.backend.adapters.glpi_session import GLPISession
 from src.backend.services import tickets_groups
 
 
@@ -23,7 +23,13 @@ class FakeSession(GLPISession):
     async def __aexit__(self, exc_type, exc, tb):
         pass
 
-    async def get(self, endpoint: str, params: dict | None = None):
+    async def get(
+        self,
+        endpoint: str,
+        params: dict | None = None,
+        headers: dict | None = None,
+        **kwargs: object,
+    ) -> dict:
         if endpoint.startswith("search/Ticket_User"):
             return {"data": [{"users_id": 2, "groups_id": 3}]}
         if endpoint.startswith("search/Ticket"):
