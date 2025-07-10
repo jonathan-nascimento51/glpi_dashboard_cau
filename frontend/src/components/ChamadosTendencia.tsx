@@ -1,5 +1,5 @@
 import { memo } from 'react'
-import { useChamadosPorData } from '../hooks/useChamadosPorData'
+import { useChamadosPorData } from '@/hooks/useChamadosPorData'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
 
 
