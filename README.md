@@ -689,6 +689,10 @@ pip install aiohttp
 pip install testcontainers playwright
 # browser tests require Chrome/Chromedriver
 # install via `apt-get install chromium-driver` or `npx playwright install`
+# if the latter fails behind a proxy, download the archive manually:
+# `curl -L https://playwright.azureedge.net/builds/chromium/1181/chromium-linux.zip -o chromium.zip`
+# `unzip chromium.zip -d ~/.cache/ms-playwright`
+# and set `PLAYWRIGHT_BROWSERS_PATH=~/.cache/ms-playwright` before running tests
 # skip them with `pytest -k 'not test_dashboard_flows'` if the driver is missing
 pytest --cov=./
 pre-commit run --all-files
