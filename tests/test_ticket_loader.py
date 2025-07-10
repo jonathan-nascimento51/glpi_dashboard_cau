@@ -2,8 +2,8 @@ from unittest.mock import AsyncMock
 
 import pytest
 
+from backend.services import ticket_loader
 from shared.dto import CleanTicketDTO
-from src.backend.services import ticket_loader
 
 
 @pytest.mark.asyncio

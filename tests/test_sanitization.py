@@ -3,8 +3,8 @@ import pytest
 pytest.importorskip("pandas")
 import pandas as pd
 
+from backend.adapters.normalization import sanitize_status_column
 from frontend.components.components import compute_ticket_stats
-from src.backend.adapters.normalization import sanitize_status_column
 
 
 def test_sanitize_status_column():

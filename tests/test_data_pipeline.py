@@ -3,8 +3,8 @@ import pytest
 pytest.importorskip("pandas")
 import pandas as pd
 
-from src.backend.adapters import normalization as transform
-from src.backend.adapters.normalization import process_raw
+from backend.adapters import normalization as transform
+from backend.adapters.normalization import process_raw
 
 
 def test_process_raw_sanitization():

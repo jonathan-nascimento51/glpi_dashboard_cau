@@ -5,8 +5,8 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from src.backend.adapters.glpi_session import GLPISession
-from src.backend.services import tickets_groups
+from backend.adapters.glpi_session import GLPISession
+from backend.services import tickets_groups
 
 
 def setup_env() -> None:
