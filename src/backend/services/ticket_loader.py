@@ -19,8 +19,8 @@ from backend.services.aggregated_metrics import (
     tickets_daily_totals,
 )
 from backend.services.glpi_api_client import GlpiApiClient
-from backend.utils.redis_client import redis_client
 from shared.dto import CleanTicketDTO
+from shared.utils.redis_client import redis_client
 
 logger = logging.getLogger(__name__)
 

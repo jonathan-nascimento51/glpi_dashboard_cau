@@ -48,7 +48,7 @@ def init_logging(
 
     Example
     -------
-    >>> from backend.utils.logging import init_logging
+    >>> from shared.utils.logging import init_logging
     >>> init_logging("DEBUG")
     """
     global _is_initialized
@@ -70,7 +70,9 @@ def init_logging(
     logger.configure(extra={"correlation_id": None})
     logger.add(
         sys.stdout,
-        level=level if level is not None else "INFO",  # Default to "INFO" if level is None
+        level=(
+            level if level is not None else "INFO"
+        ),  # Default to "INFO" if level is None
         serialize=serialize,
         filter=_CorrelationFilter(),  # type: ignore[arg-type]
         enqueue=True,

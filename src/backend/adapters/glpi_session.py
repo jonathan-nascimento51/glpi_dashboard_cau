@@ -31,7 +31,7 @@ from backend.services.exceptions import (
     parse_error,
 )
 from backend.services.tool_error import ToolError
-from shared.resilience import retry_api_call
+from shared.utils.resilience import retry_api_call
 
 logger = logging.getLogger(__name__)
 

@@ -20,9 +20,9 @@ from backend.core.settings import (
 )
 from backend.services.exceptions import GLPIAPIError
 from backend.utils import process_raw
-from backend.utils.logging import init_logging
 from frontend.callbacks.callbacks import register_callbacks
 from frontend.layout.layout import build_layout
+from shared.utils.logging import init_logging
 
 app = Flask(__name__)
 cache = Cache(

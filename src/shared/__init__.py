@@ -1,4 +1,10 @@
-from backend.utils.logging import init_logging, set_correlation_id
+from shared.utils.logging import init_logging, set_correlation_id
+from shared.utils.resilience import (
+    ResilientClient,
+    breaker,
+    call_with_breaker,
+    retry_api_call,
+)
 
 from .dto import CleanTicketDTO, TicketTranslator
 from .models import (
@@ -23,4 +29,8 @@ __all__ = [
     "TicketType",
     "RawTicketDTO",
     "convert_ticket",
+    "breaker",
+    "call_with_breaker",
+    "retry_api_call",
+    "ResilientClient",
 ]

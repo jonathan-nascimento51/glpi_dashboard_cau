@@ -1,6 +1,7 @@
-"""Utility helpers and pipeline exports."""
+"""Backend-specific utilities and compatibility exports."""
 
-from .logging import init_logging, set_correlation_id
+from shared.utils.logging import init_logging, set_correlation_id
+
 from .pipeline import process_raw, save_json
 
 __all__ = [

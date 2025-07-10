@@ -7,7 +7,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-from backend.utils.logging import init_logging
+from shared.utils.logging import init_logging
 
 # Importa o cliente da API do seu projeto
 from src.backend.adapters.glpi_session import Credentials, GLPISession

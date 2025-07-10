@@ -28,7 +28,7 @@ from backend.core.settings import (
     GLPI_USER_TOKEN,
     GLPI_USERNAME,
 )
-from backend.utils.messages import sanitize_message
+from shared.utils.messages import sanitize_message
 
 
 def create_structured_output_runnable(

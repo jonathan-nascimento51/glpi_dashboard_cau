@@ -7,7 +7,7 @@ sys.path.insert(
 
 from opentelemetry.sdk.metrics.export import MetricExportResult
 
-from src.backend.utils import telemetry  # noqa: E402
+from src.shared.utils import telemetry  # noqa: E402
 
 
 class DummyExporter:
@@ -15,9 +15,9 @@ class DummyExporter:
 
     def __init__(self, *args, **kwargs) -> None:  # noqa: D401
         """Ignore initialization parameters."""
-        self.records = []
-        self._preferred_temporality = {}
-        self._preferred_aggregation = {}
+        self.records: list[list] = []
+        self._preferred_temporality: dict[str, str] = {}
+        self._preferred_aggregation: dict[str, str] = {}
 
     def export(self, batch, *args, **kwargs) -> MetricExportResult:  # noqa: D401
         """Store exported metrics in memory."""
