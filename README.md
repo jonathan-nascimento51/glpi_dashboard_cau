@@ -696,6 +696,7 @@ pip install testcontainers playwright
 # `unzip chromium.zip -d ~/.cache/ms-playwright`
 # and set `PLAYWRIGHT_BROWSERS_PATH=~/.cache/ms-playwright` before running tests
 # optionally configure `PLAYWRIGHT_DOWNLOAD_HOST` to use an internal mirror
+# the setup script checks for the browser in this path and aborts if not found
 # skip them with `pytest -k 'not test_dashboard_flows'` if the driver is missing
 pytest --cov=./
 pre-commit run --all-files
