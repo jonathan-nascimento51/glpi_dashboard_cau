@@ -8,6 +8,7 @@ from prometheus_client import CONTENT_TYPE_LATEST
 
 from shared.dto import CleanTicketDTO
 from src.backend.api.worker_api import get_glpi_client
+from src.backend.services import ticket_loader
 from src.backend.services.exceptions import GLPIUnauthorizedError
 from worker import create_app
 
@@ -197,6 +198,25 @@ def test_chamados_por_dia_cache(dummy_cache: DummyCache):
     stats = client.get("/cache/stats").json()
     assert stats["hits"] == 1
     assert stats["misses"] == 2
+
+
+@pytest.mark.asyncio
+async def test_loader_primes_cache(dummy_cache: DummyCache) -> None:
+    """Ensure load_tickets stores plain lists consumable by the API."""
+    await ticket_loader.load_tickets(client=FakeClient(), cache=dummy_cache)
+
+    assert isinstance(dummy_cache.data.get("chamados_por_data"), list)
+    assert isinstance(dummy_cache.data.get("chamados_por_dia"), list)
+
+    client = TestClient(create_app(client=FakeClient(), cache=dummy_cache))
+
+    resp = client.get("/chamados/por-data")
+    assert resp.status_code == 200
+    assert resp.json() == dummy_cache.data["chamados_por_data"]
+
+    resp = client.get("/chamados/por-dia")
+    assert resp.status_code == 200
+    assert resp.json() == dummy_cache.data["chamados_por_dia"]
 
 
 def test_openapi_schema_models(dummy_cache: DummyCache):

@@ -8,6 +8,7 @@ playwright-report
 .env*
 Dockerfile*
 .git
+npm-debug.log*
 # Reuse same patterns from project root for consistency
 *.md
 docs/

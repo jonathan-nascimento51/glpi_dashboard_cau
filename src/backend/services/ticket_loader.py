@@ -84,11 +84,10 @@ async def load_tickets(
         metrics = compute_aggregated(df)
         await cache_aggregated_metrics(cache, "metrics_aggregated", metrics)
         await cache.set(
-            "chamados_por_data", {"data": tickets_by_date(df).to_dict(orient="records")}
+            "chamados_por_data", tickets_by_date(df).to_dict(orient="records")
         )
         await cache.set(
-            "chamados_por_dia",
-            {"data": tickets_daily_totals(df).to_dict(orient="records")},
+            "chamados_por_dia", tickets_daily_totals(df).to_dict(orient="records")
         )
         await cache.set(cache_key, {"data": df.to_dict(orient="records")})
         return df
@@ -111,11 +110,10 @@ async def load_tickets(
         metrics = compute_aggregated(df)
         await cache_aggregated_metrics(cache, "metrics_aggregated", metrics)
         await cache.set(
-            "chamados_por_data", {"data": tickets_by_date(df).to_dict(orient="records")}
+            "chamados_por_data", tickets_by_date(df).to_dict(orient="records")
         )
         await cache.set(
-            "chamados_por_dia",
-            {"data": tickets_daily_totals(df).to_dict(orient="records")},
+            "chamados_por_dia", tickets_daily_totals(df).to_dict(orient="records")
         )
         await cache.set(cache_key, {"data": df.to_dict(orient="records")})
         return df
@@ -125,12 +123,9 @@ async def load_tickets(
         df["date_creation"] = pd.to_datetime(df["created_at"])
     metrics = compute_aggregated(df)
     await cache_aggregated_metrics(cache, "metrics_aggregated", metrics)
+    await cache.set("chamados_por_data", tickets_by_date(df).to_dict(orient="records"))
     await cache.set(
-        "chamados_por_data", {"data": tickets_by_date(df).to_dict(orient="records")}
-    )
-    await cache.set(
-        "chamados_por_dia",
-        {"data": tickets_daily_totals(df).to_dict(orient="records")},
+        "chamados_por_dia", tickets_daily_totals(df).to_dict(orient="records")
     )
     await cache.set(cache_key, {"data": data})
     return df

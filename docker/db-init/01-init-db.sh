@@ -1,33 +1,19 @@
 #!/bin/sh
 set -euo pipefail
 
-# Leitura opcional de variáveis por arquivos (Docker secrets ou mounts)
-if [ -n "${DB_USER_FILE:-}" ] && [ -f "$DB_USER_FILE" ]; then
-  DB_USER="$(cat "$DB_USER_FILE")"
-fi
+# As variáveis POSTGRES_USER e POSTGRES_DB são usadas pela imagem base do Postgres
+# para criar o usuário e o banco de dados. Este script assume que eles já existem
+# e se conecta diretamente ao banco de dados da aplicação para configurar
+# roles e permissões adicionais.
 
-if [ -n "${DB_PASSWORD_FILE:-}" ] && [ -f "$DB_PASSWORD_FILE" ]; then
-  DB_PASSWORD="$(cat "$DB_PASSWORD_FILE")"
-fi
+: "${POSTGRES_USER:?POSTGRES_USER is required}"
+: "${POSTGRES_DB:?POSTGRES_DB is required}"
 
-: "${DB_USER:?DB_USER is required}"
-: "${DB_PASSWORD:?DB_PASSWORD is required}"
-: "${DB_NAME:?DB_NAME is required}"
+# A senha é lida automaticamente pela imagem base, não precisamos exportá-la aqui.
 
-export PGPASSWORD="$POSTGRES_PASSWORD"
+psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<SQL
 
-psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d postgres <<SQL
-
--- Criação do usuário principal da aplicação, se não existir
-DO \$\$
-BEGIN
-   IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = '${DB_USER}') THEN
-      CREATE USER "${DB_USER}" PASSWORD '${DB_PASSWORD}';
-   END IF;
-END
-\$\$;
-
--- Criação de roles usadas pela aplicação
+-- Criação de roles específicas da aplicação, se não existirem
 DO \$\$
 BEGIN
    IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'migration_user') THEN
@@ -42,18 +28,12 @@ BEGIN
 END
 \$\$;
 
--- Criação do banco de dados da aplicação, se não existir
-DO \$\$
-BEGIN
-   IF NOT EXISTS (SELECT FROM pg_database WHERE datname = '${DB_NAME}') THEN
-      CREATE DATABASE "${DB_NAME}" OWNER "${DB_USER}";
-   END IF;
-END
-\$\$;
+-- Concede a role de leitura/escrita para o usuário principal da aplicação
+GRANT app_readwrite TO "${POSTGRES_USER}";
 
--- Permissões padrão para o usuário da aplicação
-GRANT app_readwrite TO "${DB_USER}";
-
+-- Define privilégios padrão para objetos criados pelo usuário de migração.
+-- Isso garante que o usuário da aplicação tenha as permissões corretas
+-- em novas tabelas e sequências criadas futuramente.
 ALTER DEFAULT PRIVILEGES FOR ROLE migration_user
    GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO app_readwrite;
 
@@ -68,4 +48,4 @@ ALTER DEFAULT PRIVILEGES FOR ROLE migration_user
 
 SQL
 
-echo "✅ Roles, banco de dados e permissões foram inicializados com sucesso."
+echo "✅ Roles e permissões personalizadas foram configuradas com sucesso em '${POSTGRES_DB}'."
