@@ -350,7 +350,8 @@ class GLPISession:
         params: Optional[Dict[str, Union[str, int, float]]] = None,
         retry_on_401: bool = True,
         max_401_retries: int = 1,  # One retry after initial 401
-    ) -> Dict[str, Any]:
+        return_headers: bool = False,
+    ) -> Any:
         """
         Makes an authenticated request to the GLPI API.
 
@@ -425,7 +426,10 @@ class GLPISession:
 
                     # Raises aiohttp.ClientResponseError for 4xx/5xx
                     response.raise_for_status()
-                    return await response.json()
+                    data = await response.json()
+                    if return_headers:
+                        return data, dict(response.headers)
+                    return data
             except aiohttp.ClientResponseError as e:
                 response_data = {}
                 with contextlib.suppress(aiohttp.ContentTypeError, ValueError):
@@ -461,7 +465,9 @@ class GLPISession:
         endpoint: str,
         params: Optional[Dict[str, Any]] = None,
         headers: Optional[Dict[str, str]] = None,
-    ) -> Dict[str, Any]:
+        *,
+        return_headers: bool = False,
+    ) -> Any:
         """
         Performs a GET request to the GLPI API.
 
@@ -473,14 +479,22 @@ class GLPISession:
         Returns:
             The JSON response from the API.
         """
-        return await self._request("GET", endpoint, headers=headers, params=params)
+        return await self._request(
+            "GET",
+            endpoint,
+            headers=headers,
+            params=params,
+            return_headers=return_headers,
+        )
 
     async def post(
         self,
         endpoint: str,
         json_data: Optional[Dict[str, Any]] = None,
         headers: Optional[Dict[str, str]] = None,
-    ) -> Dict[str, Any]:
+        *,
+        return_headers: bool = False,
+    ) -> Any:
         """
         Performs a POST request to the GLPI API.
 
@@ -490,7 +504,11 @@ class GLPISession:
             headers: Additional headers for the request.
         """
         return await self._request(
-            "POST", endpoint, headers=headers, json_data=json_data
+            "POST",
+            endpoint,
+            headers=headers,
+            json_data=json_data,
+            return_headers=return_headers,
         )
 
     async def put(
@@ -498,7 +516,9 @@ class GLPISession:
         endpoint: str,
         json_data: Optional[Dict[str, Any]] = None,
         headers: Optional[Dict[str, str]] = None,
-    ) -> Dict[str, Any]:
+        *,
+        return_headers: bool = False,
+    ) -> Any:
         """
         Performs a PUT request to the GLPI API.
 
@@ -508,12 +528,20 @@ class GLPISession:
             headers: Additional headers for the request.
         """
         return await self._request(
-            "PUT", endpoint, headers=headers, json_data=json_data
+            "PUT",
+            endpoint,
+            headers=headers,
+            json_data=json_data,
+            return_headers=return_headers,
         )
 
     async def delete(
-        self, endpoint: str, headers: Optional[Dict[str, str]] = None
-    ) -> Dict[str, Any]:
+        self,
+        endpoint: str,
+        headers: Optional[Dict[str, str]] = None,
+        *,
+        return_headers: bool = False,
+    ) -> Any:
         """
         Performs a DELETE request to the GLPI API.
 
@@ -521,7 +549,9 @@ class GLPISession:
             endpoint: The API endpoint (e.g., "Ticket/123").
             headers: Additional headers for the request.
         """
-        return await self._request("DELETE", endpoint, headers=headers)
+        return await self._request(
+            "DELETE", endpoint, headers=headers, return_headers=return_headers
+        )
 
     async def get_all(self, itemtype: str, **params: Any) -> list[dict]:
         """Retrieve all items for a given GLPI type using pagination."""
@@ -573,13 +603,21 @@ class GLPISession:
         base_params = {**params, "expand_dropdowns": 1}
         endpoint = itemtype if itemtype.startswith("search/") else f"search/{itemtype}"
 
+        total_records: int | None = None
         while True:
             page_params = {
                 **base_params,
                 "range": f"{offset}-{offset + page_size - 1}",
             }
             try:
-                data = await self.get(endpoint, params=page_params)
+                data, headers = await self.get(
+                    endpoint, params=page_params, return_headers=True
+                )
+                if total_records is None:
+                    range_header = headers.get("Content-Range")
+                    if range_header and "/" in range_header:
+                        with contextlib.suppress(ValueError):
+                            total_records = int(range_header.split("/")[-1])
             except Exception as exc:
                 logger.critical("Pagination aborted: %s", exc)
                 break
@@ -596,6 +634,9 @@ class GLPISession:
             results.extend(page_items)
             offset += page_size
             await asyncio.sleep(0.1)
+
+            if total_records is not None and offset >= total_records:
+                break
 
         logger.info("Pagination finished for %s: %d items", itemtype, len(results))
         return results
