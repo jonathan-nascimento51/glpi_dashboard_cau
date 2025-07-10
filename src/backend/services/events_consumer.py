@@ -59,7 +59,7 @@ class TicketEventConsumer:
         if event_type not in {"TicketCreated", "TicketUpdated"}:
             logger.debug("Skipping unknown event type: %s", event_type)
             return
-        await update_metrics(payload, self.cache)
+        await update_metrics({"cache": self.cache}, payload)
 
 
 async def start_default_consumer(

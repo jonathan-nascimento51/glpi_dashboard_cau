@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 from arq import run_worker
 from arq.connections import RedisSettings
@@ -29,11 +29,11 @@ async def _load_cached_tickets(cache: RedisClient) -> list[Dict[str, Any]]:
 
 
 async def update_metrics(
-    ticket: Dict[str, Any], cache: Optional[RedisClient] = None
+    ctx: Dict[str, Any], ticket: Dict[str, Any]
 ) -> None:
     """Update the Redis read model using a single ticket payload."""
 
-    cache = cache or redis_client
+    cache: RedisClient = ctx.get("cache") or redis_client
     tickets = await _load_cached_tickets(cache)
 
     updated = False
@@ -58,9 +58,15 @@ async def update_metrics(
 
 
 async def startup(
-    ctx: dict[str, RedisClient],
+    ctx: dict[str, Any],
 ) -> None:  # pragma: no cover - used by ARQ
     ctx["cache"] = redis_client
+
+
+async def shutdown(
+    ctx: dict[str, Any],
+) -> None:  # pragma: no cover - used by ARQ
+    pass
 
 
 class WorkerSettings:  # pragma: no cover - used by ``run_worker``
@@ -68,12 +74,10 @@ class WorkerSettings:  # pragma: no cover - used by ``run_worker``
     functions = [update_metrics]
     cron_jobs: list = []
     on_startup = startup
-    ctx: dict[str, RedisClient] = {}
+    on_shutdown = shutdown
+    ctx: dict[str, Any] = {}
 
 
 def main() -> None:  # pragma: no cover - manual run
-    run_worker(WorkerSettings)
-
-
-if __name__ == "__main__":  # pragma: no cover - manual run
-    main()
+    """CLI for running the worker API."""
+    run_worker(WorkerSettings())
