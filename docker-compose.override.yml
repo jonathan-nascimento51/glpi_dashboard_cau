@@ -4,6 +4,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - SKIP_PLAYWRIGHT=true
+      - PLAYWRIGHT_BROWSERS_PATH=/root/.cache/ms-playwright
       - PYTHONPATH=/app/src
     ports:
       - "8000:8000"

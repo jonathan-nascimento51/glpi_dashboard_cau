@@ -4,6 +4,9 @@ set -euo pipefail
 SKIP_PLAYWRIGHT=${SKIP_PLAYWRIGHT:-true}
 OFFLINE_INSTALL=${OFFLINE_INSTALL:-false}
 PROXY_FILE=/etc/apt/apt.conf.d/01proxy
+# Local cache for Playwright browsers (override via PLAYWRIGHT_BROWSERS_PATH)
+PLAYWRIGHT_CACHE_DIR="${PLAYWRIGHT_BROWSERS_PATH:-$HOME/.cache/ms-playwright}"
+export PLAYWRIGHT_BROWSERS_PATH="$PLAYWRIGHT_CACHE_DIR"
 
 echo ">>> Verificando acesso à internet..."
 if curl -Is https://pypi.org/simple --max-time 5 >/dev/null 2>&1; then
@@ -69,8 +72,8 @@ if [ "$SKIP_PLAYWRIGHT" = "false" ]; then
   npx playwright install chromium || {
     echo "⚠️ Playwright falhou. Tentando download manual via curl..."
     curl -L https://playwright.azureedge.net/builds/chromium/1181/chromium-linux.zip -o chromium.zip \
-      && unzip chromium.zip -d ~/.cache/ms-playwright \
-      && echo "✅ Chromium extraído manualmente"
+      && unzip chromium.zip -d "$PLAYWRIGHT_CACHE_DIR" \
+      && echo "✅ Chromium extraído manualmente em $PLAYWRIGHT_CACHE_DIR"
   }
 else
   echo "⚠️ SKIP_PLAYWRIGHT=true — pulando instalação do Chromium."
