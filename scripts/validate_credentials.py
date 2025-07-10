@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+import argparse
 import asyncio
 import sys
+import textwrap
 
+from aiohttp import ClientSession
 from dotenv import load_dotenv
 
 from src.backend.adapters.glpi_session import (
@@ -27,7 +30,22 @@ if sys.platform.startswith("win"):
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 
-async def _check() -> None:
+async def _debug_request() -> None:
+    """Perform a raw initSession request and print response details."""
+    headers = {
+        "App-Token": GLPI_APP_TOKEN.strip(),
+        "Authorization": f"user_token {GLPI_USER_TOKEN}" if GLPI_USER_TOKEN else "",
+        "Content-Type": "application/json",
+    }
+    async with ClientSession() as sess:
+        url = f"{GLPI_BASE_URL.rstrip('/')}/initSession"
+        async with sess.get(url, headers=headers) as resp:
+            body = await resp.text()
+            print(f"Status: {resp.status}")
+            print(f"Response: {textwrap.shorten(body, 120)}")
+
+
+async def _check(verbose: bool = False) -> None:
     # Offline mode: skip check
     if USE_MOCK_DATA:
         print("⚠️  Modo offline ativado (USE_MOCK_DATA=True). Health check ignorado.")
@@ -41,6 +59,8 @@ async def _check() -> None:
     )
     async with GLPISession(GLPI_BASE_URL, creds) as session:
         await wait_for_token(session, "proactive_token_2")
+    if verbose:
+        await _debug_request()
 
 
 async def wait_for_token(session, expected_token, timeout=1.0):
@@ -55,9 +75,17 @@ async def wait_for_token(session, expected_token, timeout=1.0):
 
 def main() -> None:
     """Validate credentials and print result."""
+    parser = argparse.ArgumentParser(description="Check GLPI credentials")
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="print raw status and response from initSession",
+    )
+    args = parser.parse_args()
+
     load_dotenv()
     try:
-        asyncio.run(_check())
+        asyncio.run(_check(args.debug))
     except (GLPIAPIError, GLPIUnauthorizedError) as exc:  # pragma: no cover - network
         print(f"\u274c Falha na conexão: {exc}")
     except Exception as exc:  # pragma: no cover - unexpected errors

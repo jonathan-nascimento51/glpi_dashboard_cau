@@ -17,7 +17,7 @@ Principais módulos do projeto:
 | `shared/config/settings.py` | Carrega variáveis de ambiente (GLPI, DB, Redis) |
 | `frontend/` | Projeto Next.js que consome o worker API |
 
-Scripts utilitários residem em `scripts/` (ex.: `setup/init_db.py`, `fetch/fetch_tickets.py`, `validate_credentials_script.py`).
+Scripts utilitários residem em `scripts/` (ex.: `setup/init_db.py`, `fetch/fetch_tickets.py`, `validate_credentials.py`).
 
 ## Configuração
 
