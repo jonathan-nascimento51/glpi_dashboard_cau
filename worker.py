@@ -8,7 +8,6 @@ import logging
 import os
 
 from shared.utils.logging import init_logging
-from src.backend.adapters.glpi_session import GLPISession
 from src.backend.api.worker_api import (
     create_app,
 )
@@ -17,6 +16,7 @@ from src.backend.api.worker_api import (
     redis_client,
 )
 from src.backend.core.settings import KNOWLEDGE_BASE_FILE
+from src.backend.infrastructure.glpi.glpi_session import GLPISession
 
 __all__ = ["create_app", "redis_client", "GLPISession", "main"]
 

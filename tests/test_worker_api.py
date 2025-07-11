@@ -7,8 +7,8 @@ from fastapi.testclient import TestClient
 from prometheus_client import CONTENT_TYPE_LATEST
 
 from backend.api.worker_api import get_glpi_client
-from backend.services import ticket_loader
-from backend.services.exceptions import GLPIUnauthorizedError
+from backend.application import ticket_loader
+from backend.domain.exceptions import GLPIUnauthorizedError
 from shared.dto import CleanTicketDTO
 from worker import create_app
 
@@ -310,11 +310,11 @@ def test_health_glpi(monkeypatch: pytest.MonkeyPatch, dummy_cache: DummyCache):
         return False
 
     monkeypatch.setattr(
-        "backend.services.glpi_api_client.GlpiApiClient.__aenter__",
+        "backend.application.glpi_api_client.GlpiApiClient.__aenter__",
         fake_enter,
     )
     monkeypatch.setattr(
-        "backend.services.glpi_api_client.GlpiApiClient.__aexit__",
+        "backend.application.glpi_api_client.GlpiApiClient.__aexit__",
         fake_exit,
     )
     client = TestClient(create_app(client=FakeClient(), cache=dummy_cache))
@@ -333,11 +333,11 @@ def test_health_glpi_head_success(
         return False
 
     monkeypatch.setattr(
-        "backend.services.glpi_api_client.GlpiApiClient.__aenter__",
+        "backend.application.glpi_api_client.GlpiApiClient.__aenter__",
         fake_enter,
     )
     monkeypatch.setattr(
-        "backend.services.glpi_api_client.GlpiApiClient.__aexit__",
+        "backend.application.glpi_api_client.GlpiApiClient.__aexit__",
         fake_exit,
     )
 
@@ -370,7 +370,7 @@ def test_health_glpi_auth_failure(
         raise GLPIUnauthorizedError(401, "unauthorized")
 
     monkeypatch.setattr(
-        "backend.services.glpi_api_client.GlpiApiClient.__aenter__",
+        "backend.application.glpi_api_client.GlpiApiClient.__aenter__",
         raise_auth,
     )
     client = TestClient(
@@ -392,7 +392,7 @@ def test_session_init_failure_fallback(
         raise RuntimeError("no network")
 
     monkeypatch.setattr(
-        "backend.services.glpi_api_client.GlpiApiClient.__aenter__",
+        "backend.application.glpi_api_client.GlpiApiClient.__aenter__",
         raise_init,
     )
     app = create_app(cache=dummy_cache)

@@ -7,5 +7,5 @@ def test_import_dash_layout():
 
 
 def test_import_cli_groups():
-    module = importlib.import_module("backend.services.tickets_groups")
+    module = importlib.import_module("backend.application.tickets_groups")
     assert module is not None

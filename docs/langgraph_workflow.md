@@ -20,7 +20,7 @@ Compile the graph and invoke it with an initial state:
 
 ```bash
 PYTHONPATH=src python - <<'PY'
-from src.backend.services.langgraph_workflow import build_workflow
+from src.backend.application.langgraph_workflow import build_workflow
 wf = build_workflow().compile()
 state = {"messages": ["fetch"], "next_agent": "", "iteration_count": 0}
 result = wf.invoke(state)

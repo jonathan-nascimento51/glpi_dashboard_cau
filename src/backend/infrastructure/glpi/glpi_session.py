@@ -19,7 +19,7 @@ from backend.core.settings import (
 )
 
 # Import custom exceptions and decorator from sibling module
-from backend.services.exceptions import (
+from backend.domain.exceptions import (
     HTTP_STATUS_ERROR_MAP,
     GLPIAPIError,
     GLPIBadRequestError,
@@ -30,7 +30,7 @@ from backend.services.exceptions import (
     GLPIUnauthorizedError,
     parse_error,
 )
-from backend.services.tool_error import ToolError
+from backend.domain.tool_error import ToolError
 from shared.utils.resilience import retry_api_call
 
 logger = logging.getLogger(__name__)

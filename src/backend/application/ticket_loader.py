@@ -10,15 +10,15 @@ from fastapi import HTTPException
 from fastapi.responses import Response
 
 from backend.adapters.factory import create_glpi_session
-from backend.adapters.normalization import process_raw
-from backend.core.settings import MOCK_TICKETS_FILE, USE_MOCK_DATA
-from backend.services.aggregated_metrics import (
+from backend.application.aggregated_metrics import (
     cache_aggregated_metrics,
     compute_aggregated,
     tickets_by_date,
     tickets_daily_totals,
 )
-from backend.services.glpi_api_client import GlpiApiClient
+from backend.application.glpi_api_client import GlpiApiClient
+from backend.core.settings import MOCK_TICKETS_FILE, USE_MOCK_DATA
+from backend.infrastructure.glpi.normalization import process_raw
 from shared.dto import CleanTicketDTO
 from shared.utils.redis_client import redis_client
 

@@ -6,8 +6,8 @@ import pytest_asyncio
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from backend.db import database
-from backend.db import read_model as ticket_summary
+from backend.infrastructure.database import database
+from backend.infrastructure.database import read_model as ticket_summary
 
 
 @pytest_asyncio.fixture()

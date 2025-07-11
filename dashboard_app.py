@@ -9,7 +9,6 @@ from dash import Dash
 from flask import Flask
 from flask_caching import Cache
 
-from backend.adapters.glpi_session import Credentials, GLPISession
 from backend.core.settings import (
     DASH_PORT,
     GLPI_APP_TOKEN,
@@ -19,7 +18,8 @@ from backend.core.settings import (
     GLPI_USERNAME,
     USE_MOCK_DATA,
 )
-from backend.services.exceptions import GLPIAPIError
+from backend.domain.exceptions import GLPIAPIError
+from backend.infrastructure.glpi.glpi_session import Credentials, GLPISession
 from backend.utils import process_raw
 from frontend.callbacks.callbacks import register_callbacks
 from frontend.layout.layout import build_layout

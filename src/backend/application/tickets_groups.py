@@ -11,7 +11,6 @@ from typing import Optional
 
 import pandas as pd
 
-from backend.adapters.glpi_session import Credentials, GLPISession
 from backend.core.settings import (
     FETCH_PAGE_SIZE,
     GLPI_APP_TOKEN,
@@ -20,6 +19,7 @@ from backend.core.settings import (
     GLPI_USER_TOKEN,
     GLPI_USERNAME,
 )
+from backend.infrastructure.glpi.glpi_session import Credentials, GLPISession
 
 log = logging.getLogger(__name__)
 

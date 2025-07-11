@@ -7,13 +7,13 @@ from typing import Any, Dict
 from arq import run_worker
 from arq.connections import RedisSettings
 
-from backend.adapters.normalization import process_raw
-from backend.services.aggregated_metrics import (
+from backend.application.aggregated_metrics import (
     cache_aggregated_metrics,
     compute_aggregated,
     tickets_by_date,
     tickets_daily_totals,
 )
+from backend.infrastructure.glpi.normalization import process_raw
 from shared.utils.redis_client import RedisClient, redis_client
 
 

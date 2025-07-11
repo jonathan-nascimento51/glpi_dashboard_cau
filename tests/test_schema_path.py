@@ -1,4 +1,4 @@
-from backend.db.database import SCHEMA_FILE
+from backend.infrastructure.database.database import SCHEMA_FILE
 
 
 def test_schema_file_exists() -> None:

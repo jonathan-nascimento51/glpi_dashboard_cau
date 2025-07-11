@@ -10,12 +10,6 @@ import textwrap
 from aiohttp import ClientSession
 from dotenv import load_dotenv
 
-from backend.adapters.glpi_session import (
-    Credentials,
-    GLPIAPIError,
-    GLPISession,
-    GLPIUnauthorizedError,
-)
 from backend.core.settings import (
     GLPI_APP_TOKEN,
     GLPI_BASE_URL,
@@ -23,6 +17,12 @@ from backend.core.settings import (
     GLPI_USER_TOKEN,
     GLPI_USERNAME,
     USE_MOCK_DATA,
+)
+from backend.infrastructure.glpi.glpi_session import (
+    Credentials,
+    GLPIAPIError,
+    GLPISession,
+    GLPIUnauthorizedError,
 )
 
 # Windows event loop fix for aiodns

@@ -5,8 +5,8 @@ from unittest.mock import AsyncMock
 
 import pandas as pd
 
-from backend.services import aggregated_metrics
-from backend.services.aggregated_metrics import (
+from backend.application import aggregated_metrics
+from backend.application.aggregated_metrics import (
     cache_aggregated_metrics,
     get_cached_aggregated,
     tickets_by_date,

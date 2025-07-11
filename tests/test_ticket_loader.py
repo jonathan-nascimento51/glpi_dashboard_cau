@@ -2,7 +2,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from backend.services import ticket_loader
+from backend.application import ticket_loader
 from shared.dto import CleanTicketDTO
 
 

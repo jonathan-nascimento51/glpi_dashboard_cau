@@ -24,22 +24,22 @@ from pydantic import BaseModel, Field
 from strawberry.fastapi import GraphQLRouter
 from strawberry.types import Info
 
-from backend.core.settings import (
-    KNOWLEDGE_BASE_FILE,
-)
-from backend.services.aggregated_metrics import (
+from backend.application.aggregated_metrics import (
     get_cached_aggregated,
 )
-from backend.services.glpi_api_client import (
+from backend.application.glpi_api_client import (
     GlpiApiClient,
     create_glpi_api_client,
 )
-from backend.services.read_model import query_ticket_summary
-from backend.services.ticket_loader import (
+from backend.application.read_model import query_ticket_summary
+from backend.application.ticket_loader import (
     check_glpi_connection,
     load_and_translate_tickets,
     load_tickets,
     stream_tickets,
+)
+from backend.core.settings import (
+    KNOWLEDGE_BASE_FILE,
 )
 from shared.dto import CleanTicketDTO
 from shared.utils.redis_client import redis_client

@@ -33,7 +33,7 @@ This document provides a quick overview of how the repository is structured, the
        +------------------------------+
 ```
 
-Aggregated metrics are computed under `src/backend/services/aggregated_metrics.py` and cached in Redis so both UIs load quickly.
+Aggregated metrics are computed under `src/backend/application/aggregated_metrics.py` and cached in Redis so both UIs load quickly.
 
 ## Dependencies
 

@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock, patch
 import aiohttp
 import pytest
 
-from backend.adapters.glpi_session import Credentials, GLPISession
+from backend.infrastructure.glpi.glpi_session import Credentials, GLPISession
 
 
 class DummyCM:
@@ -43,7 +43,7 @@ async def test_request_retry_on_503(monkeypatch):
         return DummyCM(responses.pop(0))
 
     monkeypatch.setattr(
-        "backend.adapters.glpi_session.aiohttp.ClientSession.request",
+        "backend.infrastructure.glpi.glpi_session.aiohttp.ClientSession.request",
         lambda *a, **k: fake_request(),
     )
 
@@ -67,7 +67,7 @@ async def test_request_retry_on_timeout(monkeypatch):
         return DummyCM(DummyResponse(200, {"ok": True}))
 
     monkeypatch.setattr(
-        "backend.adapters.glpi_session.ClientSession.request",
+        "backend.infrastructure.glpi.glpi_session.ClientSession.request",
         lambda *a, **k: fake_request(),
     )
 
