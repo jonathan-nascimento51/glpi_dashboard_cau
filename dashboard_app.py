@@ -81,7 +81,7 @@ def load_data(ticket_range: str = "0-99", **filters: str) -> pd.DataFrame | None
     if USE_MOCK_DATA:
         logging.info("Loading ticket data from mock file")
         try:
-            return process_raw(pd.read_json("resources/mock_tickets.json"))
+            return process_raw(pd.read_json("tests/resources/mock_tickets.json"))
         except Exception as exc:  # pragma: no cover - file errors
             logging.error("failed to load mock data: %s", exc)
             return None
