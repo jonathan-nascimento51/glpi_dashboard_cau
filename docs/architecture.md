@@ -91,6 +91,6 @@ A estratégia de implantação com contêineres Docker permanece a mesma, sendo 
 Os cenários de uso continuam idênticos, uma vez que a refatoração da estrutura de arquivos não afeta a funcionalidade externa da aplicação.
 
 1. Fluxo orientado a eventos
-A lógica de consumo de eventos continuará a mesma, porém o arquivo responsável será realocado para seguir a nova estrutura. O consumidor estará em src/backend/services/events_consumer.py (caminho atualizado).
+A lógica de consumo de eventos continuará a mesma, porém o arquivo responsável será realocado para seguir a nova estrutura. O consumidor estará em `src/backend/events_consumer.py` (caminho atualizado).
 
 Esta versão do documento serve como o "plano diretor" para a refatoração, garantindo que todos os envolvidos tenham uma visão clara da estrutura organizada que queremos alcançar.
