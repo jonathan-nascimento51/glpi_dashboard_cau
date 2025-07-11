@@ -65,7 +65,7 @@ atualize o Docker Engine.
 ## 5. Prepare the data
 
 Optionally generate a JSON dump from GLPI. A small sanitized sample is already
-available in `tests/resources/raw_tickets_sample.json`:
+available in `resources/data/raw_tickets_sample.json`:
 
 ```bash
 python scripts/fetch/fetch_tickets.py --output data/tickets_dump.json

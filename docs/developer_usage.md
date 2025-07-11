@@ -19,7 +19,7 @@ Principais módulos do projeto:
 
 Os módulos da Anti-Corruption Layer residem em `src/backend/adapters`. Importe-os diretamente desse pacote. O antigo `glpi_adapter.py` foi removido durante a refatoração.
 
-Scripts utilitários residem em `scripts/` (ex.: `setup/init_db.py`, `fetch/fetch_tickets.py`, `validate_credentials.py`).
+Scripts utilitários residem em `scripts/` organizados por categoria, como `setup/init_db.py`, `fetch/fetch_tickets.py` e `etl/filters.py`.
 
 ## Configuração
 
