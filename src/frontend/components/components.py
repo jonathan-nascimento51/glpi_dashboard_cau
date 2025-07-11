@@ -5,7 +5,7 @@ import plotly.express as px
 import plotly.graph_objs as go
 from dash import html
 
-from backend.infrastructure.glpi.normalization import sanitize_status_column
+from backend.adapters.normalization import sanitize_status_column
 
 
 def _status_fig(df: pd.DataFrame) -> go.Figure:
