@@ -28,10 +28,14 @@ down:
 init-db:
 	$(PYTHON) scripts/setup/init_db.py
 
-test:
+# Running `make test` will bootstrap the virtualenv if `.venv/bin/pip` is missing
+test: | $(PIP)
 	$(PIP) install --break-system-packages -r requirements.txt -r requirements-dev.txt
 	$(PIP) install -e .
 	$(VENV)/bin/pytest
+
+$(PIP):
+	$(MAKE) setup
 
 lint:
 	flake8 .
