@@ -15,10 +15,9 @@ from backend.core.settings import (
     GLPI_USER_TOKEN,
     GLPI_USERNAME,
 )
+from backend.domain.exceptions import GLPIAPIError
+from backend.domain.tool_error import ToolError
 from backend.infrastructure.glpi.glpi_session import Credentials, GLPISession
-
-from .exceptions import GLPIAPIError
-from .tool_error import ToolError
 
 
 class BatchFetchParams(BaseModel):
