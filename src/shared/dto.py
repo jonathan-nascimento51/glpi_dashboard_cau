@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Dict, Optional
+from typing import TYPE_CHECKING, Dict, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from backend.adapters.mapping_service import MappingService
+if TYPE_CHECKING:  # Avoid runtime import cycle
+    from backend.adapters.mapping_service import MappingService
 
 # Static mappings from numeric codes returned by the GLPI API
 STATUS_MAP = {
@@ -68,7 +69,7 @@ class CleanTicketDTO(BaseModel):
 class TicketTranslator:
     """Translate raw GLPI ticket dictionaries into :class:`CleanTicketDTO`."""
 
-    def __init__(self, mapping_service: MappingService) -> None:
+    def __init__(self, mapping_service: "MappingService") -> None:
         self.mapper = mapping_service
 
     async def translate_ticket(self, raw_ticket: Dict) -> CleanTicketDTO:
