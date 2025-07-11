@@ -14,7 +14,11 @@ This document condenses the main steps from the README to get the dashboard runn
    ```bash
    ./setup.sh
    ```
-   The script accepts proxy variables (`HTTP_PROXY`/`HTTPS_PROXY`) and can work offline with `OFFLINE_INSTALL=true` when wheels are available under `./wheels`.
+   This command creates the `.venv` directory, installs packages from
+   `requirements.txt` and `requirements-dev.txt`, and sets up `pre-commit`.
+   Run it once before executing any tests (or use `make setup`). The script
+   accepts proxy variables (`HTTP_PROXY`/`HTTPS_PROXY`) and can work offline with
+   `OFFLINE_INSTALL=true` when wheels are available under `./wheels`.
 
 3. (Optional) Authenticate the GitHub CLI if you use private repositories:
    ```bash
