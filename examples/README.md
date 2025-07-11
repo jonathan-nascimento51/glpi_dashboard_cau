@@ -5,3 +5,5 @@ Este diretório reúne material educativo usado em treinamentos e demonstraçõe
 Arquivos como `song_serializer.py`, `sort_strategy.py`, `demo_resilient_client.py` e `example_api.py` servem apenas como referência de padrões e experimentos.
 
 These examples are for educational purposes only and are not intended for production use.
+
+**This directory is excluded from production builds.**
