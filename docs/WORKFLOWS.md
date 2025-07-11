@@ -10,6 +10,8 @@ The main pipeline runs on pushes to `main` and on pull requests. It defines thre
 2. **test** – waits for `lint`, sets up a matrix for Python 3.10–3.12 and runs both backend (`pytest`) and frontend tests.
 3. **build** – runs only for tagged commits after successful tests. It logs in to GHCR and uses `docker/build-push-action` to build `docker/backend_service/Dockerfile` and push the resulting image tagged with the Git ref name.
 
+Build artifacts created during this job are stored in the `build/` directory. The folder is cleaned after each run and is ignored by Git.
+
 ```mermaid
 flowchart LR
   lint --> test --> build

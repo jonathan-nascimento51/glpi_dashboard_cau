@@ -17,6 +17,7 @@ htmlcov/
 venv/
 .vscode/
 *src/glpi_dashboard_cau.egg-info/
+build/
 
 # Node
 node_modules/

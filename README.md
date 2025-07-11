@@ -177,6 +177,7 @@ make test
 ```
 
 This command installs all requirements, builds the local package and runs `pytest` with coverage.
+Build artifacts are written to the `build/` directory. Treat this folder as temporary; it is deleted by CI and ignored in `.gitignore`.
 
 ## Installation
 
