@@ -15,6 +15,8 @@ from backend.core.settings import (
     GLPI_USER_TOKEN,
     GLPI_USERNAME,
 )
+
+# Import custom error raised by the GLPI client
 from backend.domain.exceptions import GLPIAPIError
 from backend.domain.tool_error import ToolError
 from backend.infrastructure.glpi.glpi_session import Credentials, GLPISession
