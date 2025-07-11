@@ -1,3 +1,5 @@
 # Exemplos
 
-Este diretório é dedicado a material educativo usado em treinamentos e demonstrações. Os arquivos em `patterns/` ilustram padrões de projeto em Python e não são utilizados no build de produção.
+Este diretório reúne material educativo usado em treinamentos e demonstrações. Nenhum dos scripts aqui presentes é empacotado no build de produção.
+
+Arquivos como `song_serializer.py`, `sort_strategy.py`, `demo_resilient_client.py` e `example_api.py` servem apenas como referência de padrões e experimentos.
