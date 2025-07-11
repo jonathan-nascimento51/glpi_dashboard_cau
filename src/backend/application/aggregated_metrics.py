@@ -6,7 +6,7 @@ from typing import Any, Dict, Optional
 
 import pandas as pd
 
-from backend.infrastructure.glpi.normalization import aggregate_by_user
+from backend.adapters.normalization import aggregate_by_user
 from shared.utils.redis_client import RedisClient, redis_client
 
 
