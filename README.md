@@ -11,31 +11,43 @@ This project provides a minimal dashboard to visualize service desk tickets from
 The goal is to inspect backlog, ticket status and productivity metrics without a live GLPI connection. Data is fetched via the API and normalized into JSON that the Dash app loads on startup.
 Additional sample scripts and pattern demos reside under [`examples/`](examples/).
 
-## Getting Started
+## Development Setup
 
-Install dependencies and prepare the environment:
+Follow these steps to prepare a local environment. A condensed walkthrough is
+available in [docs/install_quickstart.md](docs/install_quickstart.md).
 
-For a condensed walkthrough see [docs/install_quickstart.md](docs/install_quickstart.md).
+Run `./setup.sh` to create a virtual environment, install all requirements and
+enable `pre-commit` hooks automatically. Optional extras can be added later with
+`./scripts/install_dev_extras.sh`. If you prefer to install packages manually
+remember to run `pre-commit install` afterward.
 
-You can run `./setup.sh` to install all dependencies, set up the editable package
-and enable pre-commit hooks in one step or execute the commands below manually.
-The base requirements now include `opentelemetry-instrumentation-fastapi` and
-`opentelemetry-instrumentation-logging` for better tracing and log
-instrumentation.
+```bash
+./setup.sh
+```
+
+The script installs `pre-commit` and all Python dependencies in one go. You may
+still run the manual commands below if you need finer control:
 
 ```bash
 python -m pip install --upgrade pip
 pip install -r requirements.txt -r requirements-dev.txt
-pip install -e .  # install the backend packages in editable mode
-# install pre-commit if not already available
-pip install pre-commit
-# dependencies are declared in pyproject.toml using PEP 621
-pre-commit install  # sets up hooks for black, ruff, isort and mypy
-# Ruff version pinned to 0.12.2 is included in requirements-dev.txt
-# Reinstall dev dependencies before running pre-commit if your environment is outdated
+pip install -e .
+pre-commit install
 ```
 
-Create a `.env` file from the template and set PostgreSQL/Redis credentials:
+Create a `.env` file from the template and fill in your GLPI and database
+credentials. PostgreSQL is used by default but you can point the application to
+MySQL by setting values like:
+
+```bash
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=glpi_dashboard
+DB_USER=dashboard
+DB_PASSWORD=senhaSegura
+```
+
+Generate the template with:
 
 ```bash
 python scripts/setup/setup_env.py  # copies .env.example
@@ -571,8 +583,6 @@ The script can also be invoked directly:
 ```bash
 PYTHONPATH=src python scripts/setup/init_db.py --drop-all
 ```
-
-For a MySQL-specific walkthrough, see [docs/first_use_mysql.md](docs/first_use_mysql.md) which lists all required environment variables and setup steps.
 
 ## Docker deployment
 
