@@ -15,6 +15,8 @@ Additional sample scripts and pattern demos reside under [`examples/`](examples/
 
 Install dependencies and prepare the environment:
 
+For a condensed walkthrough see [docs/install_quickstart.md](docs/install_quickstart.md).
+
 You can run `./setup.sh` to install all dependencies, set up the editable package
 and enable pre-commit hooks in one step or execute the commands below manually.
 The base requirements now include `opentelemetry-instrumentation-fastapi` and
