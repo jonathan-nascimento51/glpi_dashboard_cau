@@ -14,9 +14,9 @@ from backend.core.settings import DATABASE_URL
 
 logger = logging.getLogger(__name__)
 
-# Path to schema.sql at the project root. `parents[3]` traverses
-# data/ -> glpi_dashboard/ -> src/ -> repository root.
-SCHEMA_FILE = Path(__file__).resolve().parents[3] / "schema.sql"
+# Path to the database schema relative to the repository root
+# src/backend/infrastructure/database -> ../../../../resources/db/schema.sql
+SCHEMA_FILE = Path(__file__).resolve().parents[4] / "resources" / "db" / "schema.sql"
 
 Base: Any = declarative_base()
 
@@ -67,7 +67,7 @@ async def init_db(drop_all: bool = False) -> None:
             logger.info("All tables dropped.")
 
         logger.info("Creating database schema from %s...", SCHEMA_FILE)
-        # Read and execute schema.sql from the project root
+        # Read and execute schema.sql from resources/db
         with SCHEMA_FILE.open("r") as f:
             schema_sql = f.read()
 
