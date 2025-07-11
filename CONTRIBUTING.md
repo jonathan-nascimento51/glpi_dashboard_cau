@@ -1,0 +1,69 @@
+# Contribution Guidelines
+
+This document explains how to set up your environment and contribute to the GLPI Dashboard CAU project. The workflow covers Python services, Docker containers and the React frontend.
+
+## 1. Setup and dependencies
+
+Use `./setup.sh` to create a virtual environment, install Python packages and enable pre‑commit hooks automatically. The script also installs Playwright dependencies when needed.
+
+```bash
+./setup.sh
+```
+
+If the script fails or you prefer the manual steps, install dependencies from `requirements.txt` and `requirements-dev.txt`, then run `pre-commit install`.
+
+```bash
+python -m pip install -r requirements.txt -r requirements-dev.txt
+pip install -e .
+pre-commit install
+```
+
+## 2. Python & Docker workflow
+
+Run the worker and dashboard locally with:
+
+```bash
+python worker.py &
+python dashboard_app.py &
+```
+
+Launching the entire stack with Docker is recommended for a consistent environment:
+
+```bash
+docker compose up
+```
+
+This starts PostgreSQL, Redis, the FastAPI worker and the Dash app as described in the [README](README.md). The dashboard will be available at `http://localhost:5173`.
+
+## 3. React workflow
+
+The React project resides in `src/frontend/react_app`. Install Node dependencies and start the dev server from that folder:
+
+```bash
+cd src/frontend/react_app
+npm install
+npm run dev
+```
+
+Tests and lint commands are provided in `package.json`. Consult [docs/frontend_architecture.md](docs/frontend_architecture.md) for details about environment variables and available scripts.
+
+## 4. Pre‑commit hooks
+
+This repository relies on `pre-commit` for formatting and static checks (Black, Ruff, isort and mypy). Hooks run automatically if installed, but you can execute them manually before committing:
+
+```bash
+pre-commit run --all-files
+```
+
+## 5. Opening pull requests
+
+1. Create a branch based on `main`.
+2. Run `pre-commit` and `pytest` locally to ensure everything passes.
+3. Push the branch and open a pull request on GitHub. Describe your changes clearly and link any relevant issues.
+4. The CI pipeline defined in `.github/workflows/ci.yml` will run lint, tests and the Docker build. Wait for it to pass before requesting a review.
+
+## 6. Multi‑agent prompting
+
+The project automates code generation with a series of LLM agents documented in [AGENTS.md](AGENTS.md). The pipeline `A1 ▶ A2 ▶ A3 ▶ A4‑6 ▶ A7 ▶ A8 ▶ A9` outlines how prompts are composed and validated before Codex writes files.
+
+Frontend contributions follow an additional sequence described in `src/frontend/react_app/AGENTS.md`. Review these documents when orchestrating multiple models or generating code automatically.
