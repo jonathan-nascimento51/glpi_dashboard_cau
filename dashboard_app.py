@@ -11,6 +11,7 @@ from flask_caching import Cache
 
 from backend.adapters.glpi_session import Credentials, GLPISession
 from backend.core.settings import (
+    DASH_PORT,
     GLPI_APP_TOKEN,
     GLPI_BASE_URL,
     GLPI_PASSWORD,
@@ -24,9 +25,9 @@ from frontend.callbacks.callbacks import register_callbacks
 from frontend.layout.layout import build_layout
 from shared.utils.logging import init_logging
 
-app = Flask(__name__)
+flask_app = Flask(__name__)
 cache = Cache(
-    app,
+    flask_app,
     config={
         "CACHE_TYPE": "redis",
         "CACHE_REDIS_HOST": os.getenv("REDIS_HOST", "redis"),
@@ -126,7 +127,7 @@ def profile_startup() -> None:
 if __name__ == "__main__":
     df = load_data()
     app = create_app(df)
-    import os
 
-    port = int(os.getenv("DASH_PORT", "8050"))
-    app.run(host="0.0.0.0", port=port, debug=False, use_reloader=False, threaded=True)
+    app.run(
+        host="0.0.0.0", port=DASH_PORT, debug=False, use_reloader=False, threaded=True
+    )

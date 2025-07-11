@@ -57,7 +57,7 @@ Run the dashboard:
 python dashboard_app.py
 ```
 
-Open <http://127.0.0.1:8050> in your browser.
+Open <http://127.0.0.1:8050> in your browser (or set `DASH_PORT` to change the port).
 
 To launch the entire stack with Docker use:
 
@@ -141,7 +141,7 @@ python dashboard_app.py &
 Launch the React frontend in another terminal:
 
 ```bash
-cd frontend && npm run dev
+cd src/frontend/react_app && npm run dev
 ```
 
 Inspect available CLI commands:
@@ -290,7 +290,7 @@ Profile startup time with:
 python scripts/profile_dash.py
 ```
 
-The app will be available at <http://127.0.0.1:8050>.
+The app will be available at <http://127.0.0.1:8050> by default; set `DASH_PORT` if you need a different port.
 
 For an OS-specific walkthrough including virtual environment commands, see
 [docs/run_local.md](docs/run_local.md).
@@ -723,7 +723,7 @@ Run the command above whenever you need a fresh debugging prompt.
 
 The Vite React dashboard targets a Largest Contentful Paint (LCP) below **2.5&nbsp;seconds**.
 Builds fail if any JavaScript bundle exceeds **250&nbsp;kB**. Run the analyzer
-from the `frontend` directory with:
+from the `src/frontend/react_app` directory with:
 
 ```bash
 npm run analyze
@@ -767,7 +767,7 @@ Em produ\u00e7\u00e3o, a fun\u00e7\u00e3o `reportWebVitals` envia as m\u00e9tric
 Gere flamegraphs locais com:
 
 ```bash
-cd frontend && npm run perf:profile
+cd src/frontend/react_app && npm run perf:profile
 ```
 
 ## CI
@@ -776,7 +776,7 @@ Continuous integration runs on GitHub Actions using `.github/workflows/ci.yml`.
 The workflow is split into three jobs:
 
 1. **Lint** – installs dependencies via `./setup.sh`, checks Python code with
-   `pre-commit` and runs `npm run lint` inside `frontend`.
+   `pre-commit` and runs `npm run lint` inside `src/frontend/react_app`.
 2. **Test** – executed for Python 3.10, 3.11 and 3.12 through a matrix build.
    It runs `pytest` and the Jest suite for the React app.
 3. **Build** – tagged commits trigger a Docker build that publishes the image to
