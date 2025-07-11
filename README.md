@@ -687,8 +687,10 @@ pip install -r requirements.txt -r requirements-dev.txt && pip install -e .
 ```
 
 Running `./setup.sh` performs the same installation automatically and configures
-pre-commit hooks. After the environment is ready you can run `make test` to
-execute the suite in one step or invoke `pytest` directly.
+pre-commit hooks. If you use the Makefile run `make setup` once to prepare the
+virtual environment before calling `make test`. After the environment is ready
+you can run `make test` to execute the suite in one step or invoke `pytest`
+directly.
 
 For quick local tests you may copy `.env.example` to `.env` if the file is
 missing:
@@ -744,6 +746,10 @@ Lint checks can be run manually:
 black --check .
 flake8 .
 ```
+
+Node-based tests and linting require local packages as well. Navigate to
+`src/frontend/react_app` and run `npm install` before executing `npm test` or
+`npm run lint`.
 
 ### Bug prompt generation
 
