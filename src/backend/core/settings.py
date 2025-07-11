@@ -51,6 +51,7 @@ class Settings(BaseSettings):
 
     VERIFY_SSL: bool = True
     CLIENT_TIMEOUT_SECONDS: int = 30
+    DASH_PORT: int = int(os.getenv("DASH_PORT", "8050"))
 
     knowledge_base_file: str = os.getenv(
         "KNOWLEDGE_BASE_FILE", "docs/knowledge_base_errors.md"
@@ -127,3 +128,4 @@ EVENT_BROKER_URL = settings.EVENT_BROKER_URL
 
 VERIFY_SSL = settings.VERIFY_SSL
 CLIENT_TIMEOUT_SECONDS = settings.CLIENT_TIMEOUT_SECONDS
+DASH_PORT = settings.DASH_PORT
