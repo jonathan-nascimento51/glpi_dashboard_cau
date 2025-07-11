@@ -679,6 +679,15 @@ Running `./setup.sh` performs the same installation automatically and configures
 pre-commit hooks. After the environment is ready you can run `make test` to
 execute the suite in one step or invoke `pytest` directly.
 
+You may also install only the optional development extras with:
+
+```bash
+./scripts/install_dev_extras.sh
+```
+
+This reads the `[project.optional-dependencies].dev` list from `pyproject.toml`
+and installs each package via `pip`.
+
 ```bash
 pip install -r requirements.txt -r requirements-dev.txt
 pip install -e .  # ensure local packages are discoverable during tests
