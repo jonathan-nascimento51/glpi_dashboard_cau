@@ -16,8 +16,9 @@ Additional sample scripts and pattern demos reside under [`examples/`](examples/
 Follow these steps to prepare a local environment. A condensed walkthrough is
 available in [docs/install_quickstart.md](docs/install_quickstart.md).
 
-Run `./setup.sh` to create a virtual environment, install all requirements and
-enable `pre-commit` hooks automatically. Optional extras can be added later with
+Run `./setup.sh` (or `make setup`) to create the `.venv` directory, install
+packages from `requirements.txt` and `requirements-dev.txt` and enable
+`pre-commit` hooks automatically. Optional extras can be added later with
 `./scripts/install_dev_extras.sh`. If you prefer to install packages manually
 remember to run `pre-commit install` afterward.
 
@@ -175,6 +176,11 @@ python -m glpi_tools list-fields Ticket
 ```bash
 make test
 ```
+
+Before executing any tests run `./setup.sh` (or `make setup`) once. The script
+creates `.venv`, installs `requirements.txt` and `requirements-dev.txt` and
+configures `pre-commit`. Verify that the `.venv` directory exists before calling
+`make test`.
 
 This command installs all requirements, builds the local package and runs `pytest` with coverage.
 Build artifacts are written to the `build/` directory. Treat this folder as temporary; it is deleted by CI and ignored in `.gitignore`.
