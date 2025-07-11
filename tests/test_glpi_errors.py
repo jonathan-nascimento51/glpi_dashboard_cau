@@ -6,7 +6,7 @@ import pytest
 pytest.importorskip("aiohttp")
 import aiohttp
 
-from backend.services.exceptions import (
+from backend.domain.exceptions import (
     GLPIAPIError,
     GlpiHttpError,
     parse_error,

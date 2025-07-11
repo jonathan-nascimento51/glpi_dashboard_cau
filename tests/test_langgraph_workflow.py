@@ -5,7 +5,7 @@ try:  # Skip if langgraph is missing required modules
 except Exception:  # pragma: no cover - optional dependency
     pytest.skip("langgraph not available", allow_module_level=True)
 
-from backend.services import langgraph_workflow
+from backend.application import langgraph_workflow
 
 
 @pytest.mark.asyncio

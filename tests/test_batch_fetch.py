@@ -4,7 +4,7 @@ import time
 
 import pytest
 
-from backend.services import batch_fetch
+from backend.application import batch_fetch
 
 
 class DummySession:

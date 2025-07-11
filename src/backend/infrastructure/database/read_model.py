@@ -8,7 +8,10 @@ from typing import List
 
 from sqlalchemy import text
 
-from backend.db.database import AsyncSessionLocal, refresh_materialized_view
+from backend.infrastructure.database.database import (
+    AsyncSessionLocal,
+    refresh_materialized_view,
+)
 
 
 @dataclass

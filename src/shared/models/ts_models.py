@@ -5,7 +5,7 @@ from enum import IntEnum
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from backend.models.ticket_status import Impact, Priority, TicketStatus, Urgency
+from backend.domain.ticket_status import Impact, Priority, TicketStatus, Urgency
 
 
 class TicketType(IntEnum):

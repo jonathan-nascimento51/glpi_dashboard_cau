@@ -2,8 +2,8 @@ import logging
 from typing import List, Optional
 
 from backend.adapters.factory import create_glpi_session
-from backend.adapters.glpi_session import GLPISession
 from backend.adapters.mapping_service import MappingService
+from backend.infrastructure.glpi.glpi_session import GLPISession
 from shared.dto import CleanTicketDTO, TicketTranslator
 
 logger = logging.getLogger(__name__)

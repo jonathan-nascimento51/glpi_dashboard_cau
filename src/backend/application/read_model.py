@@ -2,7 +2,10 @@
 
 from typing import List
 
-from backend.db.read_model import TicketSummary, get_ticket_summary
+from backend.infrastructure.database.read_model import (
+    TicketSummary,
+    get_ticket_summary,
+)
 
 
 async def query_ticket_summary(

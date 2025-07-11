@@ -8,8 +8,8 @@ import logging
 from collections.abc import AsyncIterable, Callable
 from typing import Any, Dict, Optional
 
+from backend.application.metrics_worker import update_metrics
 from backend.core.settings import EVENT_BROKER_URL
-from backend.services.metrics_worker import update_metrics
 from shared.utils.redis_client import RedisClient, redis_client
 
 logger = logging.getLogger(__name__)

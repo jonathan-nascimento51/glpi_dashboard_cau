@@ -135,7 +135,7 @@ If a script still depends on `require()`, rename it with the `.cjs` extension or
 
 ## Main modules
 
-- **`src/backend/adapters/glpi_session.py`** – asynchronous client for the GLPI REST API used by the worker and ETL modules. This file replaces the former `glpi_api.py` referenced in early docs.
+- **`src/backend/infrastructure/glpi/glpi_session.py`** – asynchronous client for the GLPI REST API used by the worker and ETL modules. This file replaces the former `glpi_api.py` referenced in early docs.
 - **`src/backend/utils/pipeline.py`** – normalizes raw ticket data into a `pandas.DataFrame` and exports JSON.
 - **`src/frontend/layout/layout.py`** – defines tables and charts for the Dash UI.
 - **`glpi_tools/__main__.py`** – exposes the CLI commands such as `list-fields`.
@@ -354,13 +354,13 @@ The API uses **ORJSONResponse** for fast serialization. Heavy aggregations are
 pre-computed by an ARQ worker. Start it separately with:
 
 ```bash
-PYTHONPATH=src python src/backend/services/metrics_worker.py
+PYTHONPATH=src python src/backend/application/metrics_worker.py
 ```
 
 Alternatively you can use the module form:
 
 ```bash
-python -m backend.services.metrics_worker
+python -m backend.application.metrics_worker
 ```
 
 The service exposes several endpoints:
@@ -399,7 +399,7 @@ Run the following command to sync the frontend types with the backend models:
 make gen-types
 ```
 
-This converts the Pydantic models in `backend.models.ts_models` into TypeScript definitions under `src/frontend/react_app/src/types/api.ts`.
+This converts the Pydantic models in `backend.domain.ts_models` into TypeScript definitions under `src/frontend/react_app/src/types/api.ts`.
 
 Example GraphQL query to retrieve ticket data:
 
@@ -434,7 +434,7 @@ To experiment with the supervisor pattern in isolation compile the graph and inv
 ```bash
 PYTHONPATH=src python - <<'PY'
 import asyncio
-from backend.services.langgraph_workflow import build_workflow
+from backend.application.langgraph_workflow import build_workflow
 
 async def main():
     wf = build_workflow().compile()

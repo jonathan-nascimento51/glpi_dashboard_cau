@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock
 import aiohttp
 import pytest
 
-from backend.adapters.glpi_session import Credentials, GLPISession
+from backend.infrastructure.glpi.glpi_session import Credentials, GLPISession
 
 
 class DummyCM:
@@ -35,7 +35,7 @@ class DummyResponse:
 @pytest.mark.asyncio
 async def test_init_session_user_token(mocker):
     mock_session = mocker.patch(
-        "backend.adapters.glpi_session.ClientSession"
+        "backend.infrastructure.glpi.glpi_session.ClientSession"
     ).return_value
     mock_index = AsyncMock(
         return_value=DummyCM(DummyResponse(200, {"session_token": "tok"}))
@@ -53,7 +53,7 @@ async def test_init_session_user_token(mocker):
 @pytest.mark.asyncio
 async def test_init_session_basic_auth(mocker):
     mock_session = mocker.patch(
-        "backend.adapters.glpi_session.ClientSession"
+        "backend.infrastructure.glpi.glpi_session.ClientSession"
     ).return_value
     mock_index = AsyncMock(
         return_value=DummyCM(DummyResponse(200, {"session_token": "tok"}))
@@ -72,7 +72,7 @@ async def test_init_session_basic_auth(mocker):
 @pytest.mark.asyncio
 async def test_search_rest_url(mocker):
     mock_session = mocker.patch(
-        "backend.adapters.glpi_session.ClientSession"
+        "backend.infrastructure.glpi.glpi_session.ClientSession"
     ).return_value
 
     async def fake_request(method, url, **kwargs):
@@ -94,7 +94,7 @@ async def test_search_rest_url(mocker):
 @pytest.mark.asyncio
 async def test_query_graphql_payload(mocker):
     mock_session = mocker.patch(
-        "backend.adapters.glpi_session.ClientSession"
+        "backend.infrastructure.glpi.glpi_session.ClientSession"
     ).return_value
 
     mock_session.request = AsyncMock(

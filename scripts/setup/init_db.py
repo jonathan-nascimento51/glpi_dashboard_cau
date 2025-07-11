@@ -3,7 +3,7 @@ import asyncio
 import logging
 import sys
 
-from backend.db.database import init_db  # noqa: E402
+from backend.infrastructure.database.database import init_db  # noqa: E402
 
 
 async def _run(drop_all: bool) -> None:
