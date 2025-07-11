@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pandas import DataFrame
 
-from backend.adapters.normalization import process_raw
+from backend.infrastructure.glpi.normalization import process_raw
 
 
 def save_json(df: DataFrame, path: str = "mock/sample_data.json") -> None:
