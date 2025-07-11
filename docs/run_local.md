@@ -106,3 +106,7 @@ docker load -i images.tar
 ```
 
 Start the stack normally with `docker compose up` after loading the archive.
+
+## Temporary build directory
+
+When running packaging commands such as `python -m build` or `npm run build`, artifacts are placed in the `build/` folder. This directory is only meant for transient files and is listed in `.gitignore`.
