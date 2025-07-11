@@ -844,9 +844,11 @@ All ADRs live in [`docs/adr`](docs/adr). Create new records with
 
 ## Examples Directory
 
-Code samples and pattern demos now reside in [`examples/`](examples/). These
-files replace the old `labs/patterns` paths and are meant solely for
-reference, not production use.
+Code samples and pattern demos now reside in [`examples/`](examples/).
+Demonstration modules such as `song_serializer.py` and `sort_strategy.py`
+live under [`examples/patterns/`](examples/patterns/). These files replace
+the old `labs/patterns` paths and are meant solely for reference, not
+production use.
 
 ## License
 
