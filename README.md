@@ -126,7 +126,7 @@ If a script still depends on `require()`, rename it with the `.cjs` extension or
 - **`src/frontend/layout/layout.py`** – defines tables and charts for the Dash UI.
 - **`glpi_tools/__main__.py`** – exposes the CLI commands such as `list-fields`.
 - **`dashboard_app.py`** – starts the Dash server.
- - **`worker.py`** – primary backend entry point used by Docker and CI to launch the FastAPI service.
+- **`worker.py`** – primary backend entry point used by Docker and CI to launch the FastAPI service.
 - **`scripts/`** – helper utilities like `filters.py`, `hash_data.py`, `log_exec.py`.
 
 ### Quick usage examples
@@ -208,6 +208,7 @@ offline machine and install everything without contacting PyPI:
 ```bash
 pip install --no-index --find-links=/path/to/wheels -r requirements.txt -r requirements-dev.txt
 ```
+
 Then run the setup script with `OFFLINE_INSTALL=true ./setup.sh` to skip online downloads.
 
 More setup tips—including offline usage with mock data—are documented in
@@ -341,6 +342,7 @@ pre-computed by an ARQ worker. Start it separately with:
 ```bash
 PYTHONPATH=src python src/backend/services/metrics_worker.py
 ```
+
 Alternatively you can use the module form:
 
 ```bash
@@ -689,6 +691,12 @@ pip install aiohttp
 pip install testcontainers playwright
 # browser tests require Chrome/Chromedriver
 # install via `apt-get install chromium-driver` or `npx playwright install`
+# if the latter fails behind a proxy, download the archive manually:
+# `curl -L https://playwright.azureedge.net/builds/chromium/1181/chromium-linux.zip -o chromium.zip`
+# `unzip chromium.zip -d ~/.cache/ms-playwright`
+# and set `PLAYWRIGHT_BROWSERS_PATH=~/.cache/ms-playwright` before running tests
+# optionally configure `PLAYWRIGHT_DOWNLOAD_HOST` to use an internal mirror
+# the setup script checks for the browser in this path and aborts if not found
 # skip them with `pytest -k 'not test_dashboard_flows'` if the driver is missing
 pytest --cov=./
 pre-commit run --all-files
@@ -716,6 +724,7 @@ create a debugging prompt for other LLMs:
 ```bash
 python scripts/generate_bug_prompt.py --output bug_prompt.md
 ```
+
 The `bug_prompt.md` file is temporary and ignored by version control.
 Run the command above whenever you need a fresh debugging prompt.
 

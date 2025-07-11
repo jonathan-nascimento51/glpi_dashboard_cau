@@ -7,6 +7,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - SKIP_PLAYWRIGHT=true
+      - PLAYWRIGHT_BROWSERS_PATH=/root/.cache/ms-playwright
       - DB_HOST=db
       - DB_PORT=5432
       - DB_NAME=app
@@ -29,7 +30,7 @@ services:
       file: docker-compose.yml
       service: frontend
     environment:
-      - NEXT_PUBLIC_API_BASE_URL=https://api.seudominio.com
+      - NEXT_PUBLIC_API_BASE_URL=https://ppiratini.intra.rs.gov.br/glpi
     ports:
       - "80:3000"
     command: npm run build && npm run start
