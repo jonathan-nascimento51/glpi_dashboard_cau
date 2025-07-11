@@ -9,7 +9,7 @@ mapping = {
     "api/__init__.py": "backend/api/__init__.py",
     "glpi_dashboard/acl/dto.py": "backend/adapters/dto.py",
     "glpi_dashboard/acl/mapping_service.py": "backend/adapters/mapping_service.py",
-    "glpi_dashboard/acl/normalization.py": "backend/adapters/normalization.py",
+    "glpi_dashboard/acl/normalization.py": "backend/infrastructure/glpi/normalization.py",
     "glpi_dashboard/acl/ticket_models.py": "backend/domain/ticket_models.py",
     "glpi_dashboard/cache.py": "backend/utils/cache.py",
     "glpi_dashboard/cli/tickets_groups.py": "backend/core/tickets_groups.py",

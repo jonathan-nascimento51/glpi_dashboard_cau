@@ -13,9 +13,9 @@ from backend.core.settings import (
     USE_MOCK_DATA,
     VERIFY_SSL,
 )
+from backend.infrastructure.glpi.glpi_session import Credentials, GLPISession
 from shared.dto import TicketTranslator
 
-from .glpi_session import Credentials, GLPISession
 from .mapping_service import MappingService
 
 logger = logging.getLogger(__name__)

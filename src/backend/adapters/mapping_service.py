@@ -6,8 +6,7 @@ from typing import Dict, Optional
 import redis.asyncio as redis
 
 from backend.core.settings import REDIS_DB, REDIS_HOST, REDIS_PORT
-
-from .glpi_session import GLPISession
+from backend.infrastructure.glpi.glpi_session import GLPISession
 
 logger = logging.getLogger(__name__)
 
