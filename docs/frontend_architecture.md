@@ -53,9 +53,13 @@ Follow these steps inside the `src/frontend/react_app` folder to start developin
 
 ```bash
 cd src/frontend/react_app
-npm install         # install dependencies
+npm install         # installs dotenv, @eslint/js and other dev dependencies
+# npm ci can be used for reproducible installs
 npm run dev         # launch Vite dev server
 ```
+
+Make sure the dependencies are installed before running any npm script so tests
+and lint work correctly.
 
 Additional useful commands:
 
