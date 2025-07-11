@@ -43,7 +43,7 @@ Anote o host, porta e credenciais, pois serão usados no arquivo `.env`.
 Copie o modelo de configuração e preencha com seus dados:
 
 ```bash
-python scripts/setup_env.py  # gera o arquivo .env a partir de .env.example
+python scripts/setup/setup_env.py  # gera o arquivo .env a partir de .env.example
 ```
 
 Edite `.env` definindo:

@@ -36,13 +36,13 @@ pre-commit install  # sets up hooks for black, ruff, isort and mypy
 Create a `.env` file from the template and set PostgreSQL/Redis credentials:
 
 ```bash
-python scripts/setup_env.py  # copies .env.example
+python scripts/setup/setup_env.py  # copies .env.example
 ```
 
 Initialize the database:
 
 ```bash
-PYTHONPATH=$(pwd) python scripts/setup/init_db.py --drop-all
+PYTHONPATH=src python scripts/setup/init_db.py --drop-all
 ```
 
 Start the backend API (required by the dashboard):
@@ -127,7 +127,7 @@ If a script still depends on `require()`, rename it with the `.cjs` extension or
 - **`glpi_tools/__main__.py`** – exposes the CLI commands such as `list-fields`.
 - **`dashboard_app.py`** – starts the Dash server.
 - **`worker.py`** – primary backend entry point used by Docker and CI to launch the FastAPI service.
-- **`scripts/`** – helper utilities like `filters.py`, `hash_data.py`, `log_exec.py`.
+- **`scripts/`** – helper utilities like `etl/filters.py`, `etl/hash_data.py`, `etl/log_exec.py`.
 
 ### Quick usage examples
 
@@ -437,7 +437,7 @@ PY
 Some scripts require a few variables set in a `.env` file. Copy the template and fill in your credentials:
 
 ```bash
-python scripts/setup_env.py  # copies .env.example to .env
+python scripts/setup/setup_env.py  # copies .env.example to .env
 ```
 
 Open `.env` and set the required values.
@@ -527,7 +527,7 @@ compose files map these settings to `POSTGRES_DB`, `POSTGRES_USER` and
 `POSTGRES_PASSWORD`. You can create the file using:
 
 ```bash
-python scripts/setup_env.py
+python scripts/setup/setup_env.py
 ```
 
 The Docker services rely on these settings to connect to the database and the
@@ -567,7 +567,7 @@ Pass `--drop-all` to recreate everything from scratch.
 The script can also be invoked directly:
 
 ```bash
-PYTHONPATH=$(pwd) python scripts/setup/init_db.py --drop-all
+PYTHONPATH=src python scripts/setup/init_db.py --drop-all
 ```
 
 For a MySQL-specific walkthrough, see [docs/first_use_mysql.md](docs/first_use_mysql.md) which lists all required environment variables and setup steps.

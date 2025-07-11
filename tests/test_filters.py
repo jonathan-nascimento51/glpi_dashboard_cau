@@ -3,7 +3,7 @@ import pytest
 pytest.importorskip("pandas")
 import pandas as pd
 
-from scripts import filters
+from scripts.etl import filters
 
 
 def sample_df():
