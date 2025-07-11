@@ -25,3 +25,5 @@ src/frontend/react_app/.next/
 pacts/
 pact-mock-service.log
 bug_prompt.md
+prompts/
+.cache/

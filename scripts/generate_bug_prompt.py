@@ -4,7 +4,11 @@ from __future__ import annotations
 
 import argparse
 import subprocess
+import sys
 from pathlib import Path
+
+sys.path.append(str(Path(__file__).resolve().parents[1] / "src"))
+from prompt_config import CONFIG
 
 
 def run_command(cmd: list[str]) -> str:
@@ -47,9 +51,12 @@ def main() -> int:
     parser.add_argument(
         "--output",
         type=Path,
+        default=CONFIG.prompts_dir / "bug_prompt.md",
         help="Opcional: arquivo para salvar o prompt gerado",
     )
     args = parser.parse_args()
+
+    CONFIG.ensure_dirs()
 
     logs = {
         "pytest": run_command(["pytest", "-q"]),
