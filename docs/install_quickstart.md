@@ -44,11 +44,14 @@ docker compose up
 
 ## 3. Frontend development
 
-Copy the React environment file and run Vite:
+Copy the React environment file, install Node packages and run Vite:
 
 ```bash
 cp src/frontend/react_app/.env.example src/frontend/react_app/.env
-cd src/frontend/react_app && npm run dev
+cd src/frontend/react_app
+npm install         # installs dotenv, @eslint/js and other dev dependencies
+# npm ci can be used for reproducible installs
+npm run dev
 ```
 
 For more details on proxy and offline installation see [docs/codex_setup.md](codex_setup.md).
