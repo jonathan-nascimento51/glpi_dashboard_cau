@@ -1,0 +1,54 @@
+"""Helpers for computing and caching aggregated ticket metrics."""
+
+from __future__ import annotations
+
+from typing import Any, Dict, Optional
+
+import pandas as pd
+
+from backend.infrastructure.glpi.normalization import aggregate_by_user
+from shared.utils.redis_client import RedisClient, redis_client
+
+
+def tickets_by_date(df: pd.DataFrame) -> pd.DataFrame:
+    """Return ticket counts grouped by ``date_creation``."""
+    if "date_creation" not in df.columns:
+        return pd.DataFrame(columns=["date", "total"])
+
+    counts = (
+        df["date_creation"].dropna().dt.strftime("%Y-%m-%d").value_counts().sort_index()
+    )
+    return counts.rename_axis("date").reset_index(name="total")
+
+
+def tickets_daily_totals(df: pd.DataFrame) -> pd.DataFrame:
+    """Return daily ticket totals for the heatmap."""
+    return tickets_by_date(df)
+
+
+def compute_aggregated(df: pd.DataFrame) -> Dict[str, Any]:
+    """Return simple aggregated metrics from ``df``."""
+    raw_status = df.get("status")
+    status_series = (
+        pd.Series(raw_status, dtype="object").fillna("").astype(str).str.lower()
+    )
+    status_series = status_series.replace({"solved": "closed"})
+    status_counts = status_series.value_counts().to_dict()
+    by_user = aggregate_by_user(df).set_index("assigned_to")["count"].to_dict()
+    return {"status": status_counts, "per_user": by_user}
+
+
+async def cache_aggregated_metrics(
+    cache: Optional[RedisClient], key: str, data: Dict[str, Any]
+) -> None:
+    """Store aggregated metrics in cache."""
+    cache = cache or redis_client
+    await cache.set(key, data)
+
+
+async def get_cached_aggregated(
+    cache: Optional[RedisClient], key: str
+) -> Optional[Dict[str, Any]]:
+    """Retrieve cached metrics if available."""
+    cache = cache or redis_client
+    return await cache.get(key)
