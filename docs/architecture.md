@@ -1,4 +1,5 @@
-Visão de Arquitetura (Plano de Melhoria)
+# Visão de Arquitetura (Plano de Melhoria)
+
 Este documento descreve as principais visões da arquitetura do GLPI Dashboard CAU. Esta versão foi atualizada para refletir a estrutura de pastas refatorada e ideal do projeto, que visa a máxima organização e clareza.
 
 1. Visão Lógica
@@ -28,8 +29,8 @@ DashApp --> Worker
 Worker --> Redis
 Worker --> DB
 Worker --> GLPI
-@enduml
 
+@enduml
 2. Visão de Implementação (Estrutura Atual)
 O repositório mantém uma separação de responsabilidades sob o diretório `src/`, que concentra todo o código Python do projeto.
 
@@ -80,7 +81,9 @@ package "docker"
 fe ..> [backend] : HTTP
 [frontend] ..> [backend] : (Uso interno de dados)
 [backend] -> [shared]
+
 @enduml
+
 1. Visão de Processo
 O fluxo de execução não se altera. O Worker continua sendo a peça central que processa os dados, e as aplicações frontend (React e Dash) consomem esses dados via API.
 
