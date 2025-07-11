@@ -15,8 +15,8 @@ from backend.core.settings import (
     GLPI_USER_TOKEN,
     GLPI_USERNAME,
 )
+from backend.infrastructure.glpi.glpi_session import Credentials, GLPISession
 
-from ..adapters.glpi_session import Credentials, GLPISession
 from .exceptions import GLPIAPIError
 from .tool_error import ToolError
 
