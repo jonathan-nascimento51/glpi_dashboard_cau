@@ -25,6 +25,8 @@ from frontend.callbacks.callbacks import register_callbacks
 from frontend.layout.layout import build_layout
 from shared.utils.logging import init_logging
 
+__all__ = ["create_app", "main"]
+
 flask_app = Flask(__name__)
 cache = Cache(
     flask_app,
@@ -81,7 +83,7 @@ def load_data(ticket_range: str = "0-99", **filters: str) -> pd.DataFrame | None
     if USE_MOCK_DATA:
         logging.info("Loading ticket data from mock file")
         try:
-            return process_raw(pd.read_json("resources/mock_tickets.json"))
+            return process_raw(pd.read_json("tests/resources/mock_tickets.json"))
         except Exception as exc:  # pragma: no cover - file errors
             logging.error("failed to load mock data: %s", exc)
             return None
@@ -124,10 +126,14 @@ def profile_startup() -> None:
     Stats(profiler).sort_stats("cumulative").print_stats(10)
 
 
-if __name__ == "__main__":
+def main() -> None:
+    """Run the Dash server."""
     df = load_data()
     app = create_app(df)
-
     app.run(
         host="0.0.0.0", port=DASH_PORT, debug=False, use_reloader=False, threaded=True
     )
+
+
+if __name__ == "__main__":
+    main()
