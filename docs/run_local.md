@@ -39,7 +39,7 @@ pre-commit install  # optional
 Generate the `.env` file then edit it with your values:
 
 ```bash
-python scripts/setup_env.py
+python scripts/setup/setup_env.py
 # then open .env and set tokens and database credentials
 ```
 

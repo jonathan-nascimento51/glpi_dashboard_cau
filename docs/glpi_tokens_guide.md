@@ -33,7 +33,7 @@ pip install opentelemetry-instrumentation-fastapi opentelemetry-instrumentation-
 ## 3 ▪️ Gerar `.env`
 
 ```bash
-python scripts/setup_env.py          # copia .env.example → .env
+python scripts/setup/setup_env.py          # copia .env.example → .env
 ```
 
 Edite as variáveis de conexão:
@@ -142,7 +142,7 @@ para acompanhar oscilações em tempo real.
 | ✔ | Passo | Comando |
 |---|-------|---------|
 |   | Clonar repo | `git clone …` |
-|   | Gerar `.env` | `python scripts/setup_env.py` |
+|   | Gerar `.env` | `python scripts/setup/setup_env.py` |
 |   | Definir tokens | editar `.env` |
 |   | Validar API | `python scripts/validate_credentials.py` |
 |   | `docker compose up` | iniciar stack |

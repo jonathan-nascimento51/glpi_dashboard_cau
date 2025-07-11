@@ -35,7 +35,7 @@ Scripts utilitários residem em `scripts/` (ex.: `setup/init_db.py`, `fetch/fetc
 2. **Criar `.env`**:
 
    ```bash
-   python scripts/setup_env.py
+   python scripts/setup/setup_env.py
    ```
 
    Ajuste tokens GLPI, credenciais de banco e host do Redis.

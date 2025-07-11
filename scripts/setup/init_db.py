@@ -2,11 +2,6 @@ import argparse
 import asyncio
 import logging
 import sys
-from pathlib import Path
-
-# Ensure the src directory is on the Python path so the script can be executed
-# from any working directory without manually setting PYTHONPATH.
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from backend.db.database import init_db  # noqa: E402
 

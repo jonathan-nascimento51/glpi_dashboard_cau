@@ -6,7 +6,7 @@ Para entender em detalhes o funcionamento do endpoint, consulte também
 
 ## 1. Verifique as Credenciais
 
-1. Crie o arquivo `.env` com `python scripts/setup_env.py` caso ainda não exista.
+1. Crie o arquivo `.env` com `python scripts/setup/setup_env.py` caso ainda não exista.
 2. Preencha `GLPI_BASE_URL`, `GLPI_APP_TOKEN` e `GLPI_USER_TOKEN` (ou `GLPI_USERNAME`/`GLPI_PASSWORD`).
 3. Execute um teste fora do Docker para confirmar a validade dos tokens:
 
