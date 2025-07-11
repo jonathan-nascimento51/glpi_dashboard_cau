@@ -724,11 +724,20 @@ After running the tests and lint checks you can gather the current warnings and
 create a debugging prompt for other LLMs:
 
 ```bash
-python scripts/generate_bug_prompt.py --output bug_prompt.md
+python scripts/generate_bug_prompt.py
 ```
 
-The `bug_prompt.md` file is temporary and ignored by version control.
-Run the command above whenever you need a fresh debugging prompt.
+The prompt is saved to `prompts/bug_prompt.md` by default, as defined in
+`src/prompt_config.py`. The file is temporary and ignored by version control.
+Run the command whenever you need a fresh debugging prompt.
+
+### Prompt settings
+
+`PromptConfig` centralizes options used by automation scripts.
+It defines the directory where prompts are stored, the default models
+(`gpt-4o` for Codex and `gemini-1.5-pro` for Gemini) and caching paths.
+It also exposes the locations of each `AGENTS.md` file and the
+`A1 → A9` multi-agent sequence used throughout the project.
 
 ## Front-end performance
 
