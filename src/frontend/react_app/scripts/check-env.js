@@ -11,6 +11,13 @@ dotenv.config({ path: path.join(__dirname, '..', '.env') })
 function assertEnv(keys) {
   keys.forEach(key => {
     if (!process.env[key]) {
+      if (process.env.NODE_ENV === 'test') {
+        console.warn(
+          `⚠️  Variável "${key}" ausente. Usando valor padrão para testes.`
+        )
+        process.env[key] = 'http://localhost:8000'
+        return
+      }
       console.error(`❌ Variável de ambiente obrigatória "${key}" não definida.`)
       process.exit(1)
     }

@@ -690,6 +690,13 @@ Running `./setup.sh` performs the same installation automatically and configures
 pre-commit hooks. After the environment is ready you can run `make test` to
 execute the suite in one step or invoke `pytest` directly.
 
+For quick local tests you may copy `.env.example` to `.env` if the file is
+missing:
+
+```bash
+cp .env.example .env
+```
+
 You may also install only the optional development extras with:
 
 ```bash
