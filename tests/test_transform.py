@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
 
-from glpi_dashboard.acl import normalization as transform
+from backend.adapters import normalization as transform
 
 pytest.importorskip("pandas")
 
