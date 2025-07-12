@@ -18,6 +18,7 @@ def test_convert_ticket_enum_mapping() -> None:
     raw = RawTicketDTO(
         id=1,
         name="Ticket",
+        content="Test Content",
         status=1,
         priority=2,
         urgency=3,
@@ -39,7 +40,16 @@ def test_convert_ticket_enum_mapping() -> None:
 def test_convert_ticket_invalid_status_fallback(
     caplog: pytest.LogCaptureFixture,
 ) -> None:
-    raw = RawTicketDTO(id=1, status=99)
+    raw = RawTicketDTO(
+        id=1,
+        name="Test Ticket",
+        content="Test Content",
+        status=99,
+        priority=1,
+        urgency=1,
+        impact=1,
+        type=1,
+        date_creation="2024-01-01")
 
     with caplog.at_level(logging.WARNING):
         ticket = convert_ticket(raw)

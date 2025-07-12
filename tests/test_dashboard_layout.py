@@ -44,4 +44,4 @@ def test_build_layout_contains_dropdown(dash_duo):
 def test_build_layout_none_returns_alert():
     alert = build_layout(None)
     assert isinstance(alert, dbc.Alert)
-    assert "Erro na conexão" in alert.children
+    assert "Erro na conexão" in str(alert.children)

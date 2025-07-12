@@ -54,10 +54,14 @@ async def sqlite_read_model(monkeypatch):
             await session.execute(text("DELETE FROM mv_ticket_summary"))
             await session.execute(
                 text(
-                    "INSERT INTO mv_ticket_summary (ticket_id, status, priority, group_name, opened_at) "
-                    "SELECT glpi_ticket_id, status, priority, '', opened_at FROM tickets"
+                    "INSERT INTO mv_ticket_summary "
+                    "(ticket_id, status, priority, group_name, opened_at) "
+                    "SELECT glpi_ticket_id, status, priority, '', opened_at "
+                    "FROM tickets"
                 )
+
             )
+
             await session.commit()
         return 0.0
 

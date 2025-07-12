@@ -1,6 +1,7 @@
 import sys
 import types
 
+import pytest_asyncio
 import pytest
 import redis
 from fastapi.testclient import TestClient
@@ -8,14 +9,15 @@ from prometheus_client import CONTENT_TYPE_LATEST
 
 from backend.api.worker_api import get_glpi_client
 from backend.application import ticket_loader
+from backend.application.glpi_api_client import GlpiApiClient
 from backend.domain.exceptions import GLPIUnauthorizedError
 from shared.dto import CleanTicketDTO
 from worker import create_app
 
+
 sys.modules.setdefault(
     "langgraph.checkpoint.sqlite", types.ModuleType("langgraph.checkpoint.sqlite")
 )
-sys.modules["langgraph.checkpoint.sqlite"].SqliteSaver = object  # type: ignore[attr-defined]
 
 
 class DummyCache:
@@ -50,7 +52,11 @@ def dummy_cache() -> DummyCache:
     return DummyCache()
 
 
-class FakeClient:
+class FakeClient(GlpiApiClient):
+    def __init__(self) -> None:
+        """Fake client that conforms to the GlpiApiClient interface for tests."""
+        pass
+
     async def __aenter__(self):
         return self
 
@@ -79,18 +85,23 @@ class FakeClient:
         return [CleanTicketDTO.model_validate(r) for r in raw]
 
 
-def test_rest_endpoints(dummy_cache: DummyCache):
+@pytest_asyncio.fixture
+async def test_app(dummy_cache: DummyCache):
     app = create_app(client=FakeClient(), cache=dummy_cache)
-    app.dependency_overrides[get_glpi_client] = lambda: FakeClient()
+    app.dependency_overrides[get_glpi_client] = FakeClient
     client = TestClient(app)
 
-    resp = client.get("/tickets")
+    yield client
+
+
+def test_rest_endpoints(test_app: TestClient):
+    resp = test_app.get("/tickets")
     assert resp.status_code == 200
     tickets = resp.json()
     assert isinstance(tickets, list)
     assert tickets and "id" in tickets[0]
 
-    resp = client.get("/metrics")
+    resp = test_app.get("/metrics")
     assert resp.status_code == 200
     metrics = resp.json()
     assert metrics == {"total": 2, "opened": 0, "closed": 2}

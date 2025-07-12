@@ -45,12 +45,12 @@ def test_extract_metadata_without_stack():
 
 def test_append_log_creates_and_appends(tmp_path):
     log_file = tmp_path / "log.json"
-    first = {"msg": "one"}
+    first: dict[str, object] = {"msg": "one"}
     error_logger.append_log(first, log_file)
     with log_file.open() as fh:
         data = json.load(fh)
     assert data == [first]
-    second = {"msg": "two"}
+    second: dict[str, object] = {"msg": "two"}
     error_logger.append_log(second, log_file)
     with log_file.open() as fh:
         data = json.load(fh)

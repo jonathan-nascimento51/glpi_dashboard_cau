@@ -1,11 +1,12 @@
 import pytest
 
-pytest.importorskip("pandas")
 import pandas as pd
 import plotly.graph_objs as go
 from dash import html
-
 from frontend.components.components import _status_fig, compute_ticket_stats
+
+
+pytest.importorskip("pandas")
 
 
 def test_status_fig_bar_counts() -> None:
@@ -14,8 +15,7 @@ def test_status_fig_bar_counts() -> None:
     assert isinstance(fig, go.Figure)
 
     bars = dict(zip(fig.data[0].x, fig.data[0].y))
-    assert bars["new"] == 2
-    assert bars["closed"] == 3
+    assert bars == {"new": 2, "closed": 3}
 
 
 def test_compute_ticket_stats_totals() -> None:
