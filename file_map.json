@@ -1,0 +1,4 @@
+{
+    "glpi_dashboard.acl.normalization": "backend.adapters.normalization",
+    "glpi_dashboard.acl": "backend.adapters"
+}
