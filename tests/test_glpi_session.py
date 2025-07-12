@@ -187,7 +187,9 @@ async def test_glpi_session_context_manager_user_token_auth(
     glpi_session = GLPISession(base_url, credentials)
 
     # Mock the initSession call for user_token via GET with headers
-    mock_client_session.return_value = mock_response(200, {"session_token": user_token})
+    mock_client_session.get.side_effect = lambda *a, **k: mock_response(
+        200, {"session_token": user_token}
+    )
 
     async with glpi_session as session:
         assert session._session_token == user_token
@@ -614,7 +616,9 @@ async def test_request_network_error(
     glpi_session = GLPISession(base_url, creds)
 
     # initSession succeeds
-    mock_client_session.return_value = mock_response(200, {"session_token": user_token})
+    mock_client_session.get.side_effect = lambda *a, **k: mock_response(
+        200, {"session_token": user_token}
+    )
 
     err = aiohttp.ClientConnectionError("fail")
 
@@ -705,3 +709,66 @@ async def test_open_session_tool_error(monkeypatch):
     out = await glpi_session.open_session_tool(params)
     data = json.loads(out)
     assert data["error"]["details"] == "boom"
+
+
+@pytest.mark.asyncio
+@pytest.mark.asyncio
+async def test_request_retries_on_server_error_success(
+    base_url,
+    app_token,
+    user_token,
+    mock_client_session,
+    mock_response,
+):
+    """Retries on 5xx errors and eventually returns the response."""
+    creds = Credentials(app_token=app_token, user_token=user_token)
+    session = GLPISession(base_url, creds)
+
+    mock_client_session.get.return_value = mock_response(
+        200, {"session_token": user_token}
+    )
+    mock_client_session.request.side_effect = [
+        mock_response(500, {"error": "boom"}, raise_for_status_exc=True),
+        mock_response(503, {"error": "down"}, raise_for_status_exc=True),
+        mock_response(200, {"ok": True}),
+    ]
+
+    with patch("asyncio.sleep", new=AsyncMock()):
+        async with session as glpi:
+            data = await glpi.get("Ticket/1")
+            assert data == {"ok": True}
+
+    assert mock_client_session.request.call_count == 3
+
+
+@pytest.mark.asyncio
+async def test_circuit_breaker_opens_after_consecutive_failures(
+    base_url,
+    app_token,
+    user_token,
+    mock_client_session,
+    mock_response,
+):
+    """Circuit breaker opens after repeated server errors."""
+    import pybreaker
+
+    from shared.utils.resilience import breaker
+
+    creds = Credentials(app_token=app_token, user_token=user_token)
+    session = GLPISession(base_url, creds)
+
+    mock_client_session.get.side_effect = lambda *a, **k: mock_response(
+        200, {"session_token": user_token}
+    )
+    mock_client_session.request.side_effect = [
+        mock_response(500, {"error": "boom"}, raise_for_status_exc=True)
+    ] * 5
+
+    with patch("asyncio.sleep", new=AsyncMock()):
+        async with session as glpi:
+            for _ in range(5):
+                with pytest.raises(GLPIInternalServerError):
+                    await breaker.call_async(glpi.get)("Ticket/1")
+
+    assert breaker.current_state == pybreaker.STATE_OPEN
+    breaker.close()
