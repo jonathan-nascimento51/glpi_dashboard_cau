@@ -869,6 +869,11 @@ live under [`examples/patterns/`](examples/patterns/). These files replace
 the old `labs/patterns` paths and are meant solely for reference, not
 production use.
 
+The repository also contains a [`labs/`](labs/) folder for experimental work
+that hasn't been fully adopted. See [`labs/prototypes/`](labs/prototypes/) for
+isolated proofs of concept. Nothing inside `labs/` ships with production
+builds.
+
 ## License
 
 This project is released under the [MIT License](LICENSE).

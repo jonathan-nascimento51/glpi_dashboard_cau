@@ -1,4 +1,4 @@
 # Labs
 
-This directory collects experimental code and prototypes that are not part of the production GLPI Dashboard. The modules and example projects here are kept for reference only.
+This directory collects experimental code that is not part of the production GLPI Dashboard.  The `prototypes/` subfolder hosts self‑contained proofs of concept.  Everything here is considered experimental and is excluded from production builds.
 
