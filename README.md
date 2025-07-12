@@ -130,6 +130,23 @@ Instructions for running the React front-end—including npm scripts and require
 [docs/frontend_architecture.md](docs/frontend_architecture.md). That document also covers how the front-end communicates with the worker API via `NEXT_PUBLIC_API_BASE_URL` and how to run the Jest and Playwright test suites.
 Create the environment file with `cp src/frontend/react_app/.env.example src/frontend/react_app/.env` before running the dashboard. Execute all npm commands from inside the `src/frontend/react_app` directory, e.g. `cd src/frontend/react_app && npm run dev`, or launch Docker.
 
+### Multi-agent pipeline (A1–A9)
+
+The project automates code generation via a nine-stage prompt flow. The sequence
+is executed as `A1 ▶ A2 ▶ A3 ▶ A4‑6 ▶ A7 ▶ A8 ▶ A9` where:
+
+- **A1 – Meta-Prompt Builder** defines the subtasks and expected artifacts.
+- **A2 – Intérprete de Requisitos** extracts the technical requirements.
+- **A3 – Decompositor Estratégico** splits the prompt into logical sections.
+- **A4 – Gerador de Bloco: Identidade & Objetivo** sets the persona and goal.
+- **A5 – Gerador de Bloco: Instruções & Regras** writes the detailed rules.
+- **A6 – Gerador de Bloco: Contexto & Variáveis** supplies API data and defaults.
+- **A7 – Gerador de Bloco: Exemplo & Saída Esperada** creates a few-shot sample.
+- **A8 – Compositor de Prompt Final** joins all blocks into one prompt.
+- **A9 – Validador & Justificativa** reviews the final result for coherence.
+
+See [docs/AGENTS.md](docs/AGENTS.md) for the full prompt templates.
+
 ### Node.js ESM conventions
 
 `package.json` declares `"type": "module"`, so all `.js` files use ES Module syntax by default. Configuration files that still rely on `module.exports` have been renamed with the `.cjs` extension. When adding new scripts or configs prefer ESM (`import`/`export`) and only use `.cjs` for legacy CommonJS code.
@@ -760,16 +777,22 @@ Node-based tests and linting require local packages as well. Navigate to
 
 ### Bug prompt generation
 
-After running the tests and lint checks you can gather the current warnings and
-create a debugging prompt for other LLMs:
+After checking the tests and lints you can consolidate the failures into a
+prompt for GPT‑4 or Gemini:
 
-```bash
-python scripts/generate_bug_prompt.py
-```
+1. Ensure the environment is set up and run
+   `pre-commit run --all-files && pytest`.
+2. Generate the prompt with:
 
-The prompt is saved to `prompts/bug_prompt.md` by default, as defined in
+   ```bash
+   python scripts/generate_bug_prompt.py --output bug_prompt.md
+   ```
+
+3. Open `bug_prompt.md` and copy its contents into the LLM chat to request
+   bug‑fix suggestions.
+
+The output location defaults to `prompts/bug_prompt.md` as configured in
 `src/prompt_config.py`. The file is temporary and ignored by version control.
-Run the command whenever you need a fresh debugging prompt.
 
 ### Prompt settings
 

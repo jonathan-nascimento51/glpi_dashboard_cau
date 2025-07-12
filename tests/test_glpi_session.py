@@ -8,12 +8,6 @@ import aiohttp
 import pytest
 
 from backend.infrastructure.glpi import glpi_session
-
-pytest.importorskip(
-    "aiohttp", reason="aiohttp package is required to run glpi_session tests"
-)
-
-
 from backend.infrastructure.glpi.glpi_session import (
     Credentials,
     GLPIAPIError,
@@ -26,6 +20,11 @@ from backend.infrastructure.glpi.glpi_session import (
     GLPIUnauthorizedError,
 )
 from shared.utils.logging import init_logging
+
+
+pytest.importorskip(
+    "aiohttp", reason="aiohttp package is required to run glpi_session tests"
+)
 
 
 @pytest.fixture(autouse=True)
