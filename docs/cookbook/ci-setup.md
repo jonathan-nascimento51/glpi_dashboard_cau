@@ -13,11 +13,12 @@ catching integration issues early.
 Use GitHub Actions to provide a repeatable CI pipeline. The workflow is named
 `ci.yml` and lives in `.github/workflows/`. It runs automatically on every push
 and pull request, allowing the project to test multiple Python versions through
-a matrix build. The file defines three jobs:
+a matrix build. The file defines four jobs:
 
 1. `lint` – installs dependencies via `./setup.sh` and runs both `pre-commit` and `npm run lint`.
-2. `test` – runs `pytest` and the frontend Jest suite for each Python version in the matrix.
-3. `build` – builds and publishes a Docker image when a tag is pushed.
+2. `arch-docs` – executes `python scripts/generate_arch_docs.py` and fails if `ARCHITECTURE.md` changes.
+3. `test` – runs `pytest` and the frontend Jest suite for each Python version in the matrix.
+4. `build` – builds and publishes a Docker image when a tag is pushed.
 
 ## Consequences
 
@@ -33,4 +34,5 @@ immediate feedback to contributors and keeping the repository stable.
 4. Install dependencies, including `opentelemetry-instrumentation-fastapi` and
    `opentelemetry-instrumentation-logging` which the tests expect.
 5. Run `pre-commit` to apply linting hooks.
-6. Execute `pytest` to run the test suite.
+6. Run `python scripts/generate_arch_docs.py` and fail if `ARCHITECTURE.md` is modified.
+7. Execute `pytest` to run the test suite.

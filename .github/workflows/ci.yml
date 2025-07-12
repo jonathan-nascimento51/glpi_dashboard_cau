@@ -41,6 +41,7 @@ jobs:
           make gen-types
           git diff --exit-code src/frontend/react_app/src/types/api.ts
 
+  # Generate architecture documentation and ensure it's committed
   arch-docs:
     needs: lint
     runs-on: ubuntu-latest
