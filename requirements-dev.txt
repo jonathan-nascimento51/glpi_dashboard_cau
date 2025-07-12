@@ -24,4 +24,3 @@ opentelemetry-instrumentation-redis
 opentelemetry-instrumentation-requests
 opentelemetry-instrumentation-aiohttp-client
 pybreaker
-jscodeshift
