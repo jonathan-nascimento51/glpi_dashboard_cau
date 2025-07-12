@@ -70,9 +70,11 @@ fi
 if [ "$SKIP_PLAYWRIGHT" = "false" ]; then
   echo ">>> Instalando o browser Chromium para o Playwright..."
   export NODE_TLS_REJECT_UNAUTHORIZED=0 # Cuidado: desativa a verificação de certificado TLS
+
+  npm install @playwright/test 
   npx playwright@1.54.0 install --with-deps chromium < /dev/null || {
     echo "⚠️ Playwright falhou. Tentando download manual via curl..."
-    curl -L http://playwright.azureedge.net/builds/chromium/1181/chromium-linux.zip -o chromium.zip \
+    curl -L https://playwright.azureedge.net/builds/chromium/1181/chromium-linux.zip -o chromium.zip \
       && unzip -q chromium.zip -d "$PLAYWRIGHT_CACHE_DIR" \
       && rm -f chromium.zip \
       && echo "✅ Chromium extraído manualmente em $PLAYWRIGHT_CACHE_DIR"
