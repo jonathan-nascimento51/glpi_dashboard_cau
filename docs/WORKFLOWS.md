@@ -4,17 +4,18 @@ This document summarizes the GitHub Actions workflows located under `.github/wor
 
 ## 1. `ci.yml`
 
-The main pipeline runs on pushes to `main` and on pull requests. It defines three sequential jobs:
+The main pipeline runs on pushes to `main` and on pull requests. It defines four sequential jobs:
 
 1. **lint** – installs Python and Node dependencies, runs `pre-commit` and the frontend linter, then verifies generated TypeScript definitions.
-2. **test** – waits for `lint`, sets up a matrix for Python 3.10–3.12 and runs both backend (`pytest`) and frontend tests.
-3. **build** – runs only for tagged commits after successful tests. It logs in to GHCR and uses `docker/build-push-action` to build `docker/backend_service/Dockerfile` and push the resulting image tagged with the Git ref name.
+2. **arch-docs** – generates `ARCHITECTURE.md` via `python scripts/generate_arch_docs.py` and fails if changes are detected.
+3. **test** – waits for `arch-docs`, sets up a matrix for Python 3.10–3.12 and runs both backend (`pytest`) and frontend tests.
+4. **build** – runs only for tagged commits after successful tests. It logs in to GHCR and uses `docker/build-push-action` to build `docker/backend_service/Dockerfile` and push the resulting image tagged with the Git ref name.
 
 Build artifacts created during this job are stored in the `build/` directory. The folder is cleaned after each run and is ignored by Git.
 
 ```mermaid
 flowchart LR
-  lint --> test --> build
+  lint --> arch-docs --> test --> build
 ```
 
 ## 2. `quality-audit.yml`

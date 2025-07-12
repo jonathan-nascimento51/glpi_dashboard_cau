@@ -41,8 +41,29 @@ jobs:
           make gen-types
           git diff --exit-code src/frontend/react_app/src/types/api.ts
 
-  test:
+  arch-docs:
     needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
+      - name: Setup environment
+        run: ./setup.sh
+        env:
+          SKIP_PLAYWRIGHT: "true"
+      - name: Generate architecture docs
+        run: python scripts/generate_arch_docs.py
+      - name: Verify generated docs committed
+        run: git diff --exit-code ARCHITECTURE.md
+
+  test:
+    needs: arch-docs
     runs-on: ubuntu-latest
     strategy:
       matrix:
