@@ -6,7 +6,7 @@
     "esModuleInterop": true,
     "verbatimModuleSyntax": false,
     "types": ["jest", "@testing-library/jest-dom", "node"],
-    "moduleResolution": "node"
+    "moduleResolution": "Node16"
   },
   "include": ["src/**/*", "tests/**/*"]
 }
