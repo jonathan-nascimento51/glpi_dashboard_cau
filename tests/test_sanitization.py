@@ -1,10 +1,8 @@
+import pandas as pd
 import pytest
 
-import pandas as pd
-
-from backend.adapters.normalization import sanitize_status_column
 from frontend.components.components import compute_ticket_stats
-
+from glpi_dashboard.acl.normalization import sanitize_status_column
 
 pytest.importorskip("pandas")
 
