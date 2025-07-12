@@ -5,28 +5,12 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parents[1] / "src"
 
 # Mapeamento de arquivos: origem relativa -> destino relativa
-mapping = {
-    "api/__init__.py": "backend/api/__init__.py",
-    "glpi_dashboard/acl/dto.py": "backend/adapters/dto.py",
-    "glpi_dashboard/acl/mapping_service.py": "backend/adapters/mapping_service.py",
-    "glpi_dashboard/acl/normalization.py": "backend/infrastructure/glpi/normalization.py",
-    "glpi_dashboard/acl/ticket_models.py": "backend/domain/ticket_models.py",
-    "glpi_dashboard/cache.py": "backend/utils/cache.py",
-    "glpi_dashboard/cli/tickets_groups.py": "backend/core/tickets_groups.py",
-    "glpi_dashboard/config/settings.py": "backend/core/settings.py",
-    "glpi_dashboard/dashboard/callbacks.py": "frontend/callbacks/callbacks.py",
-    "glpi_dashboard/dashboard/components.py": "frontend/components/components.py",
-    "glpi_dashboard/dashboard/layout.py": "frontend/layout/layout.py",
-    "glpi_dashboard/data/database.py": "backend/infrastructure/database/database.py",
-    "glpi_dashboard/data/transform.py": "backend/adapters/normalization.py",
-    "glpi_dashboard/events/consumer.py": "backend/application/events_consumer.py",
-    "glpi_dashboard/services/aggregated_metrics.py": "backend/application/aggregated_metrics.py",
-    "glpi_dashboard/services/langgraph_workflow.py": "backend/application/langgraph_workflow.py",
-    "glpi_dashboard/services/worker_api.py": "backend/api/worker_api.py",
-    "glpi_dashboard/utils/redis_client.py": "backend/utils/redis_client.py",
-    "examples/resilience/retry_decorator.py": "shared/utils/resilience/retry_decorator.py",
-    "examples/order_observer.py": "shared/order_observer.py",
-}
+# The repository no longer contains the legacy `glpi_dashboard` or `examples`
+# directories referenced below. These mappings were used during the initial
+# refactor to move files into the new `backend`, `frontend` and `shared`
+# packages. All source files listed here have been deleted, so keeping them in
+# the mapping only prints "file not found" messages.
+mapping: dict[str, str] = {}
 
 
 def ensure_dir(path):
