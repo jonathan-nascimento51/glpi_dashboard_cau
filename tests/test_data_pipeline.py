@@ -1,10 +1,12 @@
 import pytest
 
-pytest.importorskip("pandas")
 import pandas as pd
 
 from backend.adapters import normalization as transform
 from backend.infrastructure.glpi.normalization import process_raw
+
+
+pytest.importorskip("pandas")
 
 
 def test_process_raw_sanitization():

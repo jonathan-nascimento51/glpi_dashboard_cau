@@ -1,9 +1,10 @@
 import pytest
 
-pytest.importorskip("pandas")
 import pandas as pd
-
 from backend.adapters import normalization as transform
+
+
+pytest.importorskip("pandas")
 
 
 def test_to_dataframe_dtypes():

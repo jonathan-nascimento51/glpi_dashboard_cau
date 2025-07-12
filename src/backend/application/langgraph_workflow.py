@@ -241,8 +241,8 @@ def build_workflow(path: str | None = None) -> StateGraph:
     if path is None:
         path = tempfile.gettempdir()
     db_path = Path(path) / "workflow_state.sqlite"
-    checkpointer = SqliteSaver.from_conn_string(str(db_path))
-    workflow = StateGraph(AgentState, checkpointer=checkpointer)
+    SqliteSaver.from_conn_string(str(db_path))
+    workflow = StateGraph(AgentState)
 
     workflow.add_node("supervisor", supervisor)
     for name in AVAILABLE_AGENTS:
