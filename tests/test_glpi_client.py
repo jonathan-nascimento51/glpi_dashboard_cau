@@ -1,5 +1,5 @@
 import base64
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, MagicMock
 
 import aiohttp
 import pytest
@@ -23,13 +23,21 @@ class DummyResponse:
         self.status = status
         self._data = data or {}
         self.headers: dict[str, str] = {}
+        # Adiciona atributos para um mock mais realista, consistente com outros testes
+        self.request_info = MagicMock()
+        self.history = ()
 
     async def json(self):
         return self._data
 
     def raise_for_status(self):
         if self.status >= 400:
-            raise aiohttp.ClientResponseError(None, (), status=self.status)
+            raise aiohttp.ClientResponseError(
+                self.request_info,
+                self.history,
+                status=self.status,
+                message="Simulated HTTP Error",
+            )
 
 
 @pytest.mark.asyncio

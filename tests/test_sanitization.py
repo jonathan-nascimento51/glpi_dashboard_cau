@@ -1,10 +1,12 @@
 import pytest
 
-pytest.importorskip("pandas")
 import pandas as pd
 
 from backend.adapters.normalization import sanitize_status_column
 from frontend.components.components import compute_ticket_stats
+
+
+pytest.importorskip("pandas")
 
 
 def test_sanitize_status_column():
@@ -16,7 +18,7 @@ def test_sanitize_status_column():
 def test_compute_ticket_stats_handles_invalid_status():
     df = pd.DataFrame({"status": ["Closed", "closed", None, 404, "OPEN", float("nan")]})
     stats = compute_ticket_stats(df)
-    texts = [div.children for div in stats]
-    assert "Total: 6" in texts[0]
-    assert "Abertos: 4" in texts[1]
-    assert "Fechados: 2" in texts[2]
+    texts = [str(div.children) for div in stats]
+    assert "Total: 6" == texts[0]
+    assert "Abertos: 4" == texts[1]
+    assert "Fechados: 2" == texts[2]

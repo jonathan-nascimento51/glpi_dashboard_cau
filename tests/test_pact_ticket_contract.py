@@ -3,9 +3,10 @@ from pathlib import Path
 import pytest
 import requests
 
-pact = pytest.importorskip("pact")
-Consumer = pact.Consumer
-Provider = pact.Provider
+from pact import Consumer, Provider
+
+
+pytest.importorskip("pact")
 
 
 @pytest.fixture(scope="session")

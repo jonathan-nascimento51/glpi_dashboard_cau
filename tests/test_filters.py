@@ -1,9 +1,11 @@
 import pytest
 
-pytest.importorskip("pandas")
 import pandas as pd
 
 from scripts.etl import filters
+
+
+pytest.importorskip("pandas")
 
 
 def sample_df():

@@ -25,7 +25,7 @@ def create_app() -> FastAPI:
         return {"result": "ok"}
 
     @app.post("/initSession")
-    async def init_session(payload: Dict[str, Any]) -> Dict[str, str]:
+    async def init_session(_payload: Dict[str, Any]) -> Dict[str, str]:
         if PROVIDER_STATE == "valid user":
             return {"session_token": "11111111-1111-1111-1111-111111111111"}
         if PROVIDER_STATE == "invalid tokens":

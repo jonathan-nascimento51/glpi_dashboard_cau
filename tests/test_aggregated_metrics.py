@@ -1,6 +1,5 @@
 import pytest
 
-pytest.importorskip("pandas")
 from unittest.mock import AsyncMock
 
 import pandas as pd
@@ -13,6 +12,9 @@ from backend.application.aggregated_metrics import (
     tickets_daily_totals,
 )
 from shared.utils.redis_client import RedisClient
+
+
+pytest.importorskip("pandas")
 
 
 def make_df(dates):
