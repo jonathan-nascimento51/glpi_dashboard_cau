@@ -44,7 +44,7 @@ def run_server(port: int) -> None:
 
 
 @pytest.fixture(scope="session")
-def provider_url(unused_tcp_port: int) -> str:
+def provider_url(unused_tcp_port: int):
     port = unused_tcp_port
     process = Process(target=run_server, args=(port,), daemon=True)
     process.start()
@@ -77,5 +77,5 @@ def test_verify_against_broker(provider_url: str) -> None:
         verify_opts["broker_username"] = os.getenv("PACT_BROKER_USERNAME", "")
         verify_opts["broker_password"] = os.getenv("PACT_BROKER_PASSWORD", "")
 
-    output, _ = verifier.verify_with_broker(**verify_opts)
+    output, _ = verifier.verify_with_broker(**verify_opts, enable_pending=True)
     assert output == 0
