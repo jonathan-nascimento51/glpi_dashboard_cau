@@ -100,4 +100,4 @@ package-type = "application"
 
 [tool.setuptools.packages.find]
 where = ["src"]
-exclude = ["app*", "tests*", "scripts*", "examples*"]
+exclude = ["app*", "tests*", "scripts*", "examples*", "labs*"]
