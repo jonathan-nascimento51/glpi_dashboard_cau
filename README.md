@@ -9,7 +9,8 @@ This project provides a minimal dashboard to visualize service desk tickets from
 ## Purpose
 
 The goal is to inspect backlog, ticket status and productivity metrics without a live GLPI connection. Data is fetched via the API and normalized into JSON that the Dash app loads on startup.
-Additional sample scripts and pattern demos reside under [`examples/`](examples/).
+Additional sample scripts and demonstration modules now reside under [`examples/`](examples/). Older references to
+`labs/patterns` or `src/patterns` have been removed and consolidated here.
 
 ## Development Setup
 
@@ -866,8 +867,8 @@ All ADRs live in [`docs/adr`](docs/adr). Create new records with
 Code samples and pattern demos now reside in [`examples/`](examples/).
 Demonstration modules such as `song_serializer.py` and `sort_strategy.py`
 live under [`examples/patterns/`](examples/patterns/). These files replace
-the old `labs/patterns` paths and are meant solely for reference, not
-production use.
+the old `labs/patterns` and `src/patterns` directories and are meant solely for
+reference, not production use.
 
 The repository also contains a [`labs/`](labs/) folder for experimental work
 that hasn't been fully adopted. See [`labs/prototypes/`](labs/prototypes/) for
