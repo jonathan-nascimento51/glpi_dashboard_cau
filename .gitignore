@@ -28,3 +28,5 @@ pact-mock-service.log
 bug_prompt.md
 prompts/
 .cache/
+*.py[cod]
+*$py.class
