@@ -441,6 +441,16 @@ query GetTickets {
 }
 ```
 
+### Generating architecture docs
+
+Rebuild `ARCHITECTURE.md` from the ADR source with:
+
+```bash
+python scripts/generate_arch_docs.py
+```
+
+The file is version controlled and CI will fail if it is out of sync.
+
 ## Collecting ticket/group assignments
 
 Use the helper CLI to dump assignments into a Parquet dataset:
