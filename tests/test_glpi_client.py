@@ -49,6 +49,7 @@ async def test_init_session_user_token(mocker):
         return_value=DummyCM(DummyResponse(200, {"session_token": "tok"}))
     )
     mock_session.closed = False
+    mock_session.get = mock_index
 
     creds = Credentials(app_token="APP", user_token="USER")
     client = GLPISession("http://example.com/apirest.php", creds)
@@ -68,7 +69,10 @@ async def test_init_session_basic_auth(mocker):
     )
     mock_session.closed = False
 
-    client = GLPISession("http://example.com/apirest.php", Credentials(app_token="APP"))
+    client = GLPISession(
+        "http://example.com/apirest.php",
+        Credentials(app_token="APP", user_token="USER"),
+    )
     await client._refresh_session_token()
 
     token = base64.b64encode(b"alice:secret").decode()
@@ -89,7 +93,10 @@ async def test_search_rest_url(mocker):
     mock_session.request = AsyncMock(side_effect=fake_request)
     mock_session.closed = False
 
-    client = GLPISession("http://example.com/apirest.php", Credentials(app_token="APP"))
+    client = GLPISession(
+        "http://example.com/apirest.php",
+        Credentials(app_token="APP", user_token="USER"),
+    )
     data = await client.search_rest("Ticket", params={"a": 1})
 
     mock_session.request.assert_awaited_once()
@@ -110,7 +117,10 @@ async def test_query_graphql_payload(mocker):
     )
     mock_session.closed = False
 
-    client = GLPISession("http://example.com/apirest.php", Credentials(app_token="APP"))
+    client = GLPISession(
+        "http://example.com/apirest.php",
+        Credentials(app_token="APP", user_token="USER"),
+    )
     result = await client.query_graphql("query { ping }", {"x": 1})
 
     mock_session.request.assert_awaited_once()

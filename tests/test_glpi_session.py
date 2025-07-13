@@ -21,7 +21,6 @@ from backend.infrastructure.glpi.glpi_session import (
 )
 from shared.utils.logging import init_logging
 
-
 pytest.importorskip(
     "aiohttp", reason="aiohttp package is required to run glpi_session tests"
 )
@@ -112,9 +111,12 @@ def mock_client_session(mock_response):
     Patches aiohttp.ClientSession globally for tests.
     """
     # Patch the ClientSession used inside the glpi_session module
-    with patch(
-        "backend.infrastructure.glpi.glpi_session.ClientSession"
-    ) as mock_session_cls:
+    with (
+        patch(
+            "backend.infrastructure.glpi.glpi_session.ClientSession"
+        ) as mock_session_cls,
+        patch("aiohttp.ClientSession") as aiohttp_session_cls,
+    ):
         mock_session_instance = MagicMock()
         mock_session_instance.closed = False  # Assume not closed initially
 
@@ -153,6 +155,7 @@ def mock_client_session(mock_response):
         mock_session_instance.close = AsyncMock(side_effect=close)
 
         mock_session_cls.return_value = mock_session_instance
+        aiohttp_session_cls.return_value = mock_session_instance
         yield mock_session_instance
 
 
@@ -645,6 +648,7 @@ async def test_verify_ssl_disabled_passes_ssl_false(
 ):
     with (
         patch("backend.infrastructure.glpi.glpi_session.ClientSession") as session_cls,
+        patch("aiohttp.ClientSession") as aiohttp_session_cls,
         patch("backend.infrastructure.glpi.glpi_session.TCPConnector") as connector_cls,
     ):
         session_instance = MagicMock()
@@ -659,6 +663,7 @@ async def test_verify_ssl_disabled_passes_ssl_false(
         session_instance.__aenter__ = AsyncMock(return_value=session_instance)
         session_instance.__aexit__ = AsyncMock(return_value=None)
         session_cls.return_value = session_instance
+        aiohttp_session_cls.return_value = session_instance
         connector_cls.return_value = MagicMock()
 
         creds = Credentials(app_token=app_token, user_token=user_token)
@@ -753,6 +758,7 @@ async def test_circuit_breaker_opens_after_consecutive_failures(
     import pybreaker
 
     from shared.utils.resilience import breaker
+
     # Reset breaker state for this test to ensure it's closed.
     breaker.close()
 
