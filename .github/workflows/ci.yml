@@ -30,6 +30,8 @@ jobs:
       - name: Install frontend deps
         run: |
           cd src/frontend/react_app && npm ci && cd ../../..
+      - name: Install pre-commit
+        run: pip install pre-commit
       - name: Run pre-commit
         run: pre-commit run --show-diff-on-failure --color=always --all-files
       - name: Run frontend lint
@@ -41,7 +43,6 @@ jobs:
           make gen-types
           git diff --exit-code src/frontend/react_app/src/types/api.ts
 
-  # Generate architecture documentation and ensure it's committed
   arch-docs:
     needs: lint
     runs-on: ubuntu-latest
@@ -120,4 +121,3 @@ jobs:
           file: docker/backend_service/Dockerfile
           push: true
           tags: ghcr.io/${{ github.repository }}:${{ github.ref_name }}
-
