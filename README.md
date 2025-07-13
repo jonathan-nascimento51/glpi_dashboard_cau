@@ -922,6 +922,20 @@ that hasn't been fully adopted. See [`labs/prototypes/`](labs/prototypes/) for
 isolated proofs of concept. Nothing inside `labs/` ships with production
 builds.
 
+### Running the Rope codemod
+
+Refactor moves can be automated with `scripts/run_py_codemod.sh`. The wrapper
+invokes Rope's `refactor_move.py` and rewrites imports for you. Ensure the
+[Rope](https://github.com/python-rope/rope) library is installed before running
+the command.
+
+```bash
+./scripts/run_py_codemod.sh src/shared/utils/resilience/circuit_breaker.py src/backend/adapters/resilience/
+```
+
+See [docs/REFACTOR_LOG.md](docs/REFACTOR_LOG.md) for details on how this script
+was used during the structural refactor.
+
 ## License
 
 This project is released under the [MIT License](LICENSE).

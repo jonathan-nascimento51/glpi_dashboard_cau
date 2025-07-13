@@ -52,3 +52,8 @@ Verificado via: ./init_refactor.sh + inspeção visual
 Data: 2025-07-09
 Ferramenta: scripts/run_py_codemod.sh
 Descrição: Script auxilia na movimentação de módulos Python utilizando a biblioteca Rope. Recebe o caminho do arquivo de origem e o diretório de destino, cria as pastas necessárias e aciona `refactor_move.py` para atualizar as importações automaticamente.
+
+## 📄 Atualizacao 2025-07-10
+
+- README ampliado com instruções de uso do `scripts/run_py_codemod.sh`.
+- Reforçada a dependência da biblioteca Rope para realizar a refatoração.
