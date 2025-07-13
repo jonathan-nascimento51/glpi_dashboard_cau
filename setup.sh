@@ -4,6 +4,7 @@ set -euo pipefail
 SKIP_PLAYWRIGHT=${SKIP_PLAYWRIGHT:-true}
 OFFLINE_INSTALL=${OFFLINE_INSTALL:-false}
 PROXY_FILE=/etc/apt/apt.conf.d/01proxy
+
 # Local cache for Playwright browsers (override via PLAYWRIGHT_BROWSERS_PATH)
 PLAYWRIGHT_CACHE_DIR="${PLAYWRIGHT_BROWSERS_PATH:-$HOME/.cache/ms-playwright}"
 export PLAYWRIGHT_BROWSERS_PATH="$PLAYWRIGHT_CACHE_DIR"
@@ -91,43 +92,3 @@ else
 fi
 
 echo "✅ Etapas concluídas com sucesso!"
-
-# # #!/bin/bash
-# # Detectar se há acesso direto à internet ou se é necessário proxy
-# echo ">>> Verificando ambiente de rede para uso de proxy..."
-
-# # URL teste público para validar conexão externa
-# TEST_URL="https://pypi.org/simple"
-
-# # URL interna (ou domínio exclusivo) que só responde via proxy — ajuste conforme sua rede
-# INTERNAL_TEST_URL="http://intranet.rs.gov.br"
-
-# # Tenta acesso externo direto (sem proxy)
-# if curl -Is --max-time 5 "$TEST_URL" >/dev/null 2>&1; then
-#   echo "✅ Acesso direto à internet detectado. Não será configurado proxy."
-#   USE_PROXY=false
-
-# # Tenta acesso à URL interna — se der certo, é um ambiente com proxy habilitado
-# elif curl -Is --max-time 5 "$INTERNAL_TEST_URL" >/dev/null 2>&1; then
-#   echo "⚠️ Ambiente corporativo com proxy detectado. Configurando proxy..."
-#   USE_PROXY=true
-
-#   # Define variáveis padrão de proxy, caso não estejam setadas
-#   export HTTP_PROXY="${HTTP_PROXY:-http://proxymwg.ppiratini.intra.rs.gov.br:3128}"
-#   export HTTPS_PROXY="${HTTPS_PROXY:-http://proxymwg.ppiratini.intra.rs.gov.br:3128}"
-
-#   # Configura proxy no APT
-#   echo "Acquire::http::Proxy \"$HTTP_PROXY\";" | sudo tee /etc/apt/apt.conf.d/01proxy >/dev/null
-#   echo "Acquire::https::Proxy \"$HTTPS_PROXY\";" | sudo tee -a /etc/apt/apt.conf.d/01proxy >/dev/null
-
-#   # Configura proxy no NPM
-#   npm config set proxy "$HTTP_PROXY"
-#   npm config set https-proxy "$HTTPS_PROXY"
-
-#   # TLS inseguro (pode ser removido depois de testes)
-#   export NODE_TLS_REJECT_UNAUTHORIZED=0
-
-# else
-#   echo "❌ Nenhuma conexão detectada (sem internet ou proxy bloqueando). Abortando."
-#   exit 1
-# fi
