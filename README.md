@@ -20,7 +20,7 @@ available in [docs/install_quickstart.md](docs/install_quickstart.md).
 Run `./setup.sh` (or `make setup`) to create the `.venv` directory, install
 packages from `requirements.txt` and `requirements-dev.txt` and enable
 `pre-commit` hooks automatically. Optional extras can be added later with
-`./scripts/install_dev_extras.sh`. If you prefer to install packages manually
+`./scripts/install_dev_extras.sh`. If you prefer to install packages manually,
 remember to run `pre-commit install` afterward.
 
 ```bash
@@ -38,7 +38,7 @@ pre-commit install
 ```
 
 Runtime packages come from `requirements.txt`; development and testing tools are listed in `requirements-dev.txt`.
-Recent additions to the dev set include `dash-bootstrap-components` for styling Dash layouts and `libcst` for Python code refactoring.
+Recent additions to the dev set include `dash-bootstrap-components` for styling Dash layouts and `libcst` for Python code refactoring. Optional packages such as `playwright`, the `dash[testing]` extra and other end-to-end helpers are also pinned here for the browser-based tests.
 
 ### Test prerequisites
 
@@ -210,10 +210,13 @@ python -m glpi_tools list-fields Ticket
 make test
 ```
 
-Before executing any tests run `./setup.sh` (or `make setup`) once. The script
-creates `.venv`, installs `requirements.txt` and `requirements-dev.txt` and
-configures `pre-commit`. Verify that the `.venv` directory exists before calling
-`make test`.
+Before executing any tests run `make setup` to bootstrap the virtual
+environment and install all dependencies.  Alternatively run
+`python -m pip install -r requirements.txt -r requirements-dev.txt`
+followed by `pip install -e .` to mirror what the setup target does.
+This step ensures Playwright and the Dash testing extras from
+`requirements-dev.txt` are available. Verify that the `.venv` directory exists
+before calling `make test`.
 
 This command installs all requirements, builds the local package and runs `pytest` with coverage.
 Build artifacts are written to the `build/` directory. Treat this folder as temporary; it is deleted by CI and ignored in `.gitignore`.
