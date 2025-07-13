@@ -24,3 +24,4 @@ pre-commit
 requests-mock
 dash-bootstrap-components
 libcst
+rope

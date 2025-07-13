@@ -69,6 +69,7 @@ dev = [
     "types-requests",
     "types-redis",
     "pydantic-to-typescript",
+    "rope",
 ]
 
 [project.scripts]
