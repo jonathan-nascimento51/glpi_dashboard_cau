@@ -9,8 +9,8 @@ This project provides a minimal dashboard to visualize service desk tickets from
 ## Purpose
 
 The goal is to inspect backlog, ticket status and productivity metrics without a live GLPI connection. Data is fetched via the API and normalized into JSON that the Dash app loads on startup.
-Additional sample scripts and demonstration modules now reside under [`examples/`](examples/). References formerly pointing to `labs/patterns` or `src/patterns` should use [`examples/patterns`](examples/patterns/).
-Pattern modules in this folder are illustrative only.
+Additional sample scripts and demonstration modules reside in [`examples/`](examples/).
+Pattern modules such as `song_serializer.py` and `sort_strategy.py` live in [`examples/patterns/`](examples/patterns/) and are provided for educational purposes only.
 
 ## Development Setup
 
@@ -897,7 +897,7 @@ All ADRs live in [`docs/adr`](docs/adr). Create new records with
 
 ## Examples Directory
 
-Code samples and pattern demos now reside in [`examples/`](examples/). Demonstration modules such as `song_serializer.py` and `sort_strategy.py` live under [`examples/patterns`](examples/patterns/). These illustrative files replace the old directories `labs/patterns` and `src/patterns` and are not intended for production use.
+Code samples and pattern demos reside in [`examples/`](examples/). Demonstration modules such as `song_serializer.py` and `sort_strategy.py` live under [`examples/patterns`](examples/patterns/) and are intended solely for educational use.
 
 The repository also contains a [`labs/`](labs/) folder for experimental work
 that hasn't been fully adopted. See [`labs/prototypes/`](labs/prototypes/) for
