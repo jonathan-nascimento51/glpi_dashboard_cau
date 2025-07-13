@@ -6,11 +6,9 @@
 
 set -euo pipefail
 
-if ! command -v rope >/dev/null 2>&1; then
-  if ! python -c "import rope" >/dev/null 2>&1; then
-    echo "Rope is required (pip install rope)." >&2
-    exit 1
-  fi
+if ! command -v rope >/dev/null 2>&1 && ! python -c "import rope" >/dev/null 2>&1; then
+  echo "Error: rope is required. Install it with 'pip install rope'." >&2
+  exit 1
 fi
 
 if [ "$#" -ne 2 ]; then
