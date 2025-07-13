@@ -38,6 +38,7 @@ pre-commit install
 ```
 
 Runtime packages come from `requirements.txt`; development and testing tools are listed in `requirements-dev.txt`.
+Recent additions to the dev set include `dash-bootstrap-components` for styling Dash layouts and `libcst` for Python code refactoring.
 
 ### Test prerequisites
 
