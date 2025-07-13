@@ -98,4 +98,4 @@ export default tseslint.config([
 ])
 ```
 
-For details on migrating import paths after moving files into this folder, see the [Updating TypeScript imports](../../docs/frontend_architecture.md#updating-typescript-imports) section of the architecture guide.
+For details on migrating import paths after moving files into this folder, see the [Refactoring TypeScript imports](../../docs/frontend_architecture.md#refactoring-typescript-imports) section of the architecture guide.

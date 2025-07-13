@@ -38,6 +38,18 @@ pre-commit install
 ```
 
 Runtime packages come from `requirements.txt`; development and testing tools are listed in `requirements-dev.txt`.
+Recent additions to the dev set include `dash-bootstrap-components` for styling Dash layouts and `libcst` for Python code refactoring.
+
+### Test prerequisites
+
+`pytest` requires the runtime and development dependencies **and** the package installed in editable mode. The setup script performs:
+
+```bash
+pip install -r requirements.txt -r requirements-dev.txt
+pip install -e .
+```
+
+Skipping `./setup.sh` (or `make setup`) will lead to `ModuleNotFoundError` failures when running the test suite.
 
 
 Create a `.env` file from the template and fill in your GLPI and database
