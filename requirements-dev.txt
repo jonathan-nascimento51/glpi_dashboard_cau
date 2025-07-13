@@ -22,3 +22,5 @@ opentelemetry-instrumentation-requests
 opentelemetry-instrumentation-aiohttp-client
 pre-commit
 requests-mock
+dash-bootstrap-components
+libcst
