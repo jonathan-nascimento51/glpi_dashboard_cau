@@ -24,4 +24,5 @@ pre-commit
 requests-mock
 dash-bootstrap-components
 libcst
+# Required for scripts/run_py_codemod.sh
 rope

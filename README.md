@@ -925,10 +925,10 @@ builds.
 ### Running the Rope codemod
 
 Refactor moves can be automated with `scripts/run_py_codemod.sh`. The wrapper
-uses Rope's `refactor_move.py` to relocate a module and rewrite imports
-automatically. Install the
-[Rope](https://github.com/python-rope/rope) library first (e.g. `pip install rope`
-or via `requirements-dev.txt`) before running the command.
+invokes Rope's `refactor_move.py` and rewrites imports for you. The
+[Rope](https://github.com/python-rope/rope) library is already included in
+`requirements-dev.txt`, so running `make setup` (or installing the requirements
+manually) prepares everything automatically.
 
 ```bash
 ./scripts/run_py_codemod.sh src/shared/utils/resilience/circuit_breaker.py src/backend/adapters/resilience/
