@@ -753,6 +753,8 @@ async def test_circuit_breaker_opens_after_consecutive_failures(
     import pybreaker
 
     from shared.utils.resilience import breaker
+    # Reset breaker state for this test to ensure it's closed.
+    breaker.close()
 
     creds = Credentials(app_token=app_token, user_token=user_token)
     session = GLPISession(base_url, creds)
@@ -760,15 +762,24 @@ async def test_circuit_breaker_opens_after_consecutive_failures(
     mock_client_session.get.side_effect = lambda *a, **k: mock_response(
         200, {"session_token": user_token}
     )
+    # The decorated `_request` method will be called. We need it to fail
+    # consistently to trigger the breaker. Let's provide enough failing responses.
+    # The number of failures needed depends on `breaker.fail_max` and any
+    # retries from the decorator. We'll provide plenty.
     mock_client_session.request.side_effect = [
         mock_response(500, {"error": "boom"}, raise_for_status_exc=True)
-    ] * 5
+    ] * 20  # Provide more than enough failing responses
 
     with patch("asyncio.sleep", new=AsyncMock()):
         async with session as glpi:
-            for _ in range(5):
+            # Loop up to the breaker's failure threshold.
+            for _ in range(breaker.fail_max):
                 with pytest.raises(GLPIInternalServerError):
-                    await breaker.call_async(glpi.get)("Ticket/1")
+                    # Call the method directly. The resilience logic is handled
+                    # by the @retry_api_call decorator on the underlying _request method.
+                    await glpi.get("Ticket/1")
 
+    # After `fail_max` consecutive failures, the breaker should be open.
     assert breaker.current_state == pybreaker.STATE_OPEN
+    # Clean up for subsequent tests.
     breaker.close()

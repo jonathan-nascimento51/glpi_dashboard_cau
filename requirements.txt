@@ -38,4 +38,3 @@ prometheus-client
 tenacity>=8.2
 purgatory>=3.0
 loguru>=0.7
-pypi.org

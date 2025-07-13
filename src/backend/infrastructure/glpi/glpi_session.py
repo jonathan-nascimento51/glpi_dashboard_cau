@@ -155,7 +155,7 @@ class GLPISession:
     async def _init_aiohttp_session(self) -> None:
         """Initializes the aiohttp ClientSession if it's not already open."""
         if self._session is None or self._session.closed:
-            connector = TCPConnector(ssl=self.ssl_ctx)
+            connector = TCPConnector(ssl=self.ssl_ctx if self.ssl_ctx is not None else True)
             self._session = ClientSession(connector=connector)
             logger.info("aiohttp ClientSession initialized.")
 
@@ -392,11 +392,11 @@ class GLPISession:
             request_headers |= headers
 
         for attempt in range(max_401_retries + 1):
-            try:
-                current_headers = request_headers.copy()
-                if self._session is None:
-                    self._session = aiohttp.ClientSession()
+            current_headers = request_headers.copy()
+            if self._session is None:
+                self._session = aiohttp.ClientSession()
 
+            try:
                 async with self._session.request(
                     method,
                     full_url,
@@ -406,45 +406,48 @@ class GLPISession:
                     proxy=self.proxy,
                     timeout=self._resolve_timeout(),
                 ) as response:
-                    if (
-                        response.status == 401
-                        and retry_on_401
-                        and attempt < max_401_retries
-                    ):
-                        logger.warning(
-                            "Received 401 Unauthorized. Attempting to refresh "
-                            "session token..."
-                        )
-                        try:
-                            await self._refresh_session_token()
-                        except GLPIUnauthorizedError as e:
-                            raise GLPIUnauthorizedError(
-                                401,
-                                "failed to authenticate after multiple retries",
-                            ) from e
-                        if self._session_token:  # Update header for retry
-                            request_headers["Session-Token"] = self._session_token
-                        continue  # Retry the request
+                    try:
+                        if (
+                            response.status == 401
+                            and retry_on_401
+                            and attempt < max_401_retries
+                        ):
+                            logger.warning(
+                                "Received 401 Unauthorized. Attempting to refresh "
+                                "session token..."
+                            )
+                            try:
+                                await self._refresh_session_token()
+                            except GLPIUnauthorizedError as e:
+                                raise GLPIUnauthorizedError(
+                                    401,
+                                    "failed to authenticate after multiple retries",
+                                ) from e
+                            if self._session_token:  # Update header for retry
+                                request_headers["Session-Token"] = self._session_token
+                            continue  # Retry the request
 
-                    # Raises aiohttp.ClientResponseError for 4xx/5xx
-                    response.raise_for_status()
-                    data = await response.json()
-                    if return_headers:
-                        return data, dict(response.headers)
-                    return data
-            except aiohttp.ClientResponseError as e:
-                response_data = {}
-                with contextlib.suppress(aiohttp.ContentTypeError, ValueError):
-                    response_data = await response.json()
-                error_resp = getattr(e, "response", response)
-                error_class = HTTP_STATUS_ERROR_MAP.get(e.status, GLPIAPIError)
-                # Raise the specific GLPIAPIError, which the @retry_api_call
-                # decorator will then catch
-                raise error_class(
-                    e.status,
-                    parse_error(error_resp, response_data),
-                    response_data,
-                ) from e
+                        # Raises aiohttp.ClientResponseError for 4xx/5xx
+                        response.raise_for_status()
+                        data = await response.json()
+                        if return_headers:
+                            return data, dict(response.headers)
+                        return data
+                    except aiohttp.ClientResponseError as e:
+                        response_data = {}
+                        response_text = ""
+                        try:
+                            response_data = await response.json()
+                        except (aiohttp.ContentTypeError, ValueError):
+                            with contextlib.suppress(Exception):
+                                response_text = await response.text()
+
+                        error_class = HTTP_STATUS_ERROR_MAP.get(e.status, GLPIAPIError)
+                        raise error_class(
+                            e.status,
+                            parse_error(response, response_data),
+                            response_data or {"text": response_text},
+                        ) from e
             except aiohttp.ClientError as e:
                 # This catches network-level errors before an HTTP status is received
                 # The @retry_api_call decorator will handle retries for these as well
