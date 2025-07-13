@@ -1,7 +1,6 @@
 pytest
 pytest-cov
 pytest-asyncio
-python-dotenv>=1.0
 flake8
 mypy
 black
@@ -14,8 +13,6 @@ pytest-mock
 types-requests
 types-redis
 pytest-httpx
-aiohttp>=3.9
-pandas
 pact-python
 pydantic-to-typescript
 opentelemetry-instrumentation-fastapi
@@ -23,6 +20,5 @@ opentelemetry-instrumentation-logging
 opentelemetry-instrumentation-redis
 opentelemetry-instrumentation-requests
 opentelemetry-instrumentation-aiohttp-client
-
 pre-commit
 requests-mock
