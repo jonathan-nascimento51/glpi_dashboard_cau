@@ -27,6 +27,9 @@ jobs:
         run: ./setup.sh
         env:
           SKIP_PLAYWRIGHT: "true"
+      - name: Install Python dependencies
+        run: |
+          pip install -r requirements.txt -r requirements-dev.txt
       - name: Install frontend deps
         run: |
           cd src/frontend/react_app && npm ci && cd ../../..
