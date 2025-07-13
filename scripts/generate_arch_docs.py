@@ -42,7 +42,11 @@ def generate_doc(entries: list[tuple[str, str]]) -> str:
     lines = [
         "# Project Architecture",
         "",
-        "This file is generated from [docs/adr/0007-refined-project-structure.md](docs/adr/0007-refined-project-structure.md).",
+        (
+            "This file is generated from "
+            "[docs/adr/0007-refined-project-structure.md]"
+            "(docs/adr/0007-refined-project-structure.md)."
+        ),
         "",
         "## Directory Overview",
         "",

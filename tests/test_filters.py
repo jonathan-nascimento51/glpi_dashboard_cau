@@ -1,9 +1,7 @@
+import pandas as pd
 import pytest
 
-import pandas as pd
-
 from scripts.etl import filters
-
 
 pytest.importorskip("pandas")
 

@@ -1,8 +1,8 @@
 import sys
 import types
 
-import pytest_asyncio
 import pytest
+import pytest_asyncio
 import redis
 from fastapi.testclient import TestClient
 from prometheus_client import CONTENT_TYPE_LATEST
@@ -13,7 +13,6 @@ from backend.application.glpi_api_client import GlpiApiClient
 from backend.domain.exceptions import GLPIUnauthorizedError
 from shared.dto import CleanTicketDTO
 from worker import create_app
-
 
 sys.modules.setdefault(
     "langgraph.checkpoint.sqlite", types.ModuleType("langgraph.checkpoint.sqlite")

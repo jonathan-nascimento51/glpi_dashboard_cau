@@ -49,7 +49,8 @@ def test_convert_ticket_invalid_status_fallback(
         urgency=1,
         impact=1,
         type=1,
-        date_creation="2024-01-01")
+        date_creation="2024-01-01",
+    )
 
     with caplog.at_level(logging.WARNING):
         ticket = convert_ticket(raw)

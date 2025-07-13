@@ -1,15 +1,11 @@
 import os
 import sys
 
-
 from opentelemetry.sdk.metrics.export import MetricExportResult
 
 from shared.utils import telemetry  # noqa: E402
 
-
-sys.path.insert(
-    0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src")
-)
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src"))
 
 
 class DummyExporter:

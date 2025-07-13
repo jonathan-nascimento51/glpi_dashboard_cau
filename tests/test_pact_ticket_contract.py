@@ -2,9 +2,7 @@ from pathlib import Path
 
 import pytest
 import requests
-
 from pact import Consumer, Pact, Provider
-
 
 pytest.importorskip("pact")
 

@@ -1,10 +1,9 @@
-import pytest
-
 import pandas as pd
 import plotly.graph_objs as go
+import pytest
 from dash import html
-from frontend.components.components import _status_fig, compute_ticket_stats
 
+from frontend.components.components import _status_fig, compute_ticket_stats
 
 pytest.importorskip("pandas")
 

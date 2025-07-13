@@ -58,7 +58,10 @@ class Credentials(BaseModel):
     @model_validator(mode="after")
     def _check_auth(
         self,
-        new_parameter="Both user_token and username/password provided. Prioritizing user_token.",
+        new_parameter=(
+            "Both user_token and username/password provided. "
+            "Prioritizing user_token."
+        ),
     ):
         """Ensure at least one authentication method is supplied."""
         auth_methods = sum(
@@ -71,7 +74,8 @@ class Credentials(BaseModel):
             raise ValueError("Either user_token or username/password must be provided.")
         if auth_methods > 1:
             logger.debug(
-                "Both user_token and username/password provided. Prioritizing user_token."
+                "Both user_token and username/password provided. "
+                "Prioritizing user_token."
             )
             self.username = None
             self.password = None
@@ -155,7 +159,9 @@ class GLPISession:
     async def _init_aiohttp_session(self) -> None:
         """Initializes the aiohttp ClientSession if it's not already open."""
         if self._session is None or self._session.closed:
-            connector = TCPConnector(ssl=self.ssl_ctx if self.ssl_ctx is not None else True)
+            connector = TCPConnector(
+                ssl=self.ssl_ctx if self.ssl_ctx is not None else True
+            )
             self._session = ClientSession(connector=connector)
             logger.info("aiohttp ClientSession initialized.")
 

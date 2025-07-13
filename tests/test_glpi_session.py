@@ -782,7 +782,7 @@ async def test_circuit_breaker_opens_after_consecutive_failures(
             for _ in range(breaker.fail_max):
                 with pytest.raises(GLPIInternalServerError):
                     # Call the method directly. The resilience logic is handled
-                    # by the @retry_api_call decorator on the underlying _request method.
+                    # by the @retry_api_call decorator on the _request method.
                     await glpi.get("Ticket/1")
 
     # After `fail_max` consecutive failures, the breaker should be open.

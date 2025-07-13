@@ -59,7 +59,6 @@ async def sqlite_read_model(monkeypatch):
                     "SELECT glpi_ticket_id, status, priority, '', opened_at "
                     "FROM tickets"
                 )
-
             )
 
             await session.commit()

@@ -29,8 +29,8 @@ def main(directory: str) -> None:
 
     click.echo(
         "Packages saved to %s\nInstall later with:\n"
-        "pip install --no-index --find-links=%s -r requirements.txt -r requirements-dev.txt"
-        % (target, target)
+        "pip install --no-index --find-links=%s "
+        "-r requirements.txt -r requirements-dev.txt" % (target, target)
     )
 
 

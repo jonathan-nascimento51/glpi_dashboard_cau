@@ -3,9 +3,7 @@ import time
 from collections.abc import Generator
 
 import pytest
-
 from playwright.sync_api import expect, sync_playwright
-
 
 pytest.importorskip("playwright.sync_api")
 

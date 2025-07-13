@@ -6,6 +6,7 @@ import argparse
 import subprocess
 import sys
 from pathlib import Path
+
 from prompt_config import CONFIG
 
 sys.path.append(str(Path(__file__).resolve().parents[1] / "src"))

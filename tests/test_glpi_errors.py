@@ -1,8 +1,8 @@
 from typing import Optional
 from unittest.mock import AsyncMock, MagicMock, patch
 
-import pytest
 import aiohttp
+import pytest
 
 from backend.domain.exceptions import (
     GLPIAPIError,
@@ -11,7 +11,6 @@ from backend.domain.exceptions import (
 )
 from shared.utils.logging import init_logging
 from shared.utils.resilience import retry_api_call
-
 
 pytest.importorskip("aiohttp")
 

@@ -11,7 +11,10 @@ def main(project_root: str, old_path: str, new_path: str) -> None:
     changes = move_refactoring.get_changes(project.get_resource(new_path))
     project.do(changes)
     print(
-        f"Refatoração concluída: '{old_path}' movido para '{new_path}' e importações atualizadas."
+        (
+            f"Refatoração concluída: '{old_path}' movido para '{new_path}' "
+            "e importações atualizadas."
+        )
     )
     project.close()
 
