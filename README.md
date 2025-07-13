@@ -37,6 +37,9 @@ pip install -e .
 pre-commit install
 ```
 
+Runtime packages come from `requirements.txt`; development and testing tools are listed in `requirements-dev.txt`.
+
+
 Create a `.env` file from the template and fill in your GLPI and database
 credentials. PostgreSQL is used by default but you can point the application to
 MySQL by setting values like:
