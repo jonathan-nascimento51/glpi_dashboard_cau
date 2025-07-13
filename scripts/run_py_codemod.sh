@@ -6,6 +6,13 @@
 
 set -euo pipefail
 
+if ! command -v rope >/dev/null 2>&1; then
+  if ! python -c "import rope" >/dev/null 2>&1; then
+    echo "Rope is required (pip install rope)." >&2
+    exit 1
+  fi
+fi
+
 if [ "$#" -ne 2 ]; then
   echo "Usage: $0 <old_file> <new_dir>" >&2
   exit 1
