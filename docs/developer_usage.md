@@ -220,3 +220,19 @@ imediatamente enquanto uma nova solicitação é executada em segundo plano.
 Defina `staleTime` para controlar quando os dados tornam-se obsoletos e use
 `invalidateQueries` após operações de gravação. Também é possível definir
 `refetchInterval` em hooks específicos para manter métricas em tempo real.
+
+### Executando o Rope codemod
+
+Refatorações estruturais podem ser automatizadas com `scripts/run_py_codemod.sh`. O script usa o `refactor_move.py` da biblioteca Rope para mover módulos e atualizar os imports automaticamente.
+
+Antes de rodar o utilitário instale o Rope:
+
+```bash
+pip install rope
+```
+
+Execute o script informando o arquivo de origem e o diretório de destino:
+
+```bash
+./scripts/run_py_codemod.sh caminho/original.py pasta_destino/
+```
