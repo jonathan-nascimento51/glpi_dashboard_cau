@@ -129,3 +129,8 @@ jscodeshift -t scripts/refactor/update_ts_imports.js <paths> --map file_map.json
 ```
 
 Pass one or more files or directories as `<paths>` to transform.
+
+For small moves you can also invoke the helper script `scripts/run_ts_codemod.sh`.
+It reads `file_map.json`, moves each file with `git mv` and runs the codemod
+`scripts/update-imports.js` with the appropriate `--oldPath` and `--newPath`
+options to update import statements automatically.
