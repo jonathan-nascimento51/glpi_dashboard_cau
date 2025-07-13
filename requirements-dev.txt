@@ -23,4 +23,6 @@ opentelemetry-instrumentation-logging
 opentelemetry-instrumentation-redis
 opentelemetry-instrumentation-requests
 opentelemetry-instrumentation-aiohttp-client
-pybreaker
+
+pre-commit
+requests-mock
