@@ -46,3 +46,9 @@ Verificado via: ./init_refactor.sh + inspeção visual
 - Dependencias instaladas via `requirements.txt` e `requirements-dev.txt`.
 - Testes executados com `pytest` mas falharam por erros de importacao.
 - Necessario revisar modulos faltantes antes de prosseguir com a migracao.
+
+## 🔄 Codemod Python (Rope)
+
+Data: 2025-07-09
+Ferramenta: scripts/run_py_codemod.sh
+Descrição: Script auxilia na movimentação de módulos Python utilizando a biblioteca Rope. Recebe o caminho do arquivo de origem e o diretório de destino, cria as pastas necessárias e aciona `refactor_move.py` para atualizar as importações automaticamente.
