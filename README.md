@@ -39,6 +39,17 @@ pre-commit install
 
 Runtime packages come from `requirements.txt`; development and testing tools are listed in `requirements-dev.txt`.
 
+### Test prerequisites
+
+`pytest` requires the runtime and development dependencies **and** the package installed in editable mode. The setup script performs:
+
+```bash
+pip install -r requirements.txt -r requirements-dev.txt
+pip install -e .
+```
+
+Skipping `./setup.sh` (or `make setup`) will lead to `ModuleNotFoundError` failures when running the test suite.
+
 
 Create a `.env` file from the template and fill in your GLPI and database
 credentials. PostgreSQL is used by default but you can point the application to
