@@ -1,21 +1,16 @@
 # Dashboard Components
 
 ## Context
-The dashboard app uses Plotly Dash to visualize GLPI service desk metrics. To
-keep the interface maintainable we rely on small reusable components.
+The dashboard is composed of reusable React components that aggregate metrics from the GLPI API. This structure allows the UI to evolve without rewriting data logic.
 
 ## Decision
-Create dedicated Python modules for each chart and card. Use Dash `dcc.Graph`
-for visualizations and encapsulate callbacks inside the component class.
+Adopt small, focused components for charts and KPI widgets. Each component receives preprocessed data from the API worker via typed props.
 
 ## Consequences
-Components can be composed freely across pages. Complexity is reduced but
-developers must register callbacks when wiring new components.
+Developers can swap or extend visual elements with minimal side effects. Tests target each widget in isolation and the overall page composition remains clear.
 
 ## Steps
-1. Implement each widget in `dashboard_app.py` under a function like
-   `build_ticket_funnel()` returning a layout block.
-2. Insert the component in the page layout and register its callbacks via
-   `app.callback` in the same module.
-3. Extend tests in `tests/` to render the component with sample data and ensure
-   it raises no exceptions.
+1. Create a `components/` folder inside the React app.
+2. Write each widget as a TypeScript React component using Chart.js or shadcn/ui.
+3. Expose props such as `tickets` or `sla` to keep data flow explicit.
+4. Add stories or examples demonstrating usage in the dashboard layout.
