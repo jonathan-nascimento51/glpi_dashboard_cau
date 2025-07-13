@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Run Rope-based refactoring to move a Python file and update imports.
 # Usage: ./scripts/run_py_codemod.sh <old_file> <new_dir>
 # Example:
