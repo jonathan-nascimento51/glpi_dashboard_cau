@@ -7,19 +7,26 @@ on:
 jobs:
   performance-check:
     runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_API_BASE_URL: http://backend:8000
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: 20
           cache: 'npm'
           cache-dependency-path: src/frontend/react_app/package-lock.json
-      - name: Install deps
+
+      - name: Install deps & build
         run: |
           cd src/frontend/react_app
-          npm install --omit=dev
+          npm ci --no-audit --progress=false
           npm run build
-      - uses: treosh/lighthouse-ci-action@v11
+
+      - name: Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v11
         with:
           configPath: './src/frontend/react_app/lighthouseci.config.js'
           uploadArtifacts: true
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
