@@ -351,8 +351,8 @@ The entry point initializes structured logging via:
 from backend.utils.logging import init_logging
 init_logging()
 ```
-Set `APP_ENV=production` to emit JSON logs suitable for aggregators. Any
-other value keeps colorful developer output.
+Set `APP_ENV=production` to force JSON logs and disable traceback diagnostics.
+Use any other value for colorful developer output.
 
 The Dash server uses gzip compression via `flask-compress` and loads data lazily on first render.
 
@@ -568,6 +568,7 @@ container also executes on first startup.
 - `REDIS_DB` – Redis database number
 - `REDIS_TTL_SECONDS` – TTL for cached responses in seconds
 - `LOG_LEVEL` – logging verbosity for backend and worker services (default `INFO`)
+- `APP_ENV` – set to `production` for JSON logs without backtraces
 - `LANGCHAIN_TRACING_V2` – set to `true` to enable LangSmith tracing
 - `LANGCHAIN_API_KEY` – API key used by LangSmith when tracing
 - `LANGCHAIN_PROJECT` – optional project name for tracing sessions
