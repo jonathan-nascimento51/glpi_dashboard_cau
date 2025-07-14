@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/psf/black
-    rev: 25.1.0
+    rev: 89f36108caaa8e3281779a00e3fc14db1cacbf7d
     hooks:
       - id: black
         args:
@@ -12,7 +12,7 @@ repos:
       - id: ruff
         args: ["--fix"]
   - repo: https://github.com/pycqa/isort
-    rev: 6.0.1
+    rev: 9a400aed8a99a3dc2e5a3dccba3d3e99683a2df5
     hooks:
       - id: isort
   - repo: https://github.com/pre-commit/mirrors-mypy
@@ -21,7 +21,7 @@ repos:
       - id: mypy
         additional_dependencies: ["types-requests"]
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: 582b9c66e0791980685c8b80bb11e6a3df1a06ef
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
