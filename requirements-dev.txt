@@ -12,6 +12,7 @@ dash[testing]
 pytest-mock
 types-requests
 types-redis
+types-pydantic
 pytest-httpx
 pact-python
 pydantic-to-typescript

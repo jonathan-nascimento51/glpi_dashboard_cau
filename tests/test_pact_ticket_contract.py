@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import pytest
-import requests
+import requests  # type: ignore[import-untyped]
 from pact import Consumer, Pact, Provider
 
 pytest.importorskip("pact")

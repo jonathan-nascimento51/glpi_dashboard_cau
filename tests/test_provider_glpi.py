@@ -8,7 +8,7 @@ from multiprocessing import Process
 from typing import Any, Dict
 
 import pytest
-import requests
+import requests  # type: ignore[import-untyped]
 from fastapi import FastAPI, HTTPException
 from pact import Verifier
 

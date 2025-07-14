@@ -2,11 +2,12 @@ from __future__ import annotations
 
 import dash_bootstrap_components as dbc
 import pandas as pd
-from dash import dash_table, dcc, html
+from dash import html
 
 
 def render_dashboard(df: pd.DataFrame) -> html.Div:
     """Render main dashboard components."""
+    from dash import dcc, dash_table
     statuses = ["All"] + sorted({str(s) for s in df["status"].dropna().unique()})
     status_options = [{"label": s, "value": s if s != "All" else ""} for s in statuses]
 

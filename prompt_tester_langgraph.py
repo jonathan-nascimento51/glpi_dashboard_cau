@@ -17,7 +17,7 @@ with open(TEMPLATE_PATH, "r", encoding="utf-8") as f:
 
 def verificar_ambiente():
     pacotes = ["langgraph"]
-    erros = []
+    erros: list[str] = []
     erros.extend(
         pacote for pacote in pacotes if importlib.util.find_spec(pacote) is None
     )

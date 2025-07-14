@@ -14,14 +14,14 @@ def test_read_error_text_from_arg(monkeypatch):
 
 def test_read_error_text_from_stdin(monkeypatch):
     stream = StringIO("stdin error")
-    stream.isatty = lambda: False
+    stream.isatty = lambda: False  # type: ignore[method-assign]
     monkeypatch.setattr(sys, "stdin", stream)
     assert error_logger.read_error_text(None) == "stdin error"
 
 
 def test_read_error_text_no_input(monkeypatch):
     stream = StringIO()
-    stream.isatty = lambda: True
+    stream.isatty = lambda: True  # type: ignore[method-assign]
     monkeypatch.setattr(sys, "stdin", stream)
     with pytest.raises(SystemExit):
         error_logger.read_error_text(None)
