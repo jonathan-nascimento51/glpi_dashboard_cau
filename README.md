@@ -47,7 +47,6 @@ the local package and its development dependencies are available.
 
 Runtime packages come from `requirements.txt`; development and testing tools are listed in `requirements-dev.txt`.
 
-
 Create a `.env` file from the template and fill in your GLPI and database
 credentials. PostgreSQL is used by default but you can point the application to
 MySQL by setting values like:
@@ -364,6 +363,7 @@ The entry point initializes structured logging via:
 from backend.utils.logging import init_logging
 init_logging()
 ```
+
 Set `APP_ENV=production` to force JSON logs and disable traceback diagnostics.
 Use any other value for colorful developer output.
 
@@ -939,7 +939,8 @@ sure your network can reach `snyk.io` as described in
 
 ```bash
 ./scripts/check_snyk_access.sh
-```
+
+
 The workflow also runs `ast-grep` using rules under `rules/` to ensure
 frontend modules never import database layers directly.
 
