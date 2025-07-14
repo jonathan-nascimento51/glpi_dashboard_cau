@@ -7,10 +7,11 @@ import subprocess
 import sys
 from pathlib import Path
 
-from prompt_config import CONFIG
+from prompt_config import PromptConfig
 
 sys.path.append(str(Path(__file__).resolve().parents[1] / "src"))
 
+CONFIG = PromptConfig()
 
 def run_command(cmd: list[str]) -> str:
     """Run a command and return its output (stdout + stderr)."""

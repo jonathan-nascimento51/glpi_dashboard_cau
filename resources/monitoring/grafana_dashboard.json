@@ -3,6 +3,12 @@
   "panels": [
     {"type": "graph", "title": "Request latency", "targets": [{"expr": "request_latency_seconds"}]},
     {"type": "graph", "title": "Error rate", "targets": [{"expr": "request_errors_total"}]},
-    {"type": "graph", "title": "Circuit state", "targets": [{"expr": "circuit_breaker_state"}]}
+    {"type": "graph", "title": "Circuit state", "targets": [{"expr": "circuit_breaker_state"}]},
+    {"type": "graph", "title": "Request rate by handler", "targets": [{"expr": "sum(rate(request_total[1m])) by (handler)"}]},
+    {"type": "graph", "title": "5xx error rate", "targets": [{"expr": "sum(rate(request_total{status=~'5..'}[1m]))"}]},
+    {"type": "graph", "title": "P95 latency", "targets": [{"expr": "histogram_quantile(0.95, sum(rate(request_latency_seconds_bucket[5m])) by (le))"}]},
+    {"type": "graph", "title": "Web vitals (LCP)", "targets": [{"expr": "faro_web_vitals_lcp"}]},
+    {"type": "graph", "title": "JS errors", "targets": [{"expr": "faro_js_errors_total"}]},
+    {"type": "graph", "title": "Backend vs frontend latency", "targets": [{"expr": "histogram_quantile(0.95, sum(rate(request_latency_seconds_bucket[5m])) by (le))"}, {"expr": "faro_web_vitals_ttfb"}]}
   ]
 }
