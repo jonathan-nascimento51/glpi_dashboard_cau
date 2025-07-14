@@ -12,7 +12,7 @@ This document condenses the main steps from the README to get the dashboard runn
 
 2. Install dependencies and configure pre-commit:
    ```bash
-   ./setup.sh
+   bash scripts/setup/setup_env.sh
    ```
    This command creates the `.venv` directory, installs packages from
    `requirements.txt` and `requirements-dev.txt`, and sets up `pre-commit`.

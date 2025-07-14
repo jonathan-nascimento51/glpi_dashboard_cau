@@ -4,10 +4,10 @@ This document explains how to set up your environment and contribute to the GLPI
 
 ## 1. Setup and dependencies
 
-Use `./setup.sh` to create a virtual environment, install Python packages and enable pre‑commit hooks automatically. The script also installs Playwright dependencies when needed.
+Use `scripts/setup/setup_env.sh` to create a virtual environment, install Python packages and enable pre‑commit hooks automatically. The script also installs Playwright dependencies when needed.
 
 ```bash
-./setup.sh
+bash scripts/setup/setup_env.sh
 ```
 
 If the script fails or you prefer the manual steps, install dependencies from `requirements.txt` and `requirements-dev.txt`, then run `pre-commit install`.

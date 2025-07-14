@@ -37,11 +37,11 @@ Data: 2025-07-09
 Ferramenta: scripts/auto_mover.py
 Descrição: Arquivos foram movidos de acordo com o mapeamento fornecido por Codex (RefatorAgent).
 Status: ✅ Concluído com sucesso
-Verificado via: ./init_refactor.sh + inspeção visual
+Verificado via: scripts/refactor/init_refactor.sh + inspeção visual
 
 ## \ud83d\udcc6 Atualizacao 2025-07-09
 
-- Executado `bash init_refactor.sh` para listar a nova estrutura de arquivos.
+- Executado `bash scripts/refactor/init_refactor.sh` para listar a nova estrutura de arquivos.
 - Verificado que persistem pastas extras como `glpi_dashboard` e `etl`.
 - Dependencias instaladas via `requirements.txt` e `requirements-dev.txt`.
 - Testes executados com `pytest` mas falharam por erros de importacao.
@@ -57,3 +57,4 @@ Descrição: Script auxilia na movimentação de módulos Python utilizando a bi
 
 - README ampliado com instruções de uso do `scripts/run_py_codemod.sh`.
 - Reforçada a dependência da biblioteca Rope para realizar a refatoração.
+- 

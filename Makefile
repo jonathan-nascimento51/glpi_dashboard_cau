@@ -5,11 +5,14 @@ PYTHON=$(VENV)/bin/python
 PIP=$(VENV)/bin/pip
 
 setup:
-	python -m venv $(VENV) && \
-	$(PIP) install --upgrade pip && \
-	$(PIP) install -r requirements.txt -r requirements-dev.txt && \
-	$(PIP) install -e .
+	bash scripts/setup/setup_env.sh
 
+diagnose:
+	bash scripts/diagnostics/run_codex_diagnose.sh
+
+refactor-init:
+	bash scripts/refactor/init_refactor.sh
+	
 build:
 	docker compose build
 

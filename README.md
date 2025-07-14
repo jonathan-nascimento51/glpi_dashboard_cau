@@ -17,14 +17,14 @@ Pattern modules such as `song_serializer.py` and `sort_strategy.py` live in [`ex
 Follow these steps to prepare a local environment. A condensed walkthrough is
 available in [docs/install_quickstart.md](docs/install_quickstart.md).
 
-Run `./setup.sh` (or `make setup`) to create the `.venv` directory, install
+Run `scripts/setup/setup_env.sh` (or `make setup`) to create the `.venv` directory, install
 packages from `requirements.txt` and `requirements-dev.txt` and enable
 `pre-commit` hooks automatically. Optional extras can be added later with
 `./scripts/install_dev_extras.sh`. If you prefer to install packages manually,
 remember to run `pre-commit install` afterward.
 
 ```bash
-./setup.sh
+bash scripts/setup/setup_env.sh
 ```
 
 The script installs `pre-commit` and all Python dependencies in one go. You may
@@ -256,7 +256,7 @@ limitations appear.
 ## Installing Dependencies Behind a Proxy or Offline
 
 If your machine needs a proxy to reach PyPI, export the proxy variables before
-invoking `pip`. The `setup.sh` script automatically configures `apt` when
+invoking `pip`. The `scripts/setup/setup_env.sh` script automatically configures `apt` when
 `HTTP_PROXY` is defined and can work offline by setting `OFFLINE_INSTALL=true`:
 
 ```bash
@@ -279,7 +279,7 @@ offline machine and install everything without contacting PyPI:
 pip install --no-index --find-links=/path/to/wheels -r requirements.txt -r requirements-dev.txt
 ```
 
-Then run the setup script with `OFFLINE_INSTALL=true ./setup.sh` to skip online downloads.
+Then run the setup script with `OFFLINE_INSTALL=true bash scripts/setup/setup_env.sh` to skip online downloads.
 
 More setup tips—including offline usage with mock data—are documented in
 [docs/glpi_tokens_guide.md](docs/glpi_tokens_guide.md).  See also
@@ -755,7 +755,7 @@ pip install -r requirements.txt -r requirements-dev.txt && pip install -e .
 # the editable install exposes `backend` and `frontend` modules for tests
 ```
 
-Running `./setup.sh` performs the same installation automatically and configures
+Running `scripts/setup/setup_env.sh` performs the same installation automatically and configures
 pre-commit hooks. If you use the Makefile run `make setup` once to prepare the
 virtual environment before calling `make test`. After the environment is ready
 you can run `make test` to execute the suite in one step or invoke `pytest`
@@ -903,7 +903,7 @@ cd src/frontend/react_app && npm run perf:profile
 Continuous integration runs on GitHub Actions using `.github/workflows/ci.yml`.
 The workflow is split into three jobs:
 
-1. **Lint** – installs dependencies via `./setup.sh`, checks Python code with
+1. **Lint** – installs dependencies via `scripts/setup/setup_env.sh`, checks Python code with
    `pre-commit` and runs `npm run lint` inside `src/frontend/react_app`.
 2. **Test** – executed for Python 3.10, 3.11 and 3.12 through a matrix build.
    It runs `pytest` and the Jest suite for the React app.

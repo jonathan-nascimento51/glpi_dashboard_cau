@@ -24,7 +24,7 @@ jobs:
           cache: 'npm'
           cache-dependency-path: src/frontend/react_app/package-lock.json
       - name: Setup environment
-        run: ./setup.sh
+        run: ./scripts/setup/setup_env.sh
         env:
           SKIP_PLAYWRIGHT: "true"
       - name: Configure GitHub CLI
@@ -60,7 +60,7 @@ jobs:
             requirements.txt
             requirements-dev.txt
       - name: Setup environment
-        run: ./setup.sh
+        run: ./scripts/setup/setup_env.sh
         env:
           SKIP_PLAYWRIGHT: "true"
       - name: Configure GitHub CLI
@@ -88,7 +88,7 @@ jobs:
             requirements.txt
             requirements-dev.txt
       - name: Setup environment
-        run: ./setup.sh
+        run: ./scripts/setup/setup_env.sh
         env:
           SKIP_PLAYWRIGHT: "true"
       - name: Configure GitHub CLI
@@ -116,7 +116,7 @@ jobs:
           cache: 'npm'
           cache-dependency-path: src/frontend/react_app/package-lock.json
       - name: Setup environment
-        run: ./setup.sh
+        run: ./scripts/setup/setup_env.sh
         env:
           SKIP_PLAYWRIGHT: "true"
       - name: Configure GitHub CLI

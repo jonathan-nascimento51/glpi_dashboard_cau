@@ -7,7 +7,7 @@ This guide tracks adjustments required when running the project inside the Codex
 Run the helper script which installs both runtime and development requirements and activates pre-commit hooks:
 
 ```bash
-./setup.sh
+bash scripts/setup/setup_env.sh
 ```
 
 The script accepts optional variables:
@@ -24,7 +24,7 @@ When tests fail due to missing libraries, update `requirements.txt` and `require
 ./scripts/download_wheels.sh
 ```
 
-After adjusting the lists rerun `./setup.sh` to refresh the virtual environment.
+After adjusting the lists rerun `bash scripts/setup/setup_env.sh` to refresh the virtual environment.
 
 ## 3. Troubleshooting
 

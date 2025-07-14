@@ -53,3 +53,17 @@ steps:
 Use o trecho acima como ponto de partida ao customizar seus arquivos em
 `.github/workflows/` para o ambiente Windows. Essa mesma configuração funciona no
 Linux via WSL ou nos servidores de CI.
+
+## 4. Otimização opcional do Windows
+
+Alguns serviços e apps padrão podem ser desativados para reduzir o consumo de memória durante o desenvolvimento. O script `scripts/windows/optimize-windows-dev.ps1` aplica essas otimizações de forma automática. Para restaurar as configurações originais use `scripts/windows/restore-defaults.ps1`.
+
+Execute-os a partir de um PowerShell com privilégios de administrador:
+
+```powershell
+# Desativa serviços e remove apps desnecessários
+scripts/windows/optimize-windows-dev.ps1
+
+# (Quando precisar reverter)
+scripts/windows/restore-defaults.ps1
+```
