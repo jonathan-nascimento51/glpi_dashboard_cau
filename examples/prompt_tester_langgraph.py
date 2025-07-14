@@ -7,7 +7,7 @@ from typing import Optional, TypedDict
 from langgraph.graph import StateGraph
 
 # Carregamento externo dos templates
-TEMPLATE_PATH = Path("prompt_template.json")
+TEMPLATE_PATH = Path(__file__).with_name("prompt_template.json")
 if not TEMPLATE_PATH.exists():
     raise FileNotFoundError(f"Arquivo de templates não encontrado: {TEMPLATE_PATH}")
 

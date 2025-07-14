@@ -69,7 +69,9 @@ def main() -> int:
         "paths", nargs="*", default=["src", "tests"], help="Directories to process"
     )
     parser.add_argument(
-        "--map", default="file_map.json", help="Path to mapping JSON file"
+        "--map",
+        default="scripts/refactor/python_import_map.json",
+        help="Path to mapping JSON file",
     )
     args = parser.parse_args()
 
