@@ -7,13 +7,15 @@ from dash import html
 
 def render_dashboard(df: pd.DataFrame) -> html.Div:
     """Render main dashboard components."""
-    from dash import dcc, dash_table
+    from dash import dash_table, dcc
+
     statuses = ["All"] + sorted({str(s) for s in df["status"].dropna().unique()})
     status_options = [{"label": s, "value": s if s != "All" else ""} for s in statuses]
 
     return html.Div(
         [
             html.H1("GLPI Dashboard"),
+            html.Div(id="notification-container"),
             dcc.Interval(id="init-load", n_intervals=0, max_intervals=1),
             dcc.Store(id="ticket-store"),
             dcc.Dropdown(

@@ -351,6 +351,8 @@ The entry point initializes structured logging via:
 from backend.utils.logging import init_logging
 init_logging()
 ```
+Set `APP_ENV=production` to emit JSON logs suitable for aggregators. Any
+other value keeps colorful developer output.
 
 The Dash server uses gzip compression via `flask-compress` and loads data lazily on first render.
 

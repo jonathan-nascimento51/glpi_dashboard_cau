@@ -59,9 +59,13 @@ def init_logging(
         env_level = os.getenv("LOG_LEVEL", "INFO")
         level = getattr(logging, env_level.upper(), logging.INFO)
 
-    # Default to JSON logs unless LOG_FORMAT is 'text'
+    # Determine output format based on APP_ENV or LOG_FORMAT
     if serialize is None:
-        serialize = os.getenv("LOG_FORMAT", "json").lower() != "text"
+        env = os.getenv("APP_ENV", "development").lower()
+        if env == "production":
+            serialize = True
+        else:
+            serialize = os.getenv("LOG_FORMAT", "json").lower() != "text"
 
     # Enable verbose diagnostics only if LOG_DEBUG is set
     debug_mode = os.getenv("LOG_DEBUG", "false").lower() in ("true", "1", "t")
@@ -74,6 +78,7 @@ def init_logging(
             level if level is not None else "INFO"
         ),  # Default to "INFO" if level is None
         serialize=serialize,
+        colorize=not serialize,
         filter=_CorrelationFilter(),  # type: ignore[arg-type]
         enqueue=True,
         backtrace=debug_mode,
