@@ -8,12 +8,6 @@ omit =
     scripts/*
     labs/*
     docs/*
-    src/backend/*
-    src/frontend/*
-    src/shared/models/*
-    src/shared/order_observer.py
-    src/shared/resilience/*
-    dashboard_app.py
     prompt_tester_langgraph.py
 
 [report]
