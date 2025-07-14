@@ -51,7 +51,7 @@ Tests and lint commands are provided in `package.json`. Consult [docs/frontend_a
 
 ## 4. Pre‑commit hooks
 
-This repository relies on `pre-commit` for formatting and static checks (Black, Ruff, isort and mypy). Hooks run automatically if installed, but you can execute them manually before committing:
+This repository relies on `pre-commit` for formatting and static checks (Black, Ruff, isort and mypy). It also includes common housekeeping hooks such as trailing whitespace cleanup, end-of-file fixes, YAML validation and guards for large files or merge conflicts. Hooks run automatically if installed, but you can execute them manually before committing:
 
 ```bash
 pre-commit run --all-files
