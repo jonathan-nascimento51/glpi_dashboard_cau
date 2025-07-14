@@ -7,9 +7,9 @@ import subprocess
 import sys
 from pathlib import Path
 
-from prompt_config import PromptConfig
-
 sys.path.append(str(Path(__file__).resolve().parents[1] / "src"))
+
+from prompt_config import PromptConfig
 
 CONFIG = PromptConfig()
 

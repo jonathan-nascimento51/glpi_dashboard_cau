@@ -196,6 +196,18 @@ Query a list of fields for a GLPI item:
 python -m glpi_tools list-fields Ticket
 ```
 
+### Generating components and modules
+
+Use [Plop](https://plopjs.com) to scaffold new React components or Dash modules.
+Run the following command from the project root and follow the prompts:
+
+```bash
+npm run generate
+```
+
+Files are created under `src/frontend/react_app/src/components/` for React and
+under `src/frontend/modules/` for Dash.
+
 ### Running tests
 
 ```bash

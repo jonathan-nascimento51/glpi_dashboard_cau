@@ -3,7 +3,8 @@
   "scripts": {
     "check-env": "node ./scripts/check-env.js",
     "type-check": "tsc -b",
-    "dev": "vite"
+    "dev": "vite",
+    "generate": "plop"
   },
   "devDependencies": {
     "@testing-library/dom": "^10.4.0",
@@ -13,10 +14,12 @@
     "@types/testing-library__jest-dom": "^5.14.9",
     "@vitejs/plugin-react": "^4.6.0",
     "playwright": "^1.54.0",
+    "plop": "^4.0.1",
     "vite": "^7.0.3",
     "vite-tsconfig-paths": "^5.1.4"
   },
   "dependencies": {
+    "@playwright/test": "^1.54.1",
     "@tanstack/react-query": "^5.81.5",
     "dotenv": "^17.1.0",
     "react": "^18.2.0",
