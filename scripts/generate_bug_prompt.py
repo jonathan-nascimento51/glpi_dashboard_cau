@@ -15,8 +15,11 @@ from prompt_config import PromptConfig
 
 CONFIG = PromptConfig()
 
+
 def run_command(cmd: list[str]) -> str:
     """Run a command and return its output (stdout + stderr)."""
+    if cmd[0].endswith(".py"):
+        cmd = [sys.executable, *cmd]
     try:
         completed = subprocess.run(
             cmd,
