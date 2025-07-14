@@ -1,9 +1,9 @@
 
 # Guia Avançado – Configuração & Execução do **GLPI Dashboard**
 
-> **Revisão:** 2025-07-02  
+> **Revisão:** 2025-07-02
 
-Este documento conduz da clonagem do repositório ao monitoramento em produção.  
+Este documento conduz da clonagem do repositório ao monitoramento em produção.
 **Todas as capturas abaixo** são meramente ilustrativas; substitua pelos _prints_ do seu ambiente caso deseje documentação interna.
 
 ---
@@ -53,7 +53,7 @@ GLPI_USER_TOKEN="yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy"
 | **Aplicação** (`GLPI_APP_TOKEN`) | *Setup → General → API_ | ![Menu Setup → General](docs/images/app_token_menu.png) |
 | **Usuário** (`GLPI_USER_TOKEN`)  | _Perfil → Preferences → API* | ![Preferences → API](docs/images/user_token_pref.png) |
 
-> **Dica:** salve os prints‑screen acima na pasta `docs/images/` para que os caminhos funcionem.  
+> **Dica:** salve os prints‑screen acima na pasta `docs/images/` para que os caminhos funcionem.
 
 ---
 
@@ -63,8 +63,10 @@ GLPI_USER_TOKEN="yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy"
 python scripts/validate_credentials.py
 ```
 
-- **✅ Sucesso** → prossiga  
+- **✅ Sucesso** → prossiga
 - **❌ Falha** → revise IP permitido ou tokens
+  - Se a mensagem for `Falha de Conexão de Rede`, verifique VPN ou firewall
+    bloqueando o acesso ao `GLPI_BASE_URL`.
 
 ---
 
@@ -90,7 +92,7 @@ Todos os serviços devem aparecer como **running / healthy**.
 
 ## 7 ▪️ Acessar o dashboard
 
-- **API worker:** <http://localhost:8000/metrics>  
+- **API worker:** <http://localhost:8000/metrics>
 - **Dashboard (Dash/Plotly):** <http://localhost:8080>
 
 Caso a API esteja indisponível ou tokens inválidos, o front‑end exibe um alerta amigável:
@@ -160,9 +162,9 @@ para acompanhar oscilações em tempo real.
 
 ### 11.1 Token da aplicação (`GLPI_APP_TOKEN`)
 
-1. Entre no GLPI com conta **admin**  
-2. Navegue: **Setup → General → aba API**  
-3. Marque **Enable REST API = Yes**  
+1. Entre no GLPI com conta **admin**
+2. Navegue: **Setup → General → aba API**
+3. Marque **Enable REST API = Yes**
 4. Copie o valor de **API access token**
 
 ![Setup → General](https://tic.gal/wp-content/uploads/2019/07/1-enable-api-1.png)
@@ -170,9 +172,9 @@ para acompanhar oscilações em tempo real.
 
 ### 11.2 Token do usuário (`GLPI_USER_TOKEN`)
 
-1. Logado como o usuário que fará as consultas  
-2. Clique no avatar (canto superior‑direito) → **Preferences**  
-3. Abra a aba **API** e, se preciso, clique _Generate token_  
+1. Logado como o usuário que fará as consultas
+2. Clique no avatar (canto superior‑direito) → **Preferences**
+3. Abra a aba **API** e, se preciso, clique _Generate token_
 4. Copie **API token**
 
 ![Preferences → API](https://tic.gal/wp-content/uploads/2019/07/3-user-generate-api-token.png)

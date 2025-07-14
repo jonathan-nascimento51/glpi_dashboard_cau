@@ -644,6 +644,9 @@ python scripts/validate_credentials.py
 ```
 
 If the connection succeeds you will see `✅ Conexão com GLPI bem-sucedida!`.
+If you receive `❌ Falha de Conexão de Rede` the host may be unreachable.
+Check that your VPN is active and no firewall rules block access to the
+configured `GLPI_BASE_URL`.
 
 After configuring the environment file you can optionally generate a full JSON
 dump of tickets. The repository only ships with a small sanitized sample under

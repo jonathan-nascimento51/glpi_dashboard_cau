@@ -71,6 +71,9 @@ async def _check() -> None:
     timeout = aiohttp.ClientTimeout(total=CLIENT_TIMEOUT_SECONDS)
 
     proxy = https_proxy or http_proxy
+    if proxy and "proxymwg.ppiratini.intra.rs.gov.br" not in proxy:
+        # evita usar proxy inválido
+        proxy = None
 
     try:
         async with aiohttp.ClientSession(timeout=timeout, trust_env=True) as session:
