@@ -21,6 +21,7 @@ from backend.core.settings import (
     USE_MOCK_DATA,
     VERIFY_SSL,
 )
+from backend.infrastructure.glpi.glpi_session import mask_proxy_url
 
 # Windows event loop fix for aiodns
 if sys.platform.startswith("win"):
@@ -53,9 +54,9 @@ async def _check() -> None:
     if http_proxy or https_proxy:
         print("ℹ️  Proxy detectado nas variáveis de ambiente:")
         if http_proxy:
-            print(f"   - HTTP_PROXY: {http_proxy}")
+            print(f"   - HTTP_PROXY: {mask_proxy_url(http_proxy)}")
         if https_proxy:
-            print(f"   - HTTPS_PROXY: {https_proxy}")
+            print(f"   - HTTPS_PROXY: {mask_proxy_url(https_proxy)}")
         print(
             "   Se a conexão falhar, verifique se o proxy está correto ou desative-o.\n"
         )
