@@ -3,6 +3,6 @@
 # Performs an HTTP request to the health endpoint.
 set -euo pipefail
 
-WEBAPP_URL="${WEBAPP_URL:-http://localhost:8000/health/glpi}"
+WEBAPP_URL="${WEBAPP_URL:-http://localhost:8000/health}"
 
-curl -fs "$WEBAPP_URL" > /dev/null
+curl --fail "$WEBAPP_URL" > /dev/null

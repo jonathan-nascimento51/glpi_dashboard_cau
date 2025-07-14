@@ -12,13 +12,23 @@ services:
     depends_on:
       - redis
       - db
-    # Healthcheck incorporado na imagem
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/healthcheck.sh"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
 
   redis:
     build:
       context: .
       dockerfile: docker/redis/Dockerfile
     restart: always
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/healthcheck.sh"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   frontend:
     build:
@@ -31,6 +41,12 @@ services:
     environment:
       # (opcional, você pode sobrescrever aqui)
       - NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/healthcheck.sh"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
 
   db:
     build:
@@ -48,7 +64,11 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
       - ./docker/db-init:/docker-entrypoint-initdb.d
-    # Healthcheck definido no Dockerfile
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/healthcheck.sh"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   db_data:
