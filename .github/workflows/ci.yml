@@ -141,6 +141,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -148,6 +151,17 @@ jobs:
         run: npm install -g @ast-grep/cli
       - name: Run ast-grep scan
         run: sg scan --config ./rules/config.yml
+      - name: Snyk code test
+        uses: snyk/actions/python-3.11@master
+        with:
+          command: code test
+          args: --all-projects --severity-threshold=high --sarif-file-output=snyk.sarif
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      - name: Upload SARIF report
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: snyk.sarif
 
   coverage-report:
     if: github.event_name == 'pull_request'

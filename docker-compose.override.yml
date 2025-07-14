@@ -14,8 +14,8 @@ services:
       test: ["CMD", "/usr/local/bin/healthcheck.sh"]
       interval: 30s
       timeout: 5s
-      retries: 5
-      start_period: 30s
+      retries: 3
+      start_period: 60s
     env_file:
       - ./.env
 
@@ -39,7 +39,7 @@ services:
       interval: 30s
       timeout: 5s
       retries: 3
-      start_period: 10s
+      start_period: 45s
 
   db:
     ports:
