@@ -95,3 +95,19 @@ Ao executar scripts Node.js com `"type": "module"` no `package.json`, o runtime 
 2. **Manter CommonJS**: renomeie o arquivo para `.cjs` e ajuste os comandos npm.
 
 Consulte [docs/adr/0006-esm-adoption.md](adr/0006-esm-adoption.md) para entender a política de ESM no projeto.
+
+## 11. Avisos e Deprecações do npm
+
+Quando rodar `npm install` ou `npm ci` podem aparecer avisos ligados a proxy e pacotes depreciados. A seguir algumas orientações para eliminá-los.
+
+### 11.1 Unknown env config 'http-proxy'
+
+Esse aviso ocorre porque variáveis como `HTTP_PROXY` e `HTTPS_PROXY` não correspondem mais às chaves de configuração do npm. Remova-as do `.npmrc` e, se necessário, configure o proxy com `npm config set proxy <url>`.
+
+### 11.2 NODE_TLS_REJECT_UNAUTHORIZED=0
+
+Desativar a verificação de certificados TLS torna as conexões inseguras. Em vez disso, exporte `NODE_EXTRA_CA_CERTS` apontando para o certificado desejado ou utilize certificados válidos.
+
+### 11.3 Pacotes depreciados
+
+Mensagens de deprecated indicam que uma dependência não é mais mantida. Atualize as versões diretas no `package.json` e utilize `overrides` para forçar versões mais novas em dependências transitivas. Priorize `rimraf@^4`, `glob@^9` e substitua `lodash.get` por optional chaining (`obj?.a?.b`).

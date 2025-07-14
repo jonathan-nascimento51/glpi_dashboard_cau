@@ -378,7 +378,8 @@ in Chrome DevTools (Network → Timings).
 If you encounter issues during the first run, consult
 [docs/error_map.md](docs/error_map.md) for troubleshooting tips.
 For additional troubleshooting steps in Portuguese, see
-[docs/solucoes_problemas.md](docs/solucoes_problemas.md).
+[docs/solucoes_problemas.md](docs/solucoes_problemas.md). Esse arquivo também
+traz orientações para resolver avisos e pacotes depreciados do npm.
 Specific guidance for erros `400 Bad Request` ao iniciar a sessão GLPI via Docker
 está disponível em
 [docs/troubleshooting_400_bad_request.md](docs/troubleshooting_400_bad_request.md).
