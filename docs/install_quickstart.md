@@ -19,6 +19,13 @@ This document condenses the main steps from the README to get the dashboard runn
    Run it once before executing any tests (or use `make setup`). The script
    accepts proxy variables (`HTTP_PROXY`/`HTTPS_PROXY`) and can work offline with
    `OFFLINE_INSTALL=true` when wheels are available under `./wheels`.
+   If proxies are disabled remember to clear them before running the setup:
+
+   ```bash
+   unset HTTP_PROXY HTTPS_PROXY
+   ```
+   Remove any leftover proxy entries from `.npmrc` as explained in
+   [docs/solucoes_problemas.md](solucoes_problemas.md#11.1-unknown-env-config-http-proxy).
    If you prefer manual setup, execute:
    ```bash
    pip install -r requirements.txt -r requirements-dev.txt
