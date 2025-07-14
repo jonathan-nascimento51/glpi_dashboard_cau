@@ -1,5 +1,6 @@
 import asyncio as aio
 import json
+import os
 from contextlib import asynccontextmanager
 from typing import Optional
 from unittest.mock import ANY, AsyncMock, MagicMock, patch
@@ -186,6 +187,7 @@ async def test_glpi_session_context_manager_user_token_auth(
     Tests the GLPISession context manager when authenticating with a user token.
     Verifies session initiation, token storage, and graceful exit.
     """
+    os.environ.pop("HTTP_PROXY", None)
     credentials = Credentials(app_token=app_token, user_token=user_token)
     glpi_session = GLPISession(base_url, credentials)
 
@@ -197,7 +199,7 @@ async def test_glpi_session_context_manager_user_token_auth(
     async with glpi_session as session:
         assert session._session_token == user_token
         # Verify initSession was called with the user_token in the payload
-        mock_client_session.assert_called_once_with(
+        mock_client_session.get.assert_called_once_with(
             f"{base_url}/initSession",
             headers={
                 "Content-Type": "application/json",
@@ -216,8 +218,8 @@ async def test_glpi_session_context_manager_user_token_auth(
     assert session._session_token is None
     assert session._session.closed
     # Verify killSession was called with the correct headers as the last call
-    kill_call = mock_client_session.call_args_list[-1]
-    assert kill_call.args[0] == f"{base_url}/killSession"
+    kill_call = mock_client_session.get.call_args_list[-1]
+    assert kill_call.kwargs["url"] == f"{base_url}/killSession"
     assert kill_call.kwargs["headers"] == {
         "Content-Type": "application/json",
         "Session-Token": user_token,
@@ -233,6 +235,7 @@ async def test_glpi_session_context_manager_username_password_auth(
     Tests the GLPISession context manager when authenticating with username/password.
     Verifies session initiation, token storage, and graceful exit.
     """
+    os.environ.pop("HTTP_PROXY", None)
     credentials = Credentials(app_token=app_token, username=username, password=password)
     glpi_session = GLPISession(base_url, credentials)
 
@@ -244,7 +247,7 @@ async def test_glpi_session_context_manager_username_password_auth(
     async with glpi_session as session:
         assert session._session_token == "initial_session_token"
         # Verify initSession was called with username/password in the payload
-        mock_client_session.assert_called_once_with(
+        mock_client_session.get.assert_called_once_with(
             f"{base_url}/initSession",
             headers={
                 "Content-Type": "application/json",
@@ -261,8 +264,8 @@ async def test_glpi_session_context_manager_username_password_auth(
     assert glpi_session._session_token is None
     assert session._session.closed
     # Verify killSession was called with the correct headers as the last call
-    kill_call = mock_client_session.call_args_list[-1]
-    assert kill_call.args[0] == f"{base_url}/killSession"
+    kill_call = mock_client_session.get.call_args_list[-1]
+    assert kill_call.kwargs["url"] == f"{base_url}/killSession"
     assert kill_call.kwargs["headers"] == {
         "Content-Type": "application/json",
         "Session-Token": "initial_session_token",
@@ -596,7 +599,7 @@ async def test_kill_session_success(
     session._session_token = user_token
     mock_client_session.return_value = mock_response(200, {})
     await session._kill_session()
-    mock_client_session.assert_called_once_with(
+    mock_client_session.get.assert_called_once_with(
         f"{base_url}/killSession",
         headers={
             "Content-Type": "application/json",

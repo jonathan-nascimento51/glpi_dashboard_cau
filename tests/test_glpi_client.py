@@ -1,5 +1,5 @@
 import base64
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import MagicMock
 
 import aiohttp
 import pytest
@@ -43,31 +43,33 @@ class DummyResponse:
 @pytest.mark.asyncio
 async def test_init_session_user_token(mocker):
     mock_session = mocker.patch(
-        "backend.infrastructure.glpi.glpi_session.ClientSession"
+        "backend.infrastructure.glpi.glpi_session.aiohttp.ClientSession"
     ).return_value
-    mock_index = AsyncMock(
+    mock_index = MagicMock(
         return_value=DummyCM(DummyResponse(200, {"session_token": "tok"}))
     )
     mock_session.closed = False
+    mock_session.get = mock_index
     mock_session.get = mock_index
 
     creds = Credentials(app_token="APP", user_token="USER")
     client = GLPISession("http://example.com/apirest.php", creds)
     await client._refresh_session_token()
 
-    mock_index.assert_awaited_once()
+    mock_index.assert_called_once()
     assert client._session_token == "tok"
 
 
 @pytest.mark.asyncio
 async def test_init_session_basic_auth(mocker):
     mock_session = mocker.patch(
-        "backend.infrastructure.glpi.glpi_session.ClientSession"
+        "backend.infrastructure.glpi.glpi_session.aiohttp.ClientSession"
     ).return_value
-    mock_index = AsyncMock(
+    mock_index = MagicMock(
         return_value=DummyCM(DummyResponse(200, {"session_token": "tok"}))
     )
     mock_session.closed = False
+    mock_session.get = mock_index
 
     client = GLPISession(
         "http://example.com/apirest.php",
@@ -84,13 +86,13 @@ async def test_init_session_basic_auth(mocker):
 @pytest.mark.asyncio
 async def test_search_rest_url(mocker):
     mock_session = mocker.patch(
-        "backend.infrastructure.glpi.glpi_session.ClientSession"
+        "backend.infrastructure.glpi.glpi_session.aiohttp.ClientSession"
     ).return_value
 
     async def fake_request(method, url, **kwargs):
         return DummyCM(DummyResponse(200, {"data": []}))
 
-    mock_session.request = AsyncMock(side_effect=fake_request)
+    mock_session.request = MagicMock(side_effect=fake_request)
     mock_session.closed = False
 
     client = GLPISession(
@@ -99,7 +101,7 @@ async def test_search_rest_url(mocker):
     )
     data = await client.search_rest("Ticket", params={"a": 1})
 
-    mock_session.request.assert_awaited_once()
+    mock_session.request.assert_called_once()
     args, kwargs = mock_session.request.call_args
     assert args[0] == "GET" and args[1].endswith("search/Ticket")
     assert kwargs["params"] == {"a": 1}
@@ -109,10 +111,10 @@ async def test_search_rest_url(mocker):
 @pytest.mark.asyncio
 async def test_query_graphql_payload(mocker):
     mock_session = mocker.patch(
-        "backend.infrastructure.glpi.glpi_session.ClientSession"
+        "backend.infrastructure.glpi.glpi_session.aiohttp.ClientSession"
     ).return_value
 
-    mock_session.request = AsyncMock(
+    mock_session.request = MagicMock(
         return_value=DummyCM(DummyResponse(200, {"data": {"ok": True}}))
     )
     mock_session.closed = False
@@ -123,7 +125,7 @@ async def test_query_graphql_payload(mocker):
     )
     result = await client.query_graphql("query { ping }", {"x": 1})
 
-    mock_session.request.assert_awaited_once()
+    mock_session.request.assert_called_once()
     args, kwargs = mock_session.request.call_args
     assert args[0] == "POST" and args[1].endswith("graphql")
     assert kwargs["json"] == {"query": "query { ping }", "variables": {"x": 1}}
