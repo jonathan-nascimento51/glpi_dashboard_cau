@@ -1,0 +1,12 @@
+id: no-db-in-frontend
+message: "Frontend modules should not import from src.backend.db"
+severity: error
+language: Python
+paths:
+  - "src/frontend/**/*.py"
+  - "src/frontend/react_app/**/*.ts"
+  - "src/frontend/react_app/**/*.tsx"
+rule:
+  any:
+    - pattern: "import src.backend.db"
+    - pattern: "from src.backend.db import $A"

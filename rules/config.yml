@@ -1,0 +1,2 @@
+rules:
+  - no-db-in-frontend.yml

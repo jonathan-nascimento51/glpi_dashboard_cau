@@ -42,6 +42,10 @@ jobs:
         run: |
           cd src/frontend/react_app
           npm run lint --silent
+      - name: Install ast-grep
+        run: npm install -g @ast-grep/cli
+      - name: Run ast-grep scan
+        run: sg scan --config ./rules/config.yml
       - name: Check API TypeScript definitions
         run: |
           make gen-types
