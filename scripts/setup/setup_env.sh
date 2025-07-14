@@ -1,6 +1,13 @@
 #!/bin/bash
 set -euo pipefail
 
+# Abort early on non-Linux systems
+OS="$(uname -s)"
+if [ "$OS" != "Linux" ] && [ "${OSTYPE:-}" != "linux-gnu" ]; then
+  echo "This setup script only supports Linux. Follow the manual steps in docs/run_local.md" >&2
+  exit 1
+fi
+
 SKIP_PLAYWRIGHT=${SKIP_PLAYWRIGHT:-true}
 OFFLINE_INSTALL=${OFFLINE_INSTALL:-false}
 PROXY_FILE=/etc/apt/apt.conf.d/01proxy
