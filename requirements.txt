@@ -8,6 +8,7 @@ strawberry-graphql>=0.223
 httpx>=0.27
 rich-click>=1.6
 aiohttp
+aiohttp_retry
 APScheduler
 SQLAlchemy==2.0.30
 asyncpg
