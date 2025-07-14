@@ -2,11 +2,14 @@
 set -euo pipefail
 
 # Abort early on non-Linux systems
-OS="$(uname -s)"
-if [ "$OS" != "Linux" ] && [ "${OSTYPE:-}" != "linux-gnu" ]; then
-  echo "This setup script only supports Linux. Follow the manual steps in docs/run_local.md" >&2
-  exit 1
-fi
+OS_TYPE="${OSTYPE:-$(uname -s)}"
+case "$OS_TYPE" in
+  linux*|Linux*) ;;
+  *)
+    echo "This setup script only supports Linux. Follow the manual steps in docs/run_local.md" >&2
+    exit 1
+    ;;
+esac
 
 SKIP_PLAYWRIGHT=${SKIP_PLAYWRIGHT:-true}
 OFFLINE_INSTALL=${OFFLINE_INSTALL:-false}

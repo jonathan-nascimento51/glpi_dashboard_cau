@@ -23,8 +23,9 @@ packages from `requirements.txt` and `requirements-dev.txt` and enable
 `./scripts/install_dev_extras.sh`. If you prefer to install packages manually,
 remember to run `pre-commit install` afterward.
 
-**Note:** `setup_env.sh` only supports Linux. Users on macOS or Windows should
-follow the manual steps in [docs/run_local.md](docs/run_local.md).
+**Note:** `setup_env.sh` only supports Linux. The script checks your OS at start
+and exits with status 1 when run on macOS or Windows, directing you to the
+manual steps in [docs/run_local.md](docs/run_local.md).
 
 ```bash
 bash scripts/setup/setup_env.sh
