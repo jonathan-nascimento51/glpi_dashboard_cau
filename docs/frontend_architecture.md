@@ -135,6 +135,7 @@ It reads `file_map.json`, moves each file with `git mv` and runs the codemod
 `scripts/update-imports.js` with the appropriate `--oldPath` and `--newPath`
 options to update import statements automatically.
 
+
 ### Faro instrumentation
 
 Install the React tracing packages so the dashboard can report web vitals:
@@ -150,3 +151,20 @@ wraps `App` inside `React.Profiler` to push render timings via
 
 Refer to [docs/observability.md](observability.md) for a complete example of
 the configuration and dashboard.
+
+## 7. Code generation with Plop
+
+Reusable boilerplate for new React components and Dash modules is created with
+[Plop](https://plopjs.com/). After installing dependencies you can run the
+generators from the repository root:
+
+```bash
+npx plop react-component
+npx plop dash-module
+```
+
+`react-component` scaffolds a folder under
+`src/frontend/react_app/src/components/` containing a `.tsx` file, CSS module,
+`index.ts` barrel and a Jest test. `dash-module` writes a Python file inside
+`src/backend/components/` with stubbed `layout()` and `register_callbacks(app)`
+functions so you can hook it into the Dash application.

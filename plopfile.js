@@ -42,7 +42,7 @@ export default function (plop) {
     actions: [
       {
         type: 'add',
-        path: 'src/frontend/modules/{{snakeCase name}}.py',
+        path: 'src/backend/components/{{snakeCase name}}.py',
         templateFile: tmpl('dash-module/module.py.hbs')
       }
     ]
