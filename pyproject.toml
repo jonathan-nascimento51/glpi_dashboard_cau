@@ -54,7 +54,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "pytest",
+    "pytest==7.1.2",
     "pytest-cov",
     "pytest-asyncio",
     "black",
