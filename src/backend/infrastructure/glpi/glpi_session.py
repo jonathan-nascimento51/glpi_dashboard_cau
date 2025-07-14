@@ -6,6 +6,7 @@ import json
 import logging
 import os
 from typing import Any, Dict, List, Optional, Union
+from urllib.parse import urlsplit, urlunsplit
 
 import aiohttp
 from aiohttp import ClientSession, TCPConnector
@@ -35,6 +36,25 @@ from backend.domain.tool_error import ToolError
 from shared.utils.resilience import retry_api_call
 
 logger = logging.getLogger(__name__)
+
+
+def mask_proxy_url(url: Optional[str]) -> Optional[str]:
+    """Return a version of ``url`` with the password obscured."""
+    if not url:
+        return url
+    try:
+        parsed = urlsplit(url)
+        if parsed.password:
+            user = parsed.username or ""
+            host = parsed.hostname or ""
+            port = f":{parsed.port}" if parsed.port else ""
+            netloc = f"{user}:***@{host}{port}" if user else f"***@{host}{port}"
+            return urlunsplit(
+                (parsed.scheme, netloc, parsed.path, parsed.query, parsed.fragment)
+            )
+        return url
+    except Exception:
+        return url
 
 
 class Credentials(BaseModel):
@@ -164,7 +184,13 @@ class GLPISession:
                 ssl=self.ssl_ctx if self.ssl_ctx is not None else True
             )
             self._session = ClientSession(connector=connector)
-            logger.info("aiohttp ClientSession initialized.")
+            proxy_info = mask_proxy_url(self.proxy)
+            if proxy_info:
+                logger.info(
+                    "aiohttp ClientSession initialized via proxy %s", proxy_info
+                )
+            else:
+                logger.info("aiohttp ClientSession initialized.")
 
     @retry_api_call
     async def _refresh_session_token(self) -> None:
@@ -253,9 +279,15 @@ class GLPISession:
                 if self._session and not self._session.closed:
                     await self._session.close()
                     logger.info("aiohttp ClientSession closed due to init failure.")
+                proxy_info = mask_proxy_url(self.proxy)
                 raise GLPIAPIError(
                     0,
-                    f"Network or client error during session initiation: {e}",
+                    (
+                        f"Network or client error during session initiation: {e}"
+                        f" via proxy {proxy_info}"
+                        if proxy_info
+                        else f"Network or client error during session initiation: {e}"
+                    ),
                 ) from e
 
     async def _proactive_refresh_loop(self) -> None:
@@ -345,7 +377,12 @@ class GLPISession:
                 resp.raise_for_status()
                 logger.info("GLPI session killed successfully.")
         except aiohttp.ClientResponseError as e:
-            logger.error(f"Network or client error during session termination: {e}")
+            proxy_info = mask_proxy_url(self.proxy)
+            logger.error(
+                "Network or client error during session termination: %s via proxy %s",
+                e,
+                proxy_info,
+            )
         finally:
             self._session_token = None  # Always clear token after attempt to kill
 
@@ -461,9 +498,11 @@ class GLPISession:
             except aiohttp.ClientError as e:
                 # This catches network-level errors before an HTTP status is received
                 # The @retry_api_call decorator will handle retries for these as well
-                raise GLPIAPIError(
-                    0, f"Network or client error during API request: {e}"
-                ) from e
+                proxy_info = mask_proxy_url(self.proxy)
+                msg = f"Network or client error during API request: {e}"
+                if proxy_info:
+                    msg += f" via proxy {proxy_info}"
+                raise GLPIAPIError(0, msg) from e
             except Exception as e:
                 if isinstance(e, GLPIAPIError):
                     raise
