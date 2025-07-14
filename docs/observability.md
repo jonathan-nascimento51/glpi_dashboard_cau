@@ -12,9 +12,13 @@ from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 
 app = FastAPI(...)
 FastAPIInstrumentor().instrument_app(app)
+Instrumentator().instrument(app).expose(app)
 ```
 
-`resources/prometheus.yml`:
+The library [`prometheus-fastapi-instrumentator`](https://github.com/trallnag/prometheus-fastapi-instrumentator)
+collects default metrics and exposes them at the `/metrics` endpoint.
+
+`resources/prometheus.yml` (development compose file) configures Prometheus to scrape the metrics endpoint:
 
 ```yaml
 scrape_configs:
@@ -27,6 +31,9 @@ scrape_configs:
       - targets: ['backend:8000']
     metrics_path: /breaker
 ```
+
+Prometheus scrapes both the default `/metrics` endpoint instrumented by the
+FastAPI application and the circuit breaker metrics at `/breaker`.
 
 Grafana loads dashboards from JSON. An example (`resources/grafana_dashboard.json`):
 

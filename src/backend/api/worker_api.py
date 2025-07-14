@@ -20,6 +20,7 @@ from fastapi.responses import (
     StreamingResponse,
 )
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from prometheus_fastapi_instrumentator import Instrumentator
 from pydantic import BaseModel, Field
 from strawberry.fastapi import GraphQLRouter
 from strawberry.types import Info
@@ -129,6 +130,7 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
     cache = cache or redis_client
     app = FastAPI(title="GLPI Worker API", default_response_class=ORJSONResponse)
     FastAPIInstrumentor().instrument_app(app)
+    Instrumentator().instrument(app).expose(app)
 
     app.add_middleware(
         CORSMiddleware,
