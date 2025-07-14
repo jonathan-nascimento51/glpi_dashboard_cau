@@ -18,7 +18,13 @@ CONFIG = PromptConfig()
 
 def run_command(cmd: list[str]) -> str:
     """Run a command and return its output (stdout + stderr)."""
-    if cmd[0].endswith(".py"):
+    # Ensure Python scripts run cross-platform
+    # Use the current Python interpreter to run modules for consistency
+    if cmd[0] in {"pytest", "flake8"}:
+        cmd = [sys.executable, "-m", *cmd]
+    # For scripts, ensure they are run with the correct interpreter
+    # This logic is already good.
+    elif cmd[0].endswith(".py"):
         cmd = [sys.executable, *cmd]
     try:
         completed = subprocess.run(
