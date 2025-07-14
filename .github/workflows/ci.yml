@@ -42,10 +42,6 @@ jobs:
         run: |
           cd src/frontend/react_app
           npm run lint --silent
-      - name: Install ast-grep
-        run: npm install -g @ast-grep/cli
-      - name: Run ast-grep scan
-        run: sg scan --config ./rules/config.yml
       - name: Check API TypeScript definitions
         run: |
           make gen-types
@@ -139,6 +135,19 @@ jobs:
         with:
           name: frontend-coverage
           path: src/frontend/react_app/coverage/coverage-final.json
+
+  security-scan:
+    needs: [backend-tests, frontend-tests]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install ast-grep
+        run: npm install -g @ast-grep/cli
+      - name: Run ast-grep scan
+        run: sg scan --config ./rules/config.yml
 
   coverage-report:
     if: github.event_name == 'pull_request'

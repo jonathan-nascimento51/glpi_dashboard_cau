@@ -4,9 +4,8 @@ severity: error
 language: Python
 paths:
   - "src/frontend/**/*.py"
-  - "src/frontend/react_app/**/*.ts"
-  - "src/frontend/react_app/**/*.tsx"
 rule:
   any:
     - pattern: "import src.backend.db"
+    - pattern: "import src.backend.db as $A"
     - pattern: "from src.backend.db import $A"
