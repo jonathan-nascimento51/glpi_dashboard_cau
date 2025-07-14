@@ -13,5 +13,13 @@ RUN npm rebuild lightningcss --update-binary
 
 # Copiar código restante e iniciar servidor dev
 COPY . .
+COPY ../../scripts/healthchecks/healthcheck-webapp.sh /usr/local/bin/healthcheck.sh
+RUN chmod +x /usr/local/bin/healthcheck.sh
 EXPOSE 3000
+HEALTHCHECK \
+  --interval=30s \
+  --timeout=5s \
+  --start-period=10s \
+  --retries=3 \
+  CMD ["healthcheck.sh"]
 CMD ["npm", "run", "dev"]

@@ -12,25 +12,18 @@ services:
     depends_on:
       - redis
       - db
-    healthcheck:
-      test: ["CMD", "curl", "--fail", "-I", "http://localhost:8000/health/glpi"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 10s
+    # Healthcheck incorporado na imagem
 
   redis:
-    image: redis:7-alpine
+    build:
+      context: .
+      dockerfile: docker/redis/Dockerfile
     restart: always
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
 
   frontend:
     build:
-      context: ./src/frontend/react_app
+      context: .
+      dockerfile: src/frontend/react_app/Dockerfile
     depends_on:
       - backend
     env_file:
@@ -40,7 +33,9 @@ services:
       - NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
 
   db:
-    image: postgres:15-alpine
+    build:
+      context: .
+      dockerfile: docker/postgres/Dockerfile
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -53,11 +48,7 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
       - ./docker/db-init:/docker-entrypoint-initdb.d
-    healthcheck:
-      test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER}", "-d", "${POSTGRES_DB}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+    # Healthcheck definido no Dockerfile
 
 volumes:
   db_data:

@@ -12,8 +12,10 @@ WORKDIR /app
 COPY --from=builder /usr/local /usr/local
 COPY --from=builder /app /app
 
-# Adiciona curl para healthcheck funcional
+# Adiciona curl e o script de healthcheck
 RUN apt-get update && apt-get install -y curl
+COPY scripts/healthchecks/healthcheck-webapp.sh /usr/local/bin/healthcheck.sh
+RUN chmod +x /usr/local/bin/healthcheck.sh
 
 EXPOSE 8000
 HEALTHCHECK \
@@ -21,6 +23,6 @@ HEALTHCHECK \
   --timeout=5s \
   --start-period=10s \
   --retries=3 \
-  CMD curl -f http://localhost:8000/health/glpi || exit 1
+  CMD ["healthcheck.sh"]
 
 CMD ["python", "worker.py"]
