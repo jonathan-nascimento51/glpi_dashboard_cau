@@ -250,7 +250,7 @@ class GLPISession:
                                 "aiohttp ClientSession closed due to init failure."
                             )
                         logger.error(
-                            "initSession indexwith status %s: %s",
+                            "initSession returned status %s: %s",
                             e.status,
                             response_data or response_text,
                         )
