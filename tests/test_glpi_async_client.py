@@ -50,10 +50,7 @@ async def test_request_retry_on_503(monkeypatch):
     def fake_request(*_a, **_kw):
         return DummyCM(responses.pop(0))
 
-    monkeypatch.setattr(
-        "backend.infrastructure.glpi.glpi_session.aiohttp.ClientSession.request",
-        MagicMock(side_effect=fake_request),
-    )
+    monkeypatch.setattr(aiohttp.ClientSession, "request", fake_request)
 
     creds = Credentials(app_token="app", user_token="tok")
     client = GLPISession("http://example.com/api", creds)
@@ -74,10 +71,7 @@ async def test_request_retry_on_timeout(monkeypatch):
             raise aiohttp.ClientError("boom")
         return DummyCM(DummyResponse(200, {"ok": True}))
 
-    monkeypatch.setattr(
-        "backend.infrastructure.glpi.glpi_session.aiohttp.ClientSession.request",
-        MagicMock(side_effect=fake_request),
-    )
+    monkeypatch.setattr(aiohttp.ClientSession, "request", fake_request)
 
     creds = Credentials(app_token="app", user_token="tok")
     client = GLPISession("http://example.com/api", creds)

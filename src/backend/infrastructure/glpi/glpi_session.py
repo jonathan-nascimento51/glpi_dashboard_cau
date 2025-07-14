@@ -1,6 +1,7 @@
 import asyncio
 import base64
 import contextlib
+import inspect
 import json
 import logging
 import os
@@ -403,7 +404,7 @@ class GLPISession:
                 self._session = aiohttp.ClientSession()
 
             try:
-                async with self._session.request(
+                request_ctx = self._session.request(
                     method,
                     full_url,
                     headers=current_headers,
@@ -411,7 +412,10 @@ class GLPISession:
                     params=params,
                     proxy=self.proxy,
                     timeout=self._resolve_timeout(),
-                ) as response:
+                )
+                if inspect.isawaitable(request_ctx):
+                    request_ctx = await request_ctx
+                async with request_ctx as response:
                     try:
                         if (
                             response.status == 401
