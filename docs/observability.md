@@ -56,6 +56,13 @@ Grafana loads dashboards from JSON. An example (`resources/grafana_dashboard.jso
 
 This dashboard includes panels for request rate by handler, 5xx error rate, P95 latency and web vitals collected via Grafana Faro. The last graph correlates backend and frontend latency to highlight slow responses.
 
+- `sum(rate(request_total[1m])) by (handler)` – request rate by handler
+- `sum(rate(request_total{status=~'5..'}[1m]))` – 5xx error rate
+- `histogram_quantile(0.95, sum(rate(request_latency_seconds_bucket[5m])) by (le))` – P95 latency
+- `faro_web_vitals_lcp` – web vitals (LCP)
+- `faro_js_errors_total` – JavaScript errors
+- Compare backend latency with `faro_web_vitals_ttfb` for correlated backend vs frontend latency
+
 When the stack is running, access Grafana at <http://localhost:3001> and import this dashboard.
 
 ## Grafana settings
