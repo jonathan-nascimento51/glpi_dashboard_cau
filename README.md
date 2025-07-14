@@ -35,6 +35,7 @@ python -m pip install --upgrade pip
 pip install -r requirements.txt -r requirements-dev.txt
 pip install -e .
 pre-commit install
+cd src/frontend/react_app && npm ci
 ```
 
 Runtime packages come from `requirements.txt`; development and testing tools are listed in `requirements-dev.txt`.
@@ -199,12 +200,17 @@ make test
 ```
 
 Before executing any tests run `make setup` to bootstrap the virtual
-environment and install all dependencies.  Alternatively run
-`python -m pip install -r requirements.txt -r requirements-dev.txt`
-followed by `pip install -e .` to mirror what the setup target does.
-This step ensures Playwright and the Dash testing extras from
-`requirements-dev.txt` are available. Verify that the `.venv` directory exists
-before calling `make test`.
+environment and install all dependencies. Alternatively you can manually
+prepare the environment with:
+
+```bash
+pip install -r requirements.txt -r requirements-dev.txt
+pip install -e .
+```
+
+These commands mirror what the setup target does and ensure Playwright and the
+Dash testing extras from `requirements-dev.txt` are available. Verify that the
+`.venv` directory exists before calling `make test`.
 
 This command installs all requirements, builds the local package and runs `pytest` with coverage.
 Build artifacts are written to the `build/` directory. Treat this folder as temporary; it is deleted by CI and ignored in `.gitignore`.
@@ -789,7 +795,7 @@ flake8 .
 ```
 
 Node-based tests and linting require local packages as well. Navigate to
-`src/frontend/react_app` and run `npm install` before executing `npm test` or
+`src/frontend/react_app` and run `npm ci` before executing `npm test` or
 `npm run lint`.
 
 ### Bug prompt generation
