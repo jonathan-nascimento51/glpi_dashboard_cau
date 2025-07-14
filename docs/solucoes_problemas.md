@@ -104,6 +104,14 @@ Quando rodar `npm install` ou `npm ci` podem aparecer avisos ligados a proxy e p
 
 Esse aviso ocorre porque variáveis como `HTTP_PROXY` e `HTTPS_PROXY` não correspondem mais às chaves de configuração do npm. Remova-as do `.npmrc` e, se necessário, configure o proxy com `npm config set proxy <url>`.
 
+Se o proxy estiver desativado, limpe as variáveis antes de executar o setup:
+
+```bash
+unset HTTP_PROXY HTTPS_PROXY
+```
+
+Também verifique se não restaram entradas de proxy no `.npmrc`, conforme explicado acima.
+
 ### 11.2 NODE_TLS_REJECT_UNAUTHORIZED=0
 
 Desativar a verificação de certificados TLS torna as conexões inseguras. Em vez disso, exporte `NODE_EXTRA_CA_CERTS` apontando para o certificado desejado ou utilize certificados válidos.
