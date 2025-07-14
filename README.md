@@ -82,6 +82,15 @@ python dashboard_app.py
 
 Open <http://127.0.0.1:8050> in your browser (or set `DASH_PORT` to change the port).
 
+The Dash callbacks expose connection status via a notification container:
+
+```python
+from dashboard_app import load_data
+from frontend.callbacks.callbacks import register_callbacks
+
+register_callbacks(app, load_data)
+```
+
 To launch the entire stack with Docker use:
 
 ```bash

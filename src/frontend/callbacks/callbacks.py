@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import dash_bootstrap_components as dbc
 import pandas as pd
 from dash import Input, Output, callback
 
@@ -12,7 +13,13 @@ def _get_filtered(df: pd.DataFrame, status: str | None) -> pd.DataFrame:
 
 
 def register_callbacks(app, loader, *, ticket_range: str = "0-99", **filters) -> None:
-    """Register Dash callbacks using ``loader`` to fetch data."""
+    """Register Dash callbacks using ``loader`` to fetch data.
+
+    Example
+    -------
+    >>> from dashboard_app import load_data
+    >>> register_callbacks(app, load_data)
+    """
 
     @callback(
         Output("ticket-store", "data"),
@@ -52,3 +59,18 @@ def register_callbacks(app, loader, *, ticket_range: str = "0-99", **filters) ->
             ]
         }
         return filtered.to_dict("records"), fig
+
+    @callback(
+        Output("notification-container", "children"),
+        Input("init-load", "n_intervals"),
+    )
+    def notify(_: int) -> dbc.Alert:
+        try:
+            loader(ticket_range, **filters)
+        except Exception as exc:  # pragma: no cover - network/logic errors
+            return dbc.Alert(
+                f"Erro ao conectar ao GLPI: {exc}", color="danger", dismissable=True
+            )
+        return dbc.Alert(
+            "Conex\u00e3o com GLPI estabelecida", color="success", dismissable=True
+        )
