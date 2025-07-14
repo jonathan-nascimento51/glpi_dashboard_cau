@@ -239,7 +239,9 @@ python -m pip install --upgrade pip
 pip install -r requirements.txt -r requirements-dev.txt
 pip install opentelemetry-instrumentation-fastapi opentelemetry-instrumentation-logging
 pip install -e .  # install the backend package in editable mode
-pre-commit install  # sets up hooks for black, ruff, isort and mypy
+# Install the git hooks so code is formatted and linted automatically
+pre-commit install  # runs black, ruff, isort and mypy
+# Generic hooks from pre-commit-hooks also strip trailing whitespace and validate YAML
 # Ruff version pinned to 0.12.2 is included in requirements-dev.txt
 # Reinstall dev dependencies before running pre-commit if your environment is outdated
 ```
@@ -918,6 +920,8 @@ sure your network can reach `snyk.io` as described in
 ```bash
 ./scripts/check_snyk_access.sh
 ```
+The workflow also runs `ast-grep` using rules under `rules/` to ensure
+frontend modules never import database layers directly.
 
 ## Architecture Decision Records
 
