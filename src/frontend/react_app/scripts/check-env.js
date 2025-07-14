@@ -25,9 +25,12 @@ function assertEnv(keys) {
 }
 
 // 3. Checa as variáveis
-assertEnv(['NEXT_PUBLIC_API_BASE_URL'])
+assertEnv(['NEXT_PUBLIC_API_BASE_URL', 'NEXT_PUBLIC_FARO_URL'])
 
 // 4. Log de sucesso
 console.log(
   `NEXT_PUBLIC_API_BASE_URL resolved to: ${process.env.NEXT_PUBLIC_API_BASE_URL}`
+)
+console.log(
+  `NEXT_PUBLIC_FARO_URL resolved to: ${process.env.NEXT_PUBLIC_FARO_URL}`
 )

@@ -70,3 +70,18 @@ GF_DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
 ```
 
 Create the `grafana` database and restart the containers. Grafana will store all data in PostgreSQL instead of the local SQLite file.
+
+## Frontend instrumentation
+
+The React application emits tracing data through Grafana Faro. Install
+`@grafana/faro-react` and `@grafana/faro-web-tracing` in
+`src/frontend/react_app` and configure the collector endpoint via
+`NEXT_PUBLIC_FARO_URL` in `.env`:
+
+```bash
+NEXT_PUBLIC_FARO_URL=http://localhost:1234/collect
+```
+
+`src/main.tsx` initializes Faro with this URL before rendering and wraps the
+`App` component in `React.Profiler` to push render durations using
+`faro.api.pushMeasurement`.

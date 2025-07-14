@@ -13,6 +13,8 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@grafana/faro-react": "^1.19.0",
+    "@grafana/faro-web-tracing": "^1.19.0",
     "@tanstack/react-query": "^5.81.5",
     "dotenv": "^17.1.0",
     "react": "^19.1.0",
