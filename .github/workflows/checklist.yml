@@ -8,6 +8,8 @@ name: Verificar Checklist
 jobs:
   check:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/github-script@v7
         with:

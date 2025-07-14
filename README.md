@@ -38,18 +38,6 @@ pre-commit install
 ```
 
 Runtime packages come from `requirements.txt`; development and testing tools are listed in `requirements-dev.txt`.
-Recent additions to the dev set include `dash-bootstrap-components` for styling Dash layouts and `libcst` for Python code refactoring. Optional packages such as `playwright`, the `dash[testing]` extra and other end-to-end helpers are also pinned here for the browser-based tests.
-
-### Test prerequisites
-
-`pytest` requires the runtime and development dependencies **and** the package installed in editable mode. The setup script performs:
-
-```bash
-pip install -r requirements.txt -r requirements-dev.txt
-pip install -e .
-```
-
-Skipping `./setup.sh` (or `make setup`) will lead to `ModuleNotFoundError` failures when running the test suite.
 
 
 Create a `.env` file from the template and fill in your GLPI and database
@@ -300,12 +288,13 @@ dependências sempre que possível.
 
 ## GitHub access
 
-Repositórios privados ou actions personalizadas exigem autenticação. Utilize o
-script auxiliar para configurar o GitHub CLI:
+Repositórios privados ou actions personalizadas exigem autenticação. Defina
+`GITHUB_TOKEN` no arquivo `.env` (ou exporte a variável) e execute o script de
+configuração do GitHub CLI:
 
 ```bash
 export GITHUB_TOKEN=<token com permissao repo>
-bash scripts/setup_github_access.sh
+bash scripts/setup/setup_github_access.sh
 ```
 
 O utilitário instala o `gh` caso esteja ausente e armazena as credenciais para o

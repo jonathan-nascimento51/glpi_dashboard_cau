@@ -17,6 +17,8 @@ on:
 jobs:
   consumer_tests:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -47,6 +49,8 @@ jobs:
   provider_verification:
     runs-on: ubuntu-latest
     needs: consumer_tests
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

@@ -23,7 +23,7 @@ This document condenses the main steps from the README to get the dashboard runn
 3. (Optional) Authenticate the GitHub CLI if you use private repositories:
    ```bash
    export GITHUB_TOKEN=<token>
-   bash scripts/setup_github_access.sh
+   bash scripts/setup/setup_github_access.sh
    ```
 
 ## 2. Run the services

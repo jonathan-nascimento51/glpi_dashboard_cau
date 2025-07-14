@@ -8,10 +8,13 @@ jobs:
   performance-check:
     runs-on: ubuntu-latest
     env:
-      NEXT_PUBLIC_API_BASE_URL: http://backend:8000
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
-
+      - name: Configure GitHub CLI
+        run: bash scripts/setup/setup_github_access.sh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/setup-node@v4
         with:
           node-version: 20
