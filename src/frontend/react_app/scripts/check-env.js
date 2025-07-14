@@ -9,14 +9,22 @@ dotenv.config({ path: path.join(__dirname, '..', '.env') })
 
 // 2. Função de assert
 function assertEnv(keys) {
+  const defaults = {
+    NEXT_PUBLIC_API_BASE_URL: 'http://localhost:8000',
+    NEXT_PUBLIC_FARO_URL: 'http://localhost:1234/collect'
+  }
+
   keys.forEach(key => {
     if (!process.env[key]) {
       if (process.env.NODE_ENV === 'test') {
-        console.warn(
-          `⚠️  Variável "${key}" ausente. Usando valor padrão para testes.`
-        )
-        process.env[key] = 'http://localhost:8000'
-        return
+        const fallback = defaults[key]
+        if (fallback) {
+          console.warn(
+            `⚠️  Variável "${key}" ausente. Usando valor padrão para testes: ${fallback}`
+          )
+          process.env[key] = fallback
+          return
+        }
       }
       console.error(`❌ Variável de ambiente obrigatória "${key}" não definida.`)
       process.exit(1)
