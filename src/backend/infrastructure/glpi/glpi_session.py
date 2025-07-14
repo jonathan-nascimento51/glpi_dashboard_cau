@@ -183,7 +183,7 @@ class GLPISession:
             connector = TCPConnector(
                 ssl=self.ssl_ctx if self.ssl_ctx is not None else True
             )
-            self._session = ClientSession(connector=connector)
+            self._session = ClientSession(connector=connector, trust_env=True)
             proxy_info = mask_proxy_url(self.proxy)
             if proxy_info:
                 logger.info(
@@ -223,7 +223,7 @@ class GLPISession:
 
             try:
                 if self._session is None:
-                    self._session = aiohttp.ClientSession()
+                    self._session = aiohttp.ClientSession(trust_env=True)
 
                 async with self._session.get(
                     init_session_url,
@@ -366,7 +366,7 @@ class GLPISession:
         logger.info("Attempting to kill GLPI session...")
         try:
             if self._session is None:
-                self._session = aiohttp.ClientSession()
+                self._session = aiohttp.ClientSession(trust_env=True)
 
             async with self._session.get(
                 url=kill_session_url,
@@ -438,7 +438,7 @@ class GLPISession:
         for attempt in range(max_401_retries + 1):
             current_headers = request_headers.copy()
             if self._session is None:
-                self._session = aiohttp.ClientSession()
+                self._session = aiohttp.ClientSession(trust_env=True)
 
             try:
                 request_ctx = self._session.request(

@@ -69,20 +69,25 @@ async def _check() -> None:
     url = f"{GLPI_BASE_URL.rstrip('/')}/initSession"
     timeout = aiohttp.ClientTimeout(total=CLIENT_TIMEOUT_SECONDS)
 
+    proxy = https_proxy or http_proxy
+
     try:
-        async with aiohttp.ClientSession(timeout=timeout) as session:
-            async with session.get(url, headers=headers, ssl=VERIFY_SSL) as response:
+        async with aiohttp.ClientSession(timeout=timeout, trust_env=True) as session:
+            async with session.get(
+                url, headers=headers, ssl=VERIFY_SSL, proxy=proxy
+            ) as response:
                 if response.status == 200:
                     # Success, we can even get the session token if needed
                     data = await response.json()
                     session_token = data.get("session_token")
                     if not session_token:
                         print(
-                            "❌ Falha na autenticação: Resposta OK mas sem session_token."
+                            "❌ Falha ao autenticar: Resposta, mas sem session_token."
                         )
-                        return
+                        return  # Early exit on authentication failure
                     print(
-                        f"✅ Conexão com GLPI bem-sucedida! (Token: ...{session_token[-4:]})"
+                        "✅ Conexão com GLPI bem-sucedida! "
+                        f"(Token: ...{session_token[-4:]})"
                     )
                 else:
                     # Failure, print status and body for debugging
@@ -96,8 +101,8 @@ async def _check() -> None:
         )
         print(f"   Detalhe: {exc}")
         print(
-            "\n   👉 Verifique se a VPN está ativa ou se há um firewall bloqueando o acesso."
-        )
+            "\n   👉 Verifique se a VPN ou se há um firewall bloqueando o acesso."
+        )  # fmt: skip
     except asyncio.TimeoutError:
         print(
             f"❌ Falha de Conexão: A requisição para {GLPI_BASE_URL} expirou (timeout)."

@@ -51,6 +51,9 @@ Execute o script abaixo para confirmar que suas credenciais estão corretas:
 python scripts/validate_credentials.py
 ```
 
+If HTTP_PROXY or HTTPS_PROXY is defined in your shell, the checker will
+automatically use those values when connecting to GLPI.
+
 Saída esperada em caso de sucesso:
 
 ```text
