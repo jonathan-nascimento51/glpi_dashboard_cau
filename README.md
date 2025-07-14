@@ -747,7 +747,10 @@ pip install --no-index --find-links=wheels -r requirements.txt -r requirements-d
 
 ## Tests and linting
 
-Execute the unit tests with coverage.
+Execute the unit tests with coverage. The `pytest.ini` configuration applies
+`--cov=./ --cov-report=term-missing --cov-fail-under=85` by default. If
+`pytest-cov` is not installed or you want to skip coverage checks run
+`pytest -p no:cov` or override `PYTEST_ADDOPTS` when invoking the command.
 Before running `pytest` or `make test` you **must** install all dependencies and
 the local package in editable mode:
 

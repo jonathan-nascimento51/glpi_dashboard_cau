@@ -23,6 +23,7 @@ opentelemetry-instrumentation-aiohttp-client
 pre-commit
 requests-mock
 dash-bootstrap-components
+plotly>=5.0
 libcst
 # Required for scripts/run_py_codemod.sh
 rope
