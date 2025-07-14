@@ -134,3 +134,19 @@ For small moves you can also invoke the helper script `scripts/run_ts_codemod.sh
 It reads `file_map.json`, moves each file with `git mv` and runs the codemod
 `scripts/update-imports.js` with the appropriate `--oldPath` and `--newPath`
 options to update import statements automatically.
+
+### Faro instrumentation
+
+Install the React tracing packages so the dashboard can report web vitals:
+
+```bash
+npm install @grafana/faro-react @grafana/faro-web-tracing
+```
+
+Create `NEXT_PUBLIC_FARO_URL` in `src/frontend/react_app/.env` pointing to the
+Faro collector. `src/main.tsx` reads this value, initializes the client and
+wraps `App` inside `React.Profiler` to push render timings via
+`faro.api.pushMeasurement`.
+
+Refer to [docs/observability.md](observability.md) for a complete example of
+the configuration and dashboard.

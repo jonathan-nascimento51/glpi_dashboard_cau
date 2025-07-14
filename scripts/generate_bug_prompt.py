@@ -7,9 +7,11 @@ import subprocess
 import sys
 from pathlib import Path
 
+# This line adds the 'src' directory to the Python path automatically
 sys.path.append(str(Path(__file__).resolve().parents[1] / "src"))
 
 from prompt_config import PromptConfig
+
 
 CONFIG = PromptConfig()
 
