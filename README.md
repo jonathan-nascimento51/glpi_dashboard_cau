@@ -38,6 +38,9 @@ pre-commit install
 cd src/frontend/react_app && npm ci
 ```
 
+The `pip install` steps above must be run before executing any tests so that
+the local package and its development dependencies are available.
+
 Runtime packages come from `requirements.txt`; development and testing tools are listed in `requirements-dev.txt`.
 
 
@@ -206,11 +209,13 @@ prepare the environment with:
 ```bash
 pip install -r requirements.txt -r requirements-dev.txt
 pip install -e .
+cd src/frontend/react_app && npm ci
 ```
 
 These commands mirror what the setup target does and ensure Playwright and the
 Dash testing extras from `requirements-dev.txt` are available. Verify that the
-`.venv` directory exists before calling `make test`.
+`.venv` directory exists before calling `make test`. Frontend tests expect the
+Node packages installed with `npm ci` under `src/frontend/react_app`.
 
 This command installs all requirements, builds the local package and runs `pytest` with coverage.
 Build artifacts are written to the `build/` directory. Treat this folder as temporary; it is deleted by CI and ignored in `.gitignore`.

@@ -49,7 +49,7 @@ dependencies = [
     "arq>=0.26",
     "pybreaker>=0.20",
     "prometheus-client",
-    "prometheus-fastapi-instrumentator",
+    "prometheus-fastapi-instrumentator>=6.0",
 ]
 
 [project.optional-dependencies]
