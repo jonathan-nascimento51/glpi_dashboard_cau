@@ -580,6 +580,7 @@ container also executes on first startup.
 - `REDIS_PORT` – Redis port
 - `REDIS_DB` – Redis database number
 - `REDIS_TTL_SECONDS` – TTL for cached responses in seconds
+- `CACHE_TYPE` – choose `redis` (default) or `simple` for in-memory caching
 - `LOG_LEVEL` – logging verbosity for backend and worker services (default `INFO`)
 - `APP_ENV` – set to `production` for JSON logs without backtraces
 - `LANGCHAIN_TRACING_V2` – set to `true` to enable LangSmith tracing

@@ -1,6 +1,8 @@
 import os
 import sys
+from typing import Any, cast
 
+from opentelemetry.sdk.metrics import MeterProvider as SDKMeterProvider
 from opentelemetry.sdk.metrics.export import MetricExportResult
 
 from shared.utils import telemetry  # noqa: E402
@@ -48,10 +50,12 @@ def test_metric_export(monkeypatch):
     telemetry.record_ticket_processing(0.2)
 
     provider = telemetry.metrics.get_meter_provider()
-    provider.force_flush()
+    # The global provider is an SDK specific class, but the getter returns the
+    # generic API class. We cast it to the SDK type to access methods like
+    # force_flush and shutdown, which are not part of the API.
+    sdk_provider = cast(SDKMeterProvider, provider)
+    sdk_provider.force_flush()
     assert exporter.records
-    from typing import Any, cast
-
     data = cast(Any, exporter.records[0])
     names = [
         m.name
@@ -65,5 +69,5 @@ def test_metric_export(monkeypatch):
         "glpi_api_latency_seconds",
         "glpi_ticket_process_seconds",
     }.issubset(names)
-    provider.shutdown()
+    sdk_provider.shutdown()
     telemetry.metrics.set_meter_provider(telemetry.metrics.NoOpMeterProvider())

@@ -28,10 +28,13 @@ from shared.utils.logging import init_logging
 __all__ = ["create_app", "main"]
 
 flask_app = Flask(__name__)
-cache = Cache(
-    flask_app,
-    config={
-        "CACHE_TYPE": "redis",
+cache_type = os.getenv("CACHE_TYPE", "redis").lower()
+cache_config: dict[str, object]
+if cache_type == "simple":
+    cache_config = {"CACHE_TYPE": "SimpleCache"}
+else:
+    cache_config = {
+        "CACHE_TYPE": "RedisCache",
         "CACHE_REDIS_HOST": os.getenv("REDIS_HOST", "redis"),
         "CACHE_REDIS_PORT": int(os.getenv("REDIS_PORT", 6379)),
         "CACHE_REDIS_DB": int(os.getenv("REDIS_DB", 0)),
@@ -39,8 +42,14 @@ cache = Cache(
             f"redis://{os.getenv('REDIS_HOST', 'redis')}:"
             f"{os.getenv('REDIS_PORT', 6379)}/{os.getenv('REDIS_DB', 0)}"
         ),
-    },
-)  # ou o tipo que você usa
+    }
+cache = Cache(flask_app, config=cache_config)
+if cache_type != "simple":
+    try:  # pragma: no cover - optional
+        cache.cache.get("test_key")
+    except Exception as exc:  # pragma: no cover - Redis missing
+        logging.warning("Redis unavailable, falling back to SimpleCache: %s", exc)
+        cache = Cache(flask_app, config={"CACHE_TYPE": "SimpleCache"})
 
 init_logging(os.getenv("LOG_LEVEL"))
 
