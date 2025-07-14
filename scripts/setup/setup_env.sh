@@ -47,6 +47,13 @@ sudo apt-get install -y \
     libhyphen0 libgles2 libgstreamer1.0-0 gstreamer1.0-plugins-base \
     gstreamer1.0-plugins-good gstreamer1.0-libav unzip
 
+# Remove proxy configuration after installation
+if [ -f "$PROXY_FILE" ]; then
+  sudo rm -f "$PROXY_FILE"
+  npm config delete proxy >/dev/null 2>&1 || true
+  npm config delete https-proxy >/dev/null 2>&1 || true
+fi
+
 VENV_DIR=".venv"
 if [ ! -d "$VENV_DIR" ]; then
   echo ">>> (2/6) Criando ambiente virtual em $VENV_DIR..."
