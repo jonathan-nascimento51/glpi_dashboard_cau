@@ -899,9 +899,8 @@ Tracing is enabled during tests thanks to
 
 ### Snyk setup
 
-The [`quality-audit.yml`](.github/workflows/quality-audit.yml) workflow runs a
-Snyk vulnerability scan. Before triggering it ensure your network can reach
-`snyk.io` as described in
+The CI workflow runs a Snyk vulnerability scan after the test jobs finish. Make
+sure your network can reach `snyk.io` as described in
 [docs/snyk_setup.md](docs/snyk_setup.md). You can validate connectivity with:
 
 ```bash

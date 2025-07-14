@@ -1,6 +1,6 @@
 # Configurando acesso ao Snyk
 
-O workflow `quality-audit.yml` executa uma varredura de vulnerabilidades com o Snyk.
+O pipeline de CI executa uma varredura de vulnerabilidades com o Snyk após os testes.
 Esse passo requer conexão de saída para `https://snyk.io`. Caso sua infraestrutura
 utilize proxy ou lista de domínios permitidos, certifique-se de liberar o acesso a
 esse host.
