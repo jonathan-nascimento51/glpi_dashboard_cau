@@ -84,4 +84,6 @@ NEXT_PUBLIC_FARO_URL=http://localhost:1234/collect
 
 `src/main.tsx` initializes Faro with this URL before rendering and wraps the
 `App` component in `React.Profiler` to push render durations using
-`faro.api.pushMeasurement`.
+`faro.api.pushMeasurement`. The environment variable must be defined in
+`src/frontend/react_app/.env` so `scripts/check-env.js` can validate it at
+startup.
