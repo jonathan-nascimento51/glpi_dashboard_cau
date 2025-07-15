@@ -13,6 +13,8 @@ This file is generated from [docs/adr/0007-refined-project-structure.md](docs/ad
 | `/labs/` | Experimental notebooks and throwaway prototypes |
 | `/resources/` | Static assets like images and SQL fixtures |
 | `/scripts/` | Setup and maintenance utilities |
+| `/scripts/diagnostics/` | Environment checks and troubleshooting |
+| `/scripts/refactor/` | Automated refactor helpers |
 | `/src/` | Application source code |
 | `/tests/` | Unit and integration tests |
 
@@ -25,6 +27,8 @@ graph TD
     root --> labs['labs']
     root --> resources['resources']
     root --> scripts['scripts']
+    root --> scripts/diagnostics['scripts/diagnostics']
+    root --> scripts/refactor['scripts/refactor']
     root --> src['src']
     root --> tests['tests']
 ```

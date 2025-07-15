@@ -31,5 +31,7 @@ Adopt the directory layout summarised below. Each path is intended as a stable i
 | `/labs/` | Experimental notebooks and throwaway prototypes |
 | `/resources/` | Static assets like images and SQL fixtures |
 | `/scripts/` | Setup and maintenance utilities |
+| `/scripts/diagnostics/` | Environment checks and troubleshooting |
+| `/scripts/refactor/` | Automated refactor helpers |
 | `/src/` | Application source code |
 | `/tests/` | Unit and integration tests |

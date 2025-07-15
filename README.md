@@ -182,7 +182,7 @@ If a script still depends on `require()`, rename it with the `.cjs` extension or
 - **`glpi_tools/__main__.py`** – exposes the CLI commands such as `list-fields`.
 - **`dashboard_app.py`** – starts the Dash server.
 - **`worker.py`** – primary backend entry point used by Docker and CI to launch the FastAPI service.
-- **`scripts/`** – helper utilities grouped under `setup/`, `fetch/` and `etl/` (e.g. `setup/init_db.py`, `fetch/fetch_tickets.py`, `etl/filters.py`).
+- **`scripts/`** – helper utilities grouped under `setup/`, `fetch/`, `etl/`, `diagnostics/` and `refactor/` (e.g. `setup/init_db.py`, `fetch/fetch_tickets.py`, `diagnostics/diagnose_codex.py`).
 
 ### Quick usage examples
 
