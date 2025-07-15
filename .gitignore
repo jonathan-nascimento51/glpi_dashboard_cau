@@ -18,6 +18,7 @@ venv/
 .vscode/
 *src/glpi_dashboard_cau.egg-info/
 build/
+resources/data/
 
 # Node
 node_modules/
