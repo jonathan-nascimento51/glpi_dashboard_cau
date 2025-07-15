@@ -456,12 +456,18 @@ this behaviour. Responses include the header `X-Warning: using mock data` when
 the fallback is active.
 
 Make sure the service is running with `python worker.py` and that your
-front-end points to it via `NEXT_PUBLIC_API_BASE_URL` in `src/frontend/react_app/.env`.
-Create the environment file with `cp src/frontend/react_app/.env.example src/frontend/react_app/.env` before starting the front-end. Docker Compose automatically loads `.env` if found.
-Run npm scripts from inside the `src/frontend/react_app` directory (`cd src/frontend/react_app && npm run dev`) or launch Docker.
+front-end points to it via `NEXT_PUBLIC_API_BASE_URL` in
+`src/frontend/react_app/.env`.
 
-Vite loads environment variables that start with `NEXT_PUBLIC_` thanks to `envPrefix` in `src/frontend/react_app/vite.config.ts`. Imports that begin with `@/` resolve to the `src` directory so paths stay short.
-Copy `src/frontend/react_app/.env.example` to `src/frontend/react_app/.env` if the file doesn't exist and adjust the URL as needed. The file is loaded automatically when present.
+Docker Compose now mounts `src/frontend/react_app/.env.example` directly in the
+frontend service. Copy this file to `.env` only when running the React app
+outside the containers. Run npm scripts from inside the
+`src/frontend/react_app` directory (`cd src/frontend/react_app && npm run dev`)
+or launch Docker.
+
+Vite loads environment variables that start with `NEXT_PUBLIC_` thanks to
+`envPrefix` in `src/frontend/react_app/vite.config.ts`. Imports that begin with
+`@/` resolve to the `src` directory so paths stay short.
 
 ### Generating TypeScript interfaces
 
