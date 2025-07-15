@@ -45,6 +45,9 @@ cd src/frontend/react_app && npm ci
 The `pip install` steps above must be run before executing any tests so that
 the local package and its development dependencies are available.
 
+Run `make diagnose` to verify the Codex environment. The helper script
+`scripts/diagnostics/diagnose_codex.py` prints useful metadata for troubleshooting.
+
 Runtime packages come from `requirements.txt`; development and testing tools are listed in `requirements-dev.txt`.
 
 Create a `.env` file from the template and fill in your GLPI and database
