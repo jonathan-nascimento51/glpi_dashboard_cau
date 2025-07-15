@@ -57,14 +57,41 @@ This repository relies on `pre-commit` for formatting and static checks (Black, 
 pre-commit run --all-files
 ```
 
-## 5. Opening pull requests
+## 5. Commit messages
+
+Follow the **Conventional Commits** style to make every message clear and
+machine readable. The general pattern is:
+
+```text
+<type>(<scope>): <summary>
+```
+
+- **type** – `feat`, `fix`, `docs`, `test`, `refactor`, `chore`, etc.
+- **scope** – optional module or directory affected.
+- **summary** – brief imperative description of the change.
+
+Examples:
+
+```text
+feat(worker): add ticket cache
+fix(frontend): handle null status
+docs(contributing): explain commit format
+```
+
+The file `.gitmessage` provides a template. Enable it with:
+
+```bash
+git config commit.template .gitmessage
+```
+
+## 6. Opening pull requests
 
 1. Create a branch based on `main`.
 2. Run `pre-commit` and `pytest` locally to ensure everything passes.
 3. Push the branch and open a pull request on GitHub. Describe your changes clearly and link any relevant issues.
 4. The CI pipeline defined in `.github/workflows/ci.yml` will run lint, tests and the Docker build. Wait for it to pass before requesting a review.
 
-## 6. Multi‑agent prompting
+## 7. Multi‑agent prompting
 
 The project automates code generation with a series of LLM agents documented in [AGENTS.md](AGENTS.md). The pipeline `A1 ▶ A2 ▶ A3 ▶ A4‑6 ▶ A7 ▶ A8 ▶ A9` outlines how prompts are composed and validated before Codex writes files.
 
