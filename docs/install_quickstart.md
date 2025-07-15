@@ -9,6 +9,7 @@ This document condenses the main steps from the README to get the dashboard runn
    python scripts/setup/setup_env.py
    ```
    Adjust the variables inside `.env` with your database and GLPI credentials.
+   Docker Compose loads this file automatically when present.
 
 2. Install dependencies and configure pre-commit:
    ```bash
@@ -65,5 +66,6 @@ npm install         # installs dotenv, @eslint/js and other dev dependencies
 # npm ci can be used for reproducible installs
 npm run dev
 ```
+Docker Compose automatically loads `.env` when present.
 
 For more details on proxy and offline installation see [docs/codex_setup.md](codex_setup.md).

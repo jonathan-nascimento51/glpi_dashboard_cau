@@ -5,7 +5,7 @@ from typing import Any, cast
 from opentelemetry.sdk.metrics import MeterProvider as SDKMeterProvider
 from opentelemetry.sdk.metrics.export import MetricExportResult
 
-from shared.utils import telemetry  # noqa: E402
+from shared.utils import telemetry
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src"))
 

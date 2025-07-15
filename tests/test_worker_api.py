@@ -88,9 +88,7 @@ class FakeClient(GlpiApiClient):
 async def test_app(dummy_cache: DummyCache):
     app = create_app(client=FakeClient(), cache=dummy_cache)
     app.dependency_overrides[get_glpi_client] = FakeClient
-    client = TestClient(app)
-
-    yield client
+    yield TestClient(app)
 
 
 def test_rest_endpoints(test_app: TestClient):
