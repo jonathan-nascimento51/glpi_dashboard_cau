@@ -7,4 +7,3 @@ export interface ChamadoPorDia {
   date: string
   total: number
 }
-

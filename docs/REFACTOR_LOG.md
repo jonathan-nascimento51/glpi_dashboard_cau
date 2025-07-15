@@ -57,4 +57,4 @@ Descrição: Script auxilia na movimentação de módulos Python utilizando a bi
 
 - README ampliado com instruções de uso do `scripts/run_py_codemod.sh`.
 - Reforçada a dependência da biblioteca Rope para realizar a refatoração.
-- 
+-

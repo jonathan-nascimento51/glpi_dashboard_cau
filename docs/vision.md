@@ -28,5 +28,3 @@ A visão é oferecer uma plataforma leve que exponha métricas do GLPI por meio 
 3. Deploy simplificado via Docker Compose e variáveis de ambiente.
 4. Cache de consultas em Redis com TTL configurável.
 5. Suporte aos principais navegadores modernos.
-
-

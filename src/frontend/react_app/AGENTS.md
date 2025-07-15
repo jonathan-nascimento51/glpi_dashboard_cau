@@ -1,8 +1,8 @@
 # frontend_agents.md — Pipeline de Agentes para o Frontend React/Next.js
 
-> **Contexto**  
+> **Contexto**
 > Este arquivo expande o `AGENTS.md` original, adicionando seis agentes especializados
-> na geração, composição, validação e testes de componentes Front‑End (React/Next.js)  
+> na geração, composição, validação e testes de componentes Front‑End (React/Next.js)
 > do projeto **GLPI Dashboard MVP**. Todos os prompts seguem o padrão formal
 > **Identidade → Instruções → Contexto → Exemplos → Pergunta (CoT)** e usam
 > *temperature = 0* para saídas reprodutíveis.

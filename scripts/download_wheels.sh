@@ -10,4 +10,3 @@ Packages saved to $DIR
 Install offline with:
 pip install --no-index --find-links="$DIR" -r requirements.txt -r requirements-dev.txt
 EOM
-

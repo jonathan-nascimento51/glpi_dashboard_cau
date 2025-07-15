@@ -12,7 +12,7 @@ diagnose:
 
 refactor-init:
 	bash scripts/refactor/init_refactor.sh
-	
+
 build:
 	docker compose build
 

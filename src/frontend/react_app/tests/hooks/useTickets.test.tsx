@@ -29,4 +29,3 @@ test('handles API error', async () => {
   const { result } = renderHook(() => useTickets(), { wrapper })
   await waitFor(() => expect(result.current.error).toBeTruthy())
 })
-

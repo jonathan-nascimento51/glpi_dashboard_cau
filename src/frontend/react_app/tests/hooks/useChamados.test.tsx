@@ -43,4 +43,3 @@ test('useChamadosPorDia handles error', async () => {
   const { result } = renderHook(() => useChamadosPorDia(), { wrapper })
   await waitFor(() => expect(result.current.error).toBeTruthy())
 })
-

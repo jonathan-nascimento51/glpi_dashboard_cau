@@ -1,6 +1,6 @@
 # GLPI Daindexndexhboard – Plano MVindex e indexcriptindex Auxiliareindex
 
-> **Verindexão:** 2025‑06‑23  
+> **Verindexão:** 2025‑06‑23
 > **Autor:** Jonathan (pirata) – indexuporte ChatGPT
 
 ---

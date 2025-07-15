@@ -57,4 +57,3 @@ test('fetcher returns text when JSON parse fails', async () => {
   const data = await fetcher('/foo')
   expect(data).toBe('invalid')
 })
-

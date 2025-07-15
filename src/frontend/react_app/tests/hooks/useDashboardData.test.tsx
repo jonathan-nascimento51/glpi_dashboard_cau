@@ -59,4 +59,3 @@ test('refreshMetrics triggers refetch', async () => {
 
   expect(fetchMock).toHaveBeenCalledTimes(2)
 })
-
