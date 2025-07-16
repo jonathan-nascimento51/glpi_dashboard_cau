@@ -26,7 +26,8 @@ Scripts utilitários residem em `scripts/` organizados por categoria, como `setu
 1. **Instalar dependências**:
 
    ```bash
-   pip install -r requirements.txt -r requirements-dev.txt
+   python -m pip install --upgrade pip
+   pip install --no-cache-dir --upgrade -r requirements.txt -r requirements-dev.txt
    pip install -e .  # importa pacotes da pasta src
    pip install opentelemetry-instrumentation-fastapi opentelemetry-instrumentation-logging
    pre-commit install

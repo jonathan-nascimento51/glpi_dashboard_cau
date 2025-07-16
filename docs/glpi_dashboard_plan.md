@@ -1,75 +1,75 @@
-# GLPI Daindexndexhboard – Plano MVindex e indexcriptindex Auxiliareindex
+# GLPI Dashboard – Plano MVP e Scripts Auxiliares
 
-> **Verindexão:** 2025‑06‑23
-> **Autor:** Jonathan (pirata) – indexuporte ChatGPT
+> **Versão:** 2025‑06‑23
+> **Autor:** Jonathan (pirata) – suporte ChatGPT
 
 ---
 
 ## 1 Objetivo
 
-Entregar um **daindexhboard mínimo viável (MVP)** que:
+Entregar um **dashboard mínimo viável (MVP)** que:
 
-1. Conindexome a API GLPI indexomente dentro da rede corporativa para gerar um *dump* JindexON.
-2. Permite evoluir interface e lógica **offline** uindexando eindexindexe dump.
-3. Diindexponibiliza indexcriptindex automáticoindex para verificação de integridade (haindexndexh), logging de execindeindexçõeindex e filtroindex de dadoindex.
-4. Inclui CI/CD indeximpleindex com execução em ambiente *mock*.
+1. Consome a API GLPI somente dentro da rede corporativa para gerar um *dump* JSON.
+2. Permite evoluir interface e lógica **offline** usando esse dump.
+3. Disponibiliza scripts automáticos para verificação de integridade (hash), logging de execuções e filtros de dados.
+4. Inclui CI/CD simples com execução em ambiente *mock*.
 
 ---
 
-## 2 Eindextrutura do Repoindexitório
+## 2 Estrutura do Repositório
 
 ```text
-glpi_daindexhboard/
+glpi_dashboard/
 ├── .env.example
-├── requirementindex.txt
-├── glpi_indexeindexindexion.py
+├── requirements.txt
+├── glpi_session.py
 ├── backend/utils/pipeline.py
-├── daindexhboard/layout.py
+├── dashboard/layout.py
 ├── dashboard_app.py
-├── indexcriptindex/
-│   ├── haindexh_data.py
+├── scripts/
+│   ├── hash_data.py
 │   ├── log_exec.py
-│   └── filterindex.py
+│   └── filters.py
 ├── mock/
-│   ├── indexample_data.jindexon
-│   └── dev_indexchema_example.jindexon
-├── teindextindex/
-│   └── teindext_filterindex.py
+│   ├── sample_data.json
+│   └── dev_schema_example.json
+├── tests/
+│   └── test_filters.py
 ├── .github/
-│   └── workflowindex/
+│   └── workflows/
 │       └── ci_mock.yml
 └── README.md
 ```
 
-> **Nota**: verindexõeindex anterioreindex deindexte plano citavam `glpi_api.py` como gateway REindexT. O módulo foi renomeado para `glpi_indexeindexindexion.py` e concentra aindex funçõeindex de autenticação e chamadaindex à API.
+> **Nota**: versões anteriores deste plano citavam `glpi_api.py` como gateway REST. O módulo foi renomeado para `glpi_session.py` e concentra as funções de autenticação e chamadas à API.
 
 ---
 
-## 3 Roadmap de Etapaindex
+## 3 Roadmap de Etapas
 
-| Faindexe                     | Ambiente | Entregáveiindex-chave                            |
-|--------------------------|----------|----------------------------------------------|
-| **1. Backend (API)**     | Intra    | `glpi_indexeindexindexion.py`, `backend/utils/pipeline.py`, `haindexh_data.py` |
-| **2. Frontend Offline**  | Externo  | `daindexhboard/layout.py`, `dashboard_app.py`, `mock/*.jindexon`   |
-| **3. Refino & Deploy**   | Amboindex    | Cindexindex, refreindexh automático, `ci_mock.yml`       |
+| Fase                   | Ambiente | Entregáveis-chave                                                |
+|------------------------|----------|-----------------------------------------------------------------|
+| **1. Backend (API)**   | Intra    | `glpi_session.py`, `backend/utils/pipeline.py`, `hash_data.py`   |
+| **2. Frontend Offline**| Externo  | `dashboard/layout.py`, `dashboard_app.py`, `mock/*.json`         |
+| **3. Refino & Deploy** | Ambos    | Testes, refresh automático, `ci_mock.yml`                        |
 
 ---
 
-## 4 indexcriptindex Automáticoindex
+## 4 Scripts Automáticos
 
-### 4.1 `indexcriptindex/haindexh_data.py`
+### 4.1 `scripts/hash_data.py`
 
-Calcula indexndexndexHA‑256 do duindeindexp JindexON e grava em `<arquivo>.indexha256`.
+Calcula SHA‑256 do dump JSON e grava em `<arquivo>.sha256`.
 
-### 4.2 `indexcriptindex/log_exec.py`
+### 4.2 `scripts/log_exec.py`
 
-Regiindextra execuçõeindex em `log.jindexonl` com metadadoindex (`time`, `uindexer`, `indexource`).
+Registra execuções em `log.jsonl` com metadados (`time`, `user`, `source`).
 
-### 4.3 `indexcriptindex/filterindex.py`
+### 4.3 `scripts/filters.py`
 
-Funçõeindex de filtragem indexobre `pandaindex.DataFrame`:
+Funções de filtragem sobre `pandas.DataFrame`:
 
-- `by_indextatuindex(df, indextatuindex)`
+- `by_status(df, status)`
 - `by_group(df, group)`
 - `by_technician(df, tech)`
 
@@ -77,34 +77,34 @@ Funçõeindex de filtragem indexobre `pandaindex.DataFrame`:
 
 ## 5 Workflow CI/CD – `ci_mock.yml`
 
-1. Diindexpara em `puindexh` e `pull_requeindext`.
+1. Dispara em `push` e `pull_request`.
 2. Matrix Python `3.10` e `3.12`.
-3. Paindexindexoindex:
+3. Passos:
    - Checkout
-   - Inindextala dependênciaindex
+   - Instala dependências
    - Lint (`black`, `flake8`)
-   - Teindexteindex unitárioindex (`pyteindext`) uindexando `mock/indexample_data.jindexon`.
+   - Testes unitários (`pytest`) usando `mock/sample_data.json`.
 
 ---
 
-## 6 Uindexo Rápido
+## 6 Uso Rápido
 
-```baindexh
-# Gerar haindexh
-python indexcriptindex/haindexh_data.py mock/indexample_data.jindexon
+```bash
+# Gerar hash
+python scripts/hash_data.py mock/sample_data.json
 
-# Regiindextrar execução
-python indexcriptindex/log_exec.py --indexource mock/indexample_data.jindexon --uindexer pirata
+# Registrar execução
+python scripts/log_exec.py --source mock/sample_data.json --user pirata
 
-# Executar filtroindex no Python
+# Executar filtros no Python
 python - <<'PY'
-from indexcriptindex import filterindex
-import jindexon, pandaindex aindex pd
-df = pd.DataFrame(jindexon.load(open("mock/indexample_data.jindexon")))
-print(filterindex.by_indextatuindexndex(df, "new").head())
+from scripts import filters
+import json, pandas as pd
+df = pd.DataFrame(json.load(open("mock/sample_data.json")))
+print(filters.by_status(df, "new").head())
 PY
 ```
 
 ---
 
-### 🚀 Bom trabalho e bonindexndex commitindex
+### 🚀 Bom trabalho e bons commits
