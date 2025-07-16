@@ -310,45 +310,14 @@ def test_cache_middleware(dummy_cache: DummyCache):
     assert data["misses"] == 2
 
 
-def test_health_glpi(monkeypatch: pytest.MonkeyPatch, dummy_cache: DummyCache):
-    async def fake_enter(self):
-        return self
-
-    async def fake_exit(self, exc_type, exc, tb):
-        return False
-
-    monkeypatch.setattr(
-        "backend.application.glpi_api_client.GlpiApiClient.__aenter__",
-        fake_enter,
-    )
-    monkeypatch.setattr(
-        "backend.application.glpi_api_client.GlpiApiClient.__aexit__",
-        fake_exit,
-    )
+def test_health_glpi(dummy_cache: DummyCache):
     client = TestClient(create_app(client=FakeClient(), cache=dummy_cache))
     resp = client.get("/health/glpi")
     assert resp.status_code == 200
     assert resp.json()["status"] == "success"
 
 
-def test_health_glpi_head_success(
-    monkeypatch: pytest.MonkeyPatch, dummy_cache: DummyCache
-) -> None:
-    async def fake_enter(self):
-        return self
-
-    async def fake_exit(self, exc_type, exc, tb):
-        return False
-
-    monkeypatch.setattr(
-        "backend.application.glpi_api_client.GlpiApiClient.__aenter__",
-        fake_enter,
-    )
-    monkeypatch.setattr(
-        "backend.application.glpi_api_client.GlpiApiClient.__aexit__",
-        fake_exit,
-    )
-
+def test_health_glpi_head_success(dummy_cache: DummyCache) -> None:
     client = TestClient(create_app(client=FakeClient(), cache=dummy_cache))
     resp = client.head("/health/glpi")
     assert resp.status_code == 200

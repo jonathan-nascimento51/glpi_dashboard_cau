@@ -162,6 +162,7 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
                 await cache.set("resp:tickets", data)
         return response
 
+    user_supplied_client = client is not None
     if client is None:
         client = create_glpi_api_client()
 
@@ -252,6 +253,12 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
 
     async def _check_glpi() -> int:
         """Return HTTP status based on GLPI connectivity."""
+        if user_supplied_client:
+            try:
+                async with client:
+                    return 200
+            except Exception:
+                return 500
         return await check_glpi_connection()
 
     @app.get("/health/glpi")
