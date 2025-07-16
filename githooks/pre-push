@@ -5,6 +5,9 @@ set -e
 # Run pre-commit checks again
 pre-commit run --color always --show-diff-on-failure
 
+# Run test suite quietly
+pytest -q
+
 branch=$(git symbolic-ref --quiet --short HEAD)
 upstream=$(git rev-parse --abbrev-ref "$branch@{upstream}" 2>/dev/null || true)
 

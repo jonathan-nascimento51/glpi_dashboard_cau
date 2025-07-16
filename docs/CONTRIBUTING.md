@@ -57,6 +57,9 @@ This repository relies on `pre-commit` for formatting and static checks (Black, 
 pre-commit run --all-files
 ```
 
+The optional `pre-push` hook runs these checks again and executes `pytest -q`.
+Tests are automatically run before pushing your branch.
+
 ## 5. Commit messages
 
 Follow the **Conventional Commits** style to make every message clear and
