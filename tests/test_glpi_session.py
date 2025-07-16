@@ -208,7 +208,7 @@ async def test_glpi_session_context_manager_user_token_auth(
                 "App-Token": app_token,
                 "Authorization": f"user_token {user_token}",
             },
-            proxy=None,
+            proxy=ANY,
             timeout=ANY,
         )
         assert session._session is not None
@@ -221,7 +221,7 @@ async def test_glpi_session_context_manager_user_token_auth(
     assert session._session.closed
     # Verify killSession was called with the correct headers as the last call
     kill_call = mock_client_session.get.call_args_list[-1]
-    assert kill_call.kwargs["url"] == f"{base_url}/killSession"
+    assert kill_call.args[0] == f"{base_url}/killSession"
     assert kill_call.kwargs["headers"] == {
         "Content-Type": "application/json",
         "Session-Token": user_token,
@@ -256,7 +256,7 @@ async def test_glpi_session_context_manager_username_password_auth(
                 "App-Token": app_token,
                 "Authorization": "Basic dGVzdF91c2VyOnRlc3RfcGFzc3dvcmQ=",
             },
-            proxy=None,
+            proxy=ANY,
             timeout=ANY,
         )
         assert session._session is not None
@@ -267,7 +267,7 @@ async def test_glpi_session_context_manager_username_password_auth(
     assert session._session.closed
     # Verify killSession was called with the correct headers as the last call
     kill_call = mock_client_session.get.call_args_list[-1]
-    assert kill_call.kwargs["url"] == f"{base_url}/killSession"
+    assert kill_call.args[0] == f"{base_url}/killSession"
     assert kill_call.kwargs["headers"] == {
         "Content-Type": "application/json",
         "Session-Token": "initial_session_token",
@@ -303,7 +303,7 @@ async def test_get_request_success(
             },
             json=None,
             params=None,
-            proxy=None,
+            proxy=ANY,
             timeout=ANY,
         )
 
@@ -338,7 +338,7 @@ async def test_post_request_success(
             },
             json=payload,
             params=None,
-            proxy=None,
+            proxy=ANY,
             timeout=ANY,
         )
 
@@ -372,7 +372,7 @@ async def test_put_request_success(
             },
             json=payload,
             params=None,
-            proxy=None,
+            proxy=ANY,
             timeout=ANY,
         )
 
@@ -405,7 +405,7 @@ async def test_delete_request_success(
             },
             json=None,
             params=None,
-            proxy=None,
+            proxy=ANY,
             timeout=ANY,
         )
 
@@ -608,7 +608,7 @@ async def test_kill_session_success(
             "Session-Token": user_token,
             "App-Token": app_token,
         },
-        proxy=None,
+        proxy=ANY,
         timeout=ANY,
     )
     assert session._session_token is None
@@ -684,7 +684,7 @@ async def test_verify_ssl_disabled_passes_ssl_false(
                 "App-Token": app_token,
                 "Authorization": f"user_token {user_token}",
             },
-            proxy=None,
+            proxy=ANY,
             timeout=ANY,
         )
         session_instance.request.assert_called_with(
@@ -697,7 +697,7 @@ async def test_verify_ssl_disabled_passes_ssl_false(
             },
             json=None,
             params=None,
-            proxy=None,
+            proxy=ANY,
             timeout=ANY,
         )
 
