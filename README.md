@@ -782,7 +782,10 @@ pip install --no-index --find-links=wheels -r requirements.txt -r requirements-d
 Execute the unit tests with coverage. The `pytest.ini` configuration applies
 `--cov=./ --cov-report=term-missing --cov-fail-under=85` by default. If
 `pytest-cov` is not installed or you want to skip coverage checks run
-`pytest -p no:cov` or override `PYTEST_ADDOPTS` when invoking the command.
+`pytest -p no:cov` or override `PYTEST_ADDOPTS` when invoking the command. Note
+that running only a subset of tests may fail because the `addopts` line in
+`pytest.ini` enforces coverage. Use `--no-cov` or clear `PYTEST_ADDOPTS` when
+invoking individual files. See [docs/testing.md](docs/testing.md) for details.
 Before running `pytest` or `make test` you **must** install all dependencies and
 the local package in editable mode:
 

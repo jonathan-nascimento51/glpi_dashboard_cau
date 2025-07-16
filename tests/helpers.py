@@ -7,7 +7,7 @@ import aiohttp
 
 
 class FakeHTTPError(aiohttp.ClientResponseError):
-    """Simplified HTTP error for tests."""
+    """Simplified ``ClientResponseError`` used in tests."""
 
     def __init__(self, status: int, data: Optional[dict] = None) -> None:
         request_info = MagicMock()
@@ -19,6 +19,8 @@ class FakeHTTPError(aiohttp.ClientResponseError):
             message="HTTP Error",
         )
         self.data = data or {}
+        # Some code asserts ``status_code`` like ``requests`` errors
+        self.status_code = status
 
 
 def make_mock_response(
