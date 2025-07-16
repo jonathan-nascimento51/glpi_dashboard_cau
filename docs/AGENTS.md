@@ -148,7 +148,7 @@ Avalie o prompt final segundo critérios de clareza, completude e constraints; e
 
 ---
 
-## �� Instrução para o Codex
+## Instrução para o Codex
 
 Após o pipeline A1-A9, pegue cada **Prompt Final** de A8 (um para cada artefato) e envie-o ao Codex. O Codex deve:
 
