@@ -35,8 +35,10 @@ services:
 
   frontend:
     build:
-      context: .
-      dockerfile: frontend/react_app/Dockerfile
+      context: ./src/frontend/react_app
+      dockerfile: Dockerfile
+      args:
+        INSTALL_DEV_DEPS: "true"
     depends_on:
       - backend
     env_file:

@@ -36,9 +36,9 @@ services:
     ports:
       - "5173:5173"  # Porta padrão do Vite
     volumes:
-      - ./src/frontend/react_app:/app/frontend
-    working_dir: /app/frontend
-    command: npm run dev
+      - ./src/frontend/react_app:/app
+    working_dir: /app
+    command: sh -c "npm install --legacy-peer-deps && npm run dev"
     healthcheck:
       test: ["CMD", "/usr/local/bin/healthcheck.sh"]
       interval: 30s
@@ -63,7 +63,7 @@ services:
       - "--config.file=/etc/prometheus/prometheus.yml"
       - "--log.level=warn"
     volumes:
-      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./resources/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
     ports:
       - "9090:9090"
     depends_on:
