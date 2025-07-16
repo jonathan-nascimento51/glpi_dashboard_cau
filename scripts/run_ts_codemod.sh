@@ -15,7 +15,7 @@ jq -r 'to_entries[] | "\(.key)\t\(.value)"' "$MAP" | while IFS=$'\t' read -r OLD
   mkdir -p "$(dirname "$NEW_FILE")"
   git mv "$OLD_FILE" "$NEW_FILE"
 
-  jscodeshift -t ./scripts/update-imports.js ./src \
+  npx jscodeshift -t ./scripts/update-imports.js ./src \
     --parser=tsx \
     --extensions=ts,tsx \
     --oldPath="$OLD_FILE" \

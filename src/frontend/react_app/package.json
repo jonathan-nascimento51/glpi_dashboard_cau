@@ -53,6 +53,7 @@
     "globals": "^16.2.0",
     "jest": "^30.0.3",
     "jest-environment-jsdom": "^30.0.2",
+    "jscodeshift": "^17.3.0",
     "playwright": "^1.53.2",
     "plop": "^4.0.1",
     "postcss": "^8.5.6",
