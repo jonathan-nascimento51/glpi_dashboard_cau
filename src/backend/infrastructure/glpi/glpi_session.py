@@ -177,6 +177,7 @@ class GLPISession:
         self._refresh_task: Optional[asyncio.Task] = None
         self._last_refresh_time: float = 0.0
         self._refresh_lock = asyncio.Lock()
+        self._shutdown_event = asyncio.Event()
 
     def _resolve_timeout(self) -> aiohttp.ClientTimeout:
         """Return the timeout as an aiohttp.ClientTimeout object for aiohttp calls."""
@@ -326,8 +327,18 @@ class GLPISession:
             logger.debug("Proactive refresh loop not needed for user_token.")
             return
 
-        while True:
-            await asyncio.sleep(self.refresh_interval)
+        while not self._shutdown_event.is_set():
+            start = asyncio.get_running_loop().time()
+            elapsed = 0.0
+            # Sleep in short increments so we can exit early if needed
+            while elapsed < self.refresh_interval and not self._shutdown_event.is_set():
+                to_sleep = min(1.0, self.refresh_interval - elapsed)
+                await asyncio.sleep(to_sleep)
+                elapsed = asyncio.get_running_loop().time() - start
+
+            if self._shutdown_event.is_set():
+                break
+
             # Check if current token is older than refresh_interval
             if (
                 self._session_token
@@ -351,6 +362,7 @@ class GLPISession:
 
         # Start proactive refresh task only if using username/password flow
         if not self.credentials.user_token:
+            self._shutdown_event.clear()
             self._refresh_task = asyncio.create_task(self._proactive_refresh_loop())
         return self
 
@@ -358,6 +370,7 @@ class GLPISession:
         """
         Exits the asynchronous context, gracefully killing the GLPI session.
         """
+        self._shutdown_event.set()
         if self._refresh_task:
             self._refresh_task.cancel()
             try:
