@@ -42,7 +42,7 @@ from backend.application.ticket_loader import (
 from backend.core.settings import (
     KNOWLEDGE_BASE_FILE,
 )
-from backend.domain import CleanTicketDTO
+from shared.dto import CleanTicketDTO
 from shared.utils.redis_client import redis_client
 
 logger = logging.getLogger(__name__)
