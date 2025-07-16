@@ -6,7 +6,7 @@ não seguem o formato exigido pela API.
 
 ## Requisição
 
-- **URL**: `[GLPI_URL]/apirest.php/initSession`
+- **URL**: `[GLPI_BASE_URL]/initSession`
 - **Método**: `GET`
 - **Cabeçalhos obrigatórios**:
   - `App-Token`: token da aplicação registrado no GLPI.
@@ -25,7 +25,7 @@ curl -X GET \
   -H "Content-Type: application/json" \
   -H "Authorization: user_token SEU_USER_TOKEN" \
   -H "App-Token: SEU_APP_TOKEN" \
-  "https://seu-dominio/glpi/apirest.php/initSession"
+  "https://seu-endpoint/apirest.php/initSession"
 ```
 
 Em caso de sucesso, o retorno será `200 OK` com JSON contendo o `session_token`.

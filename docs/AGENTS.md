@@ -112,7 +112,7 @@ Criar `glpi_session.py` com funções de autenticação e coleta de tickets.
 
 ```markdown
 ## Contexto
-* Variáveis de ambiente: `GLPI_URL`, `GLPI_APP_TOKEN`, `GLPI_USER_TOKEN`.
+* Variáveis de ambiente: `GLPI_BASE_URL`, `GLPI_APP_TOKEN`, `GLPI_USER_TOKEN`.
 * Exemplo de payload de ticket: `{ "id": 1, "status": "new", … }`
 ```
 

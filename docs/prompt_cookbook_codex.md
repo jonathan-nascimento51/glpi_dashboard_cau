@@ -16,7 +16,7 @@ Você é um engenheiro Python sênior.
 Crie **glpi_session.py** com:
 - login() que cria sessão e retorna um objeto Session pronto.
 - get_tickets(status=None, limit=100, session=None) → List[dict]
- - Uso de python‑dotenv para ler GLPI_URL, GLPI_APP_TOKEN, GLPI_USER_TOKEN
+- Uso de python‑dotenv para ler GLPI_BASE_URL, GLPI_APP_TOKEN, GLPI_USER_TOKEN
 - Tratamento de erros HTTP com raise_for_status()
 - Type hints e docstrings.
 ```

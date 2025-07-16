@@ -6,7 +6,7 @@ simple client used across the worker and dashboard apps. It wraps `requests`
 with sensible defaults so other modules only deal with high level helpers.
 
 ## Decision
-Manage authentication tokens via environment variables (`GLPI_URL`,
+Manage authentication tokens via environment variables (`GLPI_BASE_URL`,
 `GLPI_APP_TOKEN`, `GLPI_USER_TOKEN`). The session reuses a single `requests`
 `Session` with a 30‑second timeout and built‑in retry logic. Token refresh is
 handled automatically when the API responds with an authentication error.

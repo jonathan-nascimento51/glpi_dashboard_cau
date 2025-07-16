@@ -42,4 +42,4 @@ Aggregated metrics are computed under `src/backend/application/aggregated_metric
 
 ## GLPI Integration and Metrics
 
-The worker reads `GLPI_URL`, `GLPI_APP_TOKEN` and `GLPI_USER_TOKEN` from the `.env` file to authenticate with GLPI. Normalised ticket data is stored in Redis/PostgreSQL. Dash visualisations live in `src/frontend/`, while additional widgets and analytics for managers reside in the React app inside `src/frontend/react_app/`.
+The worker reads `GLPI_BASE_URL`, `GLPI_APP_TOKEN` and `GLPI_USER_TOKEN` from the `.env` file to authenticate with GLPI. Normalised ticket data is stored in Redis/PostgreSQL. Dash visualisations live in `src/frontend/`, while additional widgets and analytics for managers reside in the React app inside `src/frontend/react_app/`.
