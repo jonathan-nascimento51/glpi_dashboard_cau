@@ -172,6 +172,7 @@ is executed as `A1 ▶ A2 ▶ A3 ▶ A4‑6 ▶ A7 ▶ A8 ▶ A9` where:
 - **A9 – Validador & Justificativa** reviews the final result for coherence.
 
 See [docs/AGENTS.md](docs/AGENTS.md) for the full prompt templates.
+The five-block format (Identity, Instructions, Context, Examples, Question) is outlined in [docs/PROMPT_BUILDER.md](docs/PROMPT_BUILDER.md).
 
 ### Node.js ESM conventions
 

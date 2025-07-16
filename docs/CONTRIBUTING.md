@@ -94,5 +94,6 @@ git config commit.template .gitmessage
 ## 7. Multi‑agent prompting
 
 The project automates code generation with a series of LLM agents documented in [AGENTS.md](AGENTS.md). The pipeline `A1 ▶ A2 ▶ A3 ▶ A4‑6 ▶ A7 ▶ A8 ▶ A9` outlines how prompts are composed and validated before Codex writes files.
+Each prompt uses the five-block format described in [PROMPT_BUILDER.md](PROMPT_BUILDER.md).
 
 Frontend contributions follow an additional sequence described in `src/frontend/react_app/AGENTS.md`. Review these documents when orchestrating multiple models or generating code automatically.
