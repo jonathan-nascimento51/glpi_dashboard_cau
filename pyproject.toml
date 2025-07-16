@@ -55,16 +55,16 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "pytest==7.1.2",
-    "pytest-cov",
-    "pytest-asyncio",
+    "pytest==8.4.1",
+    "pytest-cov==3.0.0",
+    "pytest-asyncio==1.0.0",
     "black",
     "mypy",
     "ruff",
     "flake8",
     "isort",
-    "pytest-mock",
-    "pytest-httpx",
+    "pytest-mock==3.14.1",
+    "pytest-httpx==0.30.0",
     "testcontainers",
     "playwright",
     "pact-python",
