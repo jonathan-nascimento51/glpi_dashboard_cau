@@ -21,6 +21,7 @@ from backend.infrastructure.glpi.glpi_session import (
     GLPIUnauthorizedError,
 )
 from shared.utils.logging import init_logging
+from tests.helpers import make_cm, make_mock_response
 
 pytest.importorskip(
     "aiohttp", reason="aiohttp package is required to run glpi_session tests"
@@ -65,99 +66,54 @@ def password() -> str:
 
 @pytest.fixture
 def mock_response():
-    """
-    Fixture to create a mock aiohttp ClientResponse object.
-    Allows setting status, JSON data, and simulating raise_for_status() exceptions.
-    """
+    """Return the ``make_mock_response`` helper for convenience."""
 
-    def _mock_response(
+    def _factory(
         status: int,
         json_data: Optional[dict] = None,
         raise_for_status_exc: bool = False,
     ):
-        mock_resp = MagicMock(spec=aiohttp.ClientResponse)
-        mock_resp.status = status
-        mock_resp.json = AsyncMock(
-            return_value=json_data if json_data is not None else {}
-        )
-        mock_resp.text = AsyncMock(
-            return_value=str(json_data) if json_data is not None else ""
-        )
-        mock_resp.request_info = MagicMock()  # Required for ClientResponseError
-        mock_resp.history = ()  # Required for ClientResponseError
+        return make_mock_response(status, json_data, raise_for_status_exc)
 
-        if raise_for_status_exc:
-            err = aiohttp.ClientResponseError(
-                request_info=mock_resp.request_info,
-                history=mock_resp.history,
-                status=status,
-                message="Simulated HTTP Error",
-            )
-            mock_resp.raise_for_status.side_effect = err
-        else:
-            mock_resp.raise_for_status.return_value = None
-
-        # Mocking async context manager for response
-        mock_resp.__aenter__ = AsyncMock(return_value=mock_resp)
-        mock_resp.__aexit__ = AsyncMock(return_value=None)
-        return mock_resp
-
-    return _mock_response
+    return _factory
 
 
 @pytest.fixture
 def mock_client_session(mock_response):
-    """
-    Fixture to mock aiohttp.ClientSession and its HTTP methods.
-    Patches aiohttp.ClientSession globally for tests.
-    """
-    # Patch the ClientSession used inside the glpi_session module
+    """Patch ``aiohttp.ClientSession`` to return a single mock session."""
+
     with (
-        patch(
-            "backend.infrastructure.glpi.glpi_session.ClientSession"
-        ) as mock_session_cls,
-        patch("aiohttp.ClientSession") as aiohttp_session_cls,
+        patch("backend.infrastructure.glpi.glpi_session.ClientSession") as session_cls,
+        patch("aiohttp.ClientSession") as aiohttp_cls,
     ):
-        mock_session_instance = MagicMock()
-        mock_session_instance.closed = False  # Assume not closed initially
+        session_instance = MagicMock()
+        session_instance.closed = False
 
-        @asynccontextmanager
-        async def default_post():
-            yield mock_response(200, {"session_token": "mock_session_token"})
-
-        @asynccontextmanager
-        async def default_request():
-            yield mock_response(200, {})
-
-        # Mock HTTP methods to return a fresh async context manager on each call
-        mock_session_instance.post = MagicMock(
-            side_effect=lambda *a, **k: default_post()
+        session_instance.post = MagicMock(
+            side_effect=lambda *a, **k: make_cm(
+                200, {"session_token": "mock_session_token"}
+            )
         )
-        mock_session_instance.get = MagicMock(
-            side_effect=lambda *a, **k: default_request()
+        session_instance.get = MagicMock(side_effect=lambda *a, **k: make_cm(200, {}))
+        session_instance.put = MagicMock(side_effect=lambda *a, **k: make_cm(200, {}))
+        session_instance.delete = MagicMock(
+            side_effect=lambda *a, **k: make_cm(200, {})
         )
-        mock_session_instance.put = MagicMock(
-            side_effect=lambda *a, **k: default_request()
-        )
-        mock_session_instance.delete = MagicMock(
-            side_effect=lambda *a, **k: default_request()
-        )
-        mock_session_instance.request = MagicMock(
-            side_effect=lambda *a, **k: default_request()
+        session_instance.request = MagicMock(
+            side_effect=lambda *a, **k: make_cm(200, {})
         )
 
-        # Mocking async context manager for session
-        mock_session_instance.__aenter__ = AsyncMock(return_value=mock_session_instance)
-        mock_session_instance.__aexit__ = AsyncMock(return_value=None)
+        session_instance.__aenter__ = AsyncMock(return_value=session_instance)
+        session_instance.__aexit__ = AsyncMock(return_value=None)
 
         async def close():
-            mock_session_instance.closed = True
+            session_instance.closed = True
 
-        mock_session_instance.close = AsyncMock(side_effect=close)
+        session_instance.close = AsyncMock(side_effect=close)
 
-        mock_session_cls.return_value = mock_session_instance
-        aiohttp_session_cls.return_value = mock_session_instance
-        yield mock_session_instance
+        session_cls.return_value = session_instance
+        aiohttp_cls.return_value = session_instance
+        yield session_instance
 
 
 def test_credentials_require_auth(app_token):
@@ -192,7 +148,7 @@ async def test_glpi_session_context_manager_user_token_auth(
     glpi_session = GLPISession(base_url, credentials)
 
     # Mock the initSession call for user_token via GET with headers
-    mock_client_session.get.side_effect = lambda *a, **k: mock_response(
+    mock_client_session.get.side_effect = lambda *a, **k: make_cm(
         200, {"session_token": user_token}
     )
 
@@ -465,17 +421,17 @@ async def test_session_refresh_on_401_success(
     # 1. Initial initSession call (from __aenter__)
     # 2. Second initSession call (for refresh after 401)
     mock_client_session.side_effect = [
-        mock_response(200, {"session_token": "expired_session_token"}),
-        mock_response(200, {"session_token": "refreshed_session_token"}),
-        mock_response(200, {}),
+        make_cm(200, {"session_token": "expired_session_token"}),
+        make_cm(200, {"session_token": "refreshed_session_token"}),
+        make_cm(200, {}),
     ]
 
     # Configure side_effect for mock_client_session.request:
     # 1. First request attempt gets 401
     # 2. Second request attempt (after refresh) gets 200
     mock_client_session.request.side_effect = [
-        mock_response(401, {"error": "Unauthorized"}, raise_for_status_exc=True),
-        mock_response(200, {"data": "refreshed_data"}),
+        make_cm(401, {"error": "Unauthorized"}, True),
+        make_cm(200, {"data": "refreshed_data"}),
     ]
 
     async with glpi_session as session:
@@ -523,9 +479,9 @@ async def test_session_refresh_on_401_failure(
 
     # Initial initSession call succeeds, but refresh attempt fails
     mock_client_session.side_effect = [
-        mock_response(200, {"session_token": "expired_session_token"}),
-        mock_response(401, {"error": "Unauthorized"}, raise_for_status_exc=True),
-        mock_response(200, {}),
+        make_cm(200, {"session_token": "expired_session_token"}),
+        make_cm(401, {"error": "Unauthorized"}, True),
+        make_cm(200, {}),
     ]
 
     # First request attempt gets 401
@@ -560,10 +516,10 @@ async def test_proactive_refresh_loop_username_password(
 
     # Mock initSession for initial and subsequent proactive refreshes
     mock_client_session.side_effect = [
-        mock_response(200, {"session_token": "initial_token"}),
-        mock_response(200, {"session_token": "proactive_token_1"}),
-        mock_response(200, {"session_token": "proactive_token_2"}),
-        mock_response(200, {}),
+        make_cm(200, {"session_token": "initial_token"}),
+        make_cm(200, {"session_token": "proactive_token_1"}),
+        make_cm(200, {"session_token": "proactive_token_2"}),
+        make_cm(200, {}),
     ]
 
     async with glpi_session as session:
@@ -622,7 +578,7 @@ async def test_request_network_error(
     glpi_session = GLPISession(base_url, creds)
 
     # initSession succeeds
-    mock_client_session.get.side_effect = lambda *a, **k: mock_response(
+    mock_client_session.get.side_effect = lambda *a, **k: make_cm(
         200, {"session_token": user_token}
     )
 
@@ -768,7 +724,7 @@ async def test_circuit_breaker_opens_after_consecutive_failures(
     creds = Credentials(app_token=app_token, user_token=user_token)
     session = GLPISession(base_url, creds)
 
-    mock_client_session.get.side_effect = lambda *a, **k: mock_response(
+    mock_client_session.get.side_effect = lambda *a, **k: make_cm(
         200, {"session_token": user_token}
     )
     # The decorated `_request` method will be called. We need it to fail

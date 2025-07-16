@@ -4,6 +4,7 @@ from unittest.mock import AsyncMock, patch
 import pytest
 
 from backend.infrastructure.glpi.glpi_session import Credentials, GLPISession
+from tests.helpers import make_cm
 
 
 @pytest.mark.asyncio
@@ -19,14 +20,14 @@ async def test_refresh_session_token_retries_on_server_error(
     session = GLPISession(base_url, creds)
 
     mock_client_session.side_effect = [
-        mock_response(200, {"session_token": "init"}),
-        mock_response(500, {"error": "fail"}, raise_for_status_exc=True),
-        mock_response(200, {"session_token": "retry"}),
-        mock_response(200, {}),
+        make_cm(200, {"session_token": "init"}),
+        make_cm(500, {"error": "fail"}, True),
+        make_cm(200, {"session_token": "retry"}),
+        make_cm(200, {}),
     ]
     mock_client_session.request.side_effect = [
-        mock_response(401, {"error": "unauth"}, raise_for_status_exc=True),
-        mock_response(200, {"ok": True}),
+        make_cm(401, {"error": "unauth"}, True),
+        make_cm(200, {"ok": True}),
     ]
 
     with patch("asyncio.sleep", new=AsyncMock()):
