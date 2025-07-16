@@ -397,9 +397,13 @@ class GLPISession:
 
     @retry_api_call
     async def _kill_session(self) -> None:
-        """Kills the current GLPI session by calling the killSession endpoint."""
+        """Kills the current GLPI session by calling the killSession endpoint.
+
+        If no session token is set, this method performs no action and returns
+        immediately.
+        """
         if not self._session_token:
-            logger.warning("No session token to kill.")
+            logger.info("No session token to kill.")
             return
 
         kill_session_url = f"{self.base_url}/killSession"
