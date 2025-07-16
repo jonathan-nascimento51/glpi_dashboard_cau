@@ -41,6 +41,10 @@ pip install -e .
 pre-commit install
 cd src/frontend/react_app && npm ci
 ```
+See [docs/testing.md](docs/testing.md) for tips on running individual tests and
+for common import errors.
+
+
 
 The `pip install` steps above must be run before executing any tests so that
 the local package and its development dependencies are available.
@@ -229,15 +233,15 @@ under `src/frontend/modules/` for Dash.
 make test
 ```
 
-Before executing any tests run `make setup` to bootstrap the virtual
-environment and install all dependencies. Alternatively you can manually
-prepare the environment with:
+Before running any tests **install the full dependency set**. Use `make setup`
+or run the commands below so imports resolve correctly:
 
 ```bash
 pip install -r requirements.txt -r requirements-dev.txt
 pip install -e .
 cd src/frontend/react_app && npm ci
 ```
+See [docs/testing.md](docs/testing.md) for tips on running individual tests and for common import errors.
 
 These commands mirror what the setup target does and ensure Playwright and the
 Dash testing extras from `requirements-dev.txt` are available. Verify that the
