@@ -1,0 +1,60 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: Codex Review
+
+on:
+  pull_request:
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
+
+jobs:
+  codex-review:
+    if: github.event_name == 'pull_request' || github.event.workflow_run.conclusion == 'failure'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+      - name: Setup environment
+        run: ./scripts/setup/setup_env.sh
+        env:
+          SKIP_PLAYWRIGHT: 'true'
+      - name: Install OpenAI
+        run: pip install openai
+      - name: Generate bug prompt
+        run: python scripts/generate_bug_prompt.py --output bug_prompt.md
+      - name: Request Codex suggestions
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          python - <<'PY'
+          import os, pathlib, openai
+          prompt = pathlib.Path('bug_prompt.md').read_text()
+          client = openai.Client(api_key=os.environ['OPENAI_API_KEY'])
+          resp = client.chat.completions.create(
+              model='gpt-4o',
+              messages=[
+                  {'role': 'system', 'content': 'You are Codex reviewing test failures. Provide concise fix suggestions.'},
+                  {'role': 'user', 'content': prompt}
+              ]
+          )
+          text = resp.choices[0].message.content
+          pathlib.Path('codex_review.txt').write_text(text)
+          print(text)
+          PY
+      - name: Determine PR number
+        id: pr
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "number=${{ github.event.pull_request.number }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "number=${{ github.event.workflow_run.pull_requests[0].number }}" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Post suggestions
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ steps.pr.outputs.number }}
+        run: gh pr comment "$PR_NUMBER" -F codex_review.txt
