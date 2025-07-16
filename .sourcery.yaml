@@ -1,10 +1,24 @@
-version: '1'
-# Arquivos ou diretórios que o Sourcery deve ignorar
+# .sourcery.yaml
+# Arquivo de configuração específico do projeto para o Sourcery.
+# Coloque este arquivo na raiz do seu repositório.
+
+version: "1"
+
+# Configurações de regras de refatoração
+# Você pode desativar regras específicas aqui, se necessário.
+# Exemplo:
+# - id: "use-f-strings"
+#   skip: true
+
+# Ignorar arquivos e diretórios
+# Diga ao Sourcery para não analisar certas partes do projeto.
 ignore:
-  - venv
-  - .venv
-  - env
-  - .env
-  - site-packages/**
-  - build
-  - dist
+  - .venv/
+  - .mypy_cache/
+  - build/
+  - dist/
+  - wheels/
+  # Ignore todo o projeto frontend React, focando o Sourcery no código Python.
+  - src/frontend/react_app/
+  # Ignore a pasta de documentação
+  - docs/

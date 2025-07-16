@@ -161,7 +161,7 @@ class GLPISession:
         self.credentials = credentials
         self.proxy = proxy or os.environ.get("HTTP_PROXY")
         self.verify_ssl = verify_ssl
-        self.ssl_ctx = False if not verify_ssl else None
+        # The ssl_ctx attribute is no longer needed with the direct boolean passing below.
         self.timeout = timeout
         self.refresh_interval = refresh_interval
 
@@ -180,12 +180,9 @@ class GLPISession:
     async def _init_aiohttp_session(self) -> None:
         """Initializes the aiohttp ClientSession if it's not already open."""
         if self._session is None or self._session.closed:
-            connector = TCPConnector(
-                ssl=self.ssl_ctx if self.ssl_ctx is not None else True
-            )
+            connector = TCPConnector(ssl=self.verify_ssl)
             self._session = ClientSession(connector=connector, trust_env=True)
-            proxy_info = mask_proxy_url(self.proxy)
-            if proxy_info:
+            if proxy_info := mask_proxy_url(self.proxy):
                 logger.info(
                     "aiohttp ClientSession initialized via proxy %s", proxy_info
                 )
@@ -477,9 +474,9 @@ class GLPISession:
                         # Raises aiohttp.ClientResponseError for 4xx/5xx
                         response.raise_for_status()
                         data = await response.json()
-                        if return_headers:
-                            return data, dict(response.headers)
-                        return data
+                        return (
+                            (data, dict(response.headers)) if return_headers else data
+                        )
                     except aiohttp.ClientResponseError as e:
                         response_data = {}
                         response_text = ""
