@@ -23,8 +23,8 @@ services:
 
   frontend:
     build:
-      context: ./src/frontend/react_app
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: src/frontend/react_app/Dockerfile
       # sobrescreve o comando de instalação só neste serviço de dev:
       args:
         INSTALL_DEV_DEPS: "true"

@@ -178,6 +178,11 @@ class GLPISession:
         self._last_refresh_time: float = 0.0
         self._refresh_lock = asyncio.Lock()
         self._shutdown_event = asyncio.Event()
+        # Track whether the current session was created using user_token or
+        # username/password. This determines if killSession should be called on
+        # exit. Defaults to ``bool(credentials.user_token)`` but is updated on
+        # each token refresh.
+        self._using_user_token: bool = bool(credentials.user_token)
 
     def _resolve_timeout(self) -> aiohttp.ClientTimeout:
         """Return the timeout as an aiohttp.ClientTimeout object for aiohttp calls."""
@@ -218,6 +223,7 @@ class GLPISession:
             if self.credentials.user_token:
                 headers["Authorization"] = f"user_token {self.credentials.user_token}"
                 logger.info("Attempting to initiate GLPI session with user_token...")
+                self._using_user_token = True
             elif self.credentials.username and self.credentials.password:
                 cred = f"{self.credentials.username}:{self.credentials.password}"
                 b64 = base64.b64encode(cred.encode()).decode()
@@ -225,6 +231,7 @@ class GLPISession:
                 logger.info(
                     "Attempting to initiate GLPI session with username/password..."
                 )
+                self._using_user_token = False
             else:
                 raise ValueError(
                     "No valid authentication method "
@@ -369,6 +376,9 @@ class GLPISession:
     async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
         """
         Exits the asynchronous context, gracefully killing the GLPI session.
+
+        Sets ``_shutdown_event`` so that the proactive refresh loop can
+        terminate promptly before cleaning up network resources.
         """
         self._shutdown_event.set()
         if self._refresh_task:
@@ -378,8 +388,11 @@ class GLPISession:
             except asyncio.CancelledError:
                 logger.info("Proactive refresh task cancelled.")
 
-        if self._session_token:
+        if self._session_token and not self._using_user_token:
             await self._kill_session()
+        else:
+            # Ensure token is cleared even when killSession is skipped
+            self._session_token = None
 
         if self._session and not self._session.closed:
             await self._session.close()

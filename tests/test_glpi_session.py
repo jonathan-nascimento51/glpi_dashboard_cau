@@ -218,14 +218,8 @@ async def test_glpi_session_context_manager_user_token_auth(
 
     assert session._session_token is None
     assert session._session.closed
-    # Verify killSession was called with the correct headers as the last call
-    kill_call = mock_client_session.get.call_args_list[-1]
-    assert kill_call.args[0] == f"{base_url}/killSession"
-    assert kill_call.kwargs["headers"] == {
-        "Content-Type": "application/json",
-        "Session-Token": user_token,
-        "App-Token": app_token,
-    }
+    # When using user_token authentication, killSession should not be called
+    assert mock_client_session.call_count == 1
 
 
 @pytest.mark.asyncio

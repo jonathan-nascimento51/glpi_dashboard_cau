@@ -11,6 +11,7 @@ services:
     environment:
       PYTHONPATH: /app/src
       LOG_LEVEL: DEBUG
+      USE_MOCK_DATA: "true"
     depends_on:
       - redis
       - db
@@ -37,8 +38,8 @@ services:
 
   frontend:
     build:
-      context: ./src/frontend/react_app
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: src/frontend/react_app/Dockerfile
       args:
         INSTALL_DEV_DEPS: "true"
     depends_on:
@@ -47,8 +48,8 @@ services:
       - ./src/frontend/react_app/.env
       - .env.example
     environment:
-      # (opcional, você pode sobrescrever aqui)
-      - NEXT_PUBLIC_API_BASE_URL=http://backend:8000
+      # Opcional: sobrescreva a URL base da API, se necessário
+      NEXT_PUBLIC_API_BASE_URL: "http://backend:8000"
     healthcheck:
       test: ["CMD", "/usr/local/bin/healthcheck.sh"]
       interval: 30s
