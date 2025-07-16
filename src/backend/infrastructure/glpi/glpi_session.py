@@ -243,6 +243,8 @@ class GLPISession:
                 )
 
             try:
+                await self._init_aiohttp_session()
+                assert self._session is not None
 
                 get_kwargs = {
                     "proxy": self.proxy,
@@ -414,17 +416,8 @@ class GLPISession:
         }
         logger.info("Attempting to kill GLPI session...")
         try:
-            if self._session is None:
-                if not self.verify_ssl:
-                    connector = TCPConnector(ssl=False)
-                elif self.ssl_ctx is not None:
-                    connector = TCPConnector(ssl=self.ssl_ctx)
-                else:
-                    connector = TCPConnector()
-                self._session = aiohttp.ClientSession(
-                    connector=connector,
-                    trust_env=True,
-                )
+            await self._init_aiohttp_session()
+            assert self._session is not None
 
             get_kwargs = {
                 "headers": headers,
@@ -501,17 +494,8 @@ class GLPISession:
 
         for attempt in range(max_401_retries + 1):
             current_headers = request_headers.copy()
-            if self._session is None:
-                if not self.verify_ssl:
-                    connector = TCPConnector(ssl=False)
-                elif self.ssl_ctx is not None:
-                    connector = TCPConnector(ssl=self.ssl_ctx)
-                else:
-                    connector = TCPConnector()
-                self._session = aiohttp.ClientSession(
-                    connector=connector,
-                    trust_env=True,
-                )
+            await self._init_aiohttp_session()
+            assert self._session is not None
 
             try:
                 request_kwargs = {
