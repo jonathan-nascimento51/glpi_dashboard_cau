@@ -394,7 +394,7 @@ class GLPISession:
         retry_on_401: bool = True,
         max_401_retries: int = 1,  # One retry after initial 401
         return_headers: bool = False,
-    ) -> Any:
+    ) -> Any:  # sourcery skip: low-code-quality
         """
         Makes an authenticated request to the GLPI API.
 

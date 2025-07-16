@@ -99,6 +99,12 @@ async def _check() -> None:
                     print(f"❌ Falha na autenticação (HTTP {response.status}):")
                     print(body)
 
+    except aiohttp.InvalidURL as exc:
+        print(f"❌ Erro de Configuração: A URL do GLPI é inválida: {exc}")
+        print(
+            "   Por favor, verifique se a variável GLPI_BASE_URL está definida "
+            "corretamente no seu arquivo .env."
+        )
     except aiohttp.ClientConnectorError as exc:
         print(
             f"❌ Falha de Conexão de Rede: Não foi possível conectar a {GLPI_BASE_URL}."

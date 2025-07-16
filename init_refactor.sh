@@ -13,5 +13,5 @@ else
 fi
 
 echo ""
-echo "✅ Siga os prompts em docs/PROMPTS.md"
+echo "✅ Siga os prompts em docs/prompt_cookbook_codex.md"
 echo "✅ Registre alterações em docs/REFACTOR_LOG.md"
