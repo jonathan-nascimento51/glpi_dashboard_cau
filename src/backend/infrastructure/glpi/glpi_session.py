@@ -33,7 +33,7 @@ from backend.domain.exceptions import (
     parse_error,
 )
 from backend.domain.tool_error import ToolError
-from shared.utils.resilience import retry_api_call
+from shared.utils.resilience import call_with_breaker, retry_api_call
 
 logger = logging.getLogger(__name__)
 
@@ -161,7 +161,9 @@ class GLPISession:
         self.credentials = credentials
         self.proxy = proxy or os.environ.get("HTTP_PROXY")
         self.verify_ssl = verify_ssl
-        # ssl context passed to TCPConnector; False disables verification
+        # When ``verify_ssl`` is ``False`` aiohttp expects ``ssl=False``. For
+        # compatibility we store this value in ``ssl_ctx`` so it can be reused
+        # whenever a new :class:`aiohttp.ClientSession` is created.
         self.ssl_ctx = False if not verify_ssl else None
         self.timeout = timeout
         self.refresh_interval = refresh_interval
@@ -181,7 +183,9 @@ class GLPISession:
     async def _init_aiohttp_session(self) -> None:
         """Initializes the aiohttp ClientSession if it's not already open."""
         if self._session is None or self._session.closed:
-            connector = TCPConnector(ssl=self.ssl_ctx)
+            connector = TCPConnector(
+                ssl=self.ssl_ctx if self.ssl_ctx is not None else True
+            )
             self._session = ClientSession(connector=connector, trust_env=True)
             if proxy_info := mask_proxy_url(self.proxy):
                 logger.info(
@@ -221,13 +225,19 @@ class GLPISession:
 
             try:
                 if self._session is None:
-                    self._session = aiohttp.ClientSession(trust_env=True)
+                    self._session = aiohttp.ClientSession(
+                        connector=TCPConnector(
+                            ssl=self.ssl_ctx if self.ssl_ctx is not None else True
+                        ),
+                        trust_env=True,
+                    )
 
                 async with self._session.get(
                     init_session_url,
                     headers=headers,
                     proxy=self.proxy,
-                    timeout=self._resolve_timeout(),  # ssl removido
+                    timeout=self._resolve_timeout(),
+                    ssl=self.ssl_ctx,
                 ) as response:
                     try:
                         # Raises aiohttp.ClientResponseError for 4xx/5xx
@@ -364,13 +374,19 @@ class GLPISession:
         logger.info("Attempting to kill GLPI session...")
         try:
             if self._session is None:
-                self._session = aiohttp.ClientSession(trust_env=True)
+                self._session = aiohttp.ClientSession(
+                    connector=TCPConnector(
+                        ssl=self.ssl_ctx if self.ssl_ctx is not None else True
+                    ),
+                    trust_env=True,
+                )
 
             async with self._session.get(
                 url=kill_session_url,
                 headers=headers,
                 proxy=self.proxy,
-                timeout=self._resolve_timeout(),  # ssl removido
+                timeout=self._resolve_timeout(),
+                ssl=self.ssl_ctx,
             ) as resp:
                 resp.raise_for_status()
                 logger.info("GLPI session killed successfully.")
@@ -384,6 +400,7 @@ class GLPISession:
         finally:
             self._session_token = None  # Always clear token after attempt to kill
 
+    @call_with_breaker
     @retry_api_call  # Apply the retry decorator here
     async def _request(
         self,
@@ -436,7 +453,12 @@ class GLPISession:
         for attempt in range(max_401_retries + 1):
             current_headers = request_headers.copy()
             if self._session is None:
-                self._session = aiohttp.ClientSession(trust_env=True)
+                self._session = aiohttp.ClientSession(
+                    connector=TCPConnector(
+                        ssl=self.ssl_ctx if self.ssl_ctx is not None else True
+                    ),
+                    trust_env=True,
+                )
 
             try:
                 request_ctx = self._session.request(
@@ -447,6 +469,7 @@ class GLPISession:
                     params=params,
                     proxy=self.proxy,
                     timeout=self._resolve_timeout(),
+                    ssl=self.ssl_ctx,
                 )
                 if inspect.isawaitable(request_ctx):
                     request_ctx = await request_ctx

@@ -78,41 +78,87 @@ def mock_response():
     return _factory
 
 
+class _FakeMethod:
+    """Replicate an aiohttp HTTP method for testing."""
+
+    def __init__(self) -> None:
+        self._mock = MagicMock()
+        self.side_effect = None
+
+    def _resolve_effect(self, args, kwargs):
+        effect = self.side_effect
+        if isinstance(effect, list):
+            effect = effect.pop(0) if effect else None
+        if callable(effect):
+            return effect(*args, **kwargs)
+        return effect
+
+    def __call__(self, *args, **kwargs):
+        self._mock(*args, **kwargs)
+        result = self._resolve_effect(args, kwargs)
+        if result is None:
+            result = make_mock_response(200, {})
+        if hasattr(result, "__aenter__"):
+            return result
+
+        @asynccontextmanager
+        async def cm():
+            yield result
+
+        return cm()
+
+    def __getattr__(self, item):
+        return getattr(self._mock, item)
+
+
+class FakeClientSession(MagicMock):
+    """Minimal ``aiohttp.ClientSession`` replacement for tests."""
+
+    def __init__(self) -> None:
+        super().__init__(spec=aiohttp.ClientSession)
+        self.closed = False
+        self.get = _FakeMethod()
+        self.post = _FakeMethod()
+        self.put = _FakeMethod()
+        self.delete = _FakeMethod()
+        self.request = _FakeMethod()
+
+    async def close(self) -> None:
+        self.closed = True
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, exc_type, exc, tb):
+        await self.close()
+
+    @property
+    def call_count(self) -> int:  # type: ignore[override]
+        return (
+            self.get.call_count
+            + self.post.call_count
+            + self.put.call_count
+            + self.delete.call_count
+            + self.request.call_count
+        )
+
+    def assert_not_called(self) -> None:  # type: ignore[override]
+        if self.call_count != 0:
+            raise AssertionError("Expected no HTTP calls, but some were made")
+
+
 @pytest.fixture
 def mock_client_session(mock_response):
-    """Patch ``aiohttp.ClientSession`` to return a single mock session."""
+    """Patch ``aiohttp.ClientSession`` to return a ``FakeClientSession``."""
 
+    session_instance = FakeClientSession()
     with (
-        patch("backend.infrastructure.glpi.glpi_session.ClientSession") as session_cls,
-        patch("aiohttp.ClientSession") as aiohttp_cls,
+        patch(
+            "backend.infrastructure.glpi.glpi_session.ClientSession",
+            return_value=session_instance,
+        ),
+        patch("aiohttp.ClientSession", return_value=session_instance),
     ):
-        session_instance = MagicMock()
-        session_instance.closed = False
-
-        session_instance.post = MagicMock(
-            side_effect=lambda *a, **k: make_cm(
-                200, {"session_token": "mock_session_token"}
-            )
-        )
-        session_instance.get = MagicMock(side_effect=lambda *a, **k: make_cm(200, {}))
-        session_instance.put = MagicMock(side_effect=lambda *a, **k: make_cm(200, {}))
-        session_instance.delete = MagicMock(
-            side_effect=lambda *a, **k: make_cm(200, {})
-        )
-        session_instance.request = MagicMock(
-            side_effect=lambda *a, **k: make_cm(200, {})
-        )
-
-        session_instance.__aenter__ = AsyncMock(return_value=session_instance)
-        session_instance.__aexit__ = AsyncMock(return_value=None)
-
-        async def close():
-            session_instance.closed = True
-
-        session_instance.close = AsyncMock(side_effect=close)
-
-        session_cls.return_value = session_instance
-        aiohttp_cls.return_value = session_instance
         yield session_instance
 
 
