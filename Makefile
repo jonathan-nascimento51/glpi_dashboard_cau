@@ -55,7 +55,7 @@ bug-prompt:
 	$(PYTHON) scripts/generate_bug_prompt.py --output bug_prompt.md
 
 gen-types:
-    PYTHONPATH=src pydantic2ts --module backend.models.ts_models --output frontend/src/types/api.ts
+	PYTHONPATH=src pydantic2ts --module backend.models.ts_models --output frontend/src/types/api.ts
 
 lint-config:
 	bash scripts/lint-configs.sh
