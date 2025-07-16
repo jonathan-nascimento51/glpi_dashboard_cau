@@ -1,6 +1,7 @@
 import asyncio as aio
 import json
 import os
+import ssl
 from contextlib import asynccontextmanager
 from typing import Optional
 from unittest.mock import ANY, AsyncMock, MagicMock, patch
@@ -656,6 +657,7 @@ async def test_verify_ssl_disabled_passes_ssl_false(
     ):
         session_instance = MagicMock()
         session_instance.closed = False
+        session_instance.close = AsyncMock()
 
         @asynccontextmanager
         async def default_ctx():
@@ -684,6 +686,7 @@ async def test_verify_ssl_disabled_passes_ssl_false(
             },
             proxy=ANY,
             timeout=ANY,
+            ssl=ANY,
         )
         session_instance.request.assert_called_with(
             "GET",
@@ -697,6 +700,66 @@ async def test_verify_ssl_disabled_passes_ssl_false(
             params=None,
             proxy=ANY,
             timeout=ANY,
+            ssl=False,
+        )
+
+
+@pytest.mark.asyncio
+async def test_custom_ssl_context_passed_through(
+    base_url, app_token, user_token, mock_response
+):
+    ctx = ssl.create_default_context()
+    with (
+        patch("backend.infrastructure.glpi.glpi_session.ClientSession") as session_cls,
+        patch("aiohttp.ClientSession") as aiohttp_session_cls,
+        patch("backend.infrastructure.glpi.glpi_session.TCPConnector") as connector_cls,
+    ):
+        session_instance = MagicMock()
+        session_instance.closed = False
+        session_instance.close = AsyncMock()
+
+        @asynccontextmanager
+        async def default_ctx():
+            yield mock_response(200, {"session_token": user_token})
+
+        session_instance.get = MagicMock(return_value=default_ctx())
+        session_instance.request = MagicMock(return_value=default_ctx())
+        session_instance.__aenter__ = AsyncMock(return_value=session_instance)
+        session_instance.__aexit__ = AsyncMock(return_value=None)
+        session_cls.return_value = session_instance
+        aiohttp_session_cls.return_value = session_instance
+        connector_cls.return_value = MagicMock()
+
+        creds = Credentials(app_token=app_token, user_token=user_token)
+        glpi_session = GLPISession(base_url, creds, ssl_context=ctx)
+        async with glpi_session as session:
+            await session.get("Ticket/1")
+
+        connector_cls.assert_called_with(ssl=ctx)
+        session_instance.get.assert_any_call(
+            f"{base_url}/initSession",
+            headers={
+                "Content-Type": "application/json",
+                "App-Token": app_token,
+                "Authorization": f"user_token {user_token}",
+            },
+            proxy=ANY,
+            timeout=ANY,
+            ssl=ctx,
+        )
+        session_instance.request.assert_called_with(
+            "GET",
+            f"{base_url}/Ticket/1",
+            headers={
+                "Content-Type": "application/json",
+                "App-Token": app_token,
+                "Session-Token": user_token,
+            },
+            json=None,
+            params=None,
+            proxy=ANY,
+            timeout=ANY,
+            ssl=ctx,
         )
 
 

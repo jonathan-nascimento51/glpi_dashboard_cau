@@ -5,6 +5,7 @@ import inspect
 import json
 import logging
 import os
+import ssl
 from typing import Any, Dict, List, Optional, Union
 from urllib.parse import urlsplit, urlunsplit
 
@@ -115,6 +116,9 @@ class SessionParams(BaseModel):
         description="Optional proxy URL; defaults to HTTP_PROXY env var",
     )
     verify_ssl: bool = Field(default=True, description="Verify SSL certificates")
+    ssl_context: Optional[ssl.SSLContext] = Field(
+        default=None, description="Custom SSL context for TLS connections"
+    )
     timeout: Union[int, aiohttp.ClientTimeout] = Field(
         default=300, description="Request timeout in seconds"
     )
@@ -138,6 +142,7 @@ class GLPISession:
         credentials: Credentials,
         proxy: Optional[str] = None,
         verify_ssl: bool = True,
+        ssl_context: Optional[ssl.SSLContext] = None,
         timeout: Union[int, aiohttp.ClientTimeout] = 300,
         refresh_interval: int = 3000,  # seconds, for proactive refresh if needed
     ) -> None:
@@ -152,6 +157,8 @@ class GLPISession:
             proxy: Optional proxy URL (e.g., "http://proxy.example.com:8080").
                 Defaults to the ``HTTP_PROXY`` environment variable when unset.
             verify_ssl: Whether to verify SSL certificates. Defaults to True.
+            ssl_context: Custom :class:`ssl.SSLContext` to use when verifying
+                SSL certificates.
             timeout: Default timeout for HTTP requests in seconds.
             refresh_interval: Interval in seconds to proactively
                 refresh the session token.
@@ -161,10 +168,7 @@ class GLPISession:
         self.credentials = credentials
         self.proxy = proxy or os.environ.get("HTTP_PROXY")
         self.verify_ssl = verify_ssl
-        # When ``verify_ssl`` is ``False`` aiohttp expects ``ssl=False``. For
-        # compatibility we store this value in ``ssl_ctx`` so it can be reused
-        # whenever a new :class:`aiohttp.ClientSession` is created.
-        self.ssl_ctx = False if not verify_ssl else None
+        self.ssl_context = ssl_context
         self.timeout = timeout
         self.refresh_interval = refresh_interval
 
@@ -183,8 +187,10 @@ class GLPISession:
     async def _init_aiohttp_session(self) -> None:
         """Initializes the aiohttp ClientSession if it's not already open."""
         if self._session is None or self._session.closed:
-            if self.ssl_ctx is not None:
-                connector = TCPConnector(ssl=self.ssl_ctx)
+            if not self.verify_ssl:
+                connector = TCPConnector(ssl=False)
+            elif self.ssl_context is not None:
+                connector = TCPConnector(ssl=self.ssl_context)
             else:
                 connector = TCPConnector()
             self._session = ClientSession(connector=connector, trust_env=True)
@@ -226,11 +232,12 @@ class GLPISession:
 
             try:
                 if self._session is None:
-                    connector = (
-                        TCPConnector(ssl=self.ssl_ctx)
-                        if self.ssl_ctx is not None
-                        else TCPConnector()
-                    )
+                    if not self.verify_ssl:
+                        connector = TCPConnector(ssl=False)
+                    elif self.ssl_context is not None:
+                        connector = TCPConnector(ssl=self.ssl_context)
+                    else:
+                        connector = TCPConnector()
                     self._session = aiohttp.ClientSession(
                         connector=connector,
                         trust_env=True,
@@ -240,8 +247,10 @@ class GLPISession:
                     "proxy": self.proxy,
                     "timeout": self._resolve_timeout(),
                 }
-                if self.ssl_ctx is not None:
-                    get_kwargs["ssl"] = self.ssl_ctx
+                if not self.verify_ssl:
+                    get_kwargs["ssl"] = False
+                elif self.ssl_context is not None:
+                    get_kwargs["ssl"] = self.ssl_context
 
                 async with self._session.get(
                     init_session_url,
@@ -383,11 +392,12 @@ class GLPISession:
         logger.info("Attempting to kill GLPI session...")
         try:
             if self._session is None:
-                connector = (
-                    TCPConnector(ssl=self.ssl_ctx)
-                    if self.ssl_ctx is not None
-                    else TCPConnector()
-                )
+                if not self.verify_ssl:
+                    connector = TCPConnector(ssl=False)
+                elif self.ssl_context is not None:
+                    connector = TCPConnector(ssl=self.ssl_context)
+                else:
+                    connector = TCPConnector()
                 self._session = aiohttp.ClientSession(
                     connector=connector,
                     trust_env=True,
@@ -398,8 +408,10 @@ class GLPISession:
                 "proxy": self.proxy,
                 "timeout": self._resolve_timeout(),
             }
-            if self.ssl_ctx is not None:
-                get_kwargs["ssl"] = self.ssl_ctx
+            if not self.verify_ssl:
+                get_kwargs["ssl"] = False
+            elif self.ssl_context is not None:
+                get_kwargs["ssl"] = self.ssl_context
 
             async with self._session.get(kill_session_url, **get_kwargs) as resp:
                 resp.raise_for_status()
@@ -467,11 +479,12 @@ class GLPISession:
         for attempt in range(max_401_retries + 1):
             current_headers = request_headers.copy()
             if self._session is None:
-                connector = (
-                    TCPConnector(ssl=self.ssl_ctx)
-                    if self.ssl_ctx is not None
-                    else TCPConnector()
-                )
+                if not self.verify_ssl:
+                    connector = TCPConnector(ssl=False)
+                elif self.ssl_context is not None:
+                    connector = TCPConnector(ssl=self.ssl_context)
+                else:
+                    connector = TCPConnector()
                 self._session = aiohttp.ClientSession(
                     connector=connector,
                     trust_env=True,
@@ -485,8 +498,10 @@ class GLPISession:
                     "proxy": self.proxy,
                     "timeout": self._resolve_timeout(),
                 }
-                if self.ssl_ctx is not None:
-                    request_kwargs["ssl"] = self.ssl_ctx
+                if not self.verify_ssl:
+                    request_kwargs["ssl"] = False
+                elif self.ssl_context is not None:
+                    request_kwargs["ssl"] = self.ssl_context
 
                 request_ctx = self._session.request(
                     method,
