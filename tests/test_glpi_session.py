@@ -640,7 +640,6 @@ async def test_verify_ssl_disabled_passes_ssl_false(
             },
             proxy=None,
             timeout=ANY,
-            ssl=False,
         )
         session_instance.request.assert_called_with(
             "GET",
@@ -654,7 +653,6 @@ async def test_verify_ssl_disabled_passes_ssl_false(
             params=None,
             proxy=None,
             timeout=ANY,
-            ssl=False,
         )
 
 

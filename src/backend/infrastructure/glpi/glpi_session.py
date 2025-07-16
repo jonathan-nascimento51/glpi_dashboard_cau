@@ -161,7 +161,8 @@ class GLPISession:
         self.credentials = credentials
         self.proxy = proxy or os.environ.get("HTTP_PROXY")
         self.verify_ssl = verify_ssl
-        # The ssl_ctx attribute is no longer needed with the direct boolean passing below.
+        # ssl context passed to TCPConnector; False disables verification
+        self.ssl_ctx = False if not verify_ssl else None
         self.timeout = timeout
         self.refresh_interval = refresh_interval
 
@@ -180,7 +181,7 @@ class GLPISession:
     async def _init_aiohttp_session(self) -> None:
         """Initializes the aiohttp ClientSession if it's not already open."""
         if self._session is None or self._session.closed:
-            connector = TCPConnector(ssl=self.verify_ssl)
+            connector = TCPConnector(ssl=self.ssl_ctx)
             self._session = ClientSession(connector=connector, trust_env=True)
             if proxy_info := mask_proxy_url(self.proxy):
                 logger.info(
