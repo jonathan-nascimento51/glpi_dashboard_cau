@@ -210,10 +210,14 @@ class GLPISession:
     @retry_api_call
     async def _refresh_session_token(self) -> None:
         """
-        Refreshes the GLPI session token by calling the initSession endpoint.
-        Uses user_token if available, otherwise username/password.
+        Refresh the GLPI session token by calling the ``initSession`` endpoint.
+
+        The aiohttp session is (re)created via ``_init_aiohttp_session`` to
+        guarantee a fresh connection when needed.
         """
         async with self._refresh_lock:
+            await self._init_aiohttp_session()
+            assert self._session is not None
             init_session_url = f"{self.base_url}/initSession"
             headers = {
                 "Content-Type": "application/json",
@@ -239,17 +243,6 @@ class GLPISession:
                 )
 
             try:
-                if self._session is None:
-                    if not self.verify_ssl:
-                        connector = TCPConnector(ssl=False)
-                    elif self.ssl_ctx is not None:
-                        connector = TCPConnector(ssl=self.ssl_ctx)
-                    else:
-                        connector = TCPConnector()
-                    self._session = aiohttp.ClientSession(
-                        connector=connector,
-                        trust_env=True,
-                    )
 
                 get_kwargs = {
                     "proxy": self.proxy,
@@ -547,6 +540,9 @@ class GLPISession:
                                 "Received 401 Unauthorized. Attempting to refresh "
                                 "session token..."
                             )
+                            if self._session and not self._session.closed:
+                                await self._session.close()
+                            self._session = None
                             try:
                                 await self._refresh_session_token()
                             except GLPIUnauthorizedError as e:

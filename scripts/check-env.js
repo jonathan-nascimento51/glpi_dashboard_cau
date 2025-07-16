@@ -7,7 +7,9 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.join(__dirname, '..');
 
 function loadEnv(envPath) {
-  if (!fs.existsSync(envPath)) return;
+  if (!fs.existsSync(envPath)) {
+    return;
+  }
   const content = fs.readFileSync(envPath, 'utf8');
   for (const line of content.split(/\r?\n/)) {
     const match = line.match(/^\s*([A-Za-z0-9_]+)\s*=\s*(.*)\s*$/);

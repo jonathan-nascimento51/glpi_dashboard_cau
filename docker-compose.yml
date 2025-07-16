@@ -27,8 +27,10 @@ services:
       context: .
       dockerfile: docker/redis/Dockerfile
     restart: always
-    sysctls:
-      - vm.overcommit_memory=1
+    # A configuração sysctl pode causar falhas em alguns ambientes (como WSL).
+    # É seguro desativá-la para desenvolvimento local.
+    # sysctls:
+    #   - vm.overcommit_memory=1
     healthcheck:
       test: ["CMD", "/usr/local/bin/healthcheck.sh"]
       interval: 15s
