@@ -28,10 +28,12 @@ root.render(
         id="App"
         onRender={(id, phase, actualDuration) => {
           faro.api.pushMeasurement({
-            name: 'render',
-            value: actualDuration,
-            attributes: { id, phase },
-          })
+            type: 'react-render-duration',
+            values: {
+              duration: actualDuration,
+            },
+            context: { id, phase },
+          });
         }}
       >
         <App />
