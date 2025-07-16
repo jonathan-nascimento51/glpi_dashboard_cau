@@ -98,7 +98,7 @@ def test_rest_endpoints(test_app: TestClient):
     assert isinstance(tickets, list)
     assert tickets and "id" in tickets[0]
 
-    resp = test_app.get("/metrics")
+    resp = test_app.get("/metrics/summary")
     assert resp.status_code == 200
     metrics = resp.json()
     assert metrics == {"total": 2, "opened": 0, "closed": 2}
@@ -285,7 +285,7 @@ def test_client_reused(monkeypatch: pytest.MonkeyPatch, dummy_cache: DummyCache)
 
     client = TestClient(create_app(client=RecordingSession(), cache=dummy_cache))
     client.get("/tickets")
-    client.get("/metrics")
+    client.get("/metrics/summary")
 
     assert len(instances) == 1
 

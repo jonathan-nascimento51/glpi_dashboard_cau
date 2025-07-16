@@ -180,8 +180,8 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
             headers=response.headers,
         )
 
-    @app.get("/metrics")
-    async def metrics(response: Response) -> dict:  # noqa: F401
+    @app.get("/metrics/summary")
+    async def metrics_summary(response: Response) -> dict:  # noqa: F401
         df = await load_tickets(client=client, cache=cache, response=response)
         total = len(df)
         closed = 0
