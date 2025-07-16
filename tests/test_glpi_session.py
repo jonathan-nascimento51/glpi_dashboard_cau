@@ -89,9 +89,7 @@ class _FakeMethod:
         effect = self.side_effect
         if isinstance(effect, list):
             effect = effect.pop(0) if effect else None
-        if callable(effect):
-            return effect(*args, **kwargs)
-        return effect
+        return effect(*args, **kwargs) if callable(effect) else effect
 
     def __call__(self, *args, **kwargs):
         self._mock(*args, **kwargs)
