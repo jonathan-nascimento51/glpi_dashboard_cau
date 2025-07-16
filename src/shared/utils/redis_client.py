@@ -149,6 +149,17 @@ class RedisClient:
             logger.error("Unexpected error during Redis TTL for key %s: %s", key, e)
             return -2
 
+    async def close(self) -> None:
+        """Close the underlying Redis connection if open."""
+        if self._client is not None:
+            try:
+                await _maybe_await(self._client.close())
+                logger.info("Redis connection closed")
+            except Exception as e:  # pragma: no cover - defensive
+                logger.error("Error closing Redis connection: %s", e)
+            finally:
+                self._client = None
+
 
 # Global Redis client instance
 redis_client = RedisClient()

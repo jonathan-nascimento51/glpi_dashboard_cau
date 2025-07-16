@@ -12,8 +12,8 @@ RUN npm rebuild esbuild --update-binary
 RUN npm rebuild lightningcss --update-binary
 
 # Copiar código restante e iniciar servidor dev
-COPY . .
-COPY ../../../scripts/healthchecks/healthcheck-webapp.sh /usr/local/bin/healthcheck.sh
+COPY src/frontend/react_app/. .
+COPY scripts/healthchecks/healthcheck-webapp.sh /usr/local/bin/healthcheck.sh
 RUN chmod +x /usr/local/bin/healthcheck.sh
 EXPOSE 3000
 HEALTHCHECK \

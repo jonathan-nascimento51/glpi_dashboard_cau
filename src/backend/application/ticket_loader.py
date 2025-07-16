@@ -46,8 +46,21 @@ async def load_and_translate_tickets(
         records = df.astype(object).where(pd.notna(df), None).to_dict("records")
         tickets = [CleanTicketDTO.model_validate(r) for r in records]
     else:
-        async with client:
-            tickets = await client.fetch_tickets()
+        try:
+            async with client:
+                tickets = await client.fetch_tickets()
+        except Exception as exc:  # pragma: no cover - network errors
+            logger.exception("Failed to fetch from GLPI: %s", exc)
+            if response is not None:
+                response.headers["X-Warning"] = "using mock data"
+            df = await load_tickets(client=None, cache=cache, response=response)
+            records = df.astype(object).where(pd.notna(df), None).to_dict("records")
+            for rec in records:
+                rec.setdefault("priority", 0)
+                status = rec.get("status")
+                if isinstance(status, str) and not status.isdigit():
+                    rec["status"] = 0
+            tickets = [CleanTicketDTO.model_validate(r) for r in records]
 
     await cache.set(cache_key, {"data": [t.model_dump() for t in tickets]})
     return tickets

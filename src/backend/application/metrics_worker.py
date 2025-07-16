@@ -63,7 +63,9 @@ async def startup(
 async def shutdown(
     ctx: dict[str, Any],
 ) -> None:  # pragma: no cover - used by ARQ
-    pass
+    cache: RedisClient | None = ctx.get("cache")
+    if cache is not None and hasattr(cache, "close"):
+        await cache.close()
 
 
 class WorkerSettings:  # pragma: no cover - used by ``run_worker``

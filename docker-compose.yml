@@ -36,7 +36,7 @@ services:
   frontend:
     build:
       context: .
-      dockerfile: src/frontend/react_app/Dockerfile
+      dockerfile: frontend/react_app/Dockerfile
     depends_on:
       - backend
     env_file:
@@ -44,7 +44,7 @@ services:
       - .env.example
     environment:
       # (opcional, você pode sobrescrever aqui)
-      - NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
+      - NEXT_PUBLIC_API_BASE_URL=http://backend:8000
     healthcheck:
       test: ["CMD", "/usr/local/bin/healthcheck.sh"]
       interval: 30s
