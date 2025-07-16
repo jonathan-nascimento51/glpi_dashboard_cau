@@ -168,7 +168,7 @@ class GLPISession:
         self.credentials = credentials
         self.proxy = proxy or os.environ.get("HTTP_PROXY")
         self.verify_ssl = verify_ssl
-        self.ssl_context = ssl_context
+        self.ssl_ctx = ssl_context
         self.timeout = timeout
         self.refresh_interval = refresh_interval
 
@@ -195,8 +195,8 @@ class GLPISession:
         if self._session is None or self._session.closed:
             if not self.verify_ssl:
                 connector = TCPConnector(ssl=False)
-            elif self.ssl_context is not None:
-                connector = TCPConnector(ssl=self.ssl_context)
+            elif self.ssl_ctx is not None:
+                connector = TCPConnector(ssl=self.ssl_ctx)
             else:
                 connector = TCPConnector()
             self._session = ClientSession(connector=connector, trust_env=True)
@@ -242,8 +242,8 @@ class GLPISession:
                 if self._session is None:
                     if not self.verify_ssl:
                         connector = TCPConnector(ssl=False)
-                    elif self.ssl_context is not None:
-                        connector = TCPConnector(ssl=self.ssl_context)
+                    elif self.ssl_ctx is not None:
+                        connector = TCPConnector(ssl=self.ssl_ctx)
                     else:
                         connector = TCPConnector()
                     self._session = aiohttp.ClientSession(
@@ -257,8 +257,8 @@ class GLPISession:
                 }
                 if not self.verify_ssl:
                     get_kwargs["ssl"] = False
-                elif self.ssl_context is not None:
-                    get_kwargs["ssl"] = self.ssl_context
+                elif self.ssl_ctx is not None:
+                    get_kwargs["ssl"] = self.ssl_ctx
 
                 async with self._session.get(
                     init_session_url,
@@ -420,8 +420,8 @@ class GLPISession:
             if self._session is None:
                 if not self.verify_ssl:
                     connector = TCPConnector(ssl=False)
-                elif self.ssl_context is not None:
-                    connector = TCPConnector(ssl=self.ssl_context)
+                elif self.ssl_ctx is not None:
+                    connector = TCPConnector(ssl=self.ssl_ctx)
                 else:
                     connector = TCPConnector()
                 self._session = aiohttp.ClientSession(
@@ -436,8 +436,8 @@ class GLPISession:
             }
             if not self.verify_ssl:
                 get_kwargs["ssl"] = False
-            elif self.ssl_context is not None:
-                get_kwargs["ssl"] = self.ssl_context
+            elif self.ssl_ctx is not None:
+                get_kwargs["ssl"] = self.ssl_ctx
 
             async with self._session.get(kill_session_url, **get_kwargs) as resp:
                 resp.raise_for_status()
@@ -507,8 +507,8 @@ class GLPISession:
             if self._session is None:
                 if not self.verify_ssl:
                     connector = TCPConnector(ssl=False)
-                elif self.ssl_context is not None:
-                    connector = TCPConnector(ssl=self.ssl_context)
+                elif self.ssl_ctx is not None:
+                    connector = TCPConnector(ssl=self.ssl_ctx)
                 else:
                     connector = TCPConnector()
                 self._session = aiohttp.ClientSession(
@@ -526,8 +526,8 @@ class GLPISession:
                 }
                 if not self.verify_ssl:
                     request_kwargs["ssl"] = False
-                elif self.ssl_context is not None:
-                    request_kwargs["ssl"] = self.ssl_context
+                elif self.ssl_ctx is not None:
+                    request_kwargs["ssl"] = self.ssl_ctx
 
                 request_ctx = self._session.request(
                     method,
