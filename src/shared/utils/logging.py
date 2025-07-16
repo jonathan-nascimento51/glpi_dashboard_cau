@@ -63,14 +63,10 @@ def init_logging(
     env = os.getenv("APP_ENV", "development").lower()
     is_production = env == "production"
 
-    if serialize is None:
-        if is_production:
-            serialize = True
-        else:
-            serialize = os.getenv("LOG_FORMAT", "json").lower() != "text"
-    elif is_production:
+    if serialize is None and is_production or serialize is not None and is_production:
         serialize = True
-
+    elif serialize is None:
+        serialize = os.getenv("LOG_FORMAT", "json").lower() != "text"
     # Enable verbose diagnostics only if LOG_DEBUG is set and not in production
     debug_mode = os.getenv("LOG_DEBUG", "false").lower() in ("true", "1", "t")
     if is_production:
