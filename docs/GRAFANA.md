@@ -1,0 +1,1 @@
+- Ensure a clean Grafana volume on first deploy to avoid duplicate plugin registrations.

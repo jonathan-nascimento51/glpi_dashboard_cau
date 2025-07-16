@@ -57,7 +57,10 @@ bug-prompt:
 gen-types:
     PYTHONPATH=src pydantic2ts --module backend.models.ts_models --output frontend/src/types/api.ts
 
-.PHONY: setup build up reset logs down init-db test lint format bug-prompt gen-types
+lint-config:
+	bash scripts/lint-configs.sh
+
+.PHONY: setup build up reset logs down init-db test lint format bug-prompt gen-types lint-config
 
 
 # # Makefile

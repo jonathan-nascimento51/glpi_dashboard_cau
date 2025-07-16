@@ -14,7 +14,12 @@ export function useChamadosPorData() {
 
   return {
     dados: query.data ?? [],
-    error: query.error as Error | null,
+    // Se você não tiver um tipo ApiError:
+    error: query.error
+      ? (query.error as any).status === 503  // Use 'any' temporariamente
+        ? new Error('Serviço temporariamente indisponível. Tente novamente mais tarde.')
+        : (query.error as Error)
+      : null,
     isLoading: query.isLoading,
   }
 }

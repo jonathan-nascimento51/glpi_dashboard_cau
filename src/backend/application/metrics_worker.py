@@ -48,7 +48,9 @@ async def update_metrics(ctx: Dict[str, Any], ticket: Dict[str, Any]) -> None:
     df = process_raw(tickets)
     metrics = compute_aggregated(df)
     await cache_aggregated_metrics(cache, "metrics_aggregated", metrics)
-    await cache.set("chamados_por_data", tickets_by_date(df).to_dict(orient="records"))
+    await cache.set(
+        "chamados_por_data", tickets_by_date(df).to_dict(orient="records")
+    )  # Key for /chamados/por-data
     await cache.set(
         "chamados_por_dia", tickets_daily_totals(df).to_dict(orient="records")
     )

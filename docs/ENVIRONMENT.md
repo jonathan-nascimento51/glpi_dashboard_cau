@@ -1,0 +1,1 @@
+- `NEXT_PUBLIC_API_BASE_URL`: must point to `http://backend:8000` when running under Docker Compose network.

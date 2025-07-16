@@ -1,0 +1,1 @@
+- **frontend/Dockerfile**: upgraded base image from Node 18 to Node 20.19.0-alpine to fix `EBADENGINE` and crypto.hash errors.

@@ -26,6 +26,8 @@ services:
       context: .
       dockerfile: docker/redis/Dockerfile
     restart: always
+    sysctls:
+      - vm.overcommit_memory=1
     healthcheck:
       test: ["CMD", "/usr/local/bin/healthcheck.sh"]
       interval: 15s
@@ -55,9 +57,8 @@ services:
       retries: 3
 
   db:
-    build:
-      context: .
-      dockerfile: docker/postgres/Dockerfile
+    build: ./db
+    image: glpi_dashboard_db:latest
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
