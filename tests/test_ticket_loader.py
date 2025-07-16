@@ -29,3 +29,22 @@ async def test_load_and_translate_tickets_cache_hit(mocker):
     assert isinstance(result, list)
     assert all(isinstance(t, CleanTicketDTO) for t in result)
     cache.get.assert_awaited_once_with("tickets_clean")
+
+
+@pytest.mark.asyncio
+async def test_check_glpi_connection_mock(monkeypatch):
+    """Return 200 without session when mock data is enabled."""
+
+    called = False
+
+    def fake_create_session():
+        nonlocal called
+        called = True
+        raise RuntimeError("should not be called")
+
+    monkeypatch.setattr(ticket_loader, "USE_MOCK_DATA", True)
+    monkeypatch.setattr(ticket_loader, "create_glpi_session", fake_create_session)
+
+    status = await ticket_loader.check_glpi_connection()
+    assert status == 200
+    assert not called

@@ -148,6 +148,9 @@ async def stream_tickets(
 async def check_glpi_connection() -> int:
     """Return HTTP status based on GLPI connectivity."""
 
+    if USE_MOCK_DATA:
+        return 200
+
     session = create_glpi_session()
     if session is None:
         return 500
