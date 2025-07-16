@@ -39,11 +39,11 @@ fi
 echo ">>> (1/6) Instalando dependências do sistema para o Playwright..."
 sudo apt-get update -y
 sudo apt-get install -y \
-    curl ca-certificates libnss3 libnspr4 libatk1.0-0t64 libatk-bridge2.0-0t64 libcups2t64 \
+    curl ca-certificates libnss3 libnspr4 libatk1.0-0 libatk-bridge2.0-0 libcups2 \
     libdbus-1-3 libxkbcommon0 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 \
-    libgbm1 libpango-1.0-0 libcairo2 libasound2t64 libatspi2.0-0t64 libgtk-3-0t64 \
+    libgbm1 libpango-1.0-0 libcairo2 libasound2 libatspi2.0-0 libgtk-3-0 \
     libx11-xcb1 libxshmfence1 xvfb fonts-liberation libxslt1.1 libwoff1 \
-    libharfbuzz-icu0 libvpx9 libavif16 libwebpdemux2 libenchant-2-2 libsecret-1-0 \
+    libharfbuzz-icu0 libvpx7 libavif13 libwebpdemux2 libenchant-2-2 libsecret-1-0 \
     libhyphen0 libgles2 libgstreamer1.0-0 gstreamer1.0-plugins-base \
     gstreamer1.0-plugins-good gstreamer1.0-libav unzip
 
