@@ -20,7 +20,7 @@ rm -rf "$FRONTEND_DIR/node_modules" "$FRONTEND_DIR/package-lock.json"
 echo "🐳 Running npm install inside Docker..."
 docker run --rm \
   -v "${HOST_PATH}:/app" \
-  node:20-alpine \
+  node:20.19.0-alpine \
   sh -c "cd /app && npm install --legacy-peer-deps --prefer-offline --no-audit --progress=false"
 
 # Fix ownership if running as root

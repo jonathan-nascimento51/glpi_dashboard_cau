@@ -2,8 +2,8 @@
 set -e
 
 echo "🔍 Checking frontend Dockerfile Node version…"
-grep -q "node:20" frontend/Dockerfile || {
-  echo "ERROR: frontend/Dockerfile not using Node 20+"
+grep -q "node:20.19.0" frontend/Dockerfile || {
+  echo "ERROR: frontend/Dockerfile not using Node 20.19.0"
   exit 1
 }
 

@@ -17,7 +17,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: '20.19.0'
           cache: 'npm'
           cache-dependency-path: src/frontend/react_app/package-lock.json
 
