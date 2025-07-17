@@ -17,9 +17,10 @@ Pattern modules such as `song_serializer.py` and `sort_strategy.py` live in [`ex
 Follow these steps to prepare a local environment. A condensed walkthrough is
 available in [docs/install_quickstart.md](docs/install_quickstart.md).
 
-Run `scripts/setup/setup_env.sh` (or `make setup`) to create the `.venv` directory, install
-packages from `requirements.txt` and `requirements-dev.txt` and enable
-`pre-commit` hooks automatically. Optional extras can be added later with
+Run `scripts/setup/setup_env.sh` (or `make setup`) to create the `.venv` directory,
+install packages from `requirements.txt` and the development set defined in
+`pyproject.toml` (compiled into `requirements-dev.txt`) and enable `pre-commit`
+hooks automatically. Optional extras can be added later with
 `./scripts/install_dev_extras.sh`. If you prefer to install packages manually,
 remember to run `pre-commit install` afterward.
 
@@ -36,7 +37,7 @@ still run the manual commands below if you need finer control:
 
 ```bash
 python -m pip install --upgrade pip
-pip install -r requirements.txt -r requirements-dev.txt
+pip install -r requirements.txt -r requirements-dev.txt  # generated via pip-compile
 pip install -e .
 pre-commit install
 cd src/frontend/react_app && npm ci
@@ -48,6 +49,11 @@ for common import errors.
 
 The `pip install` steps above must be run before executing any tests so that
 the local package and its development dependencies are available.
+
+Run `make diagnose` to verify the Codex environment. The helper script
+`scripts/diagnostics/diagnose_codex.py` prints useful metadata for troubleshooting.
+
+Runtime packages come from `requirements.txt`; development and testing tools are defined in `pyproject.toml` and compiled into `requirements-dev.txt`.
 
 Run `make diagnose` to verify the Codex environment. The helper script
 `scripts/diagnostics/diagnose_codex.py` prints useful metadata for troubleshooting.
@@ -231,21 +237,14 @@ under `src/frontend/modules/` for Dash.
 ### Running tests
 
 ```bash
-make test
-```
-
-Before running any tests **install the full dependency set**. Use `make setup`
-or run the commands below so imports resolve correctly:
-
-```bash
-pip install -r requirements.txt -r requirements-dev.txt
+pip install -r requirements.txt -r requirements-dev.txt  # generated via pip-compile
 pip install -e .
 cd src/frontend/react_app && npm ci
 ```
 See [docs/testing.md](docs/testing.md) for tips on running individual tests and for common import errors.
 
-These commands mirror what the setup target does and ensure Playwright and the
-Dash testing extras from `requirements-dev.txt` are available. Verify that the
+These commands mirror what the setup target does and ensure Playwright and the␊
+Dash testing extras from the dev set are available. Verify that the
 `.venv` directory exists before calling `make test`. Frontend tests expect the
 Node packages installed with `npm ci` under `src/frontend/react_app`.
 
@@ -256,13 +255,13 @@ Build artifacts are written to the `build/` directory. Treat this folder as temp
 
 ```bash
 python -m pip install --upgrade pip
-pip install -r requirements.txt -r requirements-dev.txt
+pip install -r requirements.txt -r requirements-dev.txt  # generated via pip-compile
 pip install opentelemetry-instrumentation-fastapi opentelemetry-instrumentation-logging
 pip install -e .  # install the backend package in editable mode
 # Install the git hooks so code is formatted and linted automatically
 pre-commit install  # runs black, ruff, isort and mypy
 # Generic hooks from pre-commit-hooks also strip trailing whitespace and validate YAML
-# Ruff version pinned to 0.12.2 is included in requirements-dev.txt
+# Ruff version pinned to 0.12.2 is specified in `pyproject.toml` and present in `requirements-dev.txt`
 # Reinstall dev dependencies before running pre-commit if your environment is outdated
 ```
 
@@ -280,9 +279,9 @@ invoking `pip`. The `scripts/setup/setup_env.sh` script automatically configures
 `HTTP_PROXY` is defined and can work offline by setting `OFFLINE_INSTALL=true`:
 
 ```bash
-export HTTP_PROXY=http://proxy.company.com:8080
+export HTTP_PROXY=http://proxy.company.com:8080␊
 export HTTPS_PROXY=$HTTP_PROXY
-pip install -r requirements.txt -r requirements-dev.txt
+pip install -r requirements.txt -r requirements-dev.txt  # generated via pip-compile
 ```
 
 On a machine with internet access you can pre-download the wheels needed by the
@@ -296,8 +295,7 @@ The script stores wheels under `./wheels` by default. Copy this directory to the
 offline machine and install everything without contacting PyPI:
 
 ```bash
-pip install --no-index --find-links=/path/to/wheels -r requirements.txt -r requirements-dev.txt
-```
+pip install --no-index --find-links=/path/to/wheels -r requirements.txt -r requirements-dev.txt  # generated via pip-compile
 
 Then run the setup script with `OFFLINE_INSTALL=true bash scripts/setup/setup_env.sh` to skip online downloads.
 

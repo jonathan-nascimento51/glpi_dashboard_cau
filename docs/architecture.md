@@ -54,7 +54,8 @@ Raiz do Projeto: A raiz será mantida o mais limpa possível, contendo apenas ar
 
 Configuração Docker: docker-compose.yml, Dockerfile.
 
-Configuração do Projeto: pyproject.toml, package.json, requirements.txt.
+Configuração do Projeto: pyproject.toml, requirements.txt e o `package.json` do
+front-end em `src/frontend/react_app`.
 
 CI/CD e Qualidade: .github/, .gitignore, .pre-commit-config.yaml.
 

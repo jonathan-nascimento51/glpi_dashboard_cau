@@ -25,20 +25,20 @@ node -v
 npm -v
 npx -v
 
-# Instala dependências do projeto
-if (Test-Path "package.json") {
-    Write-Host "`n📁 Instalando dependências do projeto..."
+# Instala dependências do projeto React
+$frontendPath = "src/frontend/react_app"
+if (Test-Path "$frontendPath/package.json") {
+    Write-Host "`n📁 Instalando dependências do React..."
+    Push-Location $frontendPath
     npm install
-}
 
-# Instala playwright se detectado
-if (Test-Path "node_modules/playwright") {
-    Write-Host "`n🎭 Instalando navegadores do Playwright..."
-    npx playwright install
-}
+    # Instala playwright se detectado
+    if (Test-Path "node_modules/playwright") {
+        Write-Host "`n🎭 Instalando navegadores do Playwright..."
+        npx playwright install
+    }
 
-# Instala extras se detectado no package.json
-if (Test-Path "package.json") {
+    # Instala extras se detectado no package.json
     $pkg = Get-Content package.json -Raw | ConvertFrom-Json
 
     if ($pkg.devDependencies."vite") {
@@ -52,6 +52,8 @@ if (Test-Path "package.json") {
     if ($pkg.devDependencies."tailwindcss") {
         Write-Host "`n🌬️ TailwindCSS detectado – ok"
     }
+
+    Pop-Location
 }
 
 Write-Host "`n🎉 Setup concluído com sucesso!"
