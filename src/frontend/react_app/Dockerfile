@@ -1,5 +1,6 @@
 # 🔧 Node versão mínima exigida pelo Vite@7
 FROM node:20.19.0-alpine
+RUN apk add --no-cache bash
 
 WORKDIR /app
 ENV NPM_CONFIG_CACHE=/root/.npm
@@ -19,8 +20,9 @@ COPY src/frontend/react_app/ ./
 COPY .env.docker .env
 
 # Copiar script de healthcheck, se necessário
-COPY scripts/healthchecks/healthcheck-webapp.sh /usr/local/bin/healthcheck.sh
+COPY scripts/healthchecks/healthcheck.sh /usr/local/bin/healthcheck.sh
 RUN chmod +x /usr/local/bin/healthcheck.sh
+ENV HC_TARGET=frontend
 
 # Expor a porta padrão do Vite
 EXPOSE 5173
@@ -30,6 +32,6 @@ HEALTHCHECK \
   --timeout=5s \
   --start-period=45s \
   --retries=3 \
-  CMD /usr/local/bin/healthcheck.sh
+  CMD ["bash", "/usr/local/bin/healthcheck.sh"]
 
 CMD ["npm", "run", "dev"]

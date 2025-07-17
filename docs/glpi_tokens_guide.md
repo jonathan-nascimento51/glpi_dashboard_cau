@@ -127,8 +127,8 @@ Cobertura mínima de 85 % garantida no CI (GitHub Actions).
 
 ## 10 ▪️ Monitoramento de produção
 
-O contêiner **worker** possui `HEALTHCHECK` interno que executa `curl -I` no
-endpoint `/health/glpi` (método **HEAD**). A rota `GET` continua disponível para
+O contêiner **worker** possui `HEALTHCHECK` interno que executa `curl -I` no␊
+endpoint `/health` (método **HEAD**). A rota `GET` continua disponível para
 verificações manuais. Use:
 
 ```bash

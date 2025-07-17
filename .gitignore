@@ -1,0 +1,38 @@
+# ---- Python build / cache ----
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+.cache/
+
+# ---- Virtual envs ----
+.venv/
+venv/
+env/
+.env/
+
+# ---- Node / frontend ----
+node_modules/
+dist/
+build/
+*.tsbuildinfo
+
+# ---- Local Node runtime solto (não versionar) ----
+/node
+/node.exe
+
+# ---- Arquivo temporário de pacote ----
+/package.tmp.json
+
+# ---- Arquivos de variaveis de ambiente ----
+.env
+.env.docker
+
+prompts/bug_prompt.md

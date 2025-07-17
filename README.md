@@ -452,7 +452,7 @@ The service exposes several endpoints:
 - `/chamados/por-dia` – totals for calendar heatmaps, refreshed every 10 minutes.
 - `/graphql/` – GraphQL API providing the same information.
 - `/cache/stats` – returns cache hit/miss metrics.
-- `/health/glpi` – quick check that the worker can reach the GLPI API.
+- `/health` – quick check that the worker can reach the GLPI API.
 
 ### Offline fallback
 

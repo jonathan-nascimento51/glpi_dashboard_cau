@@ -28,3 +28,17 @@ def disable_retry_backoff_env():
             os.environ["DISABLE_RETRY_BACKOFF"] = original
         else:
             os.environ.pop("DISABLE_RETRY_BACKOFF", None)
+
+
+@pytest.fixture()
+def glpi_unavailable(monkeypatch: pytest.MonkeyPatch):
+    """Simulate an unreachable GLPI API for health checks."""
+
+    async def _fail() -> int:
+        return 500
+
+    monkeypatch.setattr(
+        "src.backend.api.worker_api.check_glpi_connection",
+        _fail,
+    )
+    yield
