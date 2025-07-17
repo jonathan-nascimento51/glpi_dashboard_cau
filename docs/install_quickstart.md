@@ -12,11 +12,12 @@ This document condenses the main steps from the README to get the dashboard runn
    Docker Compose loads this file automatically when present.
 
 2. Install dependencies and configure pre-commit:
-   ```bash
-   bash scripts/setup/setup_env.sh
-   ```
-   This command creates the `.venv` directory, installs packages from
-   `requirements.txt` and `requirements-dev.txt`, and sets up `pre-commit`.
+```bash
+  bash scripts/setup/setup_env.sh
+  ```
+  This command creates the `.venv` directory, installs packages from
+  `requirements.txt` and the dev dependencies defined in `pyproject.toml`
+  (compiled into `requirements-dev.txt`), and sets up `pre-commit`.
    Run it once before executing any tests (or use `make setup`). The script
    accepts proxy variables (`HTTP_PROXY`/`HTTPS_PROXY`) and can work offline with
    `OFFLINE_INSTALL=true` when wheels are available under `./wheels`.
@@ -28,13 +29,14 @@ This document condenses the main steps from the README to get the dashboard runn
    Remove any leftover proxy entries from `.npmrc` as explained in
    [docs/solucoes_problemas.md](solucoes_problemas.md#11.1-unknown-env-config-http-proxy).
    If you prefer manual setup, execute:
-   ```bash
-   pip install -r requirements.txt -r requirements-dev.txt
-   ```
+
+  ```bash
+  pip install -r requirements.txt -r requirements-dev.txt  # generated via pip-compile
+  ```
    before running the tests.
 
 3. (Optional) Authenticate the GitHub CLI if you use private repositories:
-   ```bash
+```bash
    export GITHUB_TOKEN=<token>
    bash scripts/setup/setup_github_access.sh
    ```

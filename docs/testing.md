@@ -3,7 +3,7 @@
 The test suite relies on several optional libraries and expects coverage to be enabled by default. Install all runtime and development dependencies **before** invoking pytest:
 
 ```bash
-pip install -r requirements.txt -r requirements-dev.txt
+pip install -r requirements.txt -r requirements-dev.txt  # generated via pip-compile
 pip install -e .
 ```
 

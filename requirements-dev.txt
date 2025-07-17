@@ -1,6 +1,7 @@
-pytest==7.1.2
-pytest-cov==3.0.0
-pytest-asyncio==0.18.3
+# Auto-generated from pyproject.toml [project.optional-dependencies].dev
+pytest==8.4.1
+pytest-cov==6.2.1
+pytest-asyncio==1.0.0
 flake8==4.0.1
 mypy==0.910
 black==21.12b0
@@ -9,10 +10,10 @@ ruff
 testcontainers
 playwright
 dash[testing]
-pytest-mock
+pytest-mock==3.14.1
 types-requests
 types-redis
-pytest-httpx
+pytest-httpx==0.30.0
 pact-python
 pydantic-to-typescript
 opentelemetry-instrumentation-fastapi

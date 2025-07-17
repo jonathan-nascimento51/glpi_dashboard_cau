@@ -772,7 +772,7 @@ The wheels are saved under `./wheels` by default. Transfer the directory to the
 offline machine and install using:
 
 ```bash
-pip install --no-index --find-links=wheels -r requirements.txt -r requirements-dev.txt
+pip install --no-index --find-links=wheels -r requirements.txt -r requirements-dev.txt  # generated via pip-compile
 ```
 
 ## Tests and linting
@@ -788,8 +788,8 @@ Before running `pytest` or `make test` you **must** install all dependencies and
 the local package in editable mode:
 
 ```bash
-pip install -r requirements.txt -r requirements-dev.txt && pip install -e .
-# the editable install exposes `backend` and `frontend` modules for tests
+pip install -r requirements.txt -r requirements-dev.txt  # generated via pip-compile
+pip install -e .
 ```
 
 Running `scripts/setup/setup_env.sh` performs the same installation automatically and configures
@@ -815,7 +815,7 @@ This reads the `[project.optional-dependencies].dev` list from `pyproject.toml`
 and installs each package via `pip`.
 
 ```bash
-pip install -r requirements.txt -r requirements-dev.txt
+pip install -r requirements.txt -r requirements-dev.txt  # generated via pip-compile
 pip install -e .  # ensure local packages are discoverable during tests
 # tests rely on OpenTelemetry instrumentation extras
 pip install opentelemetry-instrumentation-fastapi opentelemetry-instrumentation-logging
@@ -982,9 +982,10 @@ builds.
 
 Refactor moves can be automated with `scripts/run_py_codemod.sh`. The wrapper
 invokes Rope's `refactor_move.py` and rewrites imports for you. The
-[Rope](https://github.com/python-rope/rope) library is already included in
-`requirements-dev.txt`, so running `make setup` (or installing the requirements
-manually) prepares everything automatically.
+[Rope](https://github.com/python-rope/rope) library is part of the `dev` extras
+defined in `pyproject.toml` and therefore included in `requirements-dev.txt`.
+Running `make setup` (or installing the requirements manually) prepares
+everything automatically.
 
 ```bash
 ./scripts/run_py_codemod.sh src/shared/utils/resilience/circuit_breaker.py src/backend/adapters/resilience/
