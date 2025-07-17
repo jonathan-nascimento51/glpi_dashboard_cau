@@ -5,7 +5,7 @@ WORKDIR /app
 ENV NPM_CONFIG_CACHE=/root/.npm
 
 # Instalar dependências com cache
-COPY package.json package-lock.json* ./
+COPY src/frontend/react_app/package.json src/frontend/react_app/package-lock.json* ./
 # COPY .npmrc ./
  # Instala todas as dependências (incluindo dev para o servidor Vite)
  # e pula o download dos browsers do Playwright, que não são necessários no container.
