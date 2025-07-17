@@ -71,11 +71,10 @@ if [ "$OFFLINE_INSTALL" = "true" ]; then
   WHEEL_DIR=${WHEELS_DIR:-./wheels}
   pip install --no-index --find-links="$WHEEL_DIR" -r requirements.txt -r requirements-dev.txt
 else
-  pip install --no-index --find-links="$WHEEL_DIR" -e .
-else
   pip install -r requirements.txt
   pip install -e .[dev]
 fi
+
 pip install aiohttp
 unset PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD
 

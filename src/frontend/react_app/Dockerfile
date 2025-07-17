@@ -9,7 +9,7 @@ COPY src/frontend/react_app/package.json src/frontend/react_app/package-lock.jso
 # COPY .npmrc ./
  # Instala todas as dependências (incluindo dev para o servidor Vite)
  # e pula o download dos browsers do Playwright, que não são necessários no container.
-RUN PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm install
+RUN PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm install --legacy-peer-deps
 RUN npm rebuild esbuild --update-binary
 RUN npm rebuild lightningcss --update-binary
 
