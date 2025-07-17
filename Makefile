@@ -60,4 +60,7 @@ gen-types:
 lint-config:
 	bash scripts/lint-configs.sh
 
-.PHONY: setup build up reset logs down init-db test lint format bug-prompt gen-types lint-config
+lint-docker:
+	bash scripts/lint-docker.sh
+
+.PHONY: setup build up reset logs down init-db test lint format bug-prompt gen-types lint-config lint-docker

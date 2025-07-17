@@ -24,6 +24,8 @@ services:
   api-server:
     build:
       context: ../..
+      # explicit Dockerfile path for integration tests
+      dockerfile: docker/backend/Dockerfile
     command: python worker.py
     env_file:
       - ../../.env
