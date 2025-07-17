@@ -119,7 +119,7 @@ This starts PostgreSQL, Redis, the FastAPI worker and the Dash app. Access the d
 
 - Python 3.10\u20133.12
 - PostgreSQL and Redis instances running locally (or update the `.env` file)
-- Node.js is required to run the React frontend locally.
+- Node.js >=22.12 is required to run the React frontend locally.
   Docker remains an optional alternative for running the entire stack.
 - The React dashboard fetches data with [`@tanstack/react-query`](https://tanstack.com/query) for
   caching and background updates.
