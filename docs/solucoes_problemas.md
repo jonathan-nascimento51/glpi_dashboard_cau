@@ -122,7 +122,7 @@ Mensagens de deprecated indicam que uma dependência não é mais mantida. Atual
 
 ### 11.4 TypeError: `crypto.hash` is not a function
 
-Ao utilizar o **Vite 7** com versões antigas do Node.js pode surgir o erro `TypeError: crypto.hash is not a function`. Essa função foi incorporada recentemente e só está disponível a partir do Node **20.19.0** ou **22.12.0**.
+Ao utilizar o **Vite 7** com versões antigas do Node.js pode surgir o erro `TypeError: crypto.hash is not a function`. Essa função foi incorporada recentemente e só está disponível a partir do Node **20.19** ou **22.12.0**.
 
 Certifique‑se de instalar uma dessas versões e ativá‑la com o `nvm`:
 
