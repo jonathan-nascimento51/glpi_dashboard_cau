@@ -34,7 +34,7 @@ steps:
   - uses: actions/checkout@v4
   - uses: actions/setup-node@v4
     with:
-      node-version: '18.x'
+      node-version: '20.19.0'
   - run: cd frontend && npm ci
   - run: cd frontend && npm run lint
   - run: cd frontend && npm run build --if-present
