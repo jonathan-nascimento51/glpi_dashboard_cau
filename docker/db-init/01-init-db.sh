@@ -1,5 +1,6 @@
-#!/bin/sh
-set -euo pipefail
+#!/bin/bash
+set -e
+set -o pipefail
 
 # As variáveis POSTGRES_USER e POSTGRES_DB são usadas pela imagem base do Postgres
 # para criar o usuário e o banco de dados. Este script assume que eles já existem

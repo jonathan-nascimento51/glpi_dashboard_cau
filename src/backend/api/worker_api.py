@@ -261,7 +261,7 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
                 return 500
         return await check_glpi_connection()
 
-    @app.get("/health/glpi")
+    @app.get("/health")
     async def health_glpi() -> JSONResponse:  # noqa: F401
         """Check GLPI connectivity and return a JSON body."""
         status = await _check_glpi()
@@ -283,7 +283,7 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
             headers={"Cache-Control": "no-cache"},
         )
 
-    @app.head("/health/glpi")
+    @app.head("/health")
     async def health_glpi_head() -> Response:  # noqa: F401
         """Same as ``health_glpi`` but returns headers only."""
         status = await _check_glpi()

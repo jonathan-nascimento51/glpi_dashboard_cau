@@ -74,7 +74,6 @@ else
   pip install -r requirements.txt
   pip install -e .[dev]
 fi
-
 pip install aiohttp
 unset PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD
 

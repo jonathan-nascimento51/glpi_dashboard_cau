@@ -23,7 +23,7 @@
   "frontend/package-lock.json": "src/frontend/react_app/package-lock.json",
   "frontend/package.json": "src/frontend/react_app/package.json",
   "frontend/playwright.config.ts": "src/frontend/react_app/playwright.config.ts",
-  "frontend/postcss.config.js": "src/frontend/react_app/postcss.config.js",
+  "frontend/postcss.config.cjs": "src/frontend/react_app/postcss.config.cjs",
   "frontend/public/file.svg": "src/frontend/react_app/public/file.svg",
   "frontend/public/globe.svg": "src/frontend/react_app/public/globe.svg",
   "frontend/public/next.svg": "src/frontend/react_app/public/next.svg",
@@ -127,5 +127,5 @@
   "src/glpi_dashboard/services/aggregated_metrics.py": "src/backend/services/aggregated_metrics.py",
   "src/glpi_dashboard/services/langgraph_workflow.py": "src/backend/services/langgraph_workflow.py",
   "src/glpi_dashboard/services/worker_api.py": "src/backend/api/worker_api.py",
-  "src/glpi_dashboard/utils/redis_client.py": "src/backend/utils/redis_client.py",
+  "src/glpi_dashboard/utils/redis_client.py": "src/backend/utils/redis_client.py"
 }

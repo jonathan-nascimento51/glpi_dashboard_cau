@@ -312,14 +312,14 @@ def test_cache_middleware(dummy_cache: DummyCache):
 
 def test_health_glpi(dummy_cache: DummyCache):
     client = TestClient(create_app(client=FakeClient(), cache=dummy_cache))
-    resp = client.get("/health/glpi")
+    resp = client.get("/health")
     assert resp.status_code == 200
     assert resp.json()["status"] == "success"
 
 
 def test_health_glpi_head_success(dummy_cache: DummyCache) -> None:
     client = TestClient(create_app(client=FakeClient(), cache=dummy_cache))
-    resp = client.head("/health/glpi")
+    resp = client.head("/health")
     assert resp.status_code == 200
     assert resp.text == ""
 
@@ -354,7 +354,7 @@ def test_health_glpi_auth_failure(
         create_app(client=FakeClient(), cache=dummy_cache),
         raise_server_exceptions=False,
     )
-    resp = client.get("/health/glpi")
+    resp = client.get("/health")
     assert resp.status_code == 500
     data = resp.json()
     assert data["status"] == "error"

@@ -119,3 +119,16 @@ Desativar a verificação de certificados TLS torna as conexões inseguras. Em v
 ### 11.3 Pacotes depreciados
 
 Mensagens de deprecated indicam que uma dependência não é mais mantida. Atualize as versões diretas no `package.json` e utilize `overrides` para forçar versões mais novas em dependências transitivas. Priorize `rimraf@^4`, `glob@^9` e substitua `lodash.get` por optional chaining (`obj?.a?.b`).
+
+### 11.4 TypeError: `crypto.hash` is not a function
+
+Ao utilizar o **Vite 7** com versões antigas do Node.js pode surgir o erro `TypeError: crypto.hash is not a function`. Essa função foi incorporada recentemente e só está disponível a partir do Node **20.19.0** ou **22.12.0**.
+
+Certifique‑se de instalar uma dessas versões e ativá‑la com o `nvm`:
+
+```bash
+nvm install 22.12.0   # ou "nvm install 20.19.0"
+nvm use 22.12.0
+```
+
+Após atualizar o Node, remova a pasta `node_modules` e reinstale as dependências para garantir que o build do Vite seja executado corretamente.
