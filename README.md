@@ -442,6 +442,10 @@ Alternatively you can use the module form:
 python -m backend.application.metrics_worker
 ```
 
+When the FastAPI service starts it primes the Redis cache by calling
+`load_tickets()`. This fills the `chamados_por_data` and
+`metrics_aggregated` keys so endpoints are responsive immediately.
+
 The service exposes several endpoints:
 
 - `/tickets` – full list of tickets in JSON format.

@@ -21,6 +21,8 @@ services:
       timeout: 5s
       start_period: 60s
       retries: 3
+    ports:
+    - "8000:8000"
 
   redis:
     build:

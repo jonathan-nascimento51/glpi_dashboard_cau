@@ -166,6 +166,10 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
     if client is None:
         client = create_glpi_api_client()
 
+    @app.on_event("startup")
+    async def prime_cache() -> None:
+        await load_tickets(client=client, cache=cache)
+
     @app.get("/tickets", response_model=list[CleanTicketDTO])
     async def tickets(response: Response) -> list[CleanTicketDTO]:  # noqa: F401
         return await load_and_translate_tickets(

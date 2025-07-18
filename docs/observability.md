@@ -24,11 +24,11 @@ collects default metrics and exposes them at the `/metrics` endpoint.
 scrape_configs:
   - job_name: 'fastapi'
     static_configs:
-      - targets: ['backend:8000']
+      - targets: ['localhost:8000']
     metrics_path: /metrics
   - job_name: 'circuitbreaker'
     static_configs:
-      - targets: ['backend:8000']
+      - targets: ['localhost:8000']
     metrics_path: /breaker
 ```
 
