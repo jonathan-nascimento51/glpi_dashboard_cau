@@ -1,2 +1,2 @@
-export * from './ui/Button';
-export * from './ui/Input';
+export * from './ui/Button/Button.js';
+export * from './ui/Input/Input.js';

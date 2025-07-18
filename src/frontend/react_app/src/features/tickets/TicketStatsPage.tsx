@@ -1,5 +1,5 @@
-import { useTicketMetrics } from './api'
-import { StatsCard } from '../../widgets/stats/StatsCard'
+import { useTicketMetrics } from './api.js'
+import { StatsCard } from '../../widgets/stats/StatsCard.js'
 
 export function TicketStatsPage() {
   const { data, isLoading, error } = useTicketMetrics()

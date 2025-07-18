@@ -1,6 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query'
-import { useApiQuery } from '@/hooks/useApiQuery'
-import type { Ticket } from '../types/ticket'
+import { useApiQuery } from '@/hooks/useApiQuery.js'
+import type { Ticket } from '../types/ticket.js'
 
 export function useTickets() {
   const queryClient = useQueryClient()

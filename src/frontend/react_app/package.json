@@ -18,7 +18,9 @@
   "dependencies": {
     "@grafana/faro-react": "^1.19.0",
     "@grafana/faro-web-tracing": "^1.19.0",
+    "@sentry/react": "^9.40.0",
     "@tanstack/react-query": "^5.81.5",
+    "chart": "^0.1.2",
     "dotenv": "^17.1.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",

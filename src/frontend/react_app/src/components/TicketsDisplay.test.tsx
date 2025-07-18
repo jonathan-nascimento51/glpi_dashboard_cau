@@ -1,7 +1,7 @@
 import React from 'react'
 import { render, screen } from '@testing-library/react'
 import '@testing-library/jest-dom'
-import { TicketsDisplay } from './TicketsDisplay'
+import { TicketsDisplay } from './TicketsDisplay.js'
 
 jest.mock('react-window', () => {
   return {
@@ -25,7 +25,7 @@ jest.mock('@/hooks/useTickets', () => ({
   useTickets: jest.fn(),
 }))
 
-import { useTickets } from '@/hooks/useTickets'
+import { useTickets } from '@/hooks/useTickets.js'
 const useTicketsMock = useTickets as jest.Mock
 
 describe('TicketsDisplay Component', () => {
