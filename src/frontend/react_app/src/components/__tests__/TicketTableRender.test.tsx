@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
-import { TicketTable } from '@/components/TicketTable'
-import type { TicketRow } from '@/components/VirtualizedTicketTable'
+import { TicketTable } from '@/components/TicketTable.js'
+import type { TicketRow } from '@/components/VirtualizedTicketTable.js'
 import React from 'react'
 
 jest.mock('react-window', () => {

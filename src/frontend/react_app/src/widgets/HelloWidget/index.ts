@@ -1,1 +1,1 @@
-export { HelloWidget } from './HelloWidget';
+export { HelloWidget } from './HelloWidget.js';

@@ -1,6 +1,6 @@
 import React from 'react'
-import Header from './components/Header'
-import { ChamadosTendencia } from './components/ChamadosTendencia'
+import Header from './components/Header.js'
+import { ChamadosTendencia } from './components/ChamadosTendencia.js'
 
 export default function App() {
   return (

@@ -1,5 +1,6 @@
-import type { ReportHandler } from 'web-vitals'
 import { captureMessage } from '@sentry/react'
+
+type ReportHandler = (metric: any) => void;
 
 export const reportWebVitals: ReportHandler = (metric) => {
   const { id, name, value, label } = metric

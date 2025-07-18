@@ -4,8 +4,8 @@ import { QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { initializeFaro, faro } from '@grafana/faro-react'
 import { TracingInstrumentation } from '@grafana/faro-web-tracing'
-import { queryClient } from '@/lib/queryClient'
-import App from './App'
+import { queryClient } from '@/lib/queryClient.js'
+import App from './App.js'
 import './index.css'
 
 initializeFaro({
