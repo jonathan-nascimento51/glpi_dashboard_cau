@@ -37,3 +37,5 @@ build/
 
 prompts/bug_prompt.md
 resources/data/raw_tickets_sample.json
+patch.diff
+patch_atualizado.diff
