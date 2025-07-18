@@ -36,3 +36,4 @@ build/
 .env.docker
 
 prompts/bug_prompt.md
+resources/data/raw_tickets_sample.json
