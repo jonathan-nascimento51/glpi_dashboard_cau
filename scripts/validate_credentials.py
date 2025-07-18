@@ -4,11 +4,11 @@ from __future__ import annotations
 
 import argparse
 import asyncio
-import base64
 import os
 import sys
 
 import aiohttp
+from aiohttp import BasicAuth
 from dotenv import load_dotenv
 
 from backend.core.settings import (
@@ -33,10 +33,8 @@ def get_auth_header() -> dict[str, str]:
     if GLPI_USER_TOKEN:
         return {"Authorization": f"user_token {GLPI_USER_TOKEN}"}
     if GLPI_USERNAME and GLPI_PASSWORD:
-        # Basic Auth
-        credentials = f"{GLPI_USERNAME}:{GLPI_PASSWORD}"
-        encoded_credentials = base64.b64encode(credentials.encode()).decode()
-        return {"Authorization": f"Basic {encoded_credentials}"}
+        basic_auth = BasicAuth(GLPI_USERNAME, GLPI_PASSWORD)
+        return {"Authorization": basic_auth.encode()}
     raise ValueError(
         "Nenhuma credencial (user_token ou username/password) foi fornecida."
     )

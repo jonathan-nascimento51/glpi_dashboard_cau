@@ -1,5 +1,4 @@
 import asyncio
-import base64
 import contextlib
 import inspect
 import json
@@ -10,7 +9,7 @@ from typing import Any, Dict, List, Optional, Union
 from urllib.parse import urlsplit, urlunsplit
 
 import aiohttp
-from aiohttp import ClientSession, TCPConnector
+from aiohttp import BasicAuth, ClientSession, TCPConnector
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from backend.core.settings import (
@@ -230,9 +229,11 @@ class GLPISession:
                 logger.info("Attempting to initiate GLPI session with user_token...")
                 self._using_user_token = True
             elif self.credentials.username and self.credentials.password:
-                cred = f"{self.credentials.username}:{self.credentials.password}"
-                b64 = base64.b64encode(cred.encode()).decode()
-                headers["Authorization"] = f"Basic {b64}"
+                basic_auth = BasicAuth(
+                    self.credentials.username,
+                    self.credentials.password,
+                )
+                headers["Authorization"] = basic_auth.encode()
                 logger.info(
                     "Attempting to initiate GLPI session with username/password..."
                 )

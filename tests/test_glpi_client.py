@@ -1,8 +1,8 @@
-import base64
 from unittest.mock import MagicMock
 
 import aiohttp
 import pytest
+from aiohttp import BasicAuth
 
 from backend.infrastructure.glpi.glpi_session import Credentials, GLPISession
 
@@ -77,7 +77,7 @@ async def test_init_session_basic_auth(mocker):
     )
     await client._refresh_session_token()
 
-    token = base64.b64encode(b"alice:secret").decode()
+    token = BasicAuth("alice", "secret").encode()
     args, kwargs = mock_index.call_args
     assert kwargs["headers"]["Authorization"] in {"user_token USER", f"Basic {token}"}
     assert client._session_token == "tok"

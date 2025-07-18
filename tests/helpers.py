@@ -9,7 +9,7 @@ import aiohttp
 class FakeHTTPError(aiohttp.ClientResponseError):
     """Simplified ``ClientResponseError`` used in tests."""
 
-    def __init__(self, status: int, data: Optional[dict] = None) -> None:
+    def __init__(self, status: int, data: Optional[dict[str, object]] = None) -> None:
         request_info = MagicMock()
         history = ()
         super().__init__(
@@ -24,7 +24,9 @@ class FakeHTTPError(aiohttp.ClientResponseError):
 
 
 def make_mock_response(
-    status: int, json_data: Optional[dict] = None, raise_for_status: bool = False
+    status: int,
+    json_data: Optional[dict[str, object]] = None,
+    raise_for_status: bool = False,
 ) -> MagicMock:
     """Create a mock ``aiohttp.ClientResponse`` supporting context manager usage."""
     resp = MagicMock(spec=aiohttp.ClientResponse)
@@ -45,7 +47,9 @@ def make_mock_response(
 
 
 def make_cm(
-    status: int, json_data: Optional[dict] = None, raise_for_status: bool = False
+    status: int,
+    json_data: Optional[dict[str, object]] = None,
+    raise_for_status: bool = False,
 ):
     """Return an async context manager yielding ``make_mock_response``."""
 
