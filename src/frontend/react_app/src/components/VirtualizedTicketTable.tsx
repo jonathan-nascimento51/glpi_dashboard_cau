@@ -18,7 +18,7 @@ const priorityClasses: Record<string, string> = {
   'Very Low': 'text-green-700',
 }
 
-const formatDate = (value?: string) => {
+const formatDate = (value?: string | Date | null) => {
   if (!value) return ''
   try {
     return new Intl.DateTimeFormat('pt-BR', {
@@ -35,8 +35,7 @@ export interface TicketRow {
   name: string
   status?: string
   priority?: string
-  date_creation?: string
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  date_creation?: Date | null
   [key: string]: any
 }
 
@@ -75,7 +74,7 @@ const Row = memo(({ index, style, data }: ListChildComponentProps<RowData>) => {
       <div role="cell" className={priorityClasses[row.priority ?? '']}>
         {row.priority}
       </div>
-      <div role="cell">{formatDate(row.date_creation)}</div>
+      <div role="cell">{formatDate(row.date_creation) as React.ReactNode}</div>
     </div>
   )
 })
@@ -174,7 +173,7 @@ export function VirtualizedTicketTable({
               <div role="cell" className={priorityClasses[row.priority ?? '']}>
                 {row.priority}
               </div>
-              <div role="cell">{formatDate(row.date_creation)}</div>
+              <div role="cell">{formatDate(row.date_creation) as React.ReactNode}</div>
             </div>
           ))}
         </div>

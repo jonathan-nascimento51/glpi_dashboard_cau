@@ -4,7 +4,6 @@ import { TicketTable } from '@/components/TicketTable.js';
 import React from 'react';
 jest.mock('react-window', () => {
     return {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         FixedSizeList: jest.fn((props) => (_jsx("div", { "data-testid": "virtual-list", children: Array.from({ length: props.itemCount }).map((_, idx) => React.createElement(props.children, {
                 index: idx,
                 style: {},
@@ -17,7 +16,7 @@ const ticket = {
     name: 'Chamado muito longo com titulo extensivo que precisa ser truncado',
     status: 'New',
     priority: 'High',
-    date_creation: '2023-10-27T10:00:00Z',
+    date_creation: new Date('2023-10-27T10:00:00Z'),
 };
 describe('TicketTable formatting', () => {
     it('formats date and applies styles', () => {
@@ -28,7 +27,7 @@ describe('TicketTable formatting', () => {
         const formatted = new Intl.DateTimeFormat('pt-BR', {
             dateStyle: 'short',
             timeStyle: 'short',
-        }).format(new Date(ticket.date_creation));
+        }).format(ticket.date_creation);
         expect(screen.getByText(formatted)).toBeInTheDocument();
     });
 });

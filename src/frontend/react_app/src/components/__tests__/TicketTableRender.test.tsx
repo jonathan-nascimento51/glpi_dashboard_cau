@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
-import { TicketTable } from '@/components/TicketTable.js'
-import type { TicketRow } from '@/components/VirtualizedTicketTable.js'
+import { TicketTable } from '@/components/TicketTable'
+import type { TicketRow } from '@/components/VirtualizedTicketTable'
 import React from 'react'
 
 jest.mock('react-window', () => {
@@ -25,7 +25,7 @@ const ticket: TicketRow = {
   name: 'Chamado muito longo com titulo extensivo que precisa ser truncado',
   status: 'New',
   priority: 'High',
-  date_creation: '2023-10-27T10:00:00Z',
+  date_creation: new Date('2023-10-27T10:00:00Z'),
 }
 
 describe('TicketTable formatting', () => {
@@ -37,7 +37,7 @@ describe('TicketTable formatting', () => {
     const formatted = new Intl.DateTimeFormat('pt-BR', {
       dateStyle: 'short',
       timeStyle: 'short',
-    }).format(new Date(ticket.date_creation!))
+    }).format(ticket.date_creation!)
     expect(screen.getByText(formatted)).toBeInTheDocument()
   })
 })

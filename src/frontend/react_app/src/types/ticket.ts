@@ -9,7 +9,7 @@ export interface Ticket {
   urgency?: Urgency
   impact?: Impact
   type?: TicketType
-  date_creation?: string | null
+  date_creation?: Date | null
   assigned_to?: string
   solvedate?: string | null
   closedate?: string | null
