@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react'
-import { StatsCard } from '../StatsCard'
+import { StatsCard } from '../StatsCard.js'
 
 describe('StatsCard', () => {
   it('renders label and value', () => {

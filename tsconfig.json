@@ -5,5 +5,8 @@
     { "path": "./src/frontend/react_app/tsconfig.node.json" },
     { "path": "./src/frontend/react_app/tsconfig.test.json" }
   ],
-  "extends": "./tsconfig.base.json"
+  "extends": "./src/frontend/react_app/tsconfig.base.json",
+  "compilerOptions": {
+    "module": "Node16"
+  }
 }

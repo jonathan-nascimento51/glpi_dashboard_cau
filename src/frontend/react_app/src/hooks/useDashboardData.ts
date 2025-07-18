@@ -2,9 +2,9 @@
 
 import { useEffect, useRef } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-import { useApiQuery } from '@/hooks/useApiQuery'
-import type { Chart as ChartType } from 'chart.js'
-import type { DashboardStats } from '../types/dashboard'
+import { useApiQuery } from '@/hooks/useApiQuery.js'
+import type { Chart as ChartType } from 'chart'
+import type { DashboardStats } from '../types/dashboard.js'
 
 export type Metrics = DashboardStats
 
@@ -34,9 +34,9 @@ export function useDashboardData() {
   }
 
   useEffect(() => {
-    let chartModule: typeof import('chart.js/auto') | null = null
+    let chartModule: typeof import('chart') | null = null
     async function loadChart() {
-      chartModule = await import('chart.js/auto')
+      chartModule = await import('chart')
       const ctx = document.getElementById(
         'trendsChart',
       ) as HTMLCanvasElement | null

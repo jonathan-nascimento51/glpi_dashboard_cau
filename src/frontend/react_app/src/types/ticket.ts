@@ -1,4 +1,4 @@
-import type { Urgency, Impact, TicketType } from './api'
+import type { Urgency, Impact, TicketType } from './api.js'
 
 export interface Ticket {
   id: number | string
