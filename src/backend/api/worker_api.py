@@ -3,10 +3,9 @@
 from __future__ import annotations
 
 import argparse
-import contextlib
-import json
 import logging
-from typing import Any, AsyncGenerator, Dict, List, Optional, cast
+from contextlib import asynccontextmanager
+from typing import Any, Dict, List, Optional, cast
 
 import pandas as pd
 import strawberry
@@ -128,7 +127,22 @@ class Query:
 def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
     """Create FastAPI app with REST and GraphQL routes."""
     cache = cache or redis_client
-    app = FastAPI(title="GLPI Worker API", default_response_class=ORJSONResponse)
+
+    if client is None:
+        client = create_glpi_api_client()
+
+    @asynccontextmanager
+    async def lifespan(app: FastAPI):
+        # On startup
+        await load_tickets(client=client, cache=cache)
+        yield
+        # On shutdown (if needed)
+
+    app = FastAPI(
+        title="GLPI Worker API",
+        default_response_class=ORJSONResponse,
+        lifespan=lifespan,
+    )
     FastAPIInstrumentor().instrument_app(app)
     Instrumentator().instrument(app).expose(app)
 
@@ -138,37 +152,6 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
-
-    @app.middleware("http")
-    async def cache_tickets(request: Request, call_next):  # noqa: F401
-        if request.method != "GET" or request.url.path != "/tickets":
-            return await call_next(request)
-
-        cached = await cache.get("resp:tickets")
-        if cached is not None:
-            return JSONResponse(content=cached)
-        response = await call_next(request)
-        if response.status_code == 200:
-            body = b""
-            async for chunk in response.body_iterator:
-                body += chunk
-
-            async def new_iter() -> AsyncGenerator[bytes, None]:
-                yield body
-
-            response.body_iterator = new_iter()
-            with contextlib.suppress(json.JSONDecodeError):
-                data = json.loads(body.decode())
-                await cache.set("resp:tickets", data)
-        return response
-
-    user_supplied_client = client is not None
-    if client is None:
-        client = create_glpi_api_client()
-
-    @app.on_event("startup")
-    async def prime_cache() -> None:
-        await load_tickets(client=client, cache=cache)
 
     @app.get("/tickets", response_model=list[CleanTicketDTO])
     async def tickets(response: Response) -> list[CleanTicketDTO]:  # noqa: F401
@@ -255,20 +238,10 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
         except FileNotFoundError:
             raise HTTPException(status_code=404, detail="knowledge base not found")
 
-    async def _check_glpi() -> int:
-        """Return HTTP status based on GLPI connectivity."""
-        if user_supplied_client:
-            try:
-                async with client:
-                    return 200
-            except Exception:
-                return 500
-        return await check_glpi_connection()
-
     @app.get("/health")
     async def health_glpi() -> JSONResponse:  # noqa: F401
         """Check GLPI connectivity and return a JSON body."""
-        status = await _check_glpi()
+        status = await check_glpi_connection()
         if status != 200:
             return JSONResponse(
                 status_code=status,
@@ -290,7 +263,7 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
     @app.head("/health")
     async def health_glpi_head() -> Response:  # noqa: F401
         """Same as ``health_glpi`` but returns headers only."""
-        status = await _check_glpi()
+        status = await check_glpi_connection()
         return Response(status_code=status, headers={"Cache-Control": "no-cache"})
 
     schema = strawberry.Schema(Query)

@@ -10,6 +10,7 @@ services:
       - "8000:8000"
     volumes:
       - ./src:/app/src
+      - ./tests:/app/tests:ro
     healthcheck:
       test: ["CMD", "/usr/local/bin/healthcheck.sh"]
       interval: 30s
