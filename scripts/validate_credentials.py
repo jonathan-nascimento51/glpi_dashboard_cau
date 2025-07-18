@@ -25,7 +25,7 @@ from backend.infrastructure.glpi.glpi_session import mask_proxy_url
 
 # Windows event loop fix for aiodns
 if sys.platform.startswith("win"):
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())  # type: ignore
 
 
 def get_auth_header() -> dict[str, str]:
@@ -40,7 +40,7 @@ def get_auth_header() -> dict[str, str]:
     )
 
 
-async def _check() -> None:
+async def _check(disallowed_proxies: list[str]) -> None:
     """Perform a direct API call to check credentials and connectivity."""
     if USE_MOCK_DATA:
         print("⚠️  Modo offline ativado (USE_MOCK_DATA=True). Health check ignorado.")
@@ -69,7 +69,7 @@ async def _check() -> None:
     timeout = aiohttp.ClientTimeout(total=CLIENT_TIMEOUT_SECONDS)
 
     proxy = https_proxy or http_proxy
-    if proxy and "proxymwg.ppiratini.intra.rs.gov.br" not in proxy:
+    if proxy and any(domain in proxy for domain in disallowed_proxies):
         # evita usar proxy inválido
         proxy = None
 
@@ -122,12 +122,17 @@ async def _check() -> None:
 def main() -> None:
     """Validate credentials and print result."""
     parser = argparse.ArgumentParser(description="Check GLPI credentials")
-    # The debug flag is no longer needed as we print details on failure.
-    parser.parse_args()
+    parser.add_argument(
+        "--disallowed-proxies",
+        default=os.getenv("DISALLOWED_PROXIES", "proxymwg.ppiratini.intra.rs.gov.br"),
+        help="Comma-separated list of proxy domains that should be ignored",
+    )
+    args = parser.parse_args()
 
     load_dotenv()
+    disallowed = [d.strip() for d in args.disallowed_proxies.split(",") if d.strip()]
     # No try/except block needed here as _check handles its own errors.
-    asyncio.run(_check())
+    asyncio.run(_check(disallowed))
 
 
 if __name__ == "__main__":  # pragma: no cover - manual run
