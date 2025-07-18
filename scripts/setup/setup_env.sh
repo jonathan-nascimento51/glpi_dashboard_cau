@@ -73,11 +73,11 @@ setup_system_dependencies() {
   info "(2/7) Instalando dependências do sistema para o Playwright..."
   sudo apt-get update -y
   sudo apt-get install -y --no-install-recommends \
-      curl ca-certificates libnss3 libnspr4 libatk1.0-0t64 libatk-bridge2.0-0t64 libcups2t64 \
+      curl ca-certificates libnss3 libnspr4 libatk1.0-0 libatk-bridge2.0-0 libcups2 \
       libdbus-1-3 libxkbcommon0 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 \
-      libgbm1 libpango-1.0-0 libcairo2 libasound2t64 libatspi2.0-0t64 libgtk-3-0t64 \
+      libgbm1 libpango-1.0-0 libcairo2 libasound2 libatspi2.0-0 libgtk-3-0 \
       libx11-xcb1 libxshmfence1 xvfb fonts-liberation libxslt1.1 libwoff1 \
-      libharfbuzz-icu0 libvpx9 libavif16 libwebpdemux2 libenchant-2-2 libsecret-1-0 \
+      libharfbuzz-icu0 libvpx7 libavif13 libwebpdemux2 libenchant-2-2 libsecret-1-0 \
       libhyphen0 libgles2 libgstreamer1.0-0 gstreamer1.0-plugins-base \
       gstreamer1.0-plugins-good gstreamer1.0-libav unzip
 }
@@ -87,12 +87,17 @@ setup_mise() {
   if ! command -v mise >/dev/null 2>&1; then
     warn "Comando 'mise' não encontrado. Instalando..."
     curl https://mise.run | sh
-    # shellcheck disable=SC1090
-    # Ativa o mise para a sessão atual do script
-    eval "$("$HOME/.local/bin/mise" activate bash)"
-    warn "Mise foi instalado. Por favor, reinicie seu shell ou execute 'source ~/.bashrc' para ativá-lo permanentemente."
+    # Adiciona o mise ao PATH da sessão atual para que possa ser encontrado
+    export PATH="$HOME/.local/bin:$PATH"
   fi
+  # Ativa o mise para a sessão atual do script, garantindo que o PATH seja modificado
+  # para usar as versões de ferramentas corretas (node, python, etc.).
+  eval "$(mise activate bash)"
+  warn "Mise foi instalado/ativado. Para uso permanente, reinicie seu shell ou execute 'source ~/.bashrc'."
+
   mise install
+  # Silencia o aviso de depreciação sobre arquivos de versão idiomáticos
+  mise settings set idiomatic_version_file_enable_tools node
 }
 
 setup_python_env() {
@@ -123,7 +128,24 @@ setup_python_env() {
 
 setup_node_env() {
     info "(5/7) Instalando dependências do frontend..."
-    (cd src/frontend/react_app && npm install --legacy-peer-deps)
+    local frontend_dir="src/frontend/react_app"
+    local node_modules_dir="$frontend_dir/node_modules"
+
+    # Corrige problemas de permissão se node_modules foi criado com sudo
+    if [ -d "$node_modules_dir" ]; then
+      if [ "$(stat -c '%U' "$node_modules_dir")" = "root" ]; then
+        warn "O diretório node_modules pertence ao root. Corrigindo permissões..."
+        sudo chown -R "$(whoami)":"$(whoami)" "$frontend_dir"
+      fi
+    fi
+
+    (
+      cd "$frontend_dir"
+      info "Instalando dependências do package.json..."
+      npm install --legacy-peer-deps
+      info "Garantindo que as definições de tipo do React estão instaladas..."
+      npm install --save-dev @types/react @types/react-dom
+    )
 }
 
 setup_git_hooks() {

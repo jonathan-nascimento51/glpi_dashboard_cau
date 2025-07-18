@@ -1,9 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { initializeFaro } from '@grafana/faro-react';
-import App from './App.js';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import App from './App';
 import './index.css';
 
+const queryClient = new QueryClient();
 const faroURL = import.meta.env.NEXT_PUBLIC_FARO_URL;
 
 // Only initialize Faro if the URL is configured.
@@ -22,6 +25,9 @@ if (faroURL && faroURL.startsWith('http')) {
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <App />
+    <QueryClientProvider client={queryClient}>
+      <App />
+      <ReactQueryDevtools initialIsOpen={false} />
+    </QueryClientProvider>
   </React.StrictMode>,
 );
