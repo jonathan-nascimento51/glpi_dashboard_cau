@@ -8,6 +8,7 @@ from unittest.mock import ANY, AsyncMock, MagicMock, patch
 
 import aiohttp
 import pytest
+from aiohttp import BasicAuth
 
 from backend.infrastructure.glpi import glpi_session
 from backend.infrastructure.glpi.glpi_session import (
@@ -71,7 +72,7 @@ def mock_response():
 
     def _factory(
         status: int,
-        json_data: Optional[dict] = None,
+        json_data: Optional[dict[str, object]] = None,
         raise_for_status_exc: bool = False,
     ):
         return make_mock_response(status, json_data, raise_for_status_exc)
@@ -247,7 +248,7 @@ async def test_glpi_session_context_manager_username_password_auth(
             headers={
                 "Content-Type": "application/json",
                 "App-Token": app_token,
-                "Authorization": "Basic dGVzdF91c2VyOnRlc3RfcGFzc3dvcmQ=",
+                "Authorization": BasicAuth(username, password).encode(),
             },
             proxy=ANY,
             timeout=ANY,
