@@ -1,10 +1,9 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import tsconfigPaths from 'vite-tsconfig-paths'
-import tailwindcss from '@tailwindcss/vite'
-import { fileURLToPath, URL } from 'node:url'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import tsconfigPaths from 'vite-tsconfig-paths';
+import tailwindcss from '@tailwindcss/vite';
+import { fileURLToPath, URL } from 'node:url';
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tsconfigPaths(), tailwindcss()],
   envPrefix: ['VITE_', 'NEXT_PUBLIC_'],
@@ -14,7 +13,13 @@ export default defineConfig({
     },
   },
   server: {
-    host: true,
-    hmr: { overlay: false },
-  }, // allow external access
-})
+    host: 'localhost',
+    port: 5174,
+    strictPort: true,
+    hmr: {
+      protocol: 'ws',
+      host: 'localhost',
+      port: 5174,
+    },
+  },
+});

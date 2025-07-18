@@ -32,7 +32,7 @@ services:
       - ./src/frontend/react_app/.env
       - .env.example
     environment:
-      - NEXT_PUBLIC_API_BASE_URL=http://backend:8000
+      - NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
     ports:
       - "5173:5173"
     volumes:
