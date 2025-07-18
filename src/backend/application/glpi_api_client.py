@@ -1,5 +1,3 @@
-import asyncio
-import contextlib
 import logging
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -8,6 +6,7 @@ from aiohttp_retry import ExponentialRetry, RetryClient
 from backend.adapters.factory import create_glpi_session
 from backend.adapters.mapping_service import MappingService
 from backend.infrastructure.glpi.glpi_session import GLPISession
+from backend.utils import paginate_items
 from shared.dto import CleanTicketDTO, TicketTranslator
 
 logger = logging.getLogger(__name__)
@@ -105,48 +104,14 @@ class GlpiApiClient:
     ) -> List[Dict[str, Any]]:
         """Return all items for ``itemtype`` using a resilient page loop."""
 
-        logger.info("Starting paginated fetch for %s with params %s", itemtype, params)
-        results: List[Dict[str, Any]] = []
-        offset = 0
         base_params = {**params, "expand_dropdowns": 1}
         endpoint = itemtype if itemtype.startswith("search/") else f"search/{itemtype}"
-        total_records: int | None = None
 
-        while True:
-            page_params = {
-                **base_params,
-                "range": f"{offset}-{offset + page_size - 1}",
-            }
-            try:
-                data, headers = await self.get(
-                    endpoint, params=page_params, return_headers=True
-                )
-                if total_records is None:
-                    range_header = headers.get("Content-Range")
-                    if range_header and "/" in range_header:
-                        with contextlib.suppress(ValueError):
-                            total_records = int(range_header.split("/")[-1])
-            except Exception as exc:
-                logger.critical("Pagination aborted: %s", exc)
-                break
+        async def fetch_page(offset: int, size: int):
+            page_params = {**base_params, "range": f"{offset}-{offset + size - 1}"}
+            return await self.get(endpoint, params=page_params, return_headers=True)
 
-            page_items = data.get("data", data)
-            if isinstance(page_items, dict):
-                page_items = [page_items]
-            page_items = [i for i in page_items if isinstance(i, dict)]
-
-            if not page_items:
-                break
-
-            results.extend(page_items)
-            offset += page_size
-            await asyncio.sleep(0.1)
-
-            if total_records is not None and offset >= total_records:
-                break
-
-        logger.info("Pagination finished for %s: %d items", itemtype, len(results))
-        return results
+        return await paginate_items(itemtype, fetch_page, page_size=page_size)
 
     async def _request(
         self,
@@ -158,6 +123,7 @@ class GlpiApiClient:
         json_data: Optional[Dict[str, Any]] = None,
         return_headers: bool = False,
     ) -> Any | Tuple[Any, Dict[str, str]]:
+        # sourcery skip: assign-if-exp, reintroduce-else
         """Perform an HTTP request using ``RetryClient``."""
 
         if self._retry_client is None:

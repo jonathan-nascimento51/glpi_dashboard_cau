@@ -52,7 +52,6 @@ services:
       - ./src/frontend/react_app/.env
       - .env.example
     environment:
-      # Opcional: sobrescreva a URL base da API, se necessário
       NEXT_PUBLIC_API_BASE_URL: "http://backend:8000"
     healthcheck:
       test: ["CMD", "/usr/local/bin/healthcheck.sh"]

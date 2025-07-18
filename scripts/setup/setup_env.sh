@@ -13,6 +13,7 @@ esac
 
 SKIP_PLAYWRIGHT=${SKIP_PLAYWRIGHT:-true}
 OFFLINE_INSTALL=${OFFLINE_INSTALL:-false}
+INSECURE_TLS=${INSECURE_TLS:-false}
 PROXY_FILE=/etc/apt/apt.conf.d/01proxy
 
 # Local cache for Playwright browsers (override via PLAYWRIGHT_BROWSERS_PATH)
@@ -88,7 +89,9 @@ fi
 # Instalação opcional do Playwright/Chromium
 if [ "$SKIP_PLAYWRIGHT" = "false" ]; then
   echo ">>> Instalando o browser Chromium para o Playwright..."
-  export NODE_TLS_REJECT_UNAUTHORIZED=0 # Cuidado: desativa a verificação de certificado TLS
+  if [ "$INSECURE_TLS" = "true" ]; then
+    export NODE_TLS_REJECT_UNAUTHORIZED=0 # Cuidado: desativa a verificação de certificado TLS
+  fi
 
   npm install @playwright/test
   npx playwright@1.54.0 install --with-deps chromium < /dev/null || {
