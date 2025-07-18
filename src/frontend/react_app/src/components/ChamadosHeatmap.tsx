@@ -5,7 +5,7 @@ import ReactCalendarHeatmap from 'react-calendar-heatmap'
 import 'react-calendar-heatmap/dist/styles.css'
 
 interface HeatmapValue {
-  date?: string
+  date?: Date
   count?: number
 }
 
