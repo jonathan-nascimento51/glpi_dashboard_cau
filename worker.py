@@ -4,8 +4,15 @@ All imports now reference ``src.backend`` explicitly to avoid
 confusion with the Docker build context.
 """
 
+import contextlib
 import logging
 import os
+
+with contextlib.suppress(ImportError):
+    from dotenv import load_dotenv
+
+    # Load environment variables from .env file for local development
+    load_dotenv()
 
 from shared.utils.logging import init_logging
 from src.backend.api.worker_api import (
@@ -18,12 +25,15 @@ from src.backend.api.worker_api import (
 from src.backend.core.settings import KNOWLEDGE_BASE_FILE
 from src.backend.infrastructure.glpi.glpi_session import GLPISession
 
+# Initialize logging as early as possible
+init_logging(level=os.getenv("LOG_LEVEL", "INFO"))
+
 __all__ = ["create_app", "redis_client", "GLPISession", "main"]
 
 
 def main() -> None:
-    init_logging(os.getenv("LOG_LEVEL"))
-    logging.getLogger(__name__).info("Knowledge base file: %s", KNOWLEDGE_BASE_FILE)
+    logger = logging.getLogger(__name__)
+    logger.info("Knowledge base file: %s", KNOWLEDGE_BASE_FILE)
     _main()
 
 
