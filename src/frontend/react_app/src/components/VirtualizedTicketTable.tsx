@@ -35,7 +35,7 @@ export interface TicketRow {
   name: string
   status?: string
   priority?: string
-  date_creation?: string
+  date_creation?: Date | null
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any
 }
