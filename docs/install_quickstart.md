@@ -19,8 +19,10 @@ This document condenses the main steps from the README to get the dashboard runn
   `requirements.txt` and the dev dependencies defined in `pyproject.toml`
   (compiled into `requirements-dev.txt`), and sets up `pre-commit`.
    Run it once before executing any tests (or use `make setup`). The script
-   accepts proxy variables (`HTTP_PROXY`/`HTTPS_PROXY`) and can work offline with
-   `OFFLINE_INSTALL=true` when wheels are available under `./wheels`.
+  accepts proxy variables (`HTTP_PROXY`/`HTTPS_PROXY`) and can work offline with
+  `OFFLINE_INSTALL=true` when wheels are available under `./wheels`. Set
+  `INSECURE_TLS=true` to disable TLS verification when downloading Playwright
+  (avoids certificate errors behind corporate proxies).
    If proxies are disabled remember to clear them before running the setup:
 
    ```bash

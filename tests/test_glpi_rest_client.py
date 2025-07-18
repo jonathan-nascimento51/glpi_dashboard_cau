@@ -141,3 +141,39 @@ async def test_get_all_paginated(monkeypatch):
 
     assert call_count == 3
     assert data == [{"id": 1}, {"id": 2}, {"id": 3}]
+
+
+@pytest.mark.asyncio
+async def test_api_client_get_all_paginated(monkeypatch):
+    from backend.application.glpi_api_client import GlpiApiClient
+
+    ranges = ["0-1", "2-3", "4-5"]
+    responses = [
+        DummyResponse(200, {"data": [{"id": 1}, {"id": 2}]}),
+        DummyResponse(200, {"data": [{"id": 3}]}),
+        DummyResponse(200, {"data": []}),
+    ]
+    call_count = 0
+
+    async def fake_get(endpoint, *, params=None, headers=None, return_headers=False):
+        nonlocal call_count
+        assert params["range"] == ranges[call_count]
+        resp = responses[call_count]
+        call_count += 1
+        return resp._data, resp.headers
+
+    monkeypatch.setattr(
+        "backend.application.glpi_api_client.MappingService",
+        lambda *a, **k: MagicMock(initialize=AsyncMock()),
+    )
+    monkeypatch.setattr(
+        "backend.application.glpi_api_client.TicketTranslator", MagicMock
+    )
+
+    client = GlpiApiClient(session=MagicMock())
+    monkeypatch.setattr(client, "get", AsyncMock(side_effect=fake_get))
+    with patch("asyncio.sleep", new=AsyncMock()):
+        data = await client.get_all_paginated("Ticket", page_size=2)
+
+    assert call_count == 3
+    assert data == [{"id": 1}, {"id": 2}, {"id": 3}]

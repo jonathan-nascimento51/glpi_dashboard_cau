@@ -34,6 +34,7 @@ from backend.domain.exceptions import (
     parse_error,
 )
 from backend.domain.tool_error import ToolError
+from backend.utils import paginate_items
 from shared.utils.resilience import call_with_breaker, retry_api_call
 
 logger = logging.getLogger(__name__)
@@ -719,49 +720,14 @@ class GLPISession:
     ) -> List[Dict[str, Any]]:
         """Return all items for ``itemtype`` using a resilient page loop."""
 
-        logger.info("Starting paginated fetch for %s with params %s", itemtype, params)
-        results: List[Dict[str, Any]] = []
-        offset = 0
         base_params = {**params, "expand_dropdowns": 1}
         endpoint = itemtype if itemtype.startswith("search/") else f"search/{itemtype}"
 
-        total_records: int | None = None
-        while True:
-            page_params = {
-                **base_params,
-                "range": f"{offset}-{offset + page_size - 1}",
-            }
-            try:
-                data, headers = await self.get(
-                    endpoint, params=page_params, return_headers=True
-                )
-                if total_records is None:
-                    range_header = headers.get("Content-Range")
-                    if range_header and "/" in range_header:
-                        with contextlib.suppress(ValueError):
-                            total_records = int(range_header.split("/")[-1])
-            except Exception as exc:
-                logger.critical("Pagination aborted: %s", exc)
-                break
+        async def fetch_page(offset: int, size: int):
+            page_params = {**base_params, "range": f"{offset}-{offset + size - 1}"}
+            return await self.get(endpoint, params=page_params, return_headers=True)
 
-            page_items = data.get("data", data)
-            if isinstance(page_items, dict):
-                page_items = [page_items]
-            page_items = [i for i in page_items if isinstance(i, dict)]
-
-            if not page_items:
-                logger.info("No items in page; stopping pagination for %s", itemtype)
-                break
-
-            results.extend(page_items)
-            offset += page_size
-            await asyncio.sleep(0.1)
-
-            if total_records is not None and offset >= total_records:
-                break
-
-        logger.info("Pagination finished for %s: %d items", itemtype, len(results))
-        return results
+        return await paginate_items(itemtype, fetch_page, page_size=page_size)
 
     async def query_graphql(
         self, query: str, variables: Optional[Dict[str, Any]] = None
