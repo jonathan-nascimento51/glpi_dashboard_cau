@@ -1,16 +1,49 @@
 #!/bin/bash
 set -euo pipefail
 
-# Abort early on non-Linux systems
-OS_TYPE="${OSTYPE:-$(uname -s)}"
-case "$OS_TYPE" in
-  linux*|Linux*) ;;
-  *)
-    echo "This setup script only supports Linux. Follow the manual steps in docs/run_local.md" >&2
-    exit 1
-    ;;
-esac
+# --- Configuração e Funções Auxiliares ---
 
+# Cores para logs
+readonly C_RESET='\033[0m'
+readonly C_RED='\033[0;31m'
+readonly C_GREEN='\033[0;32m'
+readonly C_YELLOW='\033[0;33m'
+readonly C_BLUE='\033[0;34m'
+
+# Funções de log
+info() { echo -e "${C_BLUE}INFO: $1${C_RESET}"; }
+warn() { echo -e "${C_YELLOW}WARN: $1${C_RESET}"; }
+error() { echo -e "${C_RED}ERROR: $1${C_RESET}" >&2; }
+success() { echo -e "${C_GREEN}✅ $1${C_RESET}"; }
+
+cleanup() {
+  info "Executando limpeza..."
+  if [ -f "$PROXY_FILE" ]; then
+    info "Removendo configuração de proxy temporária..."
+    sudo rm -f "$PROXY_FILE"
+    npm config delete proxy >/dev/null 2>&1 || true
+    npm config delete https-proxy >/dev/null 2>&1 || true
+  fi
+}
+
+check_os() {
+  # Abort early on non-Linux systems
+  local os_type
+  os_type="${OSTYPE:-$(uname -s)}"
+  case "$os_type" in
+    linux*|Linux*) ;;
+    *)
+      error "Este script de setup suporta apenas Linux. Siga os passos manuais em docs/run_local.md"
+      exit 1
+      ;;
+  esac
+}
+
+check_command() {
+  command -v "$1" >/dev/null 2>&1 || { error "Comando '$1' não encontrado. Por favor, instale-o."; exit 1; }
+}
+
+# Variáveis de ambiente com valores padrão
 SKIP_PLAYWRIGHT=${SKIP_PLAYWRIGHT:-true}
 OFFLINE_INSTALL=${OFFLINE_INSTALL:-false}
 INSECURE_TLS=${INSECURE_TLS:-false}
@@ -21,95 +54,135 @@ PLAYWRIGHT_CACHE_DIR="${PLAYWRIGHT_BROWSERS_PATH:-$HOME/.cache/ms-playwright}"
 export PLAYWRIGHT_BROWSERS_PATH="$PLAYWRIGHT_CACHE_DIR"
 mkdir -p "$PLAYWRIGHT_CACHE_DIR"
 
-echo ">>> Verificando acesso à internet..."
-if curl -Is https://pypi.org/simple --max-time 5 >/dev/null 2>&1; then
-  echo "✅ Conexão com a internet detectada"
-else
-  echo "⚠️ Sem acesso à internet. Configure HTTP_PROXY/HTTPS_PROXY ou use ./wheels para instalação offline"
-fi
-
-if [ -n "${HTTP_PROXY:-}" ]; then
-  echo "Acquire::http::Proxy \"${HTTP_PROXY}\";" | sudo tee "$PROXY_FILE" >/dev/null
-  echo "Acquire::https::Proxy \"${HTTPS_PROXY:-$HTTP_PROXY}\";" | sudo tee -a "$PROXY_FILE" >/dev/null
-  echo "Proxy configurado em $PROXY_FILE"
-  echo "Configurando proxy para npm..."
-  npm config set proxy "${HTTP_PROXY}"
-  npm config set https-proxy "${HTTPS_PROXY:-$HTTP_PROXY}"
-fi
-
-echo ">>> (1/6) Instalando dependências do sistema para o Playwright..."
-sudo apt-get update -y
-sudo apt-get install -y \
-    curl ca-certificates libnss3 libnspr4 libatk1.0-0t64 libatk-bridge2.0-0t64 libcups2t64 \
-    libdbus-1-3 libxkbcommon0 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 \
-    libgbm1 libpango-1.0-0 libcairo2 libasound2t64 libatspi2.0-0t64 libgtk-3-0t64 \
-    libx11-xcb1 libxshmfence1 xvfb fonts-liberation libxslt1.1 libwoff1 \
-    libharfbuzz-icu0 libvpx9 libavif16 libwebpdemux2 libenchant-2-2 libsecret-1-0 \
-    libhyphen0 libgles2 libgstreamer1.0-0 gstreamer1.0-plugins-base \
-    gstreamer1.0-plugins-good gstreamer1.0-libav unzip
-
-# Remove proxy configuration after installation
-if [ -f "$PROXY_FILE" ]; then
-  sudo rm -f "$PROXY_FILE"
-  npm config delete proxy >/dev/null 2>&1 || true
-  npm config delete https-proxy >/dev/null 2>&1 || true
-fi
-
-VENV_DIR=".venv"
-if [ ! -d "$VENV_DIR" ]; then
-  echo ">>> (2/6) Criando ambiente virtual em $VENV_DIR..."
-  python3 -m venv "$VENV_DIR"
-fi
-
-echo ">>> (3/6) Ativando o ambiente virtual..."
-# shellcheck disable=SC1090
-source "$VENV_DIR/bin/activate"
-
-echo ">>> (4/6) Atualizando pip e instalando dependências Python..."
-export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
-pip install --upgrade pip
-if [ "$OFFLINE_INSTALL" = "true" ]; then
-  WHEEL_DIR=${WHEELS_DIR:-./wheels}
-  pip install --no-index --find-links="$WHEEL_DIR" -r requirements.txt -r requirements-dev.txt
-else
-  pip install -r requirements.txt
-  pip install -e .[dev]
-fi
-pip install aiohttp
-unset PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD
-
-echo ">>> (5/6) Instalando ganchos de pre-commit..."
-if command -v pre-commit >/dev/null 2>&1; then
-  pre-commit install
-else
-  echo "⚠️ pre-commit não encontrado. Instalando..."
-  pip install pre-commit && pre-commit install
-fi
-
-# Instalação opcional do Playwright/Chromium
-if [ "$SKIP_PLAYWRIGHT" = "false" ]; then
-  echo ">>> Instalando o browser Chromium para o Playwright..."
-  if [ "$INSECURE_TLS" = "true" ]; then
-    export NODE_TLS_REJECT_UNAUTHORIZED=0 # Cuidado: desativa a verificação de certificado TLS
-  fi
-
-  npm install @playwright/test
-  npx playwright@1.54.0 install --with-deps chromium < /dev/null || {
-    echo "⚠️ Playwright falhou. Tentando download manual via curl..."
-    curl -L https://playwright.azureedge.net/builds/chromium/1181/chromium-linux.zip -o chromium.zip \
-      && unzip -q chromium.zip -d "$PLAYWRIGHT_CACHE_DIR" \
-      && rm -f chromium.zip \
-      && echo "✅ Chromium extraído manualmente em $PLAYWRIGHT_CACHE_DIR"
-  }
-  CHROME_PATH="$(find "$PLAYWRIGHT_CACHE_DIR" -type f -path '*chrome-linux/chrome' -print -quit 2>/dev/null || true)"
-  if [ -x "$CHROME_PATH" ]; then
-    echo "✅ Browser encontrado em $CHROME_PATH"
+setup_system_dependencies() {
+  info "(1/7) Verificando acesso à internet..."
+  if curl -Is https://pypi.org/simple --max-time 5 >/dev/null 2>&1; then
+    success "Conexão com a internet detectada"
   else
-    echo "❌ Browser não encontrado após instalação." >&2
-    exit 1
+    warn "Sem acesso à internet. Configure HTTP_PROXY/HTTPS_PROXY ou use ./wheels para instalação offline"
   fi
-else
-  echo "⚠️ SKIP_PLAYWRIGHT=true — pulando instalação do Chromium."
-fi
 
-echo "✅ Etapas concluídas com sucesso!"
+  if [ -n "${HTTP_PROXY:-}" ]; then
+    info "Configurando proxy para apt e npm..."
+    echo "Acquire::http::Proxy \"${HTTP_PROXY}\";" | sudo tee "$PROXY_FILE" >/dev/null
+    echo "Acquire::https::Proxy \"${HTTPS_PROXY:-$HTTP_PROXY}\";" | sudo tee -a "$PROXY_FILE" >/dev/null
+    npm config set proxy "${HTTP_PROXY}"
+    npm config set https-proxy "${HTTPS_PROXY:-$HTTP_PROXY}"
+  fi
+
+  info "(2/7) Instalando dependências do sistema para o Playwright..."
+  sudo apt-get update -y
+  sudo apt-get install -y --no-install-recommends \
+      curl ca-certificates libnss3 libnspr4 libatk1.0-0t64 libatk-bridge2.0-0t64 libcups2t64 \
+      libdbus-1-3 libxkbcommon0 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 \
+      libgbm1 libpango-1.0-0 libcairo2 libasound2t64 libatspi2.0-0t64 libgtk-3-0t64 \
+      libx11-xcb1 libxshmfence1 xvfb fonts-liberation libxslt1.1 libwoff1 \
+      libharfbuzz-icu0 libvpx9 libavif16 libwebpdemux2 libenchant-2-2 libsecret-1-0 \
+      libhyphen0 libgles2 libgstreamer1.0-0 gstreamer1.0-plugins-base \
+      gstreamer1.0-plugins-good gstreamer1.0-libav unzip
+}
+
+setup_mise() {
+  info "(3/7) Instalando versões de ferramentas com mise..."
+  if ! command -v mise >/dev/null 2>&1; then
+    warn "Comando 'mise' não encontrado. Instalando..."
+    curl https://mise.run | sh
+    # shellcheck disable=SC1090
+    # Ativa o mise para a sessão atual do script
+    eval "$("$HOME/.local/bin/mise" activate bash)"
+    warn "Mise foi instalado. Por favor, reinicie seu shell ou execute 'source ~/.bashrc' para ativá-lo permanentemente."
+  fi
+  mise install
+}
+
+setup_python_env() {
+  info "(4/7) Configurando ambiente Python..."
+  local venv_dir=".venv"
+  if [ ! -d "$venv_dir" ]; then
+    info "Criando ambiente virtual em $venv_dir..."
+    python -m venv "$venv_dir"
+  fi
+
+  info "Ativando o ambiente virtual..."
+  # shellcheck disable=SC1091
+  source "$venv_dir/bin/activate"
+
+  info "Atualizando pip e instalando dependências Python..."
+  export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+  pip install --upgrade pip
+  if [ "$OFFLINE_INSTALL" = "true" ]; then
+    local wheel_dir
+    wheel_dir=${WHEELS_DIR:-./wheels}
+    pip install --no-index --find-links="$wheel_dir" -r requirements.txt -r requirements-dev.txt
+  else
+    pip install -r requirements.txt
+    pip install -e .[dev]
+  fi
+  unset PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD
+}
+
+setup_node_env() {
+    info "(5/7) Instalando dependências do frontend..."
+    (cd src/frontend/react_app && npm install --legacy-peer-deps)
+}
+
+setup_git_hooks() {
+  info "(6/7) Instalando ganchos de pre-commit..."
+  if command -v pre-commit >/dev/null 2>&1; then
+    pre-commit install
+  else
+    warn "pre-commit não encontrado. Instalando..."
+    pip install pre-commit && pre-commit install
+  fi
+}
+
+setup_playwright() {
+  if [ "$SKIP_PLAYWRIGHT" = "false" ]; then
+    info "(7/7) Instalando o browser Chromium para o Playwright..."
+    if [ "$INSECURE_TLS" = "true" ]; then
+      export NODE_TLS_REJECT_UNAUTHORIZED=0 # Cuidado: desativa a verificação de certificado TLS
+    fi
+
+    info "Instalando dependências do Playwright via npm..."
+    (cd src/frontend/react_app && npm install @playwright/test)
+    info "Instalando o browser Chromium para o Playwright..."
+    (cd src/frontend/react_app && npx playwright install --with-deps chromium < /dev/null) || {
+      warn "Playwright falhou. Tentando download manual via curl..."
+      curl -L https://playwright.azureedge.net/builds/chromium/1181/chromium-linux.zip -o chromium.zip \
+        && unzip -q chromium.zip -d "$PLAYWRIGHT_CACHE_DIR" \
+        && rm -f chromium.zip \
+        && success "Chromium baixado e extraído manualmente em $PLAYWRIGHT_CACHE_DIR"
+    }
+    local chrome_path
+    chrome_path="$(find "$PLAYWRIGHT_CACHE_DIR" -type f -path '*chrome-linux/chrome' -print -quit 2>/dev/null || true)"
+    if [ -x "$chrome_path" ]; then
+      success "Browser encontrado em $chrome_path"
+    else
+      error "Browser não encontrado após instalação."
+      exit 1
+    fi
+  else
+    info "(7/7) SKIP_PLAYWRIGHT=true — pulando instalação do Chromium."
+  fi
+}
+
+main() {
+  # Garante que a limpeza seja executada na saída do script
+  trap cleanup EXIT
+
+  check_os
+  check_command "curl"
+  check_command "sudo"
+
+  setup_system_dependencies
+  setup_mise
+  setup_python_env
+  setup_node_env
+  setup_git_hooks
+  setup_playwright
+
+  success "Setup concluído com sucesso!"
+  info "Para ativar o ambiente, execute: source .venv/bin/activate"
+}
+
+main "$@"
