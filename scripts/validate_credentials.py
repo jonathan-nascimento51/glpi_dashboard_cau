@@ -8,7 +8,7 @@ import os
 import sys
 
 import aiohttp
-from aiohttp import BasicAuth
+from aiohttp import BasicAuth, ClientResponse
 from dotenv import load_dotenv
 
 from backend.core.settings import (
@@ -40,6 +40,60 @@ def get_auth_header() -> dict[str, str]:
     )
 
 
+def _print_proxy_info(http_proxy: str | None, https_proxy: str | None) -> None:
+    if http_proxy or https_proxy:
+        print("INFO: Proxy detectado nas variáveis de ambiente:")
+        if http_proxy:
+            print(f"   - HTTP_PROXY: {mask_proxy_url(http_proxy)}")
+        if https_proxy:
+            print(f"   - HTTPS_PROXY: {mask_proxy_url(https_proxy)}")
+        print(
+            "   Se a conexão falhar, verifique se o proxy está correto ou desative-o.\n"
+        )
+
+
+async def _handle_response(response: ClientResponse) -> None:
+    if response.status != 200:
+        body: str = await response.text()
+        print(f"❌ Falha na autenticação (HTTP {response.status}):")
+        print(body)
+        return
+
+    try:
+        data: dict[str, str] = await response.json()
+    except Exception as parse_exc:
+        print(f"❌ Erro ao processar resposta JSON: {parse_exc}")
+        print(f"   Resposta bruta: {await response.text()}")
+        return
+
+    session_token = data.get("session_token")
+    if not session_token:
+        print("❌ Falha ao autenticar: Resposta válida, mas sem session_token.")
+        return
+    print("✅ Conexão com GLPI bem-sucedida! " f"(Token: ...{session_token[-4:]})")
+
+
+def _handle_exception(exc: Exception) -> None:
+    if isinstance(exc, aiohttp.InvalidURL):
+        print(f"❌ Erro de Configuração: A URL do GLPI é inválida: {exc}")
+        print(
+            "   Por favor, verifique se a variável GLPI_BASE_URL está definida "
+            "corretamente no seu arquivo .env."
+        )
+    elif isinstance(exc, aiohttp.ClientConnectorError):
+        print(
+            f"❌ Falha de Conexão de Rede: Não foi possível conectar a {GLPI_BASE_URL}."
+        )
+        print(f"   Detalhe: {exc}")
+        print("\n   👉 Verifique se a VPN ou se há um firewall bloqueando o acesso.")
+    elif isinstance(exc, asyncio.TimeoutError):
+        print(
+            f"❌ Falha de Conexão: A requisição para {GLPI_BASE_URL} expirou (timeout)."
+        )
+    else:
+        print(f"❌ Ocorreu um erro inesperado: {exc}")
+
+
 async def _check(disallowed_proxies: list[str]) -> None:
     """Perform a direct API call to check credentials and connectivity."""
     if USE_MOCK_DATA:
@@ -49,15 +103,7 @@ async def _check(disallowed_proxies: list[str]) -> None:
     http_proxy = os.getenv("HTTP_PROXY") or os.getenv("http_proxy")
     https_proxy = os.getenv("HTTPS_PROXY") or os.getenv("https_proxy")
 
-    if http_proxy or https_proxy:
-        print("ℹ️  Proxy detectado nas variáveis de ambiente:")
-        if http_proxy:
-            print(f"   - HTTP_PROXY: {mask_proxy_url(http_proxy)}")
-        if https_proxy:
-            print(f"   - HTTPS_PROXY: {mask_proxy_url(https_proxy)}")
-        print(
-            "   Se a conexão falhar, verifique se o proxy está correto ou desative-o.\n"
-        )
+    _print_proxy_info(http_proxy, https_proxy)
 
     headers = {
         "App-Token": GLPI_APP_TOKEN.strip(),
@@ -70,7 +116,6 @@ async def _check(disallowed_proxies: list[str]) -> None:
 
     proxy = https_proxy or http_proxy
     if proxy and any(domain in proxy for domain in disallowed_proxies):
-        # evita usar proxy inválido
         proxy = None
 
     try:
@@ -78,45 +123,9 @@ async def _check(disallowed_proxies: list[str]) -> None:
             async with session.get(
                 url, headers=headers, ssl=VERIFY_SSL, proxy=proxy
             ) as response:
-                if response.status == 200:
-                    # Success, we can even get the session token if needed
-                    data = await response.json()
-                    session_token = data.get("session_token")
-                    if not session_token:
-                        print(
-                            "❌ Falha ao autenticar: Resposta, mas sem session_token."
-                        )
-                        return  # Early exit on authentication failure
-                    print(
-                        "✅ Conexão com GLPI bem-sucedida! "
-                        f"(Token: ...{session_token[-4:]})"
-                    )
-                else:
-                    # Failure, print status and body for debugging
-                    body = await response.text()
-                    print(f"❌ Falha na autenticação (HTTP {response.status}):")
-                    print(body)
-
-    except aiohttp.InvalidURL as exc:
-        print(f"❌ Erro de Configuração: A URL do GLPI é inválida: {exc}")
-        print(
-            "   Por favor, verifique se a variável GLPI_BASE_URL está definida "
-            "corretamente no seu arquivo .env."
-        )
-    except aiohttp.ClientConnectorError as exc:
-        print(
-            f"❌ Falha de Conexão de Rede: Não foi possível conectar a {GLPI_BASE_URL}."
-        )
-        print(f"   Detalhe: {exc}")
-        print(
-            "\n   👉 Verifique se a VPN ou se há um firewall bloqueando o acesso."
-        )  # fmt: skip
-    except asyncio.TimeoutError:
-        print(
-            f"❌ Falha de Conexão: A requisição para {GLPI_BASE_URL} expirou (timeout)."
-        )
+                await _handle_response(response)
     except Exception as exc:
-        print(f"❌ Ocorreu um erro inesperado: {exc}")
+        _handle_exception(exc)
 
 
 def main() -> None:
