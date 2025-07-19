@@ -32,6 +32,16 @@ manual steps in [docs/run_local.md](docs/run_local.md).
 bash scripts/setup/setup_env.sh
 ```
 
+If a `wheels/` directory is available run the script with `OFFLINE_INSTALL=true`
+to avoid contacting PyPI:
+
+```bash
+bash scripts/setup/setup_env.sh OFFLINE_INSTALL=true
+```
+
+Use `python scripts/download_wheels.py` on a machine with internet access to
+prefetch these wheels.
+
 The script installs `pre-commit` and all Python dependencies in one go. You may
 still run the manual commands below if you need finer control:
 
