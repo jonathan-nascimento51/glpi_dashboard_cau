@@ -25,7 +25,7 @@ class Settings(BaseSettings):
 
     ENVIRONMENT: Literal["dev", "work", "prod"] = "dev"
 
-    GLPI_BASE_URL: str = cast(str, os.getenv("GLPI_BASE_URL", ""))
+    GLPI_BASE_URL: str = os.getenv("GLPI_BASE_URL", "")
     GLPI_APP_TOKEN: str = cast(str, _env_or_file("GLPI_APP_TOKEN", "your_app_token"))
     GLPI_USERNAME: str = os.getenv("GLPI_USERNAME", "glpi_user")
     GLPI_PASSWORD: str = cast(str, _env_or_file("GLPI_PASSWORD", "glpi_password"))
@@ -37,7 +37,7 @@ class Settings(BaseSettings):
     DB_USER: str = "user"
     DB_PASSWORD: str = cast(str, _env_or_file("DB_PASSWORD", "password"))
 
-    REDIS_HOST: str = "localhost"
+    REDIS_HOST: str = "redis"
     REDIS_PORT: int = 6379
     REDIS_DB: int = 0
     REDIS_TTL_SECONDS: int = 3600

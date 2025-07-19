@@ -718,8 +718,8 @@ cp .env.example .env
 
 Docker Compose loads `.env` automatically when it exists.
 
-If the file is missing the backend falls back to `REDIS_HOST=localhost` which
-prevents communication with the `redis` container.
+If the file is missing the backend falls back to `REDIS_HOST=redis` so the
+services can communicate with the bundled `redis` container.
 
 When using Docker Compose the Redis host should be `redis`. Set `REDIS_HOST`,
 `REDIS_URL` and `CACHE_REDIS_HOST` accordingly in your environment or `.env`
