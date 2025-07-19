@@ -7,7 +7,9 @@ import { useQuery } from '@tanstack/react-query'
 import { fetchChamadosPorData } from '../services/api'
 
 export function useChamadosPorData() {
-  return useQuery(['chamados-por-data'], fetchChamadosPorData, {
+  return useQuery({
+    queryKey: ['chamados-por-data'],
+    queryFn: fetchChamadosPorData,
     staleTime: 1000 * 60 * 5, // 5 minutos
     gcTime: 1000 * 60 * 10, // 10 minutos
     refetchOnWindowFocus: true,
