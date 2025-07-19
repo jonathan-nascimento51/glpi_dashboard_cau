@@ -4,8 +4,10 @@ import inspect
 import json
 import logging
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Any, Dict, Optional
 
+import pandas as pd
 import redis.asyncio as redis
 import redis.exceptions
 
@@ -17,6 +19,13 @@ from backend.core.settings import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+def default_json_serializer(obj: Any) -> Any:
+    """Return a JSON-serializable representation for unknown objects."""
+    if isinstance(obj, (datetime, pd.Timestamp)):
+        return obj.isoformat()
+    return obj.isoformat() if hasattr(obj, "isoformat") else str(obj)
 
 
 async def _maybe_await(result: Any) -> Any:
@@ -107,7 +116,13 @@ class RedisClient:
             ttl = ttl_seconds or REDIS_TTL_SECONDS
             redis_key = self._format_key(key)
             # data should be JSON serializable
-            await _maybe_await(client.setex(redis_key, ttl, json.dumps(data)))
+            await _maybe_await(
+                client.setex(
+                    redis_key,
+                    ttl,
+                    json.dumps(data, default=default_json_serializer),
+                )
+            )
             logger.debug("Cache SET for key %s with TTL %s", redis_key, ttl)
         except redis.exceptions.ConnectionError as e:
             logger.error("Redis connection error during SET: %s", e)
