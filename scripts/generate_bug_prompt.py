@@ -12,7 +12,6 @@ from prompt_config import PromptConfig
 # This line adds the 'src' directory to the Python path automatically
 sys.path.append(str(Path(__file__).resolve().parents[1] / "src"))
 
-
 CONFIG = PromptConfig()
 
 
@@ -40,6 +39,7 @@ def run_command(cmd: list[str]) -> str:
 
 
 def build_prompt(logs: dict[str, str]) -> str:
+    # sourcery skip: for-append-to-extend
     """Construct the bug fix prompt from log data."""
     sections = [
         "# Identidade",
