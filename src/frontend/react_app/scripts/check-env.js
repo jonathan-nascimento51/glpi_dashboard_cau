@@ -11,8 +11,7 @@ dotenv.config({ path: path.join(__dirname, '..', '.env') })
 function assertEnv(keys) {
   const defaults = {
     NEXT_PUBLIC_API_BASE_URL: 'http://localhost:8000',
-    NEXT_PUBLIC_FARO_URL: 'http://localhost:1234/collect'
-  }
+  };
 
   keys.forEach(key => {
     if (!process.env[key]) {
@@ -33,12 +32,16 @@ function assertEnv(keys) {
 }
 
 // 3. Checa as variáveis
-assertEnv(['NEXT_PUBLIC_API_BASE_URL', 'NEXT_PUBLIC_FARO_URL'])
+assertEnv(['NEXT_PUBLIC_API_BASE_URL']);
 
 // 4. Log de sucesso
 console.log(
   `NEXT_PUBLIC_API_BASE_URL resolved to: ${process.env.NEXT_PUBLIC_API_BASE_URL}`
-)
-console.log(
-  `NEXT_PUBLIC_FARO_URL resolved to: ${process.env.NEXT_PUBLIC_FARO_URL}`
-)
+);
+if (process.env.NEXT_PUBLIC_FARO_URL) {
+  console.log(
+    `NEXT_PUBLIC_FARO_URL resolved to: ${process.env.NEXT_PUBLIC_FARO_URL}`
+  );
+} else {
+  console.warn('⚠️  Variável "NEXT_PUBLIC_FARO_URL" ausente. A instrumentação do Faro será desativada.');
+}
