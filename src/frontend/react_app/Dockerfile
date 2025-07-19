@@ -1,6 +1,6 @@
 # 🔧 Node versão mínima exigida pelo Vite@7
 FROM node:20.19.0-alpine
-RUN apk add --no-cache bash
+RUN apk add --no-cache bash curl
 
 WORKDIR /app
 ENV NPM_CONFIG_CACHE=/root/.npm
@@ -8,16 +8,14 @@ ENV NPM_CONFIG_CACHE=/root/.npm
 # Copiar apenas os arquivos de dependências primeiro para cache eficiente
 COPY src/frontend/react_app/package.json src/frontend/react_app/package-lock.json* ./
 
-# Instalar dependências sem conflito de peer dependencies
-RUN PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm install --legacy-peer-deps
-RUN npm rebuild esbuild --update-binary
-RUN npm rebuild lightningcss --update-binary
-
+# Instalar dependências, ignorando conflitos de peer dependencies que podem
+# ocorrer com algumas versões de pacotes.
+RUN npm install --legacy-peer-deps
 # Copiar apenas o frontend
 COPY src/frontend/react_app/ ./
 
 # Copiar arquivo de env específico para Docker
-COPY .env.docker .env
+COPY src/frontend/react_app/.env.docker .env
 
 # Copiar script de healthcheck, se necessário
 COPY scripts/healthchecks/healthcheck.sh /usr/local/bin/healthcheck.sh
@@ -26,6 +24,9 @@ ENV HC_TARGET=frontend
 
 # Expor a porta padrão do Vite
 EXPOSE 5173
+
+# Add Redis dependency check
+RUN apk add --no-cache redis
 
 HEALTHCHECK \
   --interval=30s \
