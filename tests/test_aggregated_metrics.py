@@ -7,6 +7,7 @@ from backend.application import aggregated_metrics
 from backend.application.aggregated_metrics import (
     cache_aggregated_metrics,
     get_cached_aggregated,
+    status_by_group,
     tickets_by_date,
     tickets_daily_totals,
 )
@@ -63,3 +64,20 @@ async def test_cache_helpers(monkeypatch: pytest.MonkeyPatch):
     result = await get_cached_aggregated(None, "k")
     fake.get.assert_awaited_once_with("k")
     assert result == data
+
+
+def test_status_by_group_counts():
+    df = pd.DataFrame(
+        [
+            {"group": "N1", "status": "new"},
+            {"group": "N1", "status": "pending"},
+            {"group": "N1", "status": "pending"},
+            {"group": "N2", "status": "solved"},
+        ]
+    )
+
+    result = status_by_group(df)
+    assert result == {
+        "N1": {"new": 1, "pending": 2, "solved": 0},
+        "N2": {"new": 0, "pending": 0, "solved": 1},
+    }

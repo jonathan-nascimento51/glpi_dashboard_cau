@@ -13,6 +13,7 @@ from backend.adapters.factory import create_glpi_session
 from backend.application.aggregated_metrics import (
     cache_aggregated_metrics,
     compute_aggregated,
+    status_by_group,
     tickets_by_date,
     tickets_daily_totals,
 )
@@ -42,6 +43,7 @@ async def _process_and_cache_df(
 
     metrics = compute_aggregated(df)
     await cache_aggregated_metrics(cache, "metrics_aggregated", metrics)
+    await cache.set("metrics_levels", status_by_group(df))
     await cache.set("chamados_por_data", tickets_by_date(df).to_dict(orient="records"))
     await cache.set(
         "chamados_por_dia", tickets_daily_totals(df).to_dict(orient="records")
