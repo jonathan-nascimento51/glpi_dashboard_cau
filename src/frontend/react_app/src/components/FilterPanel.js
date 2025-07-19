@@ -1,7 +1,7 @@
 "use client";
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { useCallback } from 'react';
-import { useFilters } from '../hooks/useFilters.js';
+import { useFilters } from '../hooks/useFilters';
 const FilterPanel = () => {
     const { filters, toggleFilters, toggleValue } = useFilters();
     const renderOptions = useCallback((category) => {

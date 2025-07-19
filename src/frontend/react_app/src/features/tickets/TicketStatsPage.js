@@ -1,6 +1,6 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
-import { useTicketMetrics } from './api.js';
-import { StatsCard } from '../../widgets/stats/StatsCard.js';
+import { useTicketMetrics } from './api';
+import { StatsCard } from '../../widgets/stats/StatsCard';
 export function TicketStatsPage() {
     const { data, isLoading, error } = useTicketMetrics();
     if (isLoading)

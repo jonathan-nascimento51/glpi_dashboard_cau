@@ -1,6 +1,6 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { memo, useMemo } from 'react';
-import { useChamadosPorDia } from '../hooks/useChamadosPorDia.js';
+import { useChamadosPorDia } from '../hooks/useChamadosPorDia';
 import ReactCalendarHeatmap from 'react-calendar-heatmap';
 import 'react-calendar-heatmap/dist/styles.css';
 function ChamadosHeatmapComponent() {

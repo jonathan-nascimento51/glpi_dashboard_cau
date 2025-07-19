@@ -1,7 +1,7 @@
 "use client"
 import { type FC, useCallback } from 'react'
-import { useThemeSwitcher } from '../hooks/useThemeSwitcher.js'
-import { useFilters } from '../hooks/useFilters.js'
+import { useThemeSwitcher } from '../hooks/useThemeSwitcher'
+import { useFilters } from '../hooks/useFilters'
 
 const Header: FC = () => {
   const { theme, setTheme } = useThemeSwitcher()

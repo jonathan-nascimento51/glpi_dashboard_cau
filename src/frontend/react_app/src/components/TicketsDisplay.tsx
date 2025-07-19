@@ -1,7 +1,7 @@
-import { useTickets } from '@/hooks/useTickets.js'
-import { TicketTable } from './TicketTable.js'
-import { LoadingSpinner } from './LoadingSpinner.js'
-import { ErrorMessage } from './ErrorMessage.js'
+import { useTickets } from '@/hooks/useTickets'
+import { TicketTable } from './TicketTable'
+import { LoadingSpinner } from './LoadingSpinner'
+import { ErrorMessage } from './ErrorMessage'
 
 export function TicketsDisplay() {
   const { tickets, error, isLoading, refreshTickets } = useTickets()
