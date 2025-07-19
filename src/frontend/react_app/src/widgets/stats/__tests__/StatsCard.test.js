@@ -1,6 +1,6 @@
 import { jsx as _jsx } from "react/jsx-runtime";
 import { render, screen } from '@testing-library/react';
-import { StatsCard } from '../StatsCard.js';
+import { StatsCard } from '../StatsCard';
 describe('StatsCard', () => {
     it('renders label and value', () => {
         render(_jsx(StatsCard, { label: "Total", value: 5 }));

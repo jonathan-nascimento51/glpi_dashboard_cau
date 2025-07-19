@@ -1,5 +1,5 @@
 import { useApiQuery } from '@/hooks/useApiQuery'
-import type { ChamadoPorDia } from '../types/chamado.js'
+import type { ChamadoPorDia } from '../types/chamado'
 
 export function useChamadosPorDia() {
   const query = useApiQuery<ChamadoPorDia[], Error>(

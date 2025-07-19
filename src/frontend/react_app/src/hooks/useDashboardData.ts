@@ -2,9 +2,9 @@
 
 import { useEffect, useRef } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-import { useApiQuery } from '@/hooks/useApiQuery.js'
+import { useApiQuery } from '@/hooks/useApiQuery'
 import type { Chart as ChartType } from 'chart'
-import type { DashboardStats } from '../types/dashboard.js'
+import type { DashboardStats } from '../types/dashboard'
 
 export type Metrics = DashboardStats
 

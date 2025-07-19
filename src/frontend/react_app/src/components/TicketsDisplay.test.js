@@ -17,7 +17,7 @@ jest.mock('react-window', () => {
 jest.mock('@/hooks/useTickets', () => ({
     useTickets: jest.fn(),
 }));
-import { useTickets } from '@/hooks/useTickets.js';
+import { useTickets } from '@/hooks/useTickets';
 const useTicketsMock = useTickets;
 describe('TicketsDisplay Component', () => {
     beforeEach(() => {

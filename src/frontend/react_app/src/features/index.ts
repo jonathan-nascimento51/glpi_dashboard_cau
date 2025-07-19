@@ -1,1 +1,1 @@
-export * from '../types/ticket.js';
+export * from '../types/ticket';
