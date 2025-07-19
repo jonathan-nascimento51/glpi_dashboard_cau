@@ -1,8 +1,8 @@
 "use client";
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { useCallback } from 'react';
-import { useThemeSwitcher } from '../hooks/useThemeSwitcher.js';
-import { useFilters } from '../hooks/useFilters.js';
+import { useThemeSwitcher } from '../hooks/useThemeSwitcher';
+import { useFilters } from '../hooks/useFilters';
 const Header = () => {
     const { theme, setTheme } = useThemeSwitcher();
     const { toggleFilters } = useFilters();

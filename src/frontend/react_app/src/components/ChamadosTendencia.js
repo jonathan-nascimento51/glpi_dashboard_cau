@@ -1,6 +1,6 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { memo } from 'react';
-import { useChamadosPorData } from '../hooks/useChamadosPorData.js';
+import { useChamadosPorData } from '../hooks/useChamadosPorData';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 function ChamadosTendenciaComponent() {
     const { dados, isLoading, error } = useChamadosPorData();

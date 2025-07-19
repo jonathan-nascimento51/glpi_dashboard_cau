@@ -1,6 +1,6 @@
 import { memo, useMemo } from 'react'
-import { useChamadosPorDia } from '../hooks/useChamadosPorDia.js'
-import type { ChamadoPorDia } from '../types/chamado.js'
+import { useChamadosPorDia } from '../hooks/useChamadosPorDia'
+import type { ChamadoPorDia } from '../types/chamado'
 import ReactCalendarHeatmap from 'react-calendar-heatmap'
 import 'react-calendar-heatmap/dist/styles.css'
 
