@@ -12,9 +12,7 @@ function ChamadosTendenciaComponent() {
 
   return (
     <div className="bg-white dark:bg-gray-800 p-4 rounded shadow w-full">
-      {process.env.NODE_ENV === 'development' && (
-        <p>Status da query: {status}</p>
-      )}
+      {/* Debug information removed. Use React Query Devtools for debugging. */}
       <h2 className="text-xl font-semibold mb-2">Chamados por Dia</h2>
       <ResponsiveContainer width="100%" height={300}>
         <LineChart data={data ?? []} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
