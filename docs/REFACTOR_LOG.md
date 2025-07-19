@@ -37,7 +37,9 @@ Data: 2025-07-09
 Ferramenta: scripts/auto_mover.py
 Descrição: Arquivos foram movidos de acordo com o mapeamento fornecido por Codex (RefatorAgent).
 Status: ✅ Concluído com sucesso
+
 Verificado via: scripts/refactor/init_refactor.sh + inspeção visual
+Nota: `scripts/auto_mover.py` foi removido após a migração porque o mapeamento estava vazio.
 
 ## \ud83d\udcc6 Atualizacao 2025-07-09
 

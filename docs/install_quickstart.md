@@ -66,10 +66,13 @@ Copy the React environment file, install Node packages and run Vite:
 ```bash
 cp src/frontend/react_app/.env.example src/frontend/react_app/.env
 cd src/frontend/react_app
+nvm install 20.19.0
+nvm use 20.19.0
 npm install         # installs dotenv, @eslint/js and other dev dependencies
 # npm ci can be used for reproducible installs
 npm run dev
 ```
 Docker Compose automatically loads `.env` when present.
+Docker can be used if you cannot install the required Node version.
 
 For more details on proxy and offline installation see [docs/codex_setup.md](codex_setup.md).
