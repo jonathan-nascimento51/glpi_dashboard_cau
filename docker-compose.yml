@@ -11,7 +11,7 @@ services:
     environment:
       PYTHONPATH: /app/src
       LOG_LEVEL: DEBUG
-      USE_MOCK_DATA: "true"
+      USE_MOCK_DATA: "false"
     depends_on:
       - redis
       - db
@@ -22,7 +22,8 @@ services:
       start_period: 60s
       retries: 3
     ports:
-    - "8000:8000"
+      # Map API for host access
+      - "8000:8000"
 
   redis:
     build:
