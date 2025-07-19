@@ -12,7 +12,9 @@ function ChamadosTendenciaComponent() {
 
   return (
     <div className="bg-white dark:bg-gray-800 p-4 rounded shadow w-full">
-      <p>Status da query: {status}</p>
+      {process.env.NODE_ENV === 'development' && (
+        <p>Status da query: {status}</p>
+      )}
       <h2 className="text-xl font-semibold mb-2">Chamados por Dia</h2>
       <ResponsiveContainer width="100%" height={300}>
         <LineChart data={data ?? []} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
