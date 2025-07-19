@@ -1,8 +1,8 @@
 import { useQueryClient } from '@tanstack/react-query'
-import { useApiQuery } from '@/hooks/useApiQuery.js'
+import { useApiQuery } from '@/hooks/useApiQuery'
 import { useMemo } from 'react'
-import type { CleanTicketDTO } from '../types/api.js'
-import type { Ticket } from '../types/ticket.js'
+import type { CleanTicketDTO } from '../types/api'
+import type { Ticket } from '../types/ticket'
 
 function toTicket(dto: CleanTicketDTO): Ticket {
   return {
