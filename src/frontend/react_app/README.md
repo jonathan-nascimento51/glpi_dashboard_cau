@@ -5,7 +5,10 @@ This folder contains the React front-end of the **GLPI Dashboard CAU**. The appl
 ## Setup
 
 1. Copy `.env.example` to `.env` and set `NEXT_PUBLIC_API_BASE_URL` to the worker address.
-2. Install Node dependencies with:
+
+2. (Optional) If you are running the Grafana observability stack, also set `NEXT_PUBLIC_FARO_URL` to point to your Faro collector (e.g., `http://localhost:1234/collect`). If you are not running the collector, leave this variable commented out to avoid connection errors in the browser console.
+
+3. Install Node dependencies with:
 
 ```bash
 npm ci
