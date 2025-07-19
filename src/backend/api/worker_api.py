@@ -192,6 +192,14 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
             raise HTTPException(status_code=503, detail="metrics not available")
         return metrics
 
+    @app.get("/metrics/levels")
+    async def metrics_levels() -> Dict[str, Dict[str, int]]:  # noqa: F401
+        """Return status counts grouped by ticket level (group)."""
+        data = await cache.get("metrics_levels")
+        if data is None:
+            raise HTTPException(status_code=503, detail="metrics not available")
+        return cast(Dict[str, Dict[str, int]], data)
+
     @app.get(
         "/chamados/por-data",
         response_model=List[ChamadoPorData],

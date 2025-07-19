@@ -10,6 +10,7 @@ from arq.connections import RedisSettings
 from backend.application.aggregated_metrics import (
     cache_aggregated_metrics,
     compute_aggregated,
+    status_by_group,
     tickets_by_date,
     tickets_daily_totals,
 )
@@ -48,6 +49,7 @@ async def update_metrics(ctx: Dict[str, Any], ticket: Dict[str, Any]) -> None:
     df = process_raw(tickets)
     metrics = compute_aggregated(df)
     await cache_aggregated_metrics(cache, "metrics_aggregated", metrics)
+    await cache.set("metrics_levels", status_by_group(df))
     await cache.set(
         "chamados_por_data", tickets_by_date(df).to_dict(orient="records")
     )  # Key for /chamados/por-data

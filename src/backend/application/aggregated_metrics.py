@@ -38,6 +38,40 @@ def compute_aggregated(df: pd.DataFrame) -> Dict[str, Any]:
     return {"status": status_counts, "per_user": by_user}
 
 
+def status_by_group(df: pd.DataFrame) -> Dict[str, Dict[str, int]]:
+    """Return counts of ``new``, ``pending`` and ``solved`` tickets per group.
+
+    Parameters
+    ----------
+    df:
+        Input DataFrame with at least ``status`` and ``group`` columns.
+
+    Returns
+    -------
+    dict
+        Mapping of group name to a dict of status counts.
+    """
+
+    if not {"status", "group"}.issubset(df.columns):
+        return {}
+
+    filtered_df = df[["group", "status"]].copy()
+    filtered_df["status"] = filtered_df["status"].fillna("").astype(str).str.lower()
+    filtered_df = filtered_df[filtered_df["status"].isin(["new", "pending", "solved"])]
+
+    grouped = (
+        filtered_df.groupby(["group", "status"], observed=True).size().unstack(fill_value=0)
+    )
+
+    for col in ["new", "pending", "solved"]:
+        if col not in grouped.columns:
+            grouped[col] = 0
+
+    grouped = grouped[["new", "pending", "solved"]]
+    grouped = grouped.astype(int)
+    return grouped.to_dict(orient="index")
+
+
 async def cache_aggregated_metrics(
     cache: Optional[RedisClient], key: str, data: Dict[str, Any]
 ) -> None:
