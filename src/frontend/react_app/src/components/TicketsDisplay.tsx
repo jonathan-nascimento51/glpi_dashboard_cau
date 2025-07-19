@@ -1,5 +1,5 @@
 import { useTickets } from '@/hooks/useTickets'
-import { TicketTable } from './TicketTable.js'
+import { TicketTable } from './TicketTable'
 import { LoadingSpinner } from './LoadingSpinner.js'
 import { ErrorMessage } from './ErrorMessage.js'
 
