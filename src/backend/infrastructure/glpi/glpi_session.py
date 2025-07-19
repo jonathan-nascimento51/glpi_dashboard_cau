@@ -5,6 +5,7 @@ import json
 import logging
 import os
 import ssl
+from types import TracebackType
 from typing import Any, Dict, List, Optional, Union
 from urllib.parse import urlsplit, urlunsplit
 
@@ -78,13 +79,7 @@ class Credentials(BaseModel):
     )
 
     @model_validator(mode="after")
-    def _check_auth(
-        self,
-        new_parameter=(
-            "Both user_token and username/password provided. "
-            "Prioritizing user_token."
-        ),
-    ):
+    def _check_auth(self) -> "Credentials":
         """Ensure at least one authentication method is supplied."""
         auth_methods = sum(
             [
@@ -174,7 +169,7 @@ class GLPISession:
 
         self._session_token: Optional[str] = None
         self._session: Optional[aiohttp.ClientSession] = None
-        self._refresh_task: Optional[asyncio.Task] = None
+        self._refresh_task: Optional[asyncio.Task[None]] = None
         self._last_refresh_time: float = 0.0
         self._refresh_lock = asyncio.Lock()
         self._shutdown_event = asyncio.Event()
@@ -190,7 +185,7 @@ class GLPISession:
             return self.timeout
         return aiohttp.ClientTimeout(total=float(self.timeout))
 
-    async def _init_aiohttp_session(self) -> None:
+    def _init_aiohttp_session(self) -> None:
         """Initializes the aiohttp ClientSession if it's not already open."""
         if self._session is None or self._session.closed:
             if not self.verify_ssl:
@@ -216,7 +211,7 @@ class GLPISession:
         guarantee a fresh connection when needed.
         """
         async with self._refresh_lock:
-            await self._init_aiohttp_session()
+            self._init_aiohttp_session()
             assert self._session is not None
             init_session_url = f"{self.base_url}/initSession"
             headers = {
@@ -245,10 +240,10 @@ class GLPISession:
                 )
 
             try:
-                await self._init_aiohttp_session()
+                self._init_aiohttp_session()
                 assert self._session is not None
 
-                get_kwargs = {
+                get_kwargs: Dict[str, Any] = {
                     "proxy": self.proxy,
                     "timeout": self._resolve_timeout(),
                 }
@@ -361,7 +356,7 @@ class GLPISession:
         """
         Enters the asynchronous context, initiating the GLPI session.
         """
-        await self._init_aiohttp_session()
+        self._init_aiohttp_session()
         await self._refresh_session_token()
 
         # Start proactive refresh task only if using username/password flow
@@ -370,8 +365,14 @@ class GLPISession:
             self._refresh_task = asyncio.create_task(self._proactive_refresh_loop())
         return self
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
+    async def __aexit__(
+        self,
+        exc_type: Optional[type],
+        exc_val: Optional[BaseException],
+        exc_tb: Optional["TracebackType"],
+    ) -> None:
         """
+        Exits the asynchronous context, gracefully killing the GLPI session.
         Exits the asynchronous context, gracefully killing the GLPI session.
 
         Sets ``_shutdown_event`` so that the proactive refresh loop can
@@ -418,14 +419,15 @@ class GLPISession:
         }
         logger.info("Attempting to kill GLPI session...")
         try:
-            await self._init_aiohttp_session()
+            self._init_aiohttp_session()
             assert self._session is not None
 
-            get_kwargs = {
+            get_kwargs: dict[str, Any] = {
                 "headers": headers,
-                "proxy": self.proxy,
                 "timeout": self._resolve_timeout(),
             }
+            if self.proxy is not None:
+                get_kwargs["proxy"] = self.proxy
             if not self.verify_ssl:
                 get_kwargs["ssl"] = False
             elif self.ssl_ctx is not None:
@@ -482,7 +484,7 @@ class GLPISession:
             GLPIAPIError: If the API returns an error status code or other issues occur.
         """
         if self._session is None or self._session.closed:
-            await self._init_aiohttp_session()  # Ensure session is open
+            self._init_aiohttp_session()  # Ensure session is open
 
         full_url = f"{self.base_url}/{endpoint.lstrip('/')}"
         request_headers: Dict[str, str] = {
@@ -496,11 +498,11 @@ class GLPISession:
 
         for attempt in range(max_401_retries + 1):
             current_headers = request_headers.copy()
-            await self._init_aiohttp_session()
+            self._init_aiohttp_session()
             assert self._session is not None
 
             try:
-                request_kwargs = {
+                request_kwargs: Dict[str, Any] = {
                     "headers": current_headers,
                     "json": json_data,
                     "params": params,
@@ -677,22 +679,22 @@ class GLPISession:
             "DELETE", endpoint, headers=headers, return_headers=return_headers
         )
 
-    async def get_all(self, itemtype: str, **params: Any) -> list[dict]:
+    async def get_all(self, itemtype: str, **params: Any) -> List[Dict[str, Any]]:
         """Retrieve all items for a given GLPI type using pagination."""
 
         from backend.core.settings import FETCH_PAGE_SIZE
 
         params = {**params, "expand_dropdowns": 1}
         endpoint = itemtype if itemtype.startswith("search/") else f"search/{itemtype}"
-        results: list[dict] = []
+        results: List[Dict[str, Any]] = []
         offset = 0
         while True:
-            page_params = {
+            page_params: Dict[str, Any] = {
                 **params,
                 "range": f"{offset}-{offset + FETCH_PAGE_SIZE - 1}",
             }
             data = await self.get(endpoint, params=page_params)
-            page = data.get("data", data)
+            page: Any = data.get("data", data)
             if isinstance(page, dict):
                 page = [page]
             results.extend(page)
@@ -721,11 +723,19 @@ class GLPISession:
     ) -> List[Dict[str, Any]]:
         """Return all items for ``itemtype`` using a resilient page loop."""
 
-        base_params = {**params, "expand_dropdowns": 1}
-        endpoint = itemtype if itemtype.startswith("search/") else f"search/{itemtype}"
+        base_params: Dict[str, Any] = {
+            **params,
+            "expand_dropdowns": 1,
+        }
+        endpoint: str = (
+            itemtype if itemtype.startswith("search/") else f"search/{itemtype}"
+        )
 
-        async def fetch_page(offset: int, size: int):
-            page_params = {**base_params, "range": f"{offset}-{offset + size - 1}"}
+        async def fetch_page(offset: int, size: int) -> Any:
+            page_params: Dict[str, Any] = {
+                **base_params,
+                "range": (f"{offset}-{offset + size - 1}"),
+            }
             return await self.get(endpoint, params=page_params, return_headers=True)
 
         return await paginate_items(itemtype, fetch_page, page_size=page_size)
@@ -735,7 +745,7 @@ class GLPISession:
     ) -> Dict[str, Any]:
         """Send a GraphQL query to the GLPI server."""
 
-        payload = {"query": query, "variables": variables or {}}
+        payload: Dict[str, Any] = {"query": query, "variables": variables or {}}
         data = await self.post("graphql", json_data=payload)
         if "errors" in data:
             msg = data["errors"][0].get("message", "GraphQL query failed")
