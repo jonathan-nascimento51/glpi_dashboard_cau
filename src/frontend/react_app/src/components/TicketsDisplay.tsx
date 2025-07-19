@@ -1,6 +1,6 @@
 import { useTickets } from '@/hooks/useTickets'
 import { TicketTable } from './TicketTable'
-import { LoadingSpinner } from './LoadingSpinner.js'
+import { LoadingSpinner } from './LoadingSpinner'
 import { ErrorMessage } from './ErrorMessage'
 
 export function TicketsDisplay() {
