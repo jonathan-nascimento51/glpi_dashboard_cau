@@ -13,8 +13,6 @@ import uvicorn
 from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import (
-    JSONResponse,
-    ORJSONResponse,
     PlainTextResponse,
     StreamingResponse,
 )
@@ -42,6 +40,7 @@ from backend.core.settings import (
     KNOWLEDGE_BASE_FILE,
 )
 from shared.dto import CleanTicketDTO  # imported from shared DTOs
+from shared.utils.json import UTF8JSONResponse
 from shared.utils.redis_client import redis_client
 
 logger = logging.getLogger(__name__)
@@ -140,7 +139,7 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
 
     app = FastAPI(
         title="GLPI Worker API",
-        default_response_class=ORJSONResponse,
+        default_response_class=UTF8JSONResponse,
         lifespan=lifespan,
     )
     FastAPIInstrumentor().instrument_app(app)
@@ -239,11 +238,11 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
             raise HTTPException(status_code=404, detail="knowledge base not found")
 
     @app.get("/health")
-    async def health_glpi() -> JSONResponse:  # noqa: F401
+    async def health_glpi() -> UTF8JSONResponse:  # noqa: F401
         """Check GLPI connectivity and return a JSON body."""
         status = await check_glpi_connection()
         if status != 200:
-            return JSONResponse(
+            return UTF8JSONResponse(
                 status_code=status,
                 content={
                     "status": "error",
@@ -251,7 +250,7 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
                 },
                 headers={"Cache-Control": "no-cache"},
             )
-        return JSONResponse(
+        return UTF8JSONResponse(
             status_code=200,
             content={
                 "status": "success",

@@ -1,14 +1,16 @@
 import json
 from unittest.mock import AsyncMock, MagicMock
 
+import pandas as pd
 import pytest
 import redis.exceptions
+from pytest_mock import MockerFixture
 
 from shared.utils.redis_client import RedisClient
 
 
 @pytest.mark.asyncio
-async def test_set(monkeypatch):
+async def test_set(mocker: MockerFixture, monkeypatch: pytest.MonkeyPatch):
     client = RedisClient()
     mock_redis = MagicMock()
     mock_redis.setex = AsyncMock()
@@ -18,7 +20,19 @@ async def test_set(monkeypatch):
 
 
 @pytest.mark.asyncio
-async def test_get_hit(monkeypatch):
+async def test_set_timestamp(monkeypatch: pytest.MonkeyPatch):
+    client = RedisClient()
+    mock_redis = MagicMock()
+    mock_redis.setex = AsyncMock()
+    monkeypatch.setattr(client, "_connect", AsyncMock(return_value=mock_redis))
+    await client.set("k", {"t": pd.Timestamp("2024-01-01")}, ttl_seconds=5)
+    args, _ = mock_redis.setex.call_args
+    stored = json.loads(args[2])
+    assert stored == {"t": "2024-01-01T00:00:00"}
+
+
+@pytest.mark.asyncio
+async def test_get_hit(monkeypatch: pytest.MonkeyPatch):
     client = RedisClient()
     mock_redis = MagicMock()
     mock_redis.get = AsyncMock(return_value=json.dumps({"v": 1}))
@@ -31,7 +45,7 @@ async def test_get_hit(monkeypatch):
 
 
 @pytest.mark.asyncio
-async def test_get_miss(monkeypatch):
+async def test_get_miss(monkeypatch: pytest.MonkeyPatch):
     client = RedisClient()
     mock_redis = MagicMock()
     mock_redis.get = AsyncMock(return_value=None)
@@ -44,7 +58,7 @@ async def test_get_miss(monkeypatch):
 
 
 @pytest.mark.asyncio
-async def test_delete(monkeypatch):
+async def test_delete(monkeypatch: pytest.MonkeyPatch):
     client = RedisClient()
     mock_redis = MagicMock()
     mock_redis.delete = AsyncMock()
@@ -54,7 +68,7 @@ async def test_delete(monkeypatch):
 
 
 @pytest.mark.asyncio
-async def test_get_ttl(monkeypatch):
+async def test_get_ttl(monkeypatch: pytest.MonkeyPatch):
     client = RedisClient()
     mock_redis = MagicMock()
     mock_redis.ttl = AsyncMock(return_value=42)
@@ -65,11 +79,10 @@ async def test_get_ttl(monkeypatch):
 
 
 @pytest.mark.asyncio
-async def test_delete_connection_error(monkeypatch):
+async def test_delete_connection_error(monkeypatch: pytest.MonkeyPatch):
     client = RedisClient()
     mock_redis = MagicMock()
     mock_redis.delete = AsyncMock(side_effect=redis.exceptions.ConnectionError("fail"))
-    client._client = mock_redis
     monkeypatch.setattr(client, "_connect", AsyncMock(return_value=mock_redis))
     await client.delete("k")
     assert client._client is None
@@ -79,11 +92,10 @@ async def test_delete_connection_error(monkeypatch):
 
 
 @pytest.mark.asyncio
-async def test_get_ttl_connection_error(monkeypatch):
+async def test_get_ttl_connection_error(monkeypatch: pytest.MonkeyPatch):
     client = RedisClient()
     mock_redis = MagicMock()
     mock_redis.ttl = AsyncMock(side_effect=redis.exceptions.ConnectionError("fail"))
-    client._client = mock_redis
     monkeypatch.setattr(client, "_connect", AsyncMock(return_value=mock_redis))
     ttl = await client.get_ttl("k")
     assert ttl == -2

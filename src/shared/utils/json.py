@@ -1,12 +1,12 @@
 from typing import Any
 
-from fastapi.responses import JSONResponse
+from fastapi.responses import ORJSONResponse
 
 
-class UTF8JSONResponse(JSONResponse):
+class UTF8JSONResponse(ORJSONResponse):
     """
     Custom JSONResponse that explicitly sets the charset to UTF-8 in the
-    Content-Type header.
+    Content-Type header, using the high-performance orjson library.
     """
 
     def __init__(self, content: Any, **kwargs: Any):
