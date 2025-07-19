@@ -55,12 +55,12 @@ def status_by_group(df: pd.DataFrame) -> Dict[str, Dict[str, int]]:
     if not {"status", "group"}.issubset(df.columns):
         return {}
 
-    tmp = df[["group", "status"]].copy()
-    tmp["status"] = tmp["status"].fillna("").astype(str).str.lower()
-    tmp = tmp[tmp["status"].isin(["new", "pending", "solved"])]
+    filtered_df = df[["group", "status"]].copy()
+    filtered_df["status"] = filtered_df["status"].fillna("").astype(str).str.lower()
+    filtered_df = filtered_df[filtered_df["status"].isin(["new", "pending", "solved"])]
 
     grouped = (
-        tmp.groupby(["group", "status"], observed=True).size().unstack(fill_value=0)
+        filtered_df.groupby(["group", "status"], observed=True).size().unstack(fill_value=0)
     )
 
     for col in ["new", "pending", "solved"]:
