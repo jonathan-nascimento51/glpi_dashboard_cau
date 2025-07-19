@@ -21,7 +21,7 @@ test('useChamadosPorData parses numbers', async () => {
   const { result } = renderHook(() => useChamadosPorData(), { wrapper })
   expect(result.current.isLoading).toBe(true)
   await waitFor(() => expect(result.current.isLoading).toBe(false))
-  expect(result.current.dados).toEqual([{ date: '2024-01-01', total: 2 }])
+  expect(result.current.data).toEqual([{ date: '2024-01-01', total: 2 }])
 })
 
 test('useChamadosPorData handles error', async () => {
@@ -31,7 +31,7 @@ test('useChamadosPorData handles error', async () => {
   }) as jest.Mock
 
   const { result } = renderHook(() => useChamadosPorData(), { wrapper })
-  await waitFor(() => expect(result.current.error).toBeTruthy())
+  await waitFor(() => expect(result.current.isError).toBe(true))
 })
 
 test('useChamadosPorDia handles error', async () => {

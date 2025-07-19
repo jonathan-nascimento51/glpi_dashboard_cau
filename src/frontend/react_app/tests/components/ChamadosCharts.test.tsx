@@ -15,15 +15,25 @@ beforeEach(() => {
 })
 
 test('ChamadosTendencia loading', () => {
-  mockedData.useChamadosPorData.mockReturnValue({ dados: [], isLoading: true, error: null })
+  mockedData.useChamadosPorData.mockReturnValue({
+    data: [],
+    isLoading: true,
+    isError: false,
+    status: 'loading',
+  } as any)
   render(<ChamadosTendencia />)
-  expect(screen.getByText('Carregando tendência...')).toBeInTheDocument()
+  expect(screen.getByText('Carregando chamados...')).toBeInTheDocument()
 })
 
 test('ChamadosTendencia error', () => {
-  mockedData.useChamadosPorData.mockReturnValue({ dados: [], isLoading: false, error: new Error('x') })
+  mockedData.useChamadosPorData.mockReturnValue({
+    data: [],
+    isLoading: false,
+    isError: true,
+    status: 'error',
+  } as any)
   render(<ChamadosTendencia />)
-  expect(screen.getByText('Erro ao carregar dados de tendência')).toBeInTheDocument()
+  expect(screen.getByText('Erro ao carregar chamados.')).toBeInTheDocument()
 })
 
 test('ChamadosHeatmap success', () => {

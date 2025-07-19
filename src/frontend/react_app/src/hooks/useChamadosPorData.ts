@@ -1,25 +1,16 @@
-import { useApiQuery } from '@/hooks/useApiQuery'
-import type { ChamadoPorData } from '../types/chamado'
+// Hook para buscar chamados agrupados por data usando React Query v5
+// Deve usar staleTime para evitar refetching desnecessário
+// Deve ativar refetch automático ao focar a janela
+// Pode incluir refetchInterval para polling se necessário
+
+import { useQuery } from '@tanstack/react-query'
+import { fetchChamadosPorData } from '../services/api'
 
 export function useChamadosPorData() {
-  const query = useApiQuery<ChamadoPorData[], Error>(
-    ['chamados-por-data'],
-    '/chamados/por-data',
-    {
-      select: (data: ChamadoPorData[]) =>
-        data.map((d) => ({ date: d.date, total: Number(d.total) })),
-      refetchInterval: 60000,
-    },
-  )
-
-  return {
-    dados: query.data ?? [],
-    // Se você não tiver um tipo ApiError:
-    error: query.error
-      ? (query.error as any).status === 503  // Use 'any' temporariamente
-        ? new Error('Serviço temporariamente indisponível. Tente novamente mais tarde.')
-        : (query.error as Error)
-      : null,
-    isLoading: query.isLoading,
-  }
+  return useQuery(['chamados-por-data'], fetchChamadosPorData, {
+    staleTime: 1000 * 60 * 5, // 5 minutos
+    cacheTime: 1000 * 60 * 10, // 10 minutos
+    refetchOnWindowFocus: true,
+    // refetchInterval: 30000, // descomente para polling a cada 30s
+  })
 }
