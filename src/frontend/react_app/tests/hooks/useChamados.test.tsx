@@ -32,6 +32,13 @@ test('useChamadosPorData handles error', async () => {
 
   const { result } = renderHook(() => useChamadosPorData(), { wrapper })
   await waitFor(() => expect(result.current.isError).toBe(true))
+  expect(result.current.error).toBeDefined()
+  // If error is an Error object, check its message
+  if (result.current.error instanceof Error) {
+    expect(result.current.error.message).toMatch(/fail|500/i)
+  } else if (typeof result.current.error === 'string') {
+    expect(result.current.error).toMatch(/fail|500/i)
+  }
 })
 
 test('useChamadosPorDia handles error', async () => {
