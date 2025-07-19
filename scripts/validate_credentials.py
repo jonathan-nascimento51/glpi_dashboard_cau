@@ -23,9 +23,17 @@ from backend.core.settings import (
 )
 from backend.infrastructure.glpi.glpi_session import mask_proxy_url
 
-# Windows event loop fix for aiodns
+
+def event_loop():
+    """Set the appropriate event loop policy based on the platform."""
+    if sys.platform.startswith("win"):
+        asyncio.set_event_loop_policy(asyncio.DefaultEventLoopPolicy())
+    return asyncio.new_event_loop()
+
+
+# Replace the direct event loop policy setting with the function call
 if sys.platform.startswith("win"):
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())  # type: ignore
+    event_loop()
 
 
 def get_auth_header() -> dict[str, str]:

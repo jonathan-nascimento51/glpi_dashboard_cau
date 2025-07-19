@@ -2,7 +2,12 @@
   "terminal.integrated.allowChords": false,
 
   // ▼ IA / extensões ----------------------------------------------------------
-  "CodeGPT.apiKey": "CodeGPT Plus",
+   "github.copilot.enable": { "*": true, "plaintext": false, "json": false },
+  "geminicodeassist.rules": "Gere testes unitários com pytest, use TypeScript e React com hooks, trate exceções com try-catch.",
+  "geminicodeassist.customCommands": {
+    "/create-glpi-hook": "Crie um hook React Query para a API GLPI.",
+    "/document-glpi-endpoint": "Documente função que interage com API GLPI."
+  },
 
   // ▼ Python ------------------------------------------------------------------
   "python.testing.pytestArgs": ["test"],
