@@ -5,10 +5,12 @@ import type { CleanTicketDTO } from '../types/api.js'
 import type { Ticket } from '../types/ticket.js'
 
 function toTicket(dto: CleanTicketDTO): Ticket {
+  const date = dto.date_creation ? new Date(dto.date_creation) : null;
   return {
     ...dto,
-    date_creation: dto.date_creation ? new Date(dto.date_creation) : null,
-  }
+    date_creation: date && !isNaN(date.getTime()) ? date : null,
+  };
+}
 }
 
 export function useTickets() {
