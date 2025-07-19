@@ -1,0 +1,30 @@
+/*
+ * This file demonstrates CSS fixes for browser compatibility and best practices.
+ */
+
+.some-element {
+  /*
+   * FIX: 'user-select' is not supported by Safari.
+   * Add '-webkit-user-select' to support Safari 3+.
+   * The prefixed version should come first.
+   */
+  -webkit-user-select: none; /* For Safari */
+  -moz-user-select: none; /* For Firefox */
+  -ms-user-select: none; /* For Internet Explorer/Edge */
+  user-select: none; /* Standard syntax */
+}
+
+.another-element {
+  /*
+   * FIX: 'background-clip' should be listed after '-webkit-background-clip'.
+   * The vendor-prefixed property should come before the standard one.
+   */
+  -webkit-background-clip: text; /* For Safari */
+  background-clip: text;
+}
+
+.text-input-that-grows {
+  /* NOTE on 'field-sizing': This is an experimental feature with limited support.
+   * There are no vendor prefixes for it. Use with caution and provide fallbacks. */
+  field-sizing: content;
+}
