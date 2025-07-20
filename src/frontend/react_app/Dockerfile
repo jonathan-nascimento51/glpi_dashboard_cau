@@ -29,7 +29,7 @@ RUN apk add --no-cache curl
 COPY --from=builder /app/dist /usr/share/nginx/html
 
 # Copia a configuração customizada do Nginx para lidar com SPA
-COPY docker/frontend/react_app/nginx.conf /etc/nginx/conf.d/default.conf
+COPY ./src/frontend/react_app/nginx.conf /etc/nginx/conf.d/default.conf
 
 # Expõe a porta 80, que é a porta padrão do Nginx
 EXPOSE 80
