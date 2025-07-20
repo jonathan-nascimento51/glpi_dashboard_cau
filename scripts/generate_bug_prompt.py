@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 
 # Ensure modules under ``src`` are importable before loading ``PromptConfig``
-sys.path.append(str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.append(str(Path(__file__).resolve().parent.parent / "src"))
 
 from prompt_config import PromptConfig
 
