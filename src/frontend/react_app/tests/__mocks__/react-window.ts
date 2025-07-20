@@ -1,7 +1,7 @@
 import React from 'react'
 import { jest } from '@jest/globals'
 
-export const FixedSizeList = jest.fn((props: any) =>
+export const FixedSizeList = jest.fn((props: { itemCount: number; itemData: any; children: React.ReactNode }) =>
   React.createElement(
     'div',
     { 'data-testid': 'virtual-list' },
