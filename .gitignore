@@ -25,6 +25,7 @@ build/
 *.tsbuildinfo
 # compiled JS artifacts generated from TypeScript (ignored)
 src/frontend/react_app/src/**/*.js
+src/frontend/react_app/src/**/*.js.map
 
 # ---- Local Node runtime solto (não versionar) ----
 /node
