@@ -1,5 +1,7 @@
-import pybreaker
 import pytest
+
+pytest.importorskip("pybreaker")
+import pybreaker
 
 from shared.utils.resilience import breaker, call_with_breaker
 
