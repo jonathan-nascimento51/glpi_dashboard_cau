@@ -139,10 +139,10 @@ def test_setup_logger_initializes_logging():
     import importlib
 
     mod = importlib.reload(glpi_client_logging)
-    assert not getattr(mod, "_configured")
+    assert not mod.is_logging_configured()
 
     mod.get_logger("t").info("no config")
-    assert not getattr(mod, "_configured")
+    assert not mod.is_logging_configured()
 
     mod.setup_logger("t")
-    assert getattr(mod, "_configured")
+    assert mod.is_logging_configured()
