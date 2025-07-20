@@ -18,7 +18,7 @@ _correlation_id: ContextVar[str | None] = ContextVar("correlation_id", default=N
 
 
 class _CorrelationFilter:
-    def __call__(self, record: dict) -> bool:  # pragma: no cover - simple filter
+    def __call__(self, record: dict[str, Any]) -> bool:
         record["extra"]["correlation_id"] = _correlation_id.get()
         return True
 

@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Type
 
 from backend.adapters.factory import create_glpi_session
 from backend.adapters.mapping_service import MappingService
@@ -27,7 +27,12 @@ class GlpiApiClient:
         await self._mapper.initialize()
         return self
 
-    async def __aexit__(self, exc_type, exc, tb) -> None:
+    async def __aexit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc: Optional[BaseException],
+        tb: Optional[Any],
+    ) -> None:
         await self._session.__aexit__(exc_type, exc, tb)
 
     async def get_all_paginated(
@@ -35,9 +40,7 @@ class GlpiApiClient:
     ) -> List[Dict[str, Any]]:
         """Return all items for ``itemtype`` using a resilient page loop."""
 
-        base_params = {**params, "expand_dropdowns": 1}
-        # The 'search' endpoint is only necessary when filtering with 'criteria'.
-        # Otherwise, use the direct itemtype endpoint to get full objects.
+        base_params: Dict[str, Any] = {**params, "expand_dropdowns": 1}
         if "criteria" in base_params:
             endpoint = (
                 itemtype if itemtype.startswith("search/") else f"search/{itemtype}"
@@ -45,8 +48,11 @@ class GlpiApiClient:
         else:
             endpoint = itemtype.replace("search/", "")
 
-        async def fetch_page(offset: int, size: int):
-            page_params = {**base_params, "range": f"{offset}-{offset + size - 1}"}
+        async def fetch_page(offset: int, size: int) -> Any:
+            page_params: Dict[str, Any] = {
+                **base_params,
+                "range": f"{offset}-{offset + size - 1}",
+            }
             return await self._session.get(
                 endpoint, params=page_params, return_headers=True
             )
