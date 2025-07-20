@@ -33,7 +33,6 @@ class Sorter:
 
 
 if __name__ == "__main__":
-    init_logging()
     logger = get_logger(__name__)
 
     numbers = list(range(1000, 0, -1))
