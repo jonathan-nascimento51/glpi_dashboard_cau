@@ -49,7 +49,7 @@ class Settings(BaseSettings):
 
     USE_MOCK_DATA: bool = False
 
-    VERIFY_SSL: bool = True
+    VERIFY_SSL: bool = False
     CLIENT_TIMEOUT_SECONDS: int = 30
     DASH_PORT: int = int(os.getenv("DASH_PORT", "8050"))
 
