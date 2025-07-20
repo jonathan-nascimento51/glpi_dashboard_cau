@@ -22,6 +22,13 @@ Aplique todos os conceitos aprendidos durante o desenvolvimento em nossa base de
 - **Causa**: latência de rede ou servidor indisponivel.
 - **Correção**: aumente o timeout ou teste a conectividade antes de reenviar.
 
+## DNS lookup failure
+- **Causa**: o contêiner não consegue resolver o domínio informado em
+  `GLPI_BASE_URL` (mensagem "Domain name not found").
+- **Correção**: confirme o endereço do GLPI e teste `ping` ou `curl` dentro do
+  contêiner. Se necessário adicione o IP em `/etc/hosts` ou use o endereço IP no
+  `.env`.
+
 ## 500 Internal Server Error
 - **Causa**: falha inesperada no GLPI ou parametros fora do esperado.
 - **Correção**: repita a operacao e verifique
