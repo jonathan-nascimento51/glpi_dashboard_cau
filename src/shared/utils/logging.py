@@ -99,7 +99,6 @@ def init_logging(
 def get_logger(name: str | None = None) -> Logger:
     """Return a logger bound with the given name."""
 
-    init_logging()
     return logger.bind(module=name) if name else logger
 
 
