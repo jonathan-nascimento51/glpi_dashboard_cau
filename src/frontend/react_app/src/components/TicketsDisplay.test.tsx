@@ -17,19 +17,6 @@ beforeAll(async () => {
   TicketsDisplay = comp.TicketsDisplay
 })
 
-jest.unstable_mockModule('react-window', () => ({
-  FixedSizeList: jest.fn((props: any) => (
-    <div data-testid="virtual-list">
-      {Array.from({ length: props.itemCount }).map((_: unknown, idx: number) =>
-        React.createElement(props.children, {
-          index: idx,
-          style: {},
-          data: props.itemData,
-        })
-      )}
-    </div>
-  )),
-}))
 
 describe('TicketsDisplay Component', () => {
   beforeEach(() => {
