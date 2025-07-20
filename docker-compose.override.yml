@@ -33,7 +33,7 @@ services:
       - ./src/frontend/react_app/.env
       - .env.example
     environment:
-      # Use the backend service name so the container can reach the API
+      # Use the backend service name ("backend") so the container can reach the API
       # even when running inside Docker networks. The host port mapping
       # is still available for browsers at http://localhost:8000.
       - NEXT_PUBLIC_API_BASE_URL=http://backend:8000

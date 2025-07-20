@@ -193,6 +193,11 @@ service name `backend`. The `.env` file already sets
 `NEXT_PUBLIC_API_BASE_URL=http://backend:8000` to account for this. Browsers can
 still access the API on `http://localhost:8000` thanks to the published port.
 
+When running via Docker, the front-end container reaches the backend using the
+service name `backend`. The `.env` file already sets
+`NEXT_PUBLIC_API_BASE_URL=http://backend:8000` to account for this. Browsers can
+still access the API on `http://localhost:8000` thanks to the published port.
+
 ### Multi-agent pipeline (A1–A9)
 
 The project automates code generation via a nine-stage prompt flow. The sequence
