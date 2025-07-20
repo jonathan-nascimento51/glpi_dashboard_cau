@@ -39,7 +39,7 @@ def mock_response_obj():
             return_value=str(json_data) if json_data is not None else ""
         )
         mock_resp.request_info = MagicMock()  # Required for ClientResponseError
-        mock_resp.history = tuple()  # Required for ClientResponseError
+        mock_resp.history = ()  # Required for ClientResponseError
         return mock_resp
 
     return _mock_response_obj
