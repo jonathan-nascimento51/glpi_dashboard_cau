@@ -3,7 +3,7 @@ import { useTickets } from '../hooks/useTickets'
 import { TicketTable } from './TicketTable'
 import { LoadingSpinner } from './LoadingSpinner'
 import { ErrorMessage } from './ErrorMessage'
-import { EmptyState } from '../../../../../EmptyState'
+import { EmptyState } from './EmptyState'
 
 export function TicketsDisplay() {
   const { tickets, error, isLoading, refreshTickets } = useTickets()
