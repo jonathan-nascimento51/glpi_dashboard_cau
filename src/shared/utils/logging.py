@@ -8,8 +8,9 @@ import logging
 import os
 import sys
 from contextvars import ContextVar
+from typing import Any
 
-from loguru import Logger, logger
+from loguru import logger
 from opentelemetry.instrumentation.logging import LoggingInstrumentor
 
 _is_initialized: bool = False
@@ -96,7 +97,7 @@ def init_logging(
     _is_initialized = True
 
 
-def get_logger(name: str | None = None) -> Logger:
+def get_logger(name: str | None = None) -> Any:
     """Return a logger bound with the given name."""
 
     return logger.bind(module=name) if name else logger

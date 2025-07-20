@@ -57,6 +57,8 @@ pip install -r requirements.txt -r requirements-dev.txt  # generated via pip-com
 pip install -e .
 pre-commit install
 cd src/frontend/react_app && npm ci
+\# remove any stale compiled JS that might shadow the TypeScript sources
+find src/frontend/react_app/src -name '*.js' -delete
 ```
 See [docs/testing.md](docs/testing.md) for tips on running individual tests and
 for common import errors.
@@ -185,6 +187,11 @@ available in [docs/langgraph_workflow.md](docs/langgraph_workflow.md).
 Instructions for running the React front-end—including npm scripts and required environment variables—are available in
 [docs/frontend_architecture.md](docs/frontend_architecture.md). That document also covers how the front-end communicates with the worker API via `NEXT_PUBLIC_API_BASE_URL` and how to run the Jest and Playwright test suites.
 Create the environment file with `cp src/frontend/react_app/.env.example src/frontend/react_app/.env` before running the dashboard. Docker Compose automatically loads `.env` when present. Execute all npm commands from inside the `src/frontend/react_app` directory, e.g. `cd src/frontend/react_app && npm run dev`, or launch Docker.
+
+When running via Docker, the front-end container reaches the backend using the
+service name `backend`. The `.env` file already sets
+`NEXT_PUBLIC_API_BASE_URL=http://backend:8000` to account for this. Browsers can
+still access the API on `http://localhost:8000` thanks to the published port.
 
 ### Multi-agent pipeline (A1–A9)
 
@@ -613,6 +620,10 @@ container also executes on first startup.
 - `GLPI_APP_TOKEN` – your application token
 - `GLPI_USERNAME` / `GLPI_PASSWORD` – login credentials (optional if using a user token)
 - `GLPI_USER_TOKEN` – API token for a specific user (optional)
+- You may also provide secrets via file-based variants such as
+  `GLPI_APP_TOKEN_FILE` and `GLPI_USER_TOKEN_FILE`. Set each variable with
+  the path to a Docker/Kubernetes secret file and the client will read the
+  token from that location.
 - `VERIFY_SSL` – set to `false` to ignore invalid TLS certificates
 - `CLIENT_TIMEOUT_SECONDS` – HTTP client timeout in seconds
 - `KNOWLEDGE_BASE_FILE` – caminho para o arquivo Markdown com erros

@@ -21,7 +21,7 @@ from backend.application.glpi_api_client import GlpiApiClient
 from backend.core.settings import MOCK_TICKETS_FILE, USE_MOCK_DATA
 from backend.infrastructure.glpi.normalization import process_raw
 from shared.dto import CleanTicketDTO
-from shared.utils.redis_client import redis_client
+from shared.utils.redis_client import RedisClient, redis_client
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 
@@ -29,7 +29,9 @@ logger = logging.getLogger(__name__)
 
 
 async def _process_and_cache_df(
-    df: pd.DataFrame, cache, cache_key: str
+    df: pd.DataFrame,
+    cache: RedisClient,
+    cache_key: str,
 ) -> pd.DataFrame:
     """Process a DataFrame, update derivative caches, and cache the main result."""
     if "created_at" in df.columns and "date_creation" not in df.columns:
@@ -54,7 +56,7 @@ async def _process_and_cache_df(
 
 async def load_and_translate_tickets(
     client: Optional[GlpiApiClient] = None,
-    cache=None,
+    cache: Optional[RedisClient] = None,
     response: Optional[Response] = None,
 ) -> List[CleanTicketDTO]:
     """Return tickets translated using :class:`GlpiApiClient`."""
@@ -65,7 +67,7 @@ async def load_and_translate_tickets(
 
 async def load_tickets(
     client: Optional[GlpiApiClient] = None,
-    cache=None,
+    cache: Optional[RedisClient] = None,
     response: Optional[Response] = None,
 ) -> pd.DataFrame:
     """Return processed ticket data from the API with caching.
@@ -133,7 +135,7 @@ async def load_tickets(
 
 async def stream_tickets(
     client: Optional[GlpiApiClient],
-    cache=None,
+    cache: Optional[RedisClient] = None,
     response: Optional[Response] = None,
 ) -> AsyncGenerator[bytes, None]:
     """Yield progress events followed by final ticket data."""

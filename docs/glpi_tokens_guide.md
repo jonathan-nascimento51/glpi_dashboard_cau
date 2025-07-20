@@ -186,4 +186,9 @@ GLPI_APP_TOKEN="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 GLPI_USER_TOKEN="yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy"
 ```
 
+Se estiver usando Docker ou Kubernetes, você pode montar os segredos como
+arquivos e definir `GLPI_APP_TOKEN_FILE` e `GLPI_USER_TOKEN_FILE` apontando para
+esses caminhos. O cliente prioriza os valores lidos desses arquivos, mantendo as
+variáveis padrão como fallback.
+
 Pronto: o dashboard agora autentica corretamente na API.
