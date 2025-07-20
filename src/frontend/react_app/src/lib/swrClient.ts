@@ -1,46 +1,67 @@
-export async function fetcher<T>(url: string, init: RequestInit = {}): Promise<T> {
-  const base = import.meta.env.NEXT_PUBLIC_API_BASE_URL
-
+export async function fetcher<T>(
+  path: string,
+  init: RequestInit = {},
+  opts: { timeoutMs?: number; baseUrl?: string } = {}
+): Promise<T> {
+  const base = opts.baseUrl ?? import.meta.env.NEXT_PUBLIC_API_BASE_URL;
   if (!base) {
-    console.error('Environment variable NEXT_PUBLIC_API_BASE_URL is not set')
-    throw new Error('NEXT_PUBLIC_API_BASE_URL environment variable not configured')
+    throw new Error(
+      'NEXT_PUBLIC_API_BASE_URL não configurada. Defina a variável ou passe opts.baseUrl.'
+    );
   }
 
-  let res: Response
+  /* ---------- AbortController + timeout ---------- */
+  const controller = new AbortController();
+  const timeout = setTimeout(
+    () => controller.abort(new DOMException('Timeout', 'AbortError')),
+    opts.timeoutMs ?? 15_000
+  );
 
+  /* ---------- Cabeçalhos ---------- */
+  const defaultHeaders = new Headers({
+    'Content-Type': 'application/json',
+    Accept: 'application/json',
+  });
+  const callerHeaders = new Headers(init.headers ?? {});
+  callerHeaders.forEach((v, k) => defaultHeaders.set(k, v));
+
+  let res: Response;
   try {
-    res = await fetch(`${base ?? ''}${url}`, {
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-        ...(init.headers ?? {}),
-      },
+    res = await fetch(`${base}${path}`, {
       ...init,
-    })
+      headers: defaultHeaders,
+      signal: controller.signal,
+    });
   } catch (err) {
-    const error = new Error('Network error')
-    ;(error as any).cause = err
-    throw error
+    clearTimeout(timeout);
+    /* Trata falhas de rede / abort */
+    const error: Error & { cause?: unknown } = new Error('Network error');
+    error.cause = err;
+    throw error;
+  } finally {
+    clearTimeout(timeout);
   }
 
-  if (res.status >= 400) {
-    const message = await res.text()
-    const error = new Error(message || res.statusText)
-    ;(error as any).status = res.status
-    ;(error as any).statusText = res.statusText
-    throw error
+  /* ---------- HTTP status ---------- */
+  if (!res.ok) {
+    const raw = await res.text().catch(() => '');
+    const err = new Error(raw || res.statusText);
+    Object.assign(err, { status: res.status, statusText: res.statusText });
+    throw err;
   }
 
-  const contentType = res.headers.get('content-type') ?? ''
-  const body = await res.text()
+  /* ---------- Corpo vazio ---------- */
+  if (res.status === 204 || res.status === 205) return undefined as unknown as T;
 
-  if (contentType.includes('application/json')) {
+  /* ---------- Parsing condicional ---------- */
+  const ctype = res.headers.get('content-type') ?? '';
+  const rawBody = await res.text();
+  if (ctype.includes('application/json')) {
     try {
-      return JSON.parse(body) as T
+      return JSON.parse(rawBody) as T;
     } catch {
-      return body as unknown as T
+      /* JSON inválido — devolve string bruta */
     }
   }
-
-  return body as unknown as T
+  return rawBody as unknown as T;
 }

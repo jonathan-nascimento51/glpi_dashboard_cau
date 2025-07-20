@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import TYPE_CHECKING, Dict, Optional
+from typing import TYPE_CHECKING, Any, Dict, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -58,12 +58,12 @@ class CleanTicketDTO(BaseModel):
     @field_validator("status", mode="before")
     @classmethod
     def _validate_status(cls, v: int) -> str:  # pragma: no cover - simple mapping
-        return STATUS_MAP.get(int(v), "Unknown")
+        return STATUS_MAP.get(v, "Unknown")
 
     @field_validator("priority", mode="before")
     @classmethod
     def _validate_priority(cls, v: int) -> str:  # pragma: no cover - simple mapping
-        return PRIORITY_MAP.get(int(v), "Unknown")
+        return PRIORITY_MAP.get(v, "Unknown")
 
 
 class TicketTranslator:
@@ -72,7 +72,7 @@ class TicketTranslator:
     def __init__(self, mapping_service: "MappingService") -> None:
         self.mapper = mapping_service
 
-    async def translate_ticket(self, raw_ticket: Dict) -> CleanTicketDTO:
+    async def translate_ticket(self, raw_ticket: Dict[str, Any]) -> CleanTicketDTO:
         """Validate and convert ``raw_ticket`` into :class:`CleanTicketDTO`."""
 
         validated_raw = RawTicketFromAPI.model_validate(raw_ticket)
@@ -81,7 +81,7 @@ class TicketTranslator:
         if validated_raw.users_id_assign:
             assigned_to = await self.mapper.get_username(validated_raw.users_id_assign)
 
-        clean_data = {
+        clean_data: Dict[str, Any] = {
             "id": validated_raw.id,
             "name": validated_raw.name,
             "status": validated_raw.status,

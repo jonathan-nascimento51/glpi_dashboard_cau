@@ -1,25 +1,7 @@
 import { render, screen } from '@testing-library/react'
-import { TicketTable } from '@/components/TicketTable'
 import type { TicketRow } from '@/components/VirtualizedTicketTable'
 import React from 'react'
-import { jest } from '@jest/globals'
-
-jest.mock('react-window', () => {
-  return {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    FixedSizeList: jest.fn((props: any) => (
-      <div data-testid="virtual-list">
-        {Array.from({ length: props.itemCount }).map((_: any, idx: number) =>
-          React.createElement(props.children, {
-            index: idx,
-            style: {},
-            data: props.itemData,
-          })
-        )}
-      </div>
-    )),
-  }
-}, { virtual: true })
+import { TicketTable } from '@/components/TicketTable'
 
 const ticket: TicketRow = {
   id: 1,
