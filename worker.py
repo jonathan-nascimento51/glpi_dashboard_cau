@@ -27,8 +27,9 @@ from src.backend.core.settings import KNOWLEDGE_BASE_FILE
 from src.backend.infrastructure.glpi.glpi_session import GLPISession
 
 # Initialize logging as early as possible
-init_logging(level=os.getenv("LOG_LEVEL", "INFO"))
-setup_logger(__name__)
+log_level_name = os.getenv("LOG_LEVEL", "INFO")
+log_level = getattr(logging, log_level_name.upper(), logging.INFO)
+setup_logger(__name__, level=log_level)
 
 __all__ = ["create_app", "redis_client", "GLPISession", "main"]
 
