@@ -51,8 +51,12 @@ async def paginate_items(
             logger.critical("Pagination aborted for %s: %s", itemtype, exc)
             break
 
-        # The API might return a single object or a list, possibly under a 'data' key.
-        page_items_raw: Any = data.get("data", data)
+        # The API might return a single object or a list. Safely access a potential
+        # 'data' key only when the payload is a dictionary.
+        if isinstance(data, dict):
+            page_items_raw: Any = data.get("data", data)
+        else:
+            page_items_raw = data
 
         # Normalize the raw page items into a list.
         items_list: List[Any]
