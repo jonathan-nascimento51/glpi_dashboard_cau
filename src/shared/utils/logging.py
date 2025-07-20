@@ -9,7 +9,7 @@ import os
 import sys
 from contextvars import ContextVar
 
-from loguru import logger
+from loguru import Logger, logger
 from opentelemetry.instrumentation.logging import LoggingInstrumentor
 
 _is_initialized: bool = False
@@ -94,6 +94,13 @@ def init_logging(
         LoggingInstrumentor().instrument(set_logging_format=True)
 
     _is_initialized = True
+
+
+def get_logger(name: str | None = None) -> Logger:
+    """Return a logger bound with the given name."""
+
+    init_logging()
+    return logger.bind(module=name) if name else logger
 
 
 def set_correlation_id(value: str | None) -> None:
