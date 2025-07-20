@@ -22,12 +22,14 @@ def _configure() -> None:
     )
 
 
+_configure_lock = threading.Lock()
 _configured = False
 
 
 def get_logger(name: str) -> structlog.BoundLogger:
     global _configured
-    if not _configured:
-        _configure()
-        _configured = True
+    with _configure_lock:
+        if not _configured:
+            _configure()
+            _configured = True
     return structlog.get_logger(name)
