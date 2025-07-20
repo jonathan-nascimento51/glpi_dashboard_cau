@@ -1,3 +1,4 @@
+from typing import List, Optional, Union
 from unittest.mock import AsyncMock
 
 import pandas as pd
@@ -16,9 +17,10 @@ from shared.utils.redis_client import RedisClient
 pytest.importorskip("pandas")
 
 
-def make_df(dates):
+def make_df(dates: List[Optional[Union[str, None]]]):
     df = pd.DataFrame({"date_creation": dates})
     df["date_creation"] = pd.to_datetime(df["date_creation"])
+    df["date_creation"] = df["date_creation"].astype("datetime64[ns]")
     return df
 
 
@@ -80,4 +82,21 @@ def test_status_by_group_counts():
     assert result == {
         "N1": {"new": 1, "pending": 2, "solved": 0},
         "N2": {"new": 0, "pending": 0, "solved": 1},
+    }
+
+
+def test_status_by_group_with_categorical():
+    df = pd.DataFrame(
+        [
+            {"group": "N1", "status": "new"},
+            {"group": "N1", "status": None},
+            {"group": "N2", "status": "pending"},
+        ]
+    )
+
+    df["status"] = df["status"].astype("category")
+    result = status_by_group(df)
+    assert result == {
+        "N1": {"new": 1, "pending": 0, "solved": 0},
+        "N2": {"new": 0, "pending": 1, "solved": 0},
     }

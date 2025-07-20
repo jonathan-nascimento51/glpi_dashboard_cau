@@ -56,11 +56,18 @@ def status_by_group(df: pd.DataFrame) -> Dict[str, Dict[str, int]]:
         return {}
 
     filtered_df = df[["group", "status"]].copy()
-    filtered_df["status"] = filtered_df["status"].fillna("").astype(str).str.lower()
+    # ``status`` may be a ``Categorical`` column. Converting to ``object``
+    # ensures ``fillna`` does not fail when the placeholder value is not part
+    # of the categories.
+    filtered_df["status"] = (
+        filtered_df["status"].astype("object").fillna("").astype(str).str.lower()
+    )
     filtered_df = filtered_df[filtered_df["status"].isin(["new", "pending", "solved"])]
 
     grouped = (
-        filtered_df.groupby(["group", "status"], observed=True).size().unstack(fill_value=0)
+        filtered_df.groupby(["group", "status"], observed=True)
+        .size()
+        .unstack(fill_value=0)
     )
 
     for col in ["new", "pending", "solved"]:
