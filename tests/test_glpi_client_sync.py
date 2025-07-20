@@ -17,7 +17,8 @@ class DummyResponse(requests.Response):
     def __init__(self, status: int, json_data: Any) -> None:
         super().__init__()
         self.status_code = status
-        self._content = str(json_data).replace("'", '"').encode()
+        import json
+        self._content = json.dumps(json_data).encode()
         self.headers = requests.structures.CaseInsensitiveDict(
             {"Content-Type": "application/json"}
         )
