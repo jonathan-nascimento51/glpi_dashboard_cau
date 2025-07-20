@@ -17,6 +17,10 @@ Pattern modules such as `song_serializer.py` and `sort_strategy.py` live in [`ex
 Follow these steps to prepare a local environment. A condensed walkthrough is
 available in [docs/install_quickstart.md](docs/install_quickstart.md).
 
+**Note:** The old `frontend/` directory has been removed. The React application
+now lives under `src/frontend/react_app`. Adjust any custom scripts
+or volume mounts accordingly.
+
 Run `scripts/setup/setup_env.sh` (or `make setup`) to create the `.venv` directory,
 install packages from `requirements.txt` and the development set defined in
 `pyproject.toml` (compiled into `requirements-dev.txt`) and enable `pre-commit`

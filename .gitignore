@@ -24,7 +24,6 @@ dist/
 build/
 *.tsbuildinfo
 src/frontend/react_app/src/**/*.js
-frontend/src/**/*.js
 
 # ---- Local Node runtime solto (não versionar) ----
 /node
