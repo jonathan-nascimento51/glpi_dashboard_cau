@@ -6,6 +6,8 @@ import timeit
 from abc import ABC, abstractmethod
 from typing import List
 
+from shared.utils.logging import get_logger, init_logging
+
 
 class SortStrategy(ABC):
     @abstractmethod
@@ -31,9 +33,16 @@ class Sorter:
 
 
 if __name__ == "__main__":
+    init_logging()
+    logger = get_logger(__name__)
+
     numbers = list(range(1000, 0, -1))
     sorter = Sorter(AscendingSort())
     asc_time = timeit.timeit(lambda: sorter.execute_sort(numbers), number=100)
     sorter.strategy = DescendingSort()
     desc_time = timeit.timeit(lambda: sorter.execute_sort(numbers), number=100)
-    print(f"Ascending: {asc_time:.4f}s, Descending: {desc_time:.4f}s")
+    logger.info(
+        "Ascending: %.4fs, Descending: %.4fs",
+        asc_time,
+        desc_time,
+    )
