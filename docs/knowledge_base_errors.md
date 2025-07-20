@@ -19,8 +19,15 @@ Aplique todos os conceitos aprendidos durante o desenvolvimento em nossa base de
 - **Correção**: verifique o caminho usado e habilite o modulo correspondente.
 
 ## 408 Request Timeout
-- **Causa**: latência de rede ou servidor indisponivel.
+- **Causa**: latência de rede ou servidor indisponível.
 - **Correção**: aumente o timeout ou teste a conectividade antes de reenviar.
+
+## DNS lookup failure
+- **Causa**: o contêiner não consegue resolver o domínio informado em
+  `GLPI_BASE_URL` (mensagem "Domain name not found").
+- **Correção**: confirme o endereço do GLPI e teste `ping` ou `curl` dentro do
+  contêiner. Se necessário adicione o IP em `/etc/hosts` ou use o endereço IP no
+  `.env`.
 
 ## 500 Internal Server Error
 - **Causa**: falha inesperada no GLPI ou parametros fora do esperado.
