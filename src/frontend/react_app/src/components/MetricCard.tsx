@@ -1,3 +1,4 @@
+import React from 'react'
 import { memo, type FC } from 'react'
 
 export interface MetricCardProps {

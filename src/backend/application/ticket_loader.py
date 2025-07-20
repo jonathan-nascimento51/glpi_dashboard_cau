@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import logging
 from pathlib import Path
-from typing import AsyncGenerator, List, Optional
+from typing import AsyncGenerator, List, Optional, cast
 
 import pandas as pd
 from fastapi import HTTPException
@@ -61,8 +61,29 @@ async def load_and_translate_tickets(
 ) -> List[CleanTicketDTO]:
     """Return tickets translated using :class:`GlpiApiClient`."""
     df = await load_tickets(client=client, cache=cache, response=response)
-    records = df.astype(object).where(pd.notna(df), None).to_dict("records")
-    return [CleanTicketDTO.model_validate(r) for r in records]
+    records = df.astype(object).where(pd.notna(df), None).to_dict(orient="records")
+
+    validated_tickets: List[CleanTicketDTO] = []
+    validation_errors = 0
+    for i, r in enumerate(records):
+        try:
+            validated_tickets.append(CleanTicketDTO.model_validate(r))
+        except Exception as exc:
+            validation_errors += 1
+            logger.warning(
+                "Falha ao validar ticket no índice %d (ID: %s): %s. Registro: %s",
+                i,
+                r.get("id", "N/A"),
+                exc,
+                r,
+            )
+    if validation_errors > 0:
+        logger.error(
+            "Encontrados %d erros de validação em %d registros.",
+            validation_errors,
+            len(records),
+        )
+    return validated_tickets
 
 
 async def load_tickets(
@@ -85,7 +106,7 @@ async def load_tickets(
 
     cached = await cache.get(cache_key)
     if cached is not None:
-        logger.debug("Cache HIT for key: %s", cache_key)
+        logger.info("Cache HIT para a chave: %s", cache_key)
         try:
             data = cached.get("data", cached)
             df = pd.DataFrame(data)
@@ -93,9 +114,9 @@ async def load_tickets(
                 df["date_creation"] = pd.to_datetime(df["created_at"])
             return df
         except Exception as exc:
-            logger.warning("Failed to load from cache, will refetch: %s", exc)
+            logger.warning("Falha ao carregar do cache, buscando novamente: %s", exc)
 
-    logger.debug("Cache MISS for key: %s", cache_key)
+    logger.info("Cache MISS para a chave: %s. Buscando da fonte de dados.", cache_key)
     data = None
     if USE_MOCK_DATA or client is None:
         if response:
@@ -112,18 +133,21 @@ async def load_tickets(
         try:
             async with client:
                 tickets = await client.fetch_tickets()
-            data = [t.model_dump() for t in tickets]
+            data = [t.model_dump() for t in cast(list, tickets)]
+            logger.info("Sucesso ao buscar %d tickets da API do GLPI.", len(data))
         except Exception as exc:
             logger.exception(
-                "Failed to fetch from GLPI, falling back to mock data: %s", exc
+                "Falha ao buscar do GLPI, usando dados mock como fallback: %s", exc
             )
             if response:
-                response.headers["X-Warning"] = "using mock data due to API failure"
+                response.headers["X-Warning"] = (
+                    "usando dados mock devido a falha na API"
+                )
             try:
                 with open(mock_file_path, "r", encoding="utf-8") as fh:
                     data = json.load(fh)
             except Exception as file_exc:
-                logger.error("Failed to load mock data on fallback: %s", file_exc)
+                logger.error("Falha ao carregar dados mock no fallback: %s", file_exc)
                 raise HTTPException(status_code=500, detail=str(file_exc)) from file_exc
 
     if data is None:

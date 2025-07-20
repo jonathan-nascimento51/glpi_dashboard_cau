@@ -1,7 +1,8 @@
+import React from 'react'
 
 interface Props {
-  label: string
-  value: number
+  readonly label: string
+  readonly value: number
 }
 
 export function StatsCard({ label, value }: Props) {

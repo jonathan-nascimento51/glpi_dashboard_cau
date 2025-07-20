@@ -5,7 +5,7 @@ import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianG
 
 function ChamadosTendenciaComponent() {
   // Exibe estado da query e mensagens de carregamento/erro
-  const { data, isLoading, isError, status } = useChamadosPorData()
+  const { data, isLoading, isError } = useChamadosPorData()
 
   if (isLoading) return <p>Carregando chamados...</p>
   if (isError) return <p>Erro ao carregar chamados.</p>

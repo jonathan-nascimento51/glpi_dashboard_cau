@@ -1,3 +1,5 @@
+import React from 'react'
+
 export function LoadingSpinner() {
   return (
     <div className="flex justify-center items-center p-4" role="status" aria-live="polite">
