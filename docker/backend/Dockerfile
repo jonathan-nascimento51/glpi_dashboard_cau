@@ -13,7 +13,7 @@ COPY --from=builder /usr/local /usr/local
 COPY --from=builder /app /app
 
 # Adiciona curl e o script de healthcheck
-RUN apt-get update && apt-get install -y curl bash
+RUN apt-get update && apt-get install -y curl bash && rm -rf /var/lib/apt/lists/*
 COPY scripts/healthchecks/healthcheck.sh /usr/local/bin/healthcheck.sh
 RUN chmod +x /usr/local/bin/healthcheck.sh
 

@@ -33,7 +33,6 @@ from backend.domain.exceptions import (
     GLPIUnauthorizedError,
 )
 from backend.domain.tool_error import ToolError
-from backend.utils import paginate_items
 from shared.utils.resilience import call_with_breaker, retry_api_call
 
 logger = logging.getLogger(__name__)
@@ -742,8 +741,12 @@ class GLPISession:
                 **params,
                 "range": f"{offset}-{offset + FETCH_PAGE_SIZE - 1}",
             }
-            data = await self.get(endpoint, params=page_params)
-            page: Any = data.get("data", data)
+            # The 'get' method returns 'Any'. We annotate 'data' with a more specific
+            # type to help the type checker understand its structure.
+            data: Union[Dict[str, Any], List[Any]] = await self.get(
+                endpoint, params=page_params
+            )
+            page: Any = data.get("data", data) if isinstance(data, dict) else data
             if isinstance(page, dict):
                 page = [page]
             results.extend(page)
@@ -771,24 +774,39 @@ class GLPISession:
         self, itemtype: str, page_size: int = 100, **params: Any
     ) -> List[Dict[str, Any]]:
         """Return all items for ``itemtype`` using a resilient page loop."""
+        base_params: Dict[str, Any] = {**params, "expand_dropdowns": 1}
+        endpoint = itemtype if itemtype.startswith("search/") else f"search/{itemtype}"
+        results: List[Dict[str, Any]] = []
+        offset = 0
 
-        base_params: Dict[str, Any] = {
-            **params,
-            "expand_dropdowns": 1,
-        }
-        endpoint: str = (
-            itemtype if itemtype.startswith("search/") else f"search/{itemtype}"
-        )
-
-        async def fetch_page(offset: int, size: int) -> Any:
+        while True:
             page_params: Dict[str, Any] = {
                 **base_params,
-                "range": (f"{offset}-{offset + size - 1}"),
+                "range": f"{offset}-{offset + page_size - 1}",
             }
-            data, _ = await self.get(endpoint, params=page_params, return_headers=True)
-            return data
+            # The get method returns the JSON body directly
+            data: Union[Dict[str, Any], List[Any]] = await self.get(
+                endpoint, params=page_params
+            )
 
-        return await paginate_items(itemtype, fetch_page, page_size=page_size)
+            # Handle inconsistent API responses (dict vs list)
+            page_items: Union[List[Any], Dict[str, Any]] = (
+                data.get("data", data) if isinstance(data, dict) else data
+            )
+
+            # Ensure page_items is always a list
+            if isinstance(page_items, dict):
+                page_items = [page_items]
+
+            if not page_items:  # Stop if the page is empty
+                break
+
+            results.extend(page_items)
+
+            if len(page_items) < page_size:  # Stop if we received less than a full page
+                break
+
+        return results
 
     async def query_graphql(
         self, query: str, variables: Optional[Dict[str, Any]] = None
@@ -800,7 +818,7 @@ class GLPISession:
         if "errors" in data:
             msg = data["errors"][0].get("message", "GraphQL query failed")
             raise GLPIAPIError(0, msg, data)
-        return data.get("data", data)
+        return data.get("data", data) or {}
 
 
 async def open_session_tool(params: SessionParams) -> str:
