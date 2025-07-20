@@ -37,13 +37,13 @@ test('ChamadosTendencia error', () => {
 })
 
 test('ChamadosHeatmap success', () => {
-  mockedDia.useChamadosPorDia.mockReturnValue({ dados: [{ date: '2024-01-01', total: 2 }], isLoading: false, error: null })
+  mockedDia.useChamadosPorDia.mockReturnValue({ data: [{ date: '2024-01-01', total: 2 }], isLoading: false, error: null })
   render(<ChamadosHeatmap />)
   expect(screen.getByText('Chamados no Ano (Heatmap Diário)')).toBeInTheDocument()
 })
 
 test('ChamadosHeatmap error', () => {
-  mockedDia.useChamadosPorDia.mockReturnValue({ dados: [], isLoading: false, error: new Error('fail') })
+  mockedDia.useChamadosPorDia.mockReturnValue({ data: [], isLoading: false, error: new Error('fail') })
   render(<ChamadosHeatmap />)
   expect(screen.getByText('Erro ao carregar dados do heatmap')).toBeInTheDocument()
 })

@@ -1,32 +1,35 @@
 import React from 'react'
 import { render, screen } from '@testing-library/react'
 import '@testing-library/jest-dom'
-import { TicketsDisplay } from './TicketsDisplay'
+import { jest } from '@jest/globals'
 
-jest.mock('react-window', () => {
-  return {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    FixedSizeList: jest.fn((props: any) => (
-      <div data-testid="virtual-list">
-        {Array.from({ length: props.itemCount }).map((_: unknown, idx: number) =>
-          React.createElement(props.children, {
-            index: idx,
-            style: {},
-            data: props.itemData,
-          })
-        )}
-      </div>
-    )),
-  }
-}, { virtual: true })
-
-// Mock do hook useTickets para controlar os dados retornados
-jest.mock('@/hooks/useTickets', () => ({
+jest.unstable_mockModule('@/hooks/useTickets', () => ({
   useTickets: jest.fn(),
 }))
 
-import { useTickets } from '@/hooks/useTickets'
-const useTicketsMock = useTickets as jest.Mock
+let TicketsDisplay: typeof import('./TicketsDisplay').TicketsDisplay
+let useTicketsMock: jest.Mock
+
+beforeAll(async () => {
+  const mod = await import('@/hooks/useTickets')
+  useTicketsMock = mod.useTickets as jest.Mock
+  const comp = await import('./TicketsDisplay')
+  TicketsDisplay = comp.TicketsDisplay
+})
+
+jest.unstable_mockModule('react-window', () => ({
+  FixedSizeList: jest.fn((props: any) => (
+    <div data-testid="virtual-list">
+      {Array.from({ length: props.itemCount }).map((_: unknown, idx: number) =>
+        React.createElement(props.children, {
+          index: idx,
+          style: {},
+          data: props.itemData,
+        })
+      )}
+    </div>
+  )),
+}))
 
 describe('TicketsDisplay Component', () => {
   beforeEach(() => {
