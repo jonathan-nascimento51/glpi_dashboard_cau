@@ -814,6 +814,7 @@ async def test_circuit_breaker_opens_after_consecutive_failures(
     mock_response,
 ):
     """Circuit breaker opens after repeated server errors."""
+    pytest.importorskip("pybreaker")
     import pybreaker
 
     from shared.utils.resilience import breaker
