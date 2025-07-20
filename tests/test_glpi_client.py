@@ -1,7 +1,9 @@
 from unittest.mock import MagicMock
 
-import aiohttp
 import pytest
+
+pytest.importorskip("aiohttp")
+import aiohttp
 from aiohttp import BasicAuth
 
 from backend.infrastructure.glpi.glpi_session import Credentials, GLPISession
