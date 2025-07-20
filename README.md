@@ -613,6 +613,10 @@ container also executes on first startup.
 - `GLPI_APP_TOKEN` – your application token
 - `GLPI_USERNAME` / `GLPI_PASSWORD` – login credentials (optional if using a user token)
 - `GLPI_USER_TOKEN` – API token for a specific user (optional)
+- You may also provide secrets via file-based variants such as
+  `GLPI_APP_TOKEN_FILE` and `GLPI_USER_TOKEN_FILE`. Set each variable with
+  the path to a Docker/Kubernetes secret file and the client will read the
+  token from that location.
 - `VERIFY_SSL` – set to `false` to ignore invalid TLS certificates
 - `CLIENT_TIMEOUT_SECONDS` – HTTP client timeout in seconds
 - `KNOWLEDGE_BASE_FILE` – caminho para o arquivo Markdown com erros
