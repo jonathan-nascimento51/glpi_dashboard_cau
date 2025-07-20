@@ -53,11 +53,7 @@ async def paginate_items(
 
         # The API might return a single object or a list. Safely access a potential
         # 'data' key only when the payload is a dictionary.
-        if isinstance(data, dict):
-            page_items_raw: Any = data.get("data", data)
-        else:
-            page_items_raw = data
-
+        page_items_raw = data.get("data", data) if isinstance(data, dict) else data
         # Normalize the raw page items into a list.
         items_list: List[Any]
         if isinstance(page_items_raw, dict):
