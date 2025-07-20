@@ -2,8 +2,13 @@
 
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass, field
 from typing import List, Protocol
+
+from shared.utils.logging import init_logging
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -27,20 +32,22 @@ class Observer(Protocol):
 
 class EmailNotifier:
     def update(self, order: Order) -> None:
-        print(f"Email sent for order {order.id}")
+        logger.info("Email sent for order %s", order.id)
 
 
 class InventoryUpdater:
     def update(self, order: Order) -> None:
-        print(f"Inventory updated for order {order.id}")
+        logger.info("Inventory updated for order %s", order.id)
 
 
 class LogisticsScheduler:
     def update(self, order: Order) -> None:
-        print(f"Logistics scheduled for order {order.id}")
+        logger.info("Logistics scheduled for order %s", order.id)
 
 
 if __name__ == "__main__":
+    init_logging()
+
     order = Order(1)
     order.register(EmailNotifier())
     order.register(InventoryUpdater())

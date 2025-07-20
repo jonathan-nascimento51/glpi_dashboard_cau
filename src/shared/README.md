@@ -12,7 +12,8 @@ projects.
 - `models/` – enums and dataclasses representing ticket information. These
   are also exported from `shared.models` for convenience.
 - `resilience/` – retry and circuit breaker helpers for HTTP clients.
-- `order_observer.py` – small example implementation of the observer pattern.
+- `order_observer.py` – small example implementation of the observer pattern
+  that logs events instead of printing them.
 
 Importing from `shared` ensures a single definition is used everywhere
 and avoids circular dependencies.
