@@ -21,11 +21,13 @@ Compile the graph and invoke it with an initial state:
 ```bash
 PYTHONPATH=src python - <<'PY'
 from src.backend.application.langgraph_workflow import build_workflow
+from shared.utils.logging import get_logger, init_logging
 wf = build_workflow().compile()
 state = {"messages": ["fetch"], "next_agent": "", "iteration_count": 0}
 result = wf.invoke(state)
-print(result["messages"][-1])
+logger = get_logger(__name__)
+logger.info(result["messages"][-1])
 PY
 ```
 
-The command prints `fetched tickets` when the supervisor routes execution to the fetcher and the API call succeeds.
+The command logs `fetched tickets` when the supervisor routes execution to the fetcher and the API call succeeds.
