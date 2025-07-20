@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react'
 import { TicketTable } from '@/components/TicketTable'
 import type { TicketRow } from '@/components/VirtualizedTicketTable'
 import React from 'react'
+import { jest } from '@jest/globals'
 
 jest.mock('react-window', () => {
   return {

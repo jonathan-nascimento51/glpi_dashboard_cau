@@ -10,14 +10,14 @@ interface HeatmapValue {
 }
 
 function ChamadosHeatmapComponent() {
-  const { dados, isLoading, error } = useChamadosPorDia()
+  const { data, isLoading, error } = useChamadosPorDia()
   const values = useMemo(
     () =>
-      dados.map((item: ChamadoPorDia) => ({
+      data.map((item: ChamadoPorDia) => ({
         date: item.date,
         count: item.total,
       })),
-    [dados],
+    [data],
   )
 
   const { startDate, endDate } = useMemo(() => {
