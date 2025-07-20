@@ -1,14 +1,14 @@
 import type { Config } from 'jest'
 
 const config: Config = {
+  coverageProvider: 'v8',
   testEnvironment: 'jsdom',
   transform: {
     '^.+\\.(ts|tsx)$': [
       'ts-jest',
-      { tsconfig: 'tsconfig.test.json', useESM: true },
+      { tsconfig: 'tsconfig.test.json' },
     ],
   },
-  extensionsToTreatAsEsm: ['.ts', '.tsx'],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   testMatch: ['<rootDir>/src/**/*.test.ts?(x)'],
   moduleFileExtensions: ['ts', 'tsx', 'js'],

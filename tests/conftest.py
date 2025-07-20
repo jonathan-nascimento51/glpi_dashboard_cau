@@ -9,8 +9,6 @@ import sys
 
 import pytest
 
-pytest_plugins = ("tests.test_glpi_session",)
-
 # Add the ``src`` directory to ``sys.path`` so modules like ``backend`` and
 # ``frontend`` are discoverable without requiring an editable install.
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "src"))

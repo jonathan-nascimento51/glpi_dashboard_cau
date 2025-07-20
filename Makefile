@@ -35,7 +35,7 @@ init-db: | $(PYTHON)
 test: | $(PIP)
 	$(PIP) install --break-system-packages -r requirements.txt -r requirements-dev.txt
 	$(PIP) install -e .
-	$(VENV)/bin/pytest
+	PYTHONPATH=src $(VENV)/bin/pytest
 
 $(PIP):
 	$(MAKE) setup

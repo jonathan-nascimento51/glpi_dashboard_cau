@@ -2,11 +2,10 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "jsx": "react-jsx",
-    "module": "Node16",
+    "module": "CommonJS",
     "esModuleInterop": true,
     "verbatimModuleSyntax": false,
-    "types": ["jest", "@testing-library/jest-dom", "node"],
-    "moduleResolution": "Node16"
+    "types": ["jest", "@testing-library/jest-dom", "node"]
   },
   "include": ["src/**/*", "tests/**/*"]
 }
