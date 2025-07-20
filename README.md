@@ -57,6 +57,8 @@ pip install -r requirements.txt -r requirements-dev.txt  # generated via pip-com
 pip install -e .
 pre-commit install
 cd src/frontend/react_app && npm ci
+# remove any stale compiled JS that might shadow the TypeScript sources
+find src/frontend/react_app/src -name '*.js' -delete
 ```
 See [docs/testing.md](docs/testing.md) for tips on running individual tests and
 for common import errors.
