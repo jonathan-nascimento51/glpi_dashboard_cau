@@ -1,5 +1,5 @@
 import { useQuery, type QueryKey, type UseQueryOptions } from '@tanstack/react-query'
-import { fetcher } from '@/lib/swrClient'
+import { fetcher } from '../lib/swrClient'
 
 export function useApiQuery<TData = unknown, TError = Error>(
   queryKey: QueryKey,

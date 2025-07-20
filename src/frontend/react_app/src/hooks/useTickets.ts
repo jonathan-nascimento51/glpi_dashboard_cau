@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query'
-import { useApiQuery } from '@/hooks/useApiQuery'
+import { useApiQuery } from '../hooks/useApiQuery'
 import { useMemo } from 'react'
 import type { CleanTicketDTO } from '../types/api'
 import type { Ticket } from '../types/ticket'
@@ -7,6 +7,7 @@ import type { Ticket } from '../types/ticket'
 function toTicket(dto: CleanTicketDTO): Ticket {
   return {
     ...dto,
+    name: dto.name ?? "",
     date_creation: dto.date_creation ? new Date(dto.date_creation) : null,
   }
 }
@@ -21,7 +22,7 @@ export function useTickets() {
 
   return {
     tickets,
-    error: query.error as Error | null,
+    error: query.error,
     isLoading: query.isLoading,
     refreshTickets,
   }

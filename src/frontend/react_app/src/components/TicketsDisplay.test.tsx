@@ -11,7 +11,7 @@ let TicketsDisplay: typeof import('./TicketsDisplay').TicketsDisplay
 let useTicketsMock: jest.Mock
 
 beforeAll(async () => {
-  const mod = await import('@/hooks/useTickets')
+  const mod = await import('../hooks/useTickets')
   useTicketsMock = mod.useTickets as jest.Mock
   const comp = await import('./TicketsDisplay')
   TicketsDisplay = comp.TicketsDisplay
@@ -66,8 +66,8 @@ describe('TicketsDisplay Component', () => {
 
     render(<TicketsDisplay />)
 
-    expect(screen.getByText(/nenhum chamado encontrado/i)).toBeInTheDocument()
-    screen.getByRole('button', { name: /atualizar/i }).click()
+    expect(screen.getByRole('heading', { name: /nenhum chamado encontrado/i })).toBeInTheDocument()
+    screen.getByRole('button', { name: /atualizar/i }).click();
     expect(refreshSpy).toHaveBeenCalled()
   })
 

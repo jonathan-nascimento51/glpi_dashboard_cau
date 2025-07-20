@@ -1,7 +1,7 @@
-import { render, screen } from '@testing-library/react'
-import type { TicketRow } from '@/components/VirtualizedTicketTable'
 import React from 'react'
-import { TicketTable } from '@/components/TicketTable'
+import { render, screen } from '@testing-library/react'
+import type { TicketRow } from '../../components/VirtualizedTicketTable'
+import { TicketTable } from '../../components/TicketTable'
 
 const ticket: TicketRow = {
   id: 1,

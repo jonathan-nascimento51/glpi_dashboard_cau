@@ -1,4 +1,5 @@
 import {
+  React,
   memo,
   forwardRef,
   type KeyboardEvent,
@@ -35,8 +36,8 @@ export interface TicketRow {
   name: string
   status?: string
   priority?: string
-  date_creation?: Date | null
-  [key: string]: any
+  date_creation?: Date | string | null
+  [key: string]: unknown
 }
 
 interface RowData {

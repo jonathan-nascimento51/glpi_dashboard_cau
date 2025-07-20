@@ -1,7 +1,8 @@
+import React from 'react'
 interface Props {
-  title?: string
-  message: string
-  onRetry?: () => void
+  readonly title?: string
+  readonly message: string
+  readonly onRetry?: () => void
 }
 
 export function ErrorMessage({ title = 'Erro', message, onRetry }: Props) {

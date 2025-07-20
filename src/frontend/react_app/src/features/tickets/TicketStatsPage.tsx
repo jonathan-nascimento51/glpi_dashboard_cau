@@ -1,3 +1,4 @@
+import React from 'react'
 import { useTicketMetrics } from './api'
 import { StatsCard } from '../../widgets/stats/StatsCard'
 
@@ -5,7 +6,7 @@ export function TicketStatsPage() {
   const { data, isLoading, error } = useTicketMetrics()
 
   if (isLoading) return <div>Loading...</div>
-  if (error) return <div>{(error as Error).message}</div>
+  if (error) return <div>{error.message}</div>
 
   return (
     <div className="grid gap-4 grid-cols-3">

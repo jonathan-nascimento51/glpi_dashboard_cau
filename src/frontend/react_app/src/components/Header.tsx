@@ -1,4 +1,4 @@
-"use client"
+import React from 'react'
 import { type FC, useCallback } from 'react'
 import { useThemeSwitcher } from '../hooks/useThemeSwitcher'
 import { useFilters } from '../hooks/useFilters'

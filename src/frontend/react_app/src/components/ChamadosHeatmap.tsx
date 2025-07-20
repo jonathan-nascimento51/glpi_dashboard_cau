@@ -1,4 +1,4 @@
-import { memo, useMemo } from 'react'
+import React, { memo, useMemo } from 'react'
 import { useChamadosPorDia } from '../hooks/useChamadosPorDia'
 import type { ChamadoPorDia } from '../types/chamado'
 import ReactCalendarHeatmap from 'react-calendar-heatmap'
@@ -40,7 +40,7 @@ function ChamadosHeatmapComponent() {
         endDate={endDate}
         values={values}
         classForValue={(value: HeatmapValue) => {
-          if (!value || !value.count) return 'color-empty'
+          if (!(value?.count)) return 'color-empty'
           if (value.count < 5) return 'color-scale-1'
           if (value.count < 10) return 'color-scale-2'
           if (value.count < 15) return 'color-scale-3'

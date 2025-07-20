@@ -1,7 +1,9 @@
-import { useTickets } from '@/hooks/useTickets'
+import React from 'react'
+import { useTickets } from '../hooks/useTickets'
 import { TicketTable } from './TicketTable'
 import { LoadingSpinner } from './LoadingSpinner'
 import { ErrorMessage } from './ErrorMessage'
+import { EmptyState } from '../../../../../EmptyState'
 
 export function TicketsDisplay() {
   const { tickets, error, isLoading, refreshTickets } = useTickets()
@@ -21,18 +23,12 @@ export function TicketsDisplay() {
   }
 
   if (!tickets || tickets.length === 0) {
-    return (
-      <div className="text-center p-8">
-        <h2 className="text-xl font-semibold">Nenhum chamado encontrado</h2>
-        <p className="text-gray-500">Não há chamados para exibir no momento.</p>
-        <button
-          onClick={() => refreshTickets()}
-          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          Atualizar
-        </button>
-      </div>
-    )
+    return <EmptyState
+      title="Nenhum chamado encontrado"
+      message="Não há chamados para exibir no momento."
+      onAction={refreshTickets}
+      actionText="Atualizar"
+    />
   }
 
   return (

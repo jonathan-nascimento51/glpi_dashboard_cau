@@ -1,4 +1,4 @@
-"use client"
+import React from 'react'
 import type { FC } from 'react'
 
 const SkeletonChart: FC<{ heightClass?: string }> = ({
