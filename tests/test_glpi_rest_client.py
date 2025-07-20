@@ -1,8 +1,10 @@
 from typing import Any, Optional
 from unittest.mock import AsyncMock, MagicMock, patch
 
-import aiohttp
 import pytest
+
+pytest.importorskip("aiohttp")
+import aiohttp
 
 from backend.infrastructure.glpi.glpi_session import (
     Credentials,

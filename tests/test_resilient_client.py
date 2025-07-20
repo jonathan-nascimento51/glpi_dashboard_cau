@@ -1,8 +1,11 @@
 from types import SimpleNamespace
 
+import pytest
+
+pytest.importorskip("httpx")
+pytest.importorskip("pybreaker")
 import httpx
 import pybreaker
-import pytest
 
 from shared.utils.resilience import ResilientClient, breaker
 
