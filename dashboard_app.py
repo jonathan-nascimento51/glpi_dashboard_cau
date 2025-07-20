@@ -52,8 +52,9 @@ if cache_type != "simple":
         logging.warning("Redis unavailable, falling back to SimpleCache: %s", exc)
         cache = Cache(flask_app, config={"CACHE_TYPE": "SimpleCache"})
 
-init_logging(os.getenv("LOG_LEVEL"))
-setup_logger(__name__)
+log_level_name = os.getenv("LOG_LEVEL", "INFO")
+log_level = getattr(logging, log_level_name.upper(), logging.INFO)
+setup_logger(__name__, level=log_level)
 
 
 @cache.memoize(timeout=300)
