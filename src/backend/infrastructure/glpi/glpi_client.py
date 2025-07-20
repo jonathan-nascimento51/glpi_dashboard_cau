@@ -12,10 +12,8 @@ from .glpi_client_logging import (
     bind_request,
     clear_request,
     get_logger,
-    init_logging,
 )
 
-init_logging()
 logger = get_logger(__name__)
 
 

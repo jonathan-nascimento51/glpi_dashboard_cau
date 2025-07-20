@@ -19,6 +19,7 @@ from backend.core.settings import (
     USE_MOCK_DATA,
 )
 from backend.domain.exceptions import GLPIAPIError
+from backend.infrastructure.glpi.glpi_client_logging import setup_logger
 from backend.infrastructure.glpi.glpi_session import Credentials, GLPISession
 from backend.utils import process_raw
 from frontend.callbacks.callbacks import register_callbacks
@@ -52,6 +53,7 @@ if cache_type != "simple":
         cache = Cache(flask_app, config={"CACHE_TYPE": "SimpleCache"})
 
 init_logging(os.getenv("LOG_LEVEL"))
+setup_logger(__name__)
 
 
 @cache.memoize(timeout=300)

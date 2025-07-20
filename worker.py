@@ -14,6 +14,7 @@ with contextlib.suppress(ImportError):
     # Load environment variables from .env file for local development
     load_dotenv()
 
+from backend.infrastructure.glpi.glpi_client_logging import setup_logger
 from shared.utils.logging import init_logging
 from src.backend.api.worker_api import (
     create_app,
@@ -27,6 +28,7 @@ from src.backend.infrastructure.glpi.glpi_session import GLPISession
 
 # Initialize logging as early as possible
 init_logging(level=os.getenv("LOG_LEVEL", "INFO"))
+setup_logger(__name__)
 
 __all__ = ["create_app", "redis_client", "GLPISession", "main"]
 
