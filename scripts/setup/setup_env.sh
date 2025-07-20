@@ -1,3 +1,4 @@
+
 #!/bin/bash
 set -euo pipefail
 
@@ -16,11 +17,22 @@ warn() { echo -e "${C_YELLOW}WARN: $1${C_RESET}"; }
 error() { echo -e "${C_RED}ERROR: $1${C_RESET}" >&2; }
 success() { echo -e "${C_GREEN}✅ $1${C_RESET}"; }
 
+# Verifica se o script está sendo executado como root
+if [ "$EUID" -ne 0 ]; then
+  error "Este script precisa ser executado com sudo. Use: sudo ./setup.sh"
+  exit 1
+fi
+
 cleanup() {
   info "Executando limpeza..."
   if [ -f "$PROXY_FILE" ]; then
     info "Removendo configuração de proxy temporária..."
-    sudo rm -f "$PROXY_FILE"
+    if sudo -n true 2>/dev/null; then
+      sudo rm -f "$PROXY_FILE"
+      success "Arquivo de proxy removido com sucesso."
+    else
+      warn "sudo requer senha. Pulei a remoção de $PROXY_FILE"
+    fi
     npm config delete proxy >/dev/null 2>&1 || true
     npm config delete https-proxy >/dev/null 2>&1 || true
   fi
@@ -75,7 +87,7 @@ setup_system_dependencies() {
   sudo apt-get install -y --no-install-recommends \
       curl ca-certificates libnss3 libnspr4 libatk1.0-0 libatk-bridge2.0-0 libcups2 \
       libdbus-1-3 libxkbcommon0 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 \
-      libgbm1 libpango-1.0-0 libcairo2 libasound2t64 libasound2 libatspi2.0-0 libgtk-3-0 \
+      libgbm1 libpango-1.0-0 libcairo2 libasound2t64 libatspi2.0-0 libgtk-3-0 \
       libx11-xcb1 libxshmfence1 xvfb fonts-liberation libxslt1.1 libwoff1 \
       libharfbuzz-icu0 libwebpdemux2 libenchant-2-2 libsecret-1-0 \
       libhyphen0 libgles2 libgstreamer1.0-0 gstreamer1.0-plugins-base \
@@ -189,7 +201,6 @@ setup_playwright() {
 }
 
 main() {
-  # Garante que a limpeza seja executada na saída do script
   trap cleanup EXIT
 
   check_os
