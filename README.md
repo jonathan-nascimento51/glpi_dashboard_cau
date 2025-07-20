@@ -190,13 +190,12 @@ Create the environment file with `cp src/frontend/react_app/.env.example src/fro
 
 When running via Docker, the front-end container reaches the backend using the
 service name `backend`. The `.env` file already sets
-`NEXT_PUBLIC_API_BASE_URL=http://backend:8000` to account for this. Browsers can
-still access the API on `http://localhost:8000` thanks to the published port.
-
-When running via Docker, the front-end container reaches the backend using the
-service name `backend`. The `.env` file already sets
-`NEXT_PUBLIC_API_BASE_URL=http://backend:8000` to account for this. Browsers can
-still access the API on `http://localhost:8000` thanks to the published port.
+`NEXT_PUBLIC_API_BASE_URL=http://backend:8000` so requests between containers
+resolve correctly. Browsers on the host can still hit the API on
+`http://localhost:8000` thanks to the published port. If you see
+`net::ERR_NAME_NOT_RESOLVED` errors in the browser console, edit
+`src/frontend/react_app/.env` and set `NEXT_PUBLIC_API_BASE_URL` to
+`http://localhost:8000` or add `backend` to your `/etc/hosts` file.
 
 ### Multi-agent pipeline (A1–A9)
 

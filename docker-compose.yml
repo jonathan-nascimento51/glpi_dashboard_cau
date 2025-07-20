@@ -82,6 +82,9 @@ services:
       timeout: 5s
       start_period: 30s
       retries: 3
+    ports:
+      # Map database for host access (e.g., for local scripts)
+      - "5432:5432"
 
 volumes:
   db_data:
