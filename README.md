@@ -73,10 +73,6 @@ Run `make diagnose` to verify the Codex environment. The helper script
 
 Runtime packages come from `requirements.txt`; development and testing tools are defined in `pyproject.toml` and compiled into `requirements-dev.txt`.
 
-Run `make diagnose` to verify the Codex environment. The helper script
-`scripts/diagnostics/diagnose_codex.py` prints useful metadata for troubleshooting.
-
-Runtime packages come from `requirements.txt`; development and testing tools are listed in `requirements-dev.txt`.
 
 Create a `.env` file from the template and fill in your GLPI and database
 credentials. PostgreSQL is used by default but you can point the application to
