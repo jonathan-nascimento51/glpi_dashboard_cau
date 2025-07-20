@@ -10,6 +10,10 @@ Aplique todos os conceitos aprendidos durante o desenvolvimento em nossa base de
 - **Causa**: credenciais incorretas ou token expirado.
 - **Correção**: gere novo token no GLPI e confirme usuario/senha.
 
+## 403 Forbidden
+- **Causa**: o token da API (`app_token` ou `user_token`) é válido, mas não possui as permissões necessárias para acessar o recurso solicitado. Por exemplo, tentar ler chamados sem ter a permissão de leitura no perfil associado.
+- **Correção**: no GLPI, verifique o perfil de permissões associado ao usuário ou cliente de API e conceda o acesso necessário (leitura, escrita, etc.) para os `itemtypes` desejados.
+
 ## 404 Not Found
 - **Causa**: URL incorreta ou endpoint desabilitado.
 - **Correção**: verifique o caminho usado e habilite o modulo correspondente.
