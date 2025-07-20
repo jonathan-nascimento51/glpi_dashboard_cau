@@ -35,10 +35,10 @@ steps:
   - uses: actions/setup-node@v4
     with:
       node-version: '20.19.0'
-  - run: cd frontend && npm ci
-  - run: cd frontend && npm run lint
-  - run: cd frontend && npm run build --if-present
-  - run: cd frontend && npm test
+  - run: cd src/frontend/react_app && npm ci
+  - run: cd src/frontend/react_app && npm run lint
+  - run: cd src/frontend/react_app && npm run build --if-present
+  - run: cd src/frontend/react_app && npm test
   - uses: actions/setup-python@v5
     with:
       python-version: '3.10'
