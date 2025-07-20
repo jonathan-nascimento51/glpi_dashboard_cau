@@ -14,6 +14,7 @@ const config: Config = {
   moduleFileExtensions: ['ts', 'tsx', 'js'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
+    'react-window': '<rootDir>/tests/__mocks__/react-window.ts',
   },
 }
 
