@@ -1,4 +1,4 @@
-import { VirtualizedTicketTable, type TicketRow } from './VirtualizedTicketTable.js'
+import { VirtualizedTicketTable, type TicketRow } from './VirtualizedTicketTable'
 
 interface Props {
   tickets: TicketRow[]

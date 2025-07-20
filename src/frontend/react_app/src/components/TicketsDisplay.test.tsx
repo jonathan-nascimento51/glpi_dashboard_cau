@@ -1,7 +1,7 @@
 import React from 'react'
 import { render, screen } from '@testing-library/react'
 import '@testing-library/jest-dom'
-import { TicketsDisplay } from './TicketsDisplay.js'
+import { TicketsDisplay } from './TicketsDisplay'
 
 jest.mock('react-window', () => {
   return {
