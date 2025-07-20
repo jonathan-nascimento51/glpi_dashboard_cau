@@ -1,4 +1,4 @@
-// filepath: frontend/src/global.d.ts
+// filepath: src/frontend/react_app/src/global.d.ts
 declare module '*.module.css';
 declare module 'react-calendar-heatmap';
 declare module 'react-window' {
