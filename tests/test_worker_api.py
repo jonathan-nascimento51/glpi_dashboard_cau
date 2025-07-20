@@ -5,6 +5,8 @@ import pytest
 import pytest_asyncio
 import redis
 from fastapi.testclient import TestClient
+
+pytest.importorskip("prometheus_client")
 from prometheus_client import CONTENT_TYPE_LATEST
 
 from backend.api.worker_api import get_glpi_client
