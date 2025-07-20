@@ -26,8 +26,9 @@ Run `scripts/setup/setup_env.sh` (or `make setup`) to create the `.venv` directo
 install packages from `requirements.txt` and the development set defined in
 `pyproject.toml` (compiled into `requirements-dev.txt`) and enable `pre-commit`
 hooks automatically. Optional extras can be added later with
-`./scripts/install_dev_extras.sh`. If you prefer to install packages manually,
-remember to run `pre-commit install` afterward.
+`./scripts/install_dev_extras.sh`. These packages include browsers and
+instrumentation required for the full test suite. If you prefer to install
+packages manually, remember to run `pre-commit install` afterward.
 
 **Note:** `setup_env.sh` only supports Linux. The script checks your OS at start
 and exits with status 1 when run on macOS or Windows, directing you to the
@@ -263,7 +264,8 @@ under `src/frontend/modules/` for Dash.
 `requirements-dev.txt` before running `pytest` or invoking `make test`.
 The `requirements-dev.txt` file contains extras such as `dash[testing]`,
 `playwright`, `testcontainers` and `pact-python` which are needed for the full
-suite.
+suite. Install them with `pip install -r requirements-dev.txt` or use
+`pip install -e '.[dev]'` to ensure all development extras are available.
 
 ```bash
 pip install -r requirements.txt -r requirements-dev.txt  # generated via pip-compile

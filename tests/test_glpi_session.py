@@ -6,8 +6,11 @@ from contextlib import asynccontextmanager
 from typing import Optional
 from unittest.mock import ANY, AsyncMock, MagicMock, patch
 
-import aiohttp
 import pytest
+
+pytest.importorskip("aiohttp")
+
+import aiohttp
 from aiohttp import BasicAuth
 
 from backend.infrastructure.glpi import glpi_session

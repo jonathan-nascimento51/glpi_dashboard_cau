@@ -3,6 +3,10 @@ from contextlib import asynccontextmanager
 from typing import Optional
 from unittest.mock import AsyncMock, MagicMock
 
+import pytest
+
+pytest.importorskip("aiohttp")
+
 import aiohttp
 
 
