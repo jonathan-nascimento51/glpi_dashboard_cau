@@ -47,6 +47,11 @@ def test_get_secret_env(monkeypatch):
     assert get_secret("TOKEN") == "abc"
 
 
+def test_get_secret_missing(monkeypatch):
+    monkeypatch.delenv("TOKEN", raising=False)
+    monkeypatch.delenv("TOKEN_FILE", raising=False)
+    with pytest.raises(RuntimeError):
+        get_secret("TOKEN")
 def test_get_secret_file(monkeypatch, tmp_path):
     f = tmp_path / "s.txt"
     f.write_text("xyz")
