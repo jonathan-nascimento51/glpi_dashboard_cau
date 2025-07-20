@@ -7,10 +7,10 @@ import subprocess
 import sys
 from pathlib import Path
 
-from prompt_config import PromptConfig
+# Ensure modules under `src` are importable before loading `PromptConfig`
+sys.path.append(str(Path(__file__).resolve().parent.parent / "src"))
 
-# This line adds the 'src' directory to the Python path automatically
-sys.path.append(str(Path(__file__).resolve().parents[1] / "src"))
+from prompt_config import PromptConfig
 
 CONFIG = PromptConfig()
 
