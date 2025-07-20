@@ -19,7 +19,7 @@ Aplique todos os conceitos aprendidos durante o desenvolvimento em nossa base de
 - **Correção**: verifique o caminho usado e habilite o modulo correspondente.
 
 ## 408 Request Timeout
-- **Causa**: latência de rede ou servidor indisponivel.
+- **Causa**: latência de rede ou servidor indisponível.
 - **Correção**: aumente o timeout ou teste a conectividade antes de reenviar.
 
 ## DNS lookup failure
