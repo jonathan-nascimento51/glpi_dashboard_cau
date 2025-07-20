@@ -1,38 +1,42 @@
-# 🔧 Node versão mínima exigida pelo Vite@7
-FROM node:20.19.0-alpine
-RUN apk add --no-cache bash curl
+# Stage 1: Build da aplicação React
+FROM node:20.19.0-alpine AS builder
 
 WORKDIR /app
 ENV NPM_CONFIG_CACHE=/root/.npm
 
-# Copiar apenas os arquivos de dependências primeiro para cache eficiente
-COPY src/frontend/react_app/package.json src/frontend/react_app/package-lock.json* ./
+# Argumento de build para a URL da API, que será injetado no build estático.
+ARG NEXT_PUBLIC_API_BASE_URL
+ENV NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL
 
-# Instalar dependências, ignorando conflitos de peer dependencies que podem
-# ocorrer com algumas versões de pacotes.
+# Copia os arquivos de dependência e instala
+COPY src/frontend/react_app/package.json src/frontend/react_app/package-lock.json* ./
 RUN npm install --legacy-peer-deps
-# Copiar apenas o frontend
+
+# Copia o restante do código-fonte do frontend
 COPY src/frontend/react_app/ ./
 
-# Copiar arquivo de env específico para Docker
-COPY src/frontend/react_app/.env.docker .env
+# Executa o build da aplicação para produção
+# O Vite usará a variável de ambiente NEXT_PUBLIC_API_BASE_URL
+RUN npm run build
 
-# Copiar script de healthcheck, se necessário
-COPY scripts/healthchecks/healthcheck.sh /usr/local/bin/healthcheck.sh
-RUN chmod +x /usr/local/bin/healthcheck.sh
-ENV HC_TARGET=frontend
+# Stage 2: Cria a imagem final com Nginx para servir os arquivos estáticos
+FROM nginx:1.25-alpine
 
-# Expor a porta padrão do Vite
-EXPOSE 5173
+# Instala curl para o healthcheck
+RUN apk add --no-cache curl
 
-# Add Redis dependency check
-RUN apk add --no-cache redis
+# Copia os arquivos estáticos gerados no stage de build
+COPY --from=builder /app/dist /usr/share/nginx/html
 
-HEALTHCHECK \
-  --interval=30s \
-  --timeout=5s \
-  --start-period=45s \
-  --retries=3 \
-  CMD ["bash", "/usr/local/bin/healthcheck.sh"]
+# Copia a configuração customizada do Nginx para lidar com SPA
+COPY docker/frontend/react_app/nginx.conf /etc/nginx/conf.d/default.conf
 
-CMD ["npm", "run", "dev"]
+# Expõe a porta 80, que é a porta padrão do Nginx
+EXPOSE 80
+
+# Healthcheck para verificar se o Nginx está respondendo
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD curl -f http://localhost/ || exit 1
+
+# Comando para iniciar o Nginx em modo foreground
+CMD ["nginx", "-g", "daemon off;"]
