@@ -29,9 +29,7 @@ def make_session(responses):
         calls = list(lst)
 
         def _inner(*args, **kwargs):
-            if calls:
-                return calls.pop(0)
-            return lst[-1]
+            return calls.pop(0) if calls else lst[-1]
 
         return _inner
 
