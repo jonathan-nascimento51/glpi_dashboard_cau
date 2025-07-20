@@ -186,6 +186,11 @@ Instructions for running the React front-end—including npm scripts and require
 [docs/frontend_architecture.md](docs/frontend_architecture.md). That document also covers how the front-end communicates with the worker API via `NEXT_PUBLIC_API_BASE_URL` and how to run the Jest and Playwright test suites.
 Create the environment file with `cp src/frontend/react_app/.env.example src/frontend/react_app/.env` before running the dashboard. Docker Compose automatically loads `.env` when present. Execute all npm commands from inside the `src/frontend/react_app` directory, e.g. `cd src/frontend/react_app && npm run dev`, or launch Docker.
 
+When running via Docker, the front-end container reaches the backend using the
+service name `backend`. The `.env` file already sets
+`NEXT_PUBLIC_API_BASE_URL=http://backend:8000` to account for this. Browsers can
+still access the API on `http://localhost:8000` thanks to the published port.
+
 ### Multi-agent pipeline (A1–A9)
 
 The project automates code generation via a nine-stage prompt flow. The sequence
