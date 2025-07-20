@@ -259,6 +259,9 @@ under `src/frontend/modules/` for Dash.
 
 ### Running tests
 
+**Important:** Install packages from **both** `requirements.txt` and
+`requirements-dev.txt` before running `pytest` or invoking `make test`.
+
 ```bash
 pip install -r requirements.txt -r requirements-dev.txt  # generated via pip-compile
 pip install -e .
