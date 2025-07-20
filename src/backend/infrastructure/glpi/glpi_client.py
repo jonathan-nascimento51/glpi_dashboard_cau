@@ -1,14 +1,21 @@
 from __future__ import annotations
 
 import os
+import uuid
 from typing import Any, Dict, Optional
 
 import requests
 
 from shared.utils.resilience import call_with_breaker, retry_api_call
 
-from .glpi_client_logging import get_logger
+from .glpi_client_logging import (
+    bind_request,
+    clear_request,
+    get_logger,
+    init_logging,
+)
 
+init_logging()
 logger = get_logger(__name__)
 
 
@@ -143,14 +150,23 @@ class GLPISessionManager:
             headers.setdefault("Session-Token", self.session_token)
         headers.setdefault("Content-Type", "application/json")
         url = f"{self.base_url}/{endpoint.lstrip('/')}"
-        resp = self.session.request(
-            method, url, headers=headers, verify=self.verify, **kwargs
-        )
-        self._handle_response(resp)
-        content_type = resp.headers.get("Content-Type", "").lower()
-        if content_type.startswith("application/json"):
-            return resp.json()
-        return resp.text
+
+        request_id = uuid.uuid4().hex
+        bind_request(request_id=request_id, method=method, url=url)
+        log = logger.bind(request_id=request_id, method=method, url=url)
+
+        try:
+            resp = self.session.request(
+                method, url, headers=headers, verify=self.verify, **kwargs
+            )
+            self._handle_response(resp)
+            content_type = resp.headers.get("Content-Type", "").lower()
+            log.debug("request completed", status=resp.status_code)
+            if content_type.startswith("application/json"):
+                return resp.json()
+            return resp.text
+        finally:
+            clear_request()
 
     def _handle_response(
         self, resp: requests.Response, *, raise_for_status: bool = True
