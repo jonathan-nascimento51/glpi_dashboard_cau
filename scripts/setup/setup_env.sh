@@ -75,7 +75,7 @@ setup_system_dependencies() {
   sudo apt-get install -y --no-install-recommends \
       curl ca-certificates libnss3 libnspr4 libatk1.0-0 libatk-bridge2.0-0 libcups2 \
       libdbus-1-3 libxkbcommon0 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 \
-      libgbm1 libpango-1.0-0 libcairo2 libasound2 libatspi2.0-0 libgtk-3-0 \
+      libgbm1 libpango-1.0-0 libcairo2 libasound2t64 libasound2 libatspi2.0-0 libgtk-3-0 \
       libx11-xcb1 libxshmfence1 xvfb fonts-liberation libxslt1.1 libwoff1 \
       libharfbuzz-icu0 libwebpdemux2 libenchant-2-2 libsecret-1-0 \
       libhyphen0 libgles2 libgstreamer1.0-0 gstreamer1.0-plugins-base \
