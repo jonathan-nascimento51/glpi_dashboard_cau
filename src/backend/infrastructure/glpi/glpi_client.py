@@ -147,7 +147,8 @@ class GLPISessionManager:
             method, url, headers=headers, verify=self.verify, **kwargs
         )
         self._handle_response(resp)
-        if resp.headers.get("Content-Type", "").startswith("application/json"):
+        content_type = resp.headers.get("Content-Type", "").lower()
+        if content_type.startswith("application/json"):
             return resp.json()
         return resp.text
 
