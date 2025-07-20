@@ -12,7 +12,7 @@ export default function App() {
         <h1 className="text-2xl font-bold mb-4">GLPI Dashboard</h1>
         <ChamadosTendencia />
       </main>
-      <ReactQueryDevtools initialIsOpen={false} />
+      {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
     </div>
   )
 }
