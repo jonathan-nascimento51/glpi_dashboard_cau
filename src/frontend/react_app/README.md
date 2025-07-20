@@ -23,6 +23,8 @@ npm run dev
 In development mode, React Query Devtools are automatically enabled, so you can
 inspect queries without manual configuration.
 
+The devtools component is mounted in `main.tsx` and guarded by `import.meta.env.DEV`, ensuring it is excluded from production builds.
+
 Node.js 20 is expected. Run the commands from inside `src/frontend/react_app`.
 
 See the [frontend architecture guide](../../docs/frontend_architecture.md) for advanced configuration, environment variables and available npm scripts.
