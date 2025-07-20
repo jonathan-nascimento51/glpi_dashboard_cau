@@ -24,7 +24,7 @@ jest.mock('../src/hooks/useChamadosPorData', () => ({
 }))
 
 jest.mock('../src/hooks/useChamadosPorDia', () => ({
-  useChamadosPorDia: () => ({ dados: [], isLoading: false, error: null }),
+  useChamadosPorDia: () => ({ data: [], isLoading: false, error: null }),
 }))
 
 jest.mock('../src/hooks/useTickets', () => ({

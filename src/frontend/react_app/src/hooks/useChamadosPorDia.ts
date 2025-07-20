@@ -13,7 +13,7 @@ export function useChamadosPorDia() {
   )
 
   return {
-    dados: query.data ?? [],
+    data: query.data ?? [],
     error: query.error as Error | null,
     isLoading: query.isLoading,
   }
