@@ -1,1 +1,0 @@
-export { HelloWidget } from './HelloWidget';
