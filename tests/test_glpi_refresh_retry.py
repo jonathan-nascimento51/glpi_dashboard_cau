@@ -3,6 +3,8 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
+pytest.importorskip("aiohttp")
+
 from backend.infrastructure.glpi.glpi_session import Credentials, GLPISession
 from tests.helpers import make_cm
 

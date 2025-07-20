@@ -9,6 +9,9 @@ from pathlib import Path
 from types import ModuleType
 
 import pytest
+
+pytest.importorskip("aiohttp")
+
 from aiohttp import web
 
 ROOT = Path(__file__).resolve().parents[2]

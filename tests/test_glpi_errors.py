@@ -1,8 +1,11 @@
 from typing import Optional
 from unittest.mock import AsyncMock, MagicMock, patch
 
-import aiohttp
 import pytest
+
+pytest.importorskip("aiohttp")
+
+import aiohttp
 
 from backend.domain.exceptions import (
     GLPIAPIError,

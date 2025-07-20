@@ -1,3 +1,7 @@
+import pytest
+
+pytest.importorskip("aiohttp")
+
 from aiohttp import BasicAuth
 
 import scripts.validate_credentials as vc
