@@ -45,10 +45,16 @@ def init_logging(level: int = logging.INFO) -> None:
 
 
 def get_logger(name: str) -> structlog.BoundLogger:
-    """Return a structured logger, configuring if necessary."""
+    """Return a structured logger without configuring logging."""
 
-    init_logging()
     return structlog.get_logger(name)
+
+
+def setup_logger(name: str, *, level: int = logging.INFO) -> structlog.BoundLogger:
+    """Initialize logging and return a logger instance."""
+
+    init_logging(level)
+    return get_logger(name)
 
 
 def bind_request(**values: Any) -> None:
@@ -63,4 +69,10 @@ def clear_request() -> None:
     clear_contextvars()
 
 
-__all__ = ["get_logger", "init_logging", "bind_request", "clear_request"]
+__all__ = [
+    "get_logger",
+    "init_logging",
+    "bind_request",
+    "clear_request",
+    "setup_logger",
+]
