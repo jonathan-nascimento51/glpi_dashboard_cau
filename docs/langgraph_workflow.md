@@ -25,7 +25,6 @@ from shared.utils.logging import get_logger, init_logging
 wf = build_workflow().compile()
 state = {"messages": ["fetch"], "next_agent": "", "iteration_count": 0}
 result = wf.invoke(state)
-init_logging()
 logger = get_logger(__name__)
 logger.info(result["messages"][-1])
 PY
