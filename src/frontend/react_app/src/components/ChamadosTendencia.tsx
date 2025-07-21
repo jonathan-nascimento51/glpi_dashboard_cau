@@ -31,4 +31,4 @@ function ChamadosTendenciaComponent() {
   )
 }
 
-export const ChamadosTendencia = memo(ChamadosTendenciaComponent)
+export default memo(ChamadosTendenciaComponent)

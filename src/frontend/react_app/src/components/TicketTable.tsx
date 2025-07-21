@@ -28,9 +28,9 @@ export function TicketTable({ tickets }: Props) {
 function mapTicketToTicketRow(ticket: Ticket): TicketRow {
   return {
     id: ticket.id,
-    title: ticket.title,
+    name: ticket.name,
     status: ticket.status,
     priority: ticket.priority,
-    createdAt: ticket.createdAt,
+    date_creation: ticket.date_creation ? new Date(ticket.date_creation) : null,
   };
 }

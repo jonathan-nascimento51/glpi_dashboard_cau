@@ -1,8 +1,8 @@
 import { render, screen } from '@testing-library/react'
-import type { TicketRow } from '../../components/VirtualizedTicketTable'
+import type { Ticket } from '../../types/ticket'
 import { TicketTable } from '../../components/TicketTable'
 
-const ticket: TicketRow = {
+const ticket: Ticket = {
   id: 1,
   name: 'Chamado muito longo com titulo extensivo que precisa ser truncado',
   status: 'New',
