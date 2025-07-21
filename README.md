@@ -285,8 +285,8 @@ invoking `pip`. The `scripts/setup/setup_env.sh` script automatically configures
 ```bash
 export HTTP_PROXY=http://proxy.company.com:8080␊
 export HTTPS_PROXY=$HTTP_PROXY
-pip install -r requirements.txt -r requirements-dev.txt  # generated via pip-compile
 ```
+Run the installation commands from the [Development Setup](#development-setup) section to install the dependencies through the proxy.
 
 On a machine with internet access you can pre-download the wheels needed by the
 project:
@@ -796,13 +796,7 @@ Execute the unit tests with coverage. The `pytest.ini` configuration applies
 that running only a subset of tests may fail because the `addopts` line in
 `pytest.ini` enforces coverage. Use `--no-cov` or clear `PYTEST_ADDOPTS` when
 invoking individual files. See [docs/testing.md](docs/testing.md) for details.
-Before running `pytest` or `make test` you **must** install all dependencies and
-the local package in editable mode:
-
-```bash
-pip install -r requirements.txt -r requirements-dev.txt  # generated via pip-compile
-pip install -e .
-```
+Before running `pytest` or `make test` you **must** install all dependencies and the local package in editable mode using the commands shown in the setup section.
 
 Running `scripts/setup/setup_env.sh` performs the same installation automatically and configures
 pre-commit hooks. If you use the Makefile run `make setup` once to prepare the
