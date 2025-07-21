@@ -9,7 +9,6 @@ services:
     environment:
       PYTHONPATH: /app/src
       LOG_LEVEL: DEBUG
-      USE_MOCK_DATA: "false"
     depends_on:
       - redis
       - db

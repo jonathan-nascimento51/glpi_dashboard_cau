@@ -1,26 +1,15 @@
 services:
   backend:
-    command: python worker.py --port 8000
+    # Overrides the default command to run the development server with live-reloading.
+    command: uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
     environment:
       - PYTHONUNBUFFERED=1
       - SKIP_PLAYWRIGHT=true
       - PLAYWRIGHT_BROWSERS_PATH=/root/.cache/ms-playwright
       - PYTHONPATH=/app/src
-    ports:
-      - "8000:8000"
+    # Mounts local source code into the container for live-reloading.
     volumes:
       - ./src:/app/src
-      - ./tests:/app/tests:ro
-    healthcheck:
-      test: ["CMD", "/usr/local/bin/healthcheck.sh"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 60s
-    env_file:
-      - ./.env
-      - ./src/frontend/react_app/.env
-      - .env.example
 
   frontend:
     build:
@@ -28,28 +17,21 @@ services:
       dockerfile: src/frontend/react_app/Dockerfile
       # sobrescreve o comando de instalação só neste serviço de dev:
       args:
+        # This argument is used in the Dockerfile to install dev dependencies
         INSTALL_DEV_DEPS: "true"
-    env_file:
-      - ./src/frontend/react_app/.env
-      - .env.example
     environment:
-      # Use the backend service name ("backend") so the container can reach the API
-      # even when running inside Docker networks. The host port mapping
-      # is still available for browsers at http://localhost:8000.
-      - NEXT_PUBLIC_API_BASE_URL=http://backend:8000
+      # The Vite dev server needs to know the internal Docker network address for the backend.
+      - NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
     ports:
+      # Exposes the Vite development server port.
       - "5173:5173"
     volumes:
+      # Mounts local source code for live-reloading, and uses a named volume
+      # to persist node_modules, preventing it from being overwritten by the host.
       - ./src/frontend/react_app:/app:delegated
       - frontend_node_modules:/app/node_modules
     working_dir: /app
     command: npm run dev -- --host 0.0.0.0 --port 5173
-    healthcheck:
-      test: ["CMD", "/usr/local/bin/healthcheck.sh"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 45s
 
   db:
     ports:
