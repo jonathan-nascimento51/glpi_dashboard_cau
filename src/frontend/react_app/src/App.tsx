@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react'
+import { Suspense } from 'react'
 import Header from './components/Header'
 import FilterPanel from './components/FilterPanel'
 import { Sidebar } from './components/Sidebar'
