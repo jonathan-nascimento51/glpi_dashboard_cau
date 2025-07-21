@@ -4,7 +4,7 @@ import { LoadingSpinner } from './LoadingSpinner'
 import { ErrorMessage } from './ErrorMessage'
 import { EmptyState } from './EmptyState'
 
-export function TicketsDisplay() {
+function TicketsDisplay() {
   const { tickets, error, isLoading, refreshTickets } = useTickets()
 
   if (isLoading) {
@@ -37,3 +37,5 @@ export function TicketsDisplay() {
     </div>
   )
 }
+
+export default TicketsDisplay

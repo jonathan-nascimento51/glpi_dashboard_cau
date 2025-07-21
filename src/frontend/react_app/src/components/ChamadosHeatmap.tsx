@@ -57,4 +57,4 @@ function ChamadosHeatmapComponent() {
   )
 }
 
-export const ChamadosHeatmap = memo(ChamadosHeatmapComponent)
+export default memo(ChamadosHeatmapComponent)

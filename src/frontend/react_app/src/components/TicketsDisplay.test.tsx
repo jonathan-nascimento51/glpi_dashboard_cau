@@ -6,16 +6,15 @@ jest.unstable_mockModule('@/hooks/useTickets', () => ({
   useTickets: jest.fn(),
 }))
 
-let TicketsDisplay: typeof import('./TicketsDisplay').TicketsDisplay
+let TicketsDisplay: typeof import('./TicketsDisplay').default
 let useTicketsMock: jest.Mock
 
 beforeAll(async () => {
   const mod = await import('../hooks/useTickets')
   useTicketsMock = mod.useTickets as jest.Mock
-  const comp = await import('./TicketsDisplay')
-  TicketsDisplay = comp.TicketsDisplay
+  const { default: TicketsDisplayModule } = await import('./TicketsDisplay')
+  TicketsDisplay = TicketsDisplayModule
 })
-
 
 describe('TicketsDisplay Component', () => {
   beforeEach(() => {

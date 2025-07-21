@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import '@testing-library/jest-dom'
 import { jest } from '@jest/globals'
-import { ChamadosTendencia } from '../ChamadosTendencia'
+import ChamadosTendencia from '../ChamadosTendencia'
 import * as useChamadosPorData from '../../hooks/useChamadosPorData'
 
 // Mock the custom hook
