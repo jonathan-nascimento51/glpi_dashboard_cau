@@ -20,7 +20,17 @@ export function TicketTable({ tickets }: Props) {
         </thead>
         {/* The VirtualizedTicketTable should render <tbody> rows if possible */}
       </table>
-      <VirtualizedTicketTable rows={tickets as TicketRow[]} rowHeight={40} />
+      <VirtualizedTicketTable rows={tickets.map(mapTicketToTicketRow)} rowHeight={40} />
     </div>
   )
+}
+
+function mapTicketToTicketRow(ticket: Ticket): TicketRow {
+  return {
+    id: ticket.id,
+    title: ticket.title,
+    status: ticket.status,
+    priority: ticket.priority,
+    createdAt: ticket.createdAt,
+  };
 }
