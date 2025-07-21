@@ -49,7 +49,7 @@ services:
     depends_on:
       - backend
     ports:
-      - "5173:80" # Mapeia a porta 80 do Nginx (container) para a 5173 do host
+      - "5174:80" # Mapeia a porta 80 do Nginx (container) para a 5174 do host
     healthcheck:
       test: ["CMD", "/usr/local/bin/healthcheck.sh"]
       interval: 30s

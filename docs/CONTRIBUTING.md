@@ -35,7 +35,7 @@ Launching the entire stack with Docker is recommended for a consistent environme
 docker compose up
 ```
 
-This starts PostgreSQL, Redis, the FastAPI worker and the Dash app as described in the [README](README.md). The dashboard will be available at `http://localhost:5173`.
+This starts PostgreSQL, Redis, the FastAPI worker and the Dash app as described in the [README](README.md). The dashboard will be available at `http://localhost:5174`.
 
 ## 3. React workflow
 
