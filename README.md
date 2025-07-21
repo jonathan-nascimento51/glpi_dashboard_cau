@@ -289,26 +289,6 @@ Node packages installed with `npm ci` under `src/frontend/react_app`.
 This command installs all requirements, builds the local package and runs `pytest` with coverage.
 Build artifacts are written to the `build/` directory. Treat this folder as temporary; it is deleted by CI and ignored in `.gitignore`.
 
-## Installation
-
-```bash
-python -m pip install --upgrade pip
-pip install -r requirements.txt -r requirements-dev.txt  # generated via pip-compile
-pip install opentelemetry-instrumentation-fastapi opentelemetry-instrumentation-logging
-pip install -e .  # install the backend package in editable mode
-# Install the git hooks so code is formatted and linted automatically
-pre-commit install  # runs black, ruff, isort and mypy
-# Generic hooks from pre-commit-hooks also strip trailing whitespace and validate YAML
-# Ruff version pinned to 0.12.2 is specified in `pyproject.toml` and present in `requirements-dev.txt`
-# Reinstall dev dependencies before running pre-commit if your environment is outdated
-```
-
-This project also uses the `rich-click` library for colored CLI output. It is included in `requirements.txt`.
-
-Additional tips for running the project inside the Codex environment are documented in
-[docs/codex_setup.md](docs/codex_setup.md). The guide explains how to configure
-proxies, perform offline installations and refresh dependencies when new
-limitations appear.
 
 ## Installing Dependencies Behind a Proxy or Offline
 
