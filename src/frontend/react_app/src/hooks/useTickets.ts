@@ -7,6 +7,8 @@ import type { Ticket } from '../types/ticket'
 function toTicket(dto: CleanTicketDTO): Ticket {
   return {
     ...dto,
+    status: dto.status != null ? String(dto.status) : undefined,
+    priority: dto.priority != null ? String(dto.priority) : undefined,
     name: dto.name ?? "",
     date_creation: dto.date_creation ? new Date(dto.date_creation) : null,
   }
