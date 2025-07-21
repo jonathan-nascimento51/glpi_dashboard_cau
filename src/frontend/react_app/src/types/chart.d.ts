@@ -1,3 +1,6 @@
 declare module 'chart' {
-  export const Chart: any
+  export class Chart {
+    constructor(element: HTMLCanvasElement, options: any);
+    destroy(): void;
+  }
 }
