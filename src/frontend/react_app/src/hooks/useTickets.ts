@@ -9,7 +9,7 @@ function toTicket(dto: CleanTicketDTO): Ticket {
     ...dto,
     status: dto.status != null ? String(dto.status) : undefined,
     priority: dto.priority != null ? String(dto.priority) : undefined,
-    name: dto.name ?? '',
+    name: dto.name ?? "",
     date_creation: dto.date_creation ? new Date(dto.date_creation) : null,
   }
 }
