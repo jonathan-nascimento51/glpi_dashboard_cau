@@ -286,7 +286,7 @@ invoking `pip`. The `scripts/setup/setup_env.sh` script automatically configures
 export HTTP_PROXY=http://proxy.company.com:8080␊
 export HTTPS_PROXY=$HTTP_PROXY
 ```
-Run the installation commands from the setup section to install the dependencies through the proxy.
+Run the installation commands from the [Development Setup](#development-setup) section to install the dependencies through the proxy.
 
 On a machine with internet access you can pre-download the wheels needed by the
 project:
