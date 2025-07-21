@@ -15,7 +15,9 @@ module.exports = function transformer(fileInfo, api, options) {
 
   root.find(j.ImportDeclaration).forEach(p => {
     const source = p.node.source.value;
-    if (typeof source !== 'string') return;
+    if (typeof source !== 'string') {
+      return;
+    }
     const updated = rewritePath(source, aliasMap);
     if (updated && updated !== source) {
       p.node.source.value = updated;

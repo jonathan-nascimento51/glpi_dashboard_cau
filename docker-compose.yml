@@ -4,10 +4,8 @@ services:
     build:
       context: .
       dockerfile: docker/backend/Dockerfile
-    env_file:
+    env_file: # Carrega variáveis de ambiente para o backend
       - .env
-      - ./src/frontend/react_app/.env
-      - .env.example
     environment:
       PYTHONPATH: /app/src
       LOG_LEVEL: DEBUG
@@ -45,17 +43,14 @@ services:
     build:
       context: .
       dockerfile: src/frontend/react_app/Dockerfile
-      # Para o build de produção, a URL deve ser a que o navegador pode acessar.
-      # Para testes locais, seria http://localhost:8000.
       args:
+        # A URL da API que o navegador usará para se conectar ao backend.
+        # Em um ambiente de desenvolvimento local, é o localhost com a porta exposta do backend.
         NEXT_PUBLIC_API_BASE_URL: "http://localhost:8000"
     depends_on:
       - backend
-    env_file:
-      - ./src/frontend/react_app/.env
-      - .env.example
     ports:
-      - "5173:5173"
+      - "5173:80" # Mapeia a porta 80 do Nginx (container) para a 5173 do host
     healthcheck:
       test: ["CMD", "/usr/local/bin/healthcheck.sh"]
       interval: 30s
@@ -67,14 +62,9 @@ services:
     build: ./db
     image: glpi_dashboard_db:latest
     environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      DB_NAME: ${DB_NAME}
-      DB_USER: ${DB_USER}
-      DB_PASSWORD: ${DB_PASSWORD}
-      DB_USER_FILE: ${DB_USER_FILE:-}
-      DB_PASSWORD_FILE: ${DB_PASSWORD_FILE:-}
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - db_data:/var/lib/postgresql/data
       - ./docker/db-init:/docker-entrypoint-initdb.d
