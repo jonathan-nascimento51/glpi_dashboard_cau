@@ -1,4 +1,3 @@
-import React from 'react'
 interface Props {
   readonly title?: string
   readonly message: string

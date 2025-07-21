@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from 'react'
+import { memo, useMemo } from 'react'
 import { useChamadosPorDia } from '../hooks/useChamadosPorDia'
 import type { ChamadoPorDia } from '../types/chamado'
 import ReactCalendarHeatmap from 'react-calendar-heatmap'

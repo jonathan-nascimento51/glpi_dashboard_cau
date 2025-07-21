@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { type FC, useState } from 'react';
 
 // A placeholder for an icon component
 const GearIcon = () => (
@@ -21,7 +21,7 @@ const GearIcon = () => (
  * 3. `A form field element should have an id or name attribute`: All fields have `id` and `name`.
  * 4. `Certain ARIA roles must contain particular children`: A custom radio group is correctly structured.
  */
-export const ReportOptions: React.FC = () => {
+export const ReportOptions: FC = () => {
   const [format, setFormat] = useState('pdf');
 
   return (
