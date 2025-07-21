@@ -1,4 +1,3 @@
-import React from 'react'
 import { useTicketMetrics } from './api'
 import { StatsCard } from '../../widgets/stats/StatsCard'
 

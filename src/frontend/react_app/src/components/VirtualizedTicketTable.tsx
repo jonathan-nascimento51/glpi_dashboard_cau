@@ -1,5 +1,4 @@
 import {
-  React,
   memo,
   forwardRef,
   type KeyboardEvent,
@@ -8,6 +7,7 @@ import {
   useRef,
   useState,
 } from 'react'
+import type { ReactNode, HTMLAttributes } from 'react'
 import { FixedSizeList, type ListChildComponentProps } from 'react-window'
 
 const priorityClasses: Record<string, string> = {
@@ -75,13 +75,13 @@ const Row = memo(({ index, style, data }: ListChildComponentProps<RowData>) => {
       <div role="cell" className={priorityClasses[row.priority ?? '']}>
         {row.priority}
       </div>
-      <div role="cell">{formatDate(row.date_creation) as React.ReactNode}</div>
+      <div role="cell">{formatDate(row.date_creation) as ReactNode}</div>
     </div>
   )
 })
 Row.displayName = 'Row'
 
-const RowGroup = forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+const RowGroup = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
   (props, ref) => <div {...props} ref={ref} role="rowgroup" />,
 )
 RowGroup.displayName = 'RowGroup'
@@ -174,7 +174,7 @@ export function VirtualizedTicketTable({
               <div role="cell" className={priorityClasses[row.priority ?? '']}>
                 {row.priority}
               </div>
-              <div role="cell">{formatDate(row.date_creation) as React.ReactNode}</div>
+              <div role="cell">{formatDate(row.date_creation) as ReactNode}</div>
             </div>
           ))}
         </div>

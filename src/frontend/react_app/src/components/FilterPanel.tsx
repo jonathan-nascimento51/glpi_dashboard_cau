@@ -1,4 +1,4 @@
-import React, { type FC, useCallback } from 'react'
+import { type FC, useCallback } from 'react'
 import { useFilters } from '../hooks/useFilters'
 
 const FilterPanel: FC = () => {

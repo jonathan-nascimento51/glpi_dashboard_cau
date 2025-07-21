@@ -1,4 +1,3 @@
-import React from 'react'
 import { useTickets } from '../hooks/useTickets'
 import { TicketTable } from './TicketTable'
 import { LoadingSpinner } from './LoadingSpinner'

@@ -1,8 +1,8 @@
-import React from 'react'
 import { VirtualizedTicketTable, type TicketRow } from './VirtualizedTicketTable'
+import type { Ticket } from '../types/ticket'
 
 interface Props {
-  readonly tickets: TicketRow[]
+  readonly tickets: Ticket[]
 }
 
 export function TicketTable({ tickets }: Props) {
@@ -20,7 +20,7 @@ export function TicketTable({ tickets }: Props) {
         </thead>
         {/* The VirtualizedTicketTable should render <tbody> rows if possible */}
       </table>
-      <VirtualizedTicketTable rows={tickets} rowHeight={40} />
+      <VirtualizedTicketTable rows={tickets as TicketRow[]} rowHeight={40} />
     </div>
   )
 }
