@@ -1,4 +1,3 @@
-import React from 'react'
 import type { FC } from 'react'
 
 const SkeletonHeatmap: FC<{ heightClass?: string }> = ({
