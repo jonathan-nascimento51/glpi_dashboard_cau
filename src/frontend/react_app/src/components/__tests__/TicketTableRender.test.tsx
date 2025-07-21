@@ -1,4 +1,3 @@
-import React from 'react'
 import { render, screen } from '@testing-library/react'
 import type { TicketRow } from '../../components/VirtualizedTicketTable'
 import { TicketTable } from '../../components/TicketTable'
@@ -20,7 +19,7 @@ describe('TicketTable formatting', () => {
     const formatted = new Intl.DateTimeFormat('pt-BR', {
       dateStyle: 'short',
       timeStyle: 'short',
-    }).format(ticket.date_creation!)
+    }).format(ticket.date_creation as Date)
     expect(screen.getByText(formatted)).toBeInTheDocument()
   })
 })

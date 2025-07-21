@@ -1,4 +1,3 @@
-import React from 'react'
 import { render, screen } from '@testing-library/react'
 import '@testing-library/jest-dom'
 import { jest } from '@jest/globals'
@@ -10,7 +9,7 @@ jest.mock('../../hooks/useChamadosPorData')
 
 // Mock the recharts library to avoid rendering complex SVG in tests
 jest.mock('recharts', () => {
-  const OriginalRecharts = jest.requireActual('recharts')
+  const OriginalRecharts: typeof import('recharts') = jest.requireActual('recharts')
   return {
     ...OriginalRecharts,
     ResponsiveContainer: ({ children }: { children: React.ReactNode }) => (
