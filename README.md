@@ -274,20 +274,6 @@ The `requirements-dev.txt` file contains extras such as `dash[testing]`,
 suite. Install them with `pip install -r requirements-dev.txt` or use
 `pip install -e '.[dev]'` to ensure all development extras are available.
 
-```bash
-pip install -r requirements.txt -r requirements-dev.txt  # generated via pip-compile
-pip install -e .
-cd src/frontend/react_app && npm ci
-```
-See [docs/testing.md](docs/testing.md) for tips on running individual tests and for common import errors.
-
-These commands mirror what the setup target does and ensure Playwright and the␊
-Dash testing extras from the dev set are available. Verify that the
-`.venv` directory exists before calling `make test`. Frontend tests expect the
-Node packages installed with `npm ci` under `src/frontend/react_app`.
-
-This command installs all requirements, builds the local package and runs `pytest` with coverage.
-Build artifacts are written to the `build/` directory. Treat this folder as temporary; it is deleted by CI and ignored in `.gitignore`.
 
 
 ## Installing Dependencies Behind a Proxy or Offline
@@ -840,30 +826,6 @@ You may also install only the optional development extras with:
 This reads the `[project.optional-dependencies].dev` list from `pyproject.toml`
 and installs each package via `pip`.
 
-```bash
-pip install -r requirements.txt -r requirements-dev.txt  # generated via pip-compile
-pip install -e .  # ensure local packages are discoverable during tests
-# tests rely on OpenTelemetry instrumentation extras
-pip install opentelemetry-instrumentation-fastapi opentelemetry-instrumentation-logging
-# install aiohttp explicitly if using a custom environment
-pip install aiohttp
-# the core suite relies on `aiohttp` and `pandas`
-# `make test` runs the same setup; running `pytest` directly requires these
-# dependencies to be installed beforehand
-# optional extras for e2e and container tests
-pip install testcontainers playwright
-# browser tests require Chrome/Chromedriver
-# install via `apt-get install chromium-driver` or `npx playwright install`
-# if the latter fails behind a proxy, download the archive manually:
-# `curl -L https://playwright.azureedge.net/builds/chromium/1181/chromium-linux.zip -o chromium.zip`
-# `unzip chromium.zip -d ~/.cache/ms-playwright`
-# and set `PLAYWRIGHT_BROWSERS_PATH=~/.cache/ms-playwright` before running tests
-# optionally configure `PLAYWRIGHT_DOWNLOAD_HOST` to use an internal mirror
-# the setup script checks for the browser in this path and aborts if not found
-# skip them with `pytest -k 'not test_dashboard_flows'` if the driver is missing
-pytest --cov=./
-pre-commit run --all-files
-```
 
 Browser-based tests such as `test_dashboard_flows` rely on Chrome and
 Chromedriver. If these are unavailable you can skip them with:

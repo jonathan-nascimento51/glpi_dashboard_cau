@@ -41,7 +41,7 @@ async def _process_and_cache_df(
     df_to_cache = df.copy()
     # Convert datetime columns to ISO 8601 strings for JSON serialization
     for col in df_to_cache.select_dtypes(include=["datetime64[ns]"]).columns:
-        df_to_cache[col] = df_to_cache[col].dt.isoformat()
+        df_to_cache[col] = df_to_cache[col].dt.strftime("%Y-%m-%dT%H:%M:%S%z")
 
     metrics = compute_aggregated(df)
     await cache_aggregated_metrics(cache, "metrics_aggregated", metrics)
