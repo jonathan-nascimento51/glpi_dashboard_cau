@@ -5,7 +5,7 @@ TARGET="${HC_TARGET:-backend}"
 
 case "$TARGET" in
   frontend)
-    curl -f http://localhost:5173/ >/dev/null
+    curl -f "http://localhost:${FRONTEND_INTERNAL_PORT:-80}/" >/dev/null
     ;;
   redis)
     redis-cli ping | grep -q PONG

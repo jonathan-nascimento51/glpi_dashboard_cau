@@ -127,7 +127,7 @@ To launch the entire stack with Docker use:
 docker compose up
 ```
 
-This starts PostgreSQL, Redis, the FastAPI worker and the Dash app. Access the dashboard at `http://localhost:5173` when the build finishes.
+This starts PostgreSQL, Redis, the FastAPI worker and the Dash app. Access the dashboard at `http://localhost:5174` when the build finishes.
 
 ## Dependencies
 
@@ -752,7 +752,7 @@ need browser automation.
 
 The frontend image takes advantage of BuildKit caching to speed up subsequent `npm ci` runs. Ensure BuildKit is enabled by setting `DOCKER_BUILDKIT=1`.
 
-This exposes the worker API on port `8000` and the dashboard on port `5173`.
+This exposes the worker API on port `8000` and the dashboard on port `5174`.
 
 ## Configuration Management
 

@@ -148,7 +148,7 @@ para acompanhar oscilações em tempo real.
 |   | Definir tokens | editar `.env` |
 |   | Validar API | `python scripts/validate_credentials.py` |
 |   | `docker compose up` | iniciar stack |
-|   | Dashboard ok | abrir <http://localhost:5173> |
+|   | Dashboard ok | abrir <http://localhost:5174> |
 
 ---
 

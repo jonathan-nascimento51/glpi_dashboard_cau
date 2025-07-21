@@ -27,7 +27,7 @@ def test_ticket_stats_page() -> None:
     with sync_playwright() as pw:
         browser = pw.chromium.launch()
         page = browser.new_page()
-        page.goto("http://localhost:5173")
+        page.goto(os.environ.get("E2E_BASE_URL", "http://localhost:5174"))
 
         expect(page.get_by_role("heading", name="Ticket Statistics")).to_be_visible()
         # Three stats cards should be rendered once data loads
