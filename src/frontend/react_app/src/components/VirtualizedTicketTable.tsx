@@ -19,6 +19,7 @@ const priorityClasses: Record<string, string> = {
   'Very Low': 'text-green-700',
 }
 
+
 const formatDate = (value?: string | Date | null) => {
   if (!value) return '-'
   try {
@@ -26,8 +27,9 @@ const formatDate = (value?: string | Date | null) => {
       dateStyle: 'short',
       timeStyle: 'short',
     }).format(new Date(value))
-  } catch {
-    return value
+  } catch (error) {
+    console.error('Error formatting date:', error, 'Input value:', value)
+    return '-'
   }
 }
 

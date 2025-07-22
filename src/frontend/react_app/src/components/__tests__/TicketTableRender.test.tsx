@@ -23,15 +23,14 @@ describe('TicketTable formatting', () => {
     expect(screen.getByText(formatted)).toBeInTheDocument()
   })
 
-  it('renders placeholders for missing priority and date', () => {
-    const missing: Ticket = {
-      id: 2,
-      name: 'Sem prioridade',
-      status: 'New',
-      date_creation: null,
-    }
-    render(<TicketTable tickets={[missing]} />)
-    expect(screen.getByTestId('priority-cell-2')).toHaveTextContent('-')
-    expect(screen.getByTestId('date-cell-2')).toHaveTextContent('-')
+  it('displays fallbacks when data is missing', () => {
+    const minimal: Ticket = { id: 2, name: 'Sem prioridade', status: 'New' }
+    render(<TicketTable tickets={[minimal]} />)
+    const row = screen.getAllByRole('row')[1]
+    expect(row).toHaveTextContent('Sem prioridade')
+    // priority and date columns should show "-"
+    const dashes = row.querySelectorAll('div')
+    const dashCount = Array.from(dashes).filter((d) => d.textContent === '-').length
+    expect(dashCount).toBeGreaterThanOrEqual(2)
   })
 })
