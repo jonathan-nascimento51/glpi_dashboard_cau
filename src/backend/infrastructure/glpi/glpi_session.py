@@ -399,11 +399,9 @@ class GLPISession:
         self._shutdown_event.set()
         if self._refresh_task:
             self._refresh_task.cancel()
-            try:
+            with contextlib.suppress(asyncio.CancelledError):
                 await self._refresh_task
-            except asyncio.CancelledError:
-                logger.info("Proactive refresh task cancelled.")
-                raise
+            logger.info("Proactive refresh task cancelled.")
 
         if self._session_token and not self._using_user_token:
             await self._kill_session()
