@@ -166,11 +166,11 @@ setup_node_env() {
     local frontend_dir="src/frontend/react_app"
     local node_modules_dir="$frontend_dir/node_modules"
 
-    sudo -u "${SUDO_USER:-$(whoami)}" bash - <<EOF
-cd "$frontend_dir"
 info "Instalando dependências do package.json..."
-npm install --legacy-peer-deps
 info "Garantindo que as definições de tipo do React estão instaladas..."
+sudo -u "${SUDO_USER:-$(whoami)}" bash - <<EOF
+cd "$frontend_dir"
+npm install --legacy-peer-deps
 npm install --save-dev @types/react @types/react-dom
 EOF
 }
