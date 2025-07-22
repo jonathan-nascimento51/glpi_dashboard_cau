@@ -247,6 +247,11 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
                 return PlainTextResponse(fh.read())
         except FileNotFoundError:
             raise HTTPException(status_code=404, detail="knowledge base not found")
+        except PermissionError as e:
+            raise HTTPException(
+                status_code=403,
+                detail=f"Permission denied when reading knowledge base file: {str(e)}",
+            )
         except OSError as e:
             raise HTTPException(
                 status_code=500,
