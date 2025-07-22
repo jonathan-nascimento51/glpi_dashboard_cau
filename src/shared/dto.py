@@ -59,9 +59,7 @@ class CleanTicketDTO(BaseModel):
     @classmethod
     def _sanitize_title(cls, v: Any) -> str:
         """Ensure title is a non-null string."""
-        if v is None:
-            return ""
-        return str(v)
+        return "" if v is None else str(v)
 
     @field_validator("status", mode="before")
     @classmethod
