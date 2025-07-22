@@ -107,7 +107,7 @@ setup_mise() {
   info "(3/7) Instalando versões de ferramentas com mise..."
   if ! command -v mise >/dev/null 2>&1; then
     warn "Comando 'mise' não encontrado. Instalando..."
-    curl https://mise.run | sh
+    sudo -u "${SUDO_USER:-$(whoami)}" sh -c 'curl https://mise.run | sh'
     # Adiciona o mise ao PATH da sessão atual para que possa ser encontrado
     export PATH="$HOME/.local/bin:$PATH"
   fi
@@ -116,9 +116,10 @@ setup_mise() {
   eval "$(mise activate bash)"
   warn "Mise foi instalado/ativado. Para uso permanente, reinicie seu shell ou execute 'source ~/.bashrc'."
 
-  mise install
+  sudo -u "${SUDO_USER:-$(whoami)}" mise install
+  sudo -u "${SUDO_USER:-$(whoami)}" mise trust --yes .
   # Silencia o aviso de depreciação sobre arquivos de versão idiomáticos
-  mise settings set idiomatic_version_file_enable_tools node
+  sudo -u "${SUDO_USER:-$(whoami)}" mise settings set idiomatic_version_file_enable_tools node
 }
 
 setup_python_env() {
@@ -128,34 +129,25 @@ setup_python_env() {
   local venv_dir=".venv"
   if [ ! -d "$venv_dir" ]; then
     info "Criando ambiente virtual em $venv_dir..."
-    python -m venv "$venv_dir"
+    sudo -u "${SUDO_USER:-$(whoami)}" python -m venv "$venv_dir"
   fi
-
-  info "Ativando o ambiente virtual..."
-  # shellcheck disable=SC1091
-  source "$venv_dir/bin/activate"
 
   info "Atualizando pip e instalando dependências Python..."
-  export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
-  pip install --upgrade pip
-  if [ "$OFFLINE_INSTALL" = "true" ]; then
-    local wheel_dir
-    wheel_dir=${WHEELS_DIR:-./wheels}
-    pip install --no-index --find-links="$wheel_dir" -r requirements.txt -r requirements-dev.txt
-  else
-    pip install -r requirements.txt
-    pip install -e .[dev]
-  fi
-  unset PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD
+  sudo -u "${SUDO_USER:-$(whoami)}" bash - <<'EOF'
+source ".venv/bin/activate"
+export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+pip install --upgrade pip
+if [ "$OFFLINE_INSTALL" = "true" ]; then
+  wheel_dir=${WHEELS_DIR:-./wheels}
+  pip install --no-index --find-links="$wheel_dir" -r requirements.txt -r requirements-dev.txt
+else
+  pip install -r requirements.txt
+  pip install -e .[dev]
+fi
+unset PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD
+EOF
 
-  # Corrige permissões do venv e egg-info se foram criados com sudo
-  local owner_user="${SUDO_USER:-$(whoami)}"
-  if [ -d "$venv_dir" ] && [ "$(stat -c '%U' "$venv_dir")" = "root" ]; then
-    warn "O diretório .venv e/ou .egg-info pertencem ao root. Corrigindo permissões..."
-    # O glob `src/*.egg-info` pode não expandir se não houver correspondência, então usamos find
-    sudo chown -R "$owner_user":"$(id -g "$owner_user")" "$venv_dir"
-    find src -maxdepth 1 -type d -name "*.egg-info" -exec sudo chown -R "$owner_user":"$(id -g "$owner_user")" {} +
-  fi
+  # Permissões corretas pois comandos rodam como usuário
 }
 
 setup_node_env() {
@@ -165,30 +157,23 @@ setup_node_env() {
     local frontend_dir="src/frontend/react_app"
     local node_modules_dir="$frontend_dir/node_modules"
 
-    # Corrige problemas de permissão se node_modules foi criado com sudo
-    if [ -d "$node_modules_dir" ]; then
-      if [ "$(stat -c '%U' "$node_modules_dir")" = "root" ]; then
-        warn "O diretório node_modules pertence ao root. Corrigindo permissões..."
-        sudo chown -R "${SUDO_USER:-$(whoami)}":"$(id -g "${SUDO_USER:-$(whoami)}")" "$frontend_dir"
-      fi
-    fi
-
-    (
-      cd "$frontend_dir"
-      info "Instalando dependências do package.json..."
-      npm install --legacy-peer-deps
-      info "Garantindo que as definições de tipo do React estão instaladas..."
-      npm install --save-dev @types/react @types/react-dom
-    )
+    sudo -u "${SUDO_USER:-$(whoami)}" bash - <<EOF
+cd "$frontend_dir"
+info "Instalando dependências do package.json..."
+npm install --legacy-peer-deps
+info "Garantindo que as definições de tipo do React estão instaladas..."
+npm install --save-dev @types/react @types/react-dom
+EOF
 }
 
 setup_git_hooks() {
   info "(6/7) Instalando ganchos de pre-commit..."
   if command -v pre-commit >/dev/null 2>&1; then
-    pre-commit install
+    sudo -u "${SUDO_USER:-$(whoami)}" pre-commit install
   else
     warn "pre-commit não encontrado. Instalando..."
-    pip install pre-commit && pre-commit install
+    sudo -u "${SUDO_USER:-$(whoami)}" pip install pre-commit && \
+    sudo -u "${SUDO_USER:-$(whoami)}" pre-commit install
   fi
 }
 
@@ -200,9 +185,9 @@ setup_playwright() {
     fi
 
     info "Instalando dependências do Playwright via npm..."
-    (cd src/frontend/react_app && npm install @playwright/test)
+    sudo -u "${SUDO_USER:-$(whoami)}" bash -c 'cd src/frontend/react_app && npm install @playwright/test'
     info "Instalando o browser Chromium para o Playwright..."
-    (cd src/frontend/react_app && npx playwright install --with-deps chromium < /dev/null) || {
+    sudo -u "${SUDO_USER:-$(whoami)}" bash -c 'cd src/frontend/react_app && npx playwright install --with-deps chromium < /dev/null' || {
       warn "Playwright falhou. Tentando download manual via curl..."
       curl -L https://playwright.azureedge.net/builds/chromium/1181/chromium-linux.zip -o chromium.zip \
         && unzip -q chromium.zip -d "$PLAYWRIGHT_CACHE_DIR" \

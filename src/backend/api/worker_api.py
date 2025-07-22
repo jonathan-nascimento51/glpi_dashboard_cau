@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import logging
 from contextlib import asynccontextmanager
+from datetime import datetime
 from typing import Any, Dict, List, Optional, cast
 
 import pandas as pd
@@ -56,10 +57,11 @@ class Ticket:
     """GraphQL type for a GLPI ticket."""
 
     id: int
-    status: str
-    group: str
-    assigned_to: str
     name: str
+    status: str
+    assigned_to: str
+    group: str
+    date_creation: Optional[datetime]
 
 
 @strawberry.type

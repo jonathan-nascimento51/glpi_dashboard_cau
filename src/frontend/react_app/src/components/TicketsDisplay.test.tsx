@@ -2,19 +2,14 @@ import { render, screen } from '@testing-library/react'
 import '@testing-library/jest-dom'
 import { jest } from '@jest/globals'
 
-jest.unstable_mockModule('@/hooks/useTickets', () => ({
+jest.mock('../hooks/useTickets', () => ({
   useTickets: jest.fn(),
 }))
 
-let TicketsDisplay: typeof import('./TicketsDisplay').default
-let useTicketsMock: jest.Mock
+import TicketsDisplay from './TicketsDisplay'
+import { useTickets } from '../hooks/useTickets'
 
-beforeAll(async () => {
-  const mod = await import('../hooks/useTickets')
-  useTicketsMock = mod.useTickets as jest.Mock
-  const { default: TicketsDisplayModule } = await import('./TicketsDisplay')
-  TicketsDisplay = TicketsDisplayModule
-})
+const useTicketsMock = useTickets as jest.Mock
 
 describe('TicketsDisplay Component', () => {
   beforeEach(() => {
@@ -26,6 +21,7 @@ describe('TicketsDisplay Component', () => {
       tickets: undefined,
       error: undefined,
       isLoading: true,
+      isSuccess: false,
       refreshTickets: jest.fn(),
     })
 
@@ -41,6 +37,7 @@ describe('TicketsDisplay Component', () => {
       tickets: undefined,
       error: new Error('Falha na API'),
       isLoading: false,
+      isSuccess: false,
       refreshTickets: refreshSpy,
     })
 
@@ -59,6 +56,7 @@ describe('TicketsDisplay Component', () => {
       tickets: [],
       error: undefined,
       isLoading: false,
+      isSuccess: true,
       refreshTickets: refreshSpy,
     })
 
@@ -79,6 +77,7 @@ describe('TicketsDisplay Component', () => {
       tickets: mockTickets,
       error: undefined,
       isLoading: false,
+      isSuccess: true,
       refreshTickets: jest.fn(),
     })
 

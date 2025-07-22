@@ -41,6 +41,8 @@ class GlpiApiClient:
         """Return all items for ``itemtype`` using a resilient page loop."""
 
         base_params: Dict[str, Any] = {**params, "expand_dropdowns": 1}
+        if itemtype.replace("search/", "") == "Ticket":
+            base_params.setdefault("forcedisplay", [1, 2, 4, 12, 15])
         if "criteria" in base_params:
             endpoint = (
                 itemtype if itemtype.startswith("search/") else f"search/{itemtype}"

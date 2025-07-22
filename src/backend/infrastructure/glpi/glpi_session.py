@@ -118,10 +118,14 @@ class SessionParams(BaseModel):
     )
     verify_ssl: bool = Field(default=True, description="Verify SSL certificates")
     ssl_context: Optional[ssl.SSLContext] = Field(
-        default=None, description="Custom SSL context for TLS connections"
+        default=None,
+        description="Custom SSL context for TLS connections",
+        exclude=True,
     )
     timeout: Union[int, aiohttp.ClientTimeout] = Field(
-        default=300, description="Request timeout in seconds"
+        default=300,
+        description="Request timeout in seconds",
+        exclude=True,
     )
     refresh_interval: int = Field(
         default=3000,
