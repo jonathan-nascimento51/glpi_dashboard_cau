@@ -7,6 +7,12 @@ from backend.infrastructure.glpi.glpi_session import GLPISession
 from backend.utils import paginate_items
 from shared.dto import CleanTicketDTO, TicketTranslator
 
+# Define the fields to be forcibly displayed in the GLPI API response.
+# These typically correspond to:
+# 1: ID, 2: Title/Name, 4: Requester, 12: Status, 15: Priority,
+# 21: Assigned Group, 83: Creation Date
+FORCED_DISPLAY_FIELDS = [1, 2, 4, 12, 15, 21, 83]
+
 logger = logging.getLogger(__name__)
 
 
@@ -39,16 +45,19 @@ class GlpiApiClient:
         self, itemtype: str, page_size: int = 100, **params: Any
     ) -> List[Dict[str, Any]]:
         """Return all items for ``itemtype`` using a resilient page loop."""
-
+        # Normalize itemtype to remove any "search/" prefix
+        normalized_itemtype = itemtype.replace("search/", "")
         base_params: Dict[str, Any] = {**params, "expand_dropdowns": 1}
-        if itemtype.replace("search/", "") == "Ticket":
-            base_params.setdefault("forcedisplay", FORCED_DISPLAY_FIELDS)
+
+        # Determine the correct endpoint based on whether it's a search query
         if "criteria" in base_params:
-            endpoint = (
-                itemtype if itemtype.startswith("search/") else f"search/{itemtype}"
-            )
+            endpoint = f"search/{normalized_itemtype}"
         else:
-            endpoint = itemtype.replace("search/", "")
+            endpoint = normalized_itemtype
+
+        # For tickets, always force display of key fields
+        if normalized_itemtype == "Ticket":
+            base_params.setdefault("forcedisplay", FORCED_DISPLAY_FIELDS)
 
         async def fetch_page(offset: int, size: int) -> Any:
             page_params: Dict[str, Any] = {

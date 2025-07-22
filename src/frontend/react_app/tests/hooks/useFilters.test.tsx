@@ -1,5 +1,6 @@
 import { renderHook, act } from '@testing-library/react'
-import { useFilters } from '@/hooks/useFilters'
+import { useFilters } from '../../src/hooks/useFilters'
+import { expect, test } from '@jest/globals'
 
 test('toggles filter panel', () => {
   const { result } = renderHook(() => useFilters())

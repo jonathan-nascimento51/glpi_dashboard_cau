@@ -5,8 +5,8 @@ export const FixedSizeList = jest.fn((props: { itemCount: number; itemData: any;
   React.createElement(
     'div',
     { 'data-testid': 'virtual-list' },
-    Array.from({ length: props.itemCount }).map((_: unknown, idx: number) =>
-      React.createElement(props.children, { index: idx, style: {}, data: props.itemData })
+    Array.from({ length: props.itemCount }).map((_, idx: number) =>
+      React.createElement(props.children as React.ElementType, { index: idx, style: {}, data: props.itemData })
     ),
   ),
 )

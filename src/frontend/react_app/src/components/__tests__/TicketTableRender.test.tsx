@@ -12,7 +12,7 @@ const ticket: Ticket = {
 
 describe('TicketTable formatting', () => {
   it('formats date and applies styles', () => {
-    render(<TicketTable tickets={[ticket]} />)
+    render(<TicketTable />)
     const titleCell = screen.getByText(ticket.name)
     expect(titleCell).toHaveAttribute('title', ticket.name)
     expect(screen.getByText('High')).toHaveClass('text-red-600')
@@ -24,8 +24,7 @@ describe('TicketTable formatting', () => {
   })
 
   it('displays fallbacks when data is missing', () => {
-    const minimal: Ticket = { id: 2, name: 'Sem prioridade', status: 'New' }
-    render(<TicketTable tickets={[minimal]} />)
+    render(<TicketTable />)
     const row = screen.getAllByRole('row')[1]
     expect(row).toHaveTextContent('Sem prioridade')
     // priority and date columns should show "-"

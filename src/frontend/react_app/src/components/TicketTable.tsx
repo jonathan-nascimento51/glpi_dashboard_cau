@@ -1,11 +1,30 @@
-import { VirtualizedTicketTable, type TicketRow } from './VirtualizedTicketTable'
-import type { Ticket } from '../types/ticket'
+import { useApiQuery } from '../hooks/useApiQuery'
+import { VirtualizedTicketTable, type TicketRow } from './VirtualizedTicketTable';
+import type { Ticket } from '../types/ticket';
 
-interface Props {
-  readonly tickets: Ticket[]
+// A interface para a resposta esperada da API.
+// A API pode retornar um objeto com uma chave 'tickets'.
+interface TicketsApiResponse {
+  tickets: Ticket[];
 }
 
-export function TicketTable({ tickets }: Props) {
+export function TicketTable() {
+  const { data, isLoading, error } = useApiQuery<TicketsApiResponse>('/tickets');
+
+  if (isLoading) {
+    return <div className="p-4 text-center">Carregando chamados...</div>;
+  }
+
+  if (error) {
+    return <div className="p-4 text-center text-red-600">Erro ao carregar dados: {error}</div>;
+  }
+
+  const tickets = data?.tickets ?? [];
+
+  if (tickets.length === 0) {
+    return <div className="p-4 text-center">Nenhum chamado encontrado.</div>;
+  }
+
   return (
     <div className="border rounded" aria-label="Lista de chamados">
       <table className="w-full border-separate border-spacing-0">
@@ -22,7 +41,7 @@ export function TicketTable({ tickets }: Props) {
       </table>
       <VirtualizedTicketTable rows={tickets.map(mapTicketToTicketRow)} rowHeight={40} />
     </div>
-  )
+  );
 }
 
 function mapTicketToTicketRow(ticket: Ticket): TicketRow {
