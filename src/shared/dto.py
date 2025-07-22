@@ -20,6 +20,9 @@ STATUS_MAP = {
     6: "Closed",
 }
 
+# Map textual statuses (e.g., "closed") to the same canonical labels
+TEXT_STATUS_MAP = {label.lower(): label for label in STATUS_MAP.values()}
+
 PRIORITY_MAP = {
     1: "Very Low",
     2: "Low",
@@ -70,9 +73,20 @@ class CleanTicketDTO(BaseModel):
 
     @field_validator("status", mode="before")
     @classmethod
-    def _validate_status(cls, v: int) -> str:  # pragma: no cover - simple mapping
-        return STATUS_MAP.get(v, "Unknown")
+    def _validate_status(cls, v: int | str) -> str:  # pragma: no cover - simple mapping
+        """Normalize integer or textual status values to labels."""
 
+        if isinstance(v, str):
+            value = v.strip()
+            if value.isdigit():
+                v = int(value)
+            else:
+                return TEXT_STATUS_MAP.get(value.lower(), "Unknown")
+
+        if not isinstance(v, int) and not str(v).isdigit():
+            return "Unknown"
+
+        return STATUS_MAP.get(int(v), "Unknown")
     @field_validator("priority", mode="before")
     @classmethod
     def _validate_priority(

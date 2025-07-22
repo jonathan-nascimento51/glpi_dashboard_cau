@@ -79,3 +79,18 @@ def test_clean_ticket_dto_missing_optional_fields():
 
     assert ticket.priority is None
     assert ticket.created_at is None
+
+
+@pytest.mark.unit
+def test_clean_ticket_dto_text_status():
+    """Textual status values should be normalized."""
+
+    data = {
+        "id": 3,
+        "name": "Network issue",
+        "status": "closed",
+    }
+
+    ticket = CleanTicketDTO.model_validate(data)
+
+    assert ticket.status == "Closed"
