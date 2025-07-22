@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Dict, Optional
+from typing import TYPE_CHECKING, Any, Dict, Optional, Union
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 if TYPE_CHECKING:  # Avoid runtime import cycle
     from backend.adapters.mapping_service import MappingService
@@ -19,6 +19,9 @@ STATUS_MAP = {
     5: "Solved",
     6: "Closed",
 }
+
+# Map textual statuses (e.g., "closed") to the same canonical labels
+TEXT_STATUS_MAP = {label.lower(): label for label in STATUS_MAP.values()}
 
 PRIORITY_MAP = {
     1: "Very Low",
@@ -34,8 +37,8 @@ class RawTicketFromAPI(BaseModel):
     """Shape of a ticket as returned by the GLPI REST API."""
 
     id: int
-    name: str
-    status: int
+    name: Optional[str] = Field(default=None)
+    status: Union[int, str]
     priority: Optional[int] = Field(default=None)
     date_creation: Optional[datetime] = Field(default=None)
     users_id_assign: Optional[int] = Field(None, alias="users_id_assign")
@@ -47,7 +50,10 @@ class CleanTicketDTO(BaseModel):
     """Normalized ticket used internally by the application."""
 
     id: int
-    title: str = Field("", alias="name")
+    title: Optional[str] = Field(
+        default=None,
+        alias="name",
+    )
     status: str
     priority: Optional[str] = Field(default=None)
     created_at: Optional[datetime] = Field(default=None, alias="date_creation")
@@ -55,16 +61,32 @@ class CleanTicketDTO(BaseModel):
 
     model_config = ConfigDict(populate_by_name=True)
 
-    @field_validator("title", mode="before")
+    @model_validator(mode="before")
     @classmethod
-    def _sanitize_title(cls, v: Any) -> str:
-        """Ensure title is a non-null string."""
-        return "" if v is None else str(v)
+    def _sanitize_title(cls, data: Dict[str, Any]) -> Dict[str, Any]:
+        title = data.get("name")
+        if title in (None, ""):
+            data["name"] = "[Título não informado]"
+        else:
+            data["name"] = str(title)
+        return data
 
     @field_validator("status", mode="before")
     @classmethod
-    def _validate_status(cls, v: int) -> str:  # pragma: no cover - simple mapping
-        return STATUS_MAP.get(v, "Unknown")
+    def _validate_status(cls, v: int | str) -> str:  # pragma: no cover - simple mapping
+        """Normalize integer or textual status values to labels."""
+
+        if isinstance(v, str):
+            value = v.strip()
+            if value.isdigit():
+                v = int(value)
+            else:
+                return TEXT_STATUS_MAP.get(value.lower(), "Unknown")
+
+        if not isinstance(v, int) and not str(v).isdigit():
+            return "Unknown"
+
+        return STATUS_MAP.get(int(v), "Unknown")
 
     @field_validator("priority", mode="before")
     @classmethod
