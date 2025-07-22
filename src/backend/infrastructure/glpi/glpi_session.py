@@ -389,13 +389,8 @@ class GLPISession:
         exc_val: Optional[BaseException],
         exc_tb: Optional["TracebackType"],
     ) -> None:
-        """
-        Exits the asynchronous context, gracefully killing the GLPI session.
-        Exits the asynchronous context, gracefully killing the GLPI session.
+        """Exits the async context, terminating refresh tasks and session."""
 
-        Sets ``_shutdown_event`` so that the proactive refresh loop can
-        terminate promptly before cleaning up network resources.
-        """
         self._shutdown_event.set()
         if self._refresh_task:
             self._refresh_task.cancel()
@@ -405,15 +400,19 @@ class GLPISession:
                 logger.info("Proactive refresh task cancelled.")
                 raise
 
-        if self._session_token and not self._using_user_token:
-            await self._kill_session()
-        else:
-            # Ensure token is cleared even when killSession is skipped
-            self._session_token = None
-
-        if self._session and not self._session.closed:
-            await self._session.close()
-            logger.info("aiohttp ClientSession closed.")
+        try:
+            if self._session_token and not self._using_user_token:
+                try:
+                    await self._kill_session()
+                except Exception as e:  # noqa: B902
+                    logger.error("Failed to kill session: %s", e)
+            else:
+                # Ensure token is cleared when killSession is skipped
+                self._session_token = None
+        finally:
+            if self._session and not self._session.closed:
+                await self._session.close()
+                logger.info("aiohttp ClientSession closed.")
 
     async def close(self) -> None:
         """Public method to close the session without a context manager."""
