@@ -36,8 +36,8 @@ class RawTicketFromAPI(BaseModel):
     id: int
     name: str
     status: int
-    priority: Optional[int] = None
-    date_creation: Optional[datetime] = None
+    priority: Optional[int] = Field(default=None)
+    date_creation: Optional[datetime] = Field(default=None)
     users_id_assign: Optional[int] = Field(None, alias="users_id_assign")
 
     model_config = ConfigDict(populate_by_name=True)
