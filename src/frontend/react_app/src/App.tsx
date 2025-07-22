@@ -1,4 +1,4 @@
-import {React, Suspense } from 'react'
+import { Suspense, lazy } from 'react'
 import Header from './components/Header'
 import FilterPanel from './components/FilterPanel'
 import { Sidebar } from './components/Sidebar'
@@ -9,8 +9,8 @@ import SkeletonHeatmap from './components/SkeletonHeatmap'
 
 // Lazy load heavy components to split them into separate chunks.
 // This tells Vite/Rollup to create separate .js files for these components.
-const ChamadosTendencia = React.lazy(() => import('./components/ChamadosTendencia'))
-const ChamadosHeatmap = React.lazy(() => import('./components/ChamadosHeatmap'))
+const ChamadosTendencia = lazy(() => import('./components/ChamadosTendencia'))
+const ChamadosHeatmap = lazy(() => import('./components/ChamadosHeatmap'))
 
 function App() {
   return (
@@ -20,7 +20,6 @@ function App() {
       <main className="main-content">
         <div className="dashboard-grid">
           <TicketsDisplay />
-          {/* The Suspense component shows a fallback (like a skeleton loader) while the component is loading */}
           <Suspense fallback={<SkeletonChart />}>
             <ChamadosTendencia />
           </Suspense>

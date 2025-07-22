@@ -24,7 +24,6 @@ from backend.infrastructure.glpi.glpi_session import Credentials, GLPISession
 from backend.utils import process_raw
 from frontend.callbacks.callbacks import register_callbacks
 from frontend.layout.layout import build_layout
-from shared.utils.logging import init_logging
 
 __all__ = ["create_app", "main"]
 

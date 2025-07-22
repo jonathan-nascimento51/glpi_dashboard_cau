@@ -16,11 +16,26 @@ RUN npm install --legacy-peer-deps
 COPY src/frontend/react_app/ ./
 
 # Executa o build da aplicação para produção
-# O Vite usará a variável de ambiente NEXT_PUBLIC_API_BASE_URL
 RUN npm run build
 
-# Stage 2: Cria a imagem final com Nginx para servir os arquivos estáticos
-FROM nginx:1.25-alpine
+# Stage 2: Ambiente de desenvolvimento
+FROM node:20.19.0-alpine AS dev
+
+WORKDIR /app
+ENV NPM_CONFIG_CACHE=/root/.npm
+
+# Copia os arquivos de dependência e instala
+COPY src/frontend/react_app/package.json src/frontend/react_app/package-lock.json* ./
+RUN npm install --legacy-peer-deps
+
+# Copia o restante do código-fonte do frontend
+COPY src/frontend/react_app/ ./
+
+# Comando para iniciar o ambiente de desenvolvimento
+CMD ["npm", "run", "dev"]
+
+# Stage 3: Cria a imagem final com Nginx para produção
+FROM nginx:1.25-alpine AS prod
 
 # Instala curl para o healthcheck
 RUN apk add --no-cache curl

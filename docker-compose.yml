@@ -4,7 +4,7 @@ services:
     build:
       context: .
       dockerfile: docker/backend/Dockerfile
-    env_file: # Carrega variáveis de ambiente para o backend
+    env_file:
       - .env
     environment:
       PYTHONPATH: /app/src
@@ -48,14 +48,14 @@ services:
         NEXT_PUBLIC_API_BASE_URL: "http://localhost:8000"
     depends_on:
       - backend
-    ports:
-      - "5174:80" # Mapeia a porta 80 do Nginx (container) para a 5174 do host
     healthcheck:
       test: ["CMD", "/usr/local/bin/healthcheck.sh"]
       interval: 30s
       timeout: 5s
       start_period: 45s
       retries: 3
+    ports:
+      - 5173:5173
 
   db:
     build: ./db

@@ -26,14 +26,14 @@ services:
       - db
 
   frontend:
-    extends:
-      file: docker-compose.yml
-      service: frontend
-    environment:
-      - NEXT_PUBLIC_API_BASE_URL=http://ppiratini.intra.rs.gov.br/glpi
+    build:
+      context: .
+      dockerfile: src/frontend/react_app/Dockerfile
+      target: prod
     ports:
-      - "80:3000"
-    command: npm run build && npm run start
+      - "80:80"
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: http://ppiratini.intra.rs.gov.br/glpi
 
   db:
     image: postgres:15-alpine

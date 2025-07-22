@@ -287,19 +287,16 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
     return app
 
 
-app: FastAPI | None = None
+app: FastAPI = create_app()
 
 
 def main() -> None:  # pragma: no cover - manual run
     """CLI for running the worker API."""
     parser = argparse.ArgumentParser(description="Run GLPI worker API")
     parser.add_argument("--port", type=int, default=8000, help="Port to bind")
+    parser.add_argument("--host", type=str, default="0.0.0.0", help="Host to bind")
     args = parser.parse_args()
-
-    global app
-    if app is None:
-        app = create_app()
-    uvicorn.run(app, host="0.0.0.0", port=args.port)
+    uvicorn.run(app, host=args.host, port=args.port)
 
 
 if __name__ == "__main__":  # pragma: no cover - manual run
