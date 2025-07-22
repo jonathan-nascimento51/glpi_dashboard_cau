@@ -31,8 +31,7 @@ describe('TicketTable formatting', () => {
       date_creation: null,
     }
     render(<TicketTable tickets={[missing]} />)
-    const cells = screen.getAllByRole('cell')
-    expect(cells[3]).toHaveTextContent('-')
-    expect(cells[4]).toHaveTextContent('-')
+    expect(screen.getByTestId('priority-cell-2')).toHaveTextContent('-')
+    expect(screen.getByTestId('date-cell-2')).toHaveTextContent('-')
   })
 })
