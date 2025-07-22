@@ -16,6 +16,7 @@ test('fetches tickets from API', async () => {
   const { result } = renderHook(() => useTickets(), { wrapper })
   expect(result.current.isLoading).toBe(true)
   await waitFor(() => expect(result.current.isLoading).toBe(false))
+  expect(result.current.isSuccess).toBe(true)
   expect(result.current.tickets).toHaveLength(1)
   expect(result.current.tickets?.[0].name).toBe('t1')
 })
@@ -28,4 +29,5 @@ test('handles API error', async () => {
 
   const { result } = renderHook(() => useTickets(), { wrapper })
   await waitFor(() => expect(result.current.error).toBeTruthy())
+  expect(result.current.isSuccess).toBe(false)
 })

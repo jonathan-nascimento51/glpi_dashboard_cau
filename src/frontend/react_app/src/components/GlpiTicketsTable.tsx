@@ -1,5 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
-import { fetcher } from '@/lib/swrClient'
+import { useApiQuery } from '../hooks/useApiQuery'
 
 interface Ticket {
   id: number
@@ -10,13 +9,18 @@ interface Ticket {
 }
 
 export function GlpiTicketsTable() {
-  const { data: tickets, isLoading, error } = useQuery<Ticket[]>({
-    queryKey: ['tickets'],
-    queryFn: () => fetcher<Ticket[]>('/tickets'),
-  })
+  const {
+    data: tickets,
+    isLoading,
+    error,
+    isSuccess,
+  } = useApiQuery<Ticket[], Error>(['tickets'], '/tickets')
 
   if (isLoading) return <p>Carregando...</p>
   if (error) return <p>Erro ao buscar tickets</p>
+  if (isSuccess && (!tickets || tickets.length === 0)) {
+    return <p>Nenhum chamado encontrado</p>
+  }
 
   const formatDate = (value?: string | null) => {
     if (!value) return '-'
