@@ -1,5 +1,6 @@
 import { Suspense, lazy } from 'react'
 import Header from './components/Header'
+import { ErrorBoundary } from './components/ErrorBoundary'
 import FilterPanel from './components/FilterPanel'
 import { Sidebar } from './components/Sidebar'
 import { LevelsPanel } from './components/LevelsPanel'
@@ -14,23 +15,25 @@ const ChamadosHeatmap = lazy(() => import('./components/ChamadosHeatmap'))
 
 function App() {
   return (
-    <div className="app-container">
-      <Header />
-      <FilterPanel />
-      <main className="main-content">
-        <div className="dashboard-grid">
-          <TicketsDisplay />
-          <Suspense fallback={<SkeletonChart />}>
-            <ChamadosTendencia />
-          </Suspense>
-          <Suspense fallback={<SkeletonHeatmap />}>
-            <ChamadosHeatmap />
-          </Suspense>
-          <LevelsPanel levels={[]} />
-        </div>
-        <Sidebar performance={[]} ranking={[]} alerts={[]} />
-      </main>
-    </div>
+    <ErrorBoundary>
+      <div className="app-container">
+        <Header />
+        <FilterPanel />
+        <main className="main-content">
+          <div className="dashboard-grid">
+            <TicketsDisplay />
+            <Suspense fallback={<SkeletonChart />}>
+              <ChamadosTendencia />
+            </Suspense>
+            <Suspense fallback={<SkeletonHeatmap />}>
+              <ChamadosHeatmap />
+            </Suspense>
+            <LevelsPanel levels={[]} />
+          </div>
+          <Sidebar performance={[]} ranking={[]} alerts={[]} />
+        </main>
+      </div>
+    </ErrorBoundary>
   )
 }
 
