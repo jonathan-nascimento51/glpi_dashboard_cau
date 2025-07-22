@@ -147,6 +147,15 @@ setup_python_env() {
     pip install -e .[dev]
   fi
   unset PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD
+
+  # Corrige permissões do venv e egg-info se foram criados com sudo
+  local owner_user="${SUDO_USER:-$(whoami)}"
+  if [ -d "$venv_dir" ] && [ "$(stat -c '%U' "$venv_dir")" = "root" ]; then
+    warn "O diretório .venv e/ou .egg-info pertencem ao root. Corrigindo permissões..."
+    # O glob `src/*.egg-info` pode não expandir se não houver correspondência, então usamos find
+    sudo chown -R "$owner_user":"$(id -g "$owner_user")" "$venv_dir"
+    find src -maxdepth 1 -type d -name "*.egg-info" -exec sudo chown -R "$owner_user":"$(id -g "$owner_user")" {} +
+  fi
 }
 
 setup_node_env() {
