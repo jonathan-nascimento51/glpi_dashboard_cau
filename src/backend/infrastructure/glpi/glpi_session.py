@@ -784,6 +784,7 @@ class GLPISession:
         base_params: Dict[str, Any] = {**params, "expand_dropdowns": 1}
         endpoint = itemtype if itemtype.startswith("search/") else f"search/{itemtype}"
         return await self._paginate_search(endpoint, base_params, page_size)
+        # Note: Pagination logic, including offset increment, is handled within _paginate_search.
 
     async def query_graphql(
         self, query: str, variables: Optional[Dict[str, Any]] = None
