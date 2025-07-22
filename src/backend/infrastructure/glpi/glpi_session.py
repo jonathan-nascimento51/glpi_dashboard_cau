@@ -1,6 +1,5 @@
 import asyncio
 import contextlib
-import inspect
 import json
 import logging
 import os
@@ -579,14 +578,11 @@ class GLPISession:
         elif self.ssl_ctx is not None:
             request_kwargs["ssl"] = self.ssl_ctx
 
-        request_ctx = self._session.request(
+        async with self._session.request(
             method,
             full_url,
             **request_kwargs,
-        )
-        if inspect.isawaitable(request_ctx):
-            request_ctx = await request_ctx
-        async with request_ctx as response:
+        ) as response:
             if response.status == 401 and retry_on_401 and attempt < max_401_retries:
                 raise GLPIUnauthorizedError(401, "401 Unauthorized")
             try:
