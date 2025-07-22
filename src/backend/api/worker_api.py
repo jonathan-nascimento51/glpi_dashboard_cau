@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import datetime
 import logging
 from contextlib import asynccontextmanager
 from typing import Any, Dict, List, Optional, cast
@@ -60,6 +61,7 @@ class Ticket:
     group: str
     assigned_to: str
     name: str
+    date_creation: Optional[datetime.datetime]
 
 
 @strawberry.type
