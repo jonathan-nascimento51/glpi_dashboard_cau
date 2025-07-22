@@ -53,6 +53,21 @@ def test_clean_ticket_dto_missing_required_field():
 
 
 @pytest.mark.unit
+def test_clean_ticket_dto_none_name_becomes_empty_string():
+    """Ensure None titles are sanitized to an empty string."""
+
+    data = {
+        "id": 1,
+        "name": None,
+        "status": 1,
+    }
+
+    ticket = CleanTicketDTO.model_validate(data)
+
+    assert ticket.title == ""
+
+
+@pytest.mark.unit
 def test_clean_ticket_dto_missing_optional_fields():
     data = {
         "id": 2,
