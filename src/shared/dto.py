@@ -76,8 +76,10 @@ class CleanTicketDTO(BaseModel):
             else:
                 return TEXT_STATUS_MAP.get(value.lower(), "Unknown")
 
-        return STATUS_MAP.get(int(v), "Unknown")
+        if not isinstance(v, int) and not str(v).isdigit():
+            return "Unknown"
 
+        return STATUS_MAP.get(int(v), "Unknown")
     @field_validator("priority", mode="before")
     @classmethod
     def _validate_priority(
