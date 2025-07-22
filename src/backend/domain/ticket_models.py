@@ -6,7 +6,7 @@ import logging
 from datetime import datetime
 from typing import Any, Type, TypeVar
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from .ticket_status import Impact, Priority, TicketStatus, Urgency, _BaseIntEnum
 
@@ -41,7 +41,10 @@ class CleanTicketDTO(BaseModel):
     """Validated domain ticket object."""
 
     id: int = Field(..., description="Ticket identifier")
-    name: str = Field("", description="Short summary")
+    name: str | None = Field(
+        None,
+        description="Short summary",
+    )
     content: str | None = Field(None, description="Detailed description")
     status: TicketStatus = Field(TicketStatus.UNKNOWN, description="Status")
     priority: Priority = Field(Priority.UNKNOWN, description="Priority")
@@ -51,6 +54,16 @@ class CleanTicketDTO(BaseModel):
     date_creation: datetime | None = Field(None, description="Creation timestamp")
 
     model_config = ConfigDict(extra="forbid")
+
+    @model_validator(mode="before")
+    @classmethod
+    def _set_name(cls, data: dict[str, Any]) -> dict[str, Any]:
+        name = data.get("name")
+        if name in (None, ""):
+            data["name"] = "[Título não informado]"
+        else:
+            data["name"] = str(name)
+        return data
 
 
 E = TypeVar("E", bound="_BaseIntEnum")
@@ -100,8 +113,8 @@ def convert_ticket(raw: RawTicketDTO) -> CleanTicketDTO:
     ticket_id = raw.id
     id_int = _parse_int(ticket_id, "id", ticket_id)
 
-    name = raw.name or ""
-    if raw.name is None:
+    name = raw.name
+    if raw.name in (None, ""):
         logger.warning("Missing name for ticket %r", ticket_id)
     elif not isinstance(raw.name, str):
         logger.warning("Invalid name=%r for ticket %r", raw.name, ticket_id)

@@ -87,7 +87,6 @@ class CleanTicketDTO(BaseModel):
             return "Unknown"
 
         return STATUS_MAP.get(int(v), "Unknown")
-
     @field_validator("priority", mode="before")
     @classmethod
     def _validate_priority(

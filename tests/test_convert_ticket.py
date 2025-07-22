@@ -59,3 +59,13 @@ def test_convert_ticket_invalid_status_fallback(
     assert any(
         "Unknown TicketStatus value: 99" in rec.getMessage() for rec in caplog.records
     )
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize("raw_name", [None, ""])
+def test_convert_ticket_missing_name(raw_name: str | None) -> None:
+    raw = RawTicketDTO(id=1, name=raw_name)
+
+    ticket = convert_ticket(raw)
+
+    assert ticket.name == "[Título não informado]"
