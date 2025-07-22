@@ -35,7 +35,7 @@ import type { ChamadoPorData } from '../types/chamado'
  * }
  */
 export function useChamadosPorData() {
-  const query = useApiQuery<ChamadoPorData[], Error>(
+  return useApiQuery<ChamadoPorData[], Error>(
     ['chamados-por-data'],
     '/chamados/por-data',
     {
@@ -45,11 +45,4 @@ export function useChamadosPorData() {
       // refetchInterval: 30000, // descomente para polling a cada 30s
     },
   )
-
-  return {
-    data: query.data ?? [],
-    error: query.error as Error | null,
-    isLoading: query.isLoading,
-    isError: query.isError,
-  }
 }

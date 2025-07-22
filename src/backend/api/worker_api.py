@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import datetime
 import logging
 from contextlib import asynccontextmanager
 from datetime import datetime
@@ -57,11 +58,11 @@ class Ticket:
     """GraphQL type for a GLPI ticket."""
 
     id: int
-    name: str
     status: str
-    assigned_to: str
     group: str
-    date_creation: Optional[datetime]
+    assigned_to: str
+    name: str
+    date_creation: Optional[datetime.datetime]
 
 
 @strawberry.type
@@ -149,12 +150,10 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
 
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=[
-            "https://trusted-domain.com",  # Add your trusted domains here
-            # "https://another-trusted.com",
-        ],
+        allow_origin_regex=".*",  # Allow all origins for development
         allow_methods=["*"],
         allow_headers=["*"],
+        allow_credentials=True,
     )
 
     @app.get("/tickets", response_model=list[CleanTicketDTO])

@@ -3,12 +3,10 @@ export async function fetcher<T>(
   init: RequestInit = {},
   opts: { timeoutMs?: number; baseUrl?: string } = {}
 ): Promise<T> {
-  let metaEnv: Record<string, string | undefined> | undefined
-  try {
-    metaEnv = (0, eval)('import.meta.env')
-  } catch {
-    metaEnv = undefined
-  }
+  const metaEnv: Record<string, string | undefined> | undefined =
+    typeof import.meta !== 'undefined' && import.meta.env
+      ? import.meta.env
+      : undefined;
   const base =
     opts.baseUrl ??
     metaEnv?.NEXT_PUBLIC_API_BASE_URL ??
