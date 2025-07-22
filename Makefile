@@ -1,66 +1,54 @@
-# Makefile
+# Define o shell a ser usado e os comandos para ativar os ambientes.
+# Isso garante que os comandos funcionem mesmo que o ambiente não esteja ativo no terminal do usuário.
+SHELL := /bin/bash
+VENV_ACTIVATE = source .venv/bin/activate &&
+MISE_EXEC = mise exec --
+FRONTEND_DIR = src/frontend/react_app
 
-VENV=.venv
-PYTHON=$(VENV)/bin/python
-PIP=$(VENV)/bin/pip
+.PHONY: help setup dev dev-backend dev-frontend test test-backend test-frontend lint gen-types
 
-setup:
-	bash scripts/setup/setup_env.sh
+help:
+	@echo "Available commands:"
+	@echo "  setup         - Set up the development environment from scratch."
+	@echo "  dev           - Run backend and frontend development servers concurrently."
+	@echo "  dev-backend   - Run the backend development server with auto-reload."
+	@echo "  dev-frontend  - Run the frontend development server with auto-reload."
+	@echo "  test          - Run all tests (backend and frontend)."
+	@echo "  test-backend  - Run backend tests with pytest."
+	@echo "  test-frontend - Run frontend tests with npm."
+	@echo "  lint          - Run all linters and formatters with pre-commit."
+	@echo "  gen-types     - Generate TypeScript types from Pydantic models."
 
-diagnose:
-	bash scripts/diagnostics/run_codex_diagnose.sh
+setup: ## Set up the development environment
+	sudo ./scripts/setup/setup_env.sh
 
-refactor-init:
-	bash scripts/refactor/init_refactor.sh
+dev: ## Run both backend and frontend servers
+	@echo "Starting backend and frontend dev servers..."
+	@make dev-backend & make dev-frontend
 
-build:
-	docker compose build
+dev-backend: ## Run the backend development server
+	@echo "🐍 Starting backend server on http://localhost:8000"
+	$(VENV_ACTIVATE) uvicorn backend.api.worker_api:app --host 0.0.0.0 --port 8000 --reload
 
-up:
-	docker compose up
+dev-frontend: ## Run the frontend development server
+	@echo "⚛️  Starting frontend server on http://localhost:5173"
+	cd $(FRONTEND_DIR) && $(MISE_EXEC) npm run dev
 
-reset:
-	docker compose down -v && docker compose up --build
+test: ## Run all tests
+	@make test-backend && make test-frontend
 
-logs:
-	docker compose logs -f
+test-backend: ## Run backend tests
+	@echo "🐍 Running backend tests..."
+	$(VENV_ACTIVATE) pytest
 
-down:
-	docker compose down
+test-frontend: ## Run frontend tests
+	@echo "⚛️  Running frontend tests..."
+	cd $(FRONTEND_DIR) && $(MISE_EXEC) npm test
 
-init-db: | $(PYTHON)
-	$(PYTHON) scripts/setup/init_db.py
+lint: ## Run all linters
+	@echo "Linting all files with pre-commit..."
+	$(VENV_ACTIVATE) pre-commit run --all-files
 
-# Running `make test` will bootstrap the virtualenv if `.venv/bin/pip` is missing
-test: | $(PIP)
-	$(PIP) install --break-system-packages -r requirements.txt -r requirements-dev.txt
-	$(PIP) install -e .
-	PYTHONPATH=src $(VENV)/bin/pytest
-
-$(PIP):
-	$(MAKE) setup
-
-lint:
-	flake8 .
-	black --check .
-	isort --check-only .
-	ruff check .
-
-format:
-	black .
-	isort .
-	ruff check --fix .
-
-bug-prompt:
-	$(PYTHON) scripts/generate_bug_prompt.py --output bug_prompt.md
-
-gen-types:
-    PYTHONPATH=src pydantic2ts --module backend.models.ts_models --output src/frontend/react_app/src/types/api.ts
-
-lint-config:
-	bash scripts/lint-configs.sh
-
-lint-docker:
-	bash scripts/lint-docker.sh
-
-.PHONY: setup build up reset logs down init-db test lint format bug-prompt gen-types lint-config lint-docker
+gen-types: ## Generate TypeScript types from Pydantic models
+	@echo "🔄 Generating TypeScript types from Pydantic models..."
+	$(VENV_ACTIVATE) pydantic-to-typescript --input src/backend/models/ts_models.py --output $(FRONTEND_DIR)/src/types/api.ts
