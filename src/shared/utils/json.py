@@ -9,6 +9,7 @@ class UTF8JSONResponse(ORJSONResponse):
     Content-Type header, using the high-performance orjson library.
     """
 
-    def __init__(self, content: Any, **kwargs: Any):
+    def __init__(self, content: Any, status_code: int = 200, **kwargs: Any) -> None:
+        """Initialize response with default UTF-8 JSON media type."""
         kwargs.setdefault("media_type", "application/json; charset=utf-8")
-        super().__init__(content, **kwargs)
+        super().__init__(content, status_code=status_code, **kwargs)
