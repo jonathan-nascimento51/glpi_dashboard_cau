@@ -71,8 +71,9 @@ async def load_and_translate_tickets(
     validated_tickets: List[CleanTicketDTO] = []
     validation_errors = 0
     for i, r in enumerate(records):
-        r["priority"] = r.get("priority")
-        r["date_creation"] = r.get("date_creation")
+        # Ensure keys exist if required for downstream processing
+        # r["priority"] = r.get("priority")
+        # r["date_creation"] = r.get("date_creation")
         try:
             validated_tickets.append(CleanTicketDTO.model_validate(r))
         except Exception as exc:
