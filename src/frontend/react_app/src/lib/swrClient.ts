@@ -3,7 +3,15 @@ export async function fetcher<T>(
   init: RequestInit = {},
   opts: { timeoutMs?: number; baseUrl?: string } = {}
 ): Promise<T> {
-  const base = opts.baseUrl ?? import.meta.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
+  const metaEnv: Record<string, string | undefined> | undefined =
+    typeof import.meta !== 'undefined' && import.meta.env
+      ? import.meta.env
+      : undefined;
+  const base =
+    opts.baseUrl ??
+    metaEnv?.NEXT_PUBLIC_API_BASE_URL ??
+    process.env.NEXT_PUBLIC_API_BASE_URL ??
+    'http://localhost:8000'
 
   const controller = new AbortController();
   const timeout = setTimeout(
