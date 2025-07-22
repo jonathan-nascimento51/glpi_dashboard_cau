@@ -20,7 +20,7 @@ The worker relies on `paginate_items()` inside `src/backend/utils/pagination.py`
 Incorrect filters in the `criteria` parameter can hide tickets. Review query parameters built in the backend before they reach GLPI. Use server-side filtering when possible to reduce payloads.
 
 ## 5. Review Backend Logs
-Run `docker compose up --build -d` and follow logs with `docker compose logs -f backend-1`. Look for:
+Run `docker compose up --build -d` and follow logs with `docker compose logs -f <service-name>`. Replace `<service-name>` with the actual name of the backend service as defined in your `docker-compose.yml` file. Look for:
 - "GLPI session initiated successfully"
 - Multiple GET requests with varying `range` values
 - "Loaded X entries" from `MappingService`
