@@ -720,6 +720,39 @@ class GLPISession:
             "DELETE", endpoint, headers=headers, return_headers=return_headers
         )
 
+    async def _paginate_search(
+        self, endpoint: str, params: Dict[str, Any], page_size: int
+    ) -> List[Dict[str, Any]]:
+        """Return all pages of ``endpoint`` using ``page_size`` chunks."""
+
+        results: List[Dict[str, Any]] = []
+        offset = 0
+        while True:
+            page_params: Dict[str, Any] = {
+                **params,
+                "range": f"{offset}-{offset + page_size - 1}",
+            }
+
+            data: Union[Dict[str, Any], List[Any]] = await self.get(
+                endpoint, params=page_params
+            )
+
+            items: Any = data.get("data", data) if isinstance(data, dict) else data
+            if isinstance(items, dict):
+                items = [items]
+
+            if not items:
+                break
+
+            results.extend(items)
+
+            if len(items) < page_size:
+                break
+
+            offset += page_size
+
+        return results
+
     async def get_all(self, itemtype: str, **params: Any) -> List[Dict[str, Any]]:
         """Retrieve all items for a given GLPI type using pagination."""
 
@@ -727,26 +760,7 @@ class GLPISession:
 
         params = {**params, "expand_dropdowns": 1}
         endpoint = itemtype if itemtype.startswith("search/") else f"search/{itemtype}"
-        results: List[Dict[str, Any]] = []
-        offset = 0
-        while True:
-            page_params: Dict[str, Any] = {
-                **params,
-                "range": f"{offset}-{offset + FETCH_PAGE_SIZE - 1}",
-            }
-            # The 'get' method returns 'Any'. We annotate 'data' with a more specific
-            # type to help the type checker understand its structure.
-            data: Union[Dict[str, Any], List[Any]] = await self.get(
-                endpoint, params=page_params
-            )
-            page: Any = data.get("data", data) if isinstance(data, dict) else data
-            if isinstance(page, dict):
-                page = [page]
-            results.extend(page)
-            if len(page) < FETCH_PAGE_SIZE:
-                break
-            offset += FETCH_PAGE_SIZE
-        return results
+        return await self._paginate_search(endpoint, params, FETCH_PAGE_SIZE)
 
     # ------------------------------------------------------------------
     # Convenience helpers matching the deprecated clients
@@ -769,37 +783,8 @@ class GLPISession:
         """Return all items for ``itemtype`` using a resilient page loop."""
         base_params: Dict[str, Any] = {**params, "expand_dropdowns": 1}
         endpoint = itemtype if itemtype.startswith("search/") else f"search/{itemtype}"
-        results: List[Dict[str, Any]] = []
-        offset = 0
-
-        while True:
-            page_params: Dict[str, Any] = {
-                **base_params,
-                "range": f"{offset}-{offset + page_size - 1}",
-            }
-            # The get method returns the JSON body directly
-            data: Union[Dict[str, Any], List[Any]] = await self.get(
-                endpoint, params=page_params
-            )
-
-            # Handle inconsistent API responses (dict vs list)
-            page_items: Union[List[Any], Dict[str, Any]] = (
-                data.get("data", data) if isinstance(data, dict) else data
-            )
-
-            # Ensure page_items is always a list
-            if isinstance(page_items, dict):
-                page_items = [page_items]
-
-            if not page_items:  # Stop if the page is empty
-                break
-
-            results.extend(page_items)
-
-            if len(page_items) < page_size:  # Stop if we received less than a full page
-                break
-
-        return results
+        return await self._paginate_search(endpoint, base_params, page_size)
+        # Note: Pagination logic, including offset increment, is handled within _paginate_search.
 
     async def query_graphql(
         self, query: str, variables: Optional[Dict[str, Any]] = None
