@@ -66,7 +66,7 @@ class CleanTicketDTO(BaseModel):
     def _sanitize_title(cls, data: Dict[str, Any]) -> Dict[str, Any]:
         title = data.get("name")
         if title in (None, ""):
-            data["name"] = "[Título não informado]"
+            data["name"] = DEFAULT_TITLE
         else:
             data["name"] = str(title)
         return data
