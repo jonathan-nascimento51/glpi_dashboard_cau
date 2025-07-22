@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Dict, Optional
+from typing import TYPE_CHECKING, Any, Dict, Optional, Union
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -37,8 +37,8 @@ class RawTicketFromAPI(BaseModel):
     """Shape of a ticket as returned by the GLPI REST API."""
 
     id: int
-    name: str
-    status: int
+    name: Optional[str] = Field(default=None)
+    status: Union[int, str]
     priority: Optional[int] = Field(default=None)
     date_creation: Optional[datetime] = Field(default=None)
     users_id_assign: Optional[int] = Field(None, alias="users_id_assign")
@@ -66,7 +66,7 @@ class CleanTicketDTO(BaseModel):
     def _sanitize_title(cls, data: Dict[str, Any]) -> Dict[str, Any]:
         title = data.get("name")
         if title in (None, ""):
-            data["name"] = "[Título não informado]"
+            data["name"] = DEFAULT_TITLE
         else:
             data["name"] = str(title)
         return data

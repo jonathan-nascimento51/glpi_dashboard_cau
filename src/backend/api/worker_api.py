@@ -147,7 +147,10 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
 
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],  # or restrict as needed
+        allow_origins=[
+            "https://trusted-domain.com",  # Add your trusted domains here
+            # "https://another-trusted.com",
+        ],
         allow_methods=["*"],
         allow_headers=["*"],
     )
@@ -244,6 +247,16 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
                 return PlainTextResponse(fh.read())
         except FileNotFoundError:
             raise HTTPException(status_code=404, detail="knowledge base not found")
+        except PermissionError as e:
+            raise HTTPException(
+                status_code=403,
+                detail=f"Permission denied when reading knowledge base file: {str(e)}",
+            )
+        except OSError as e:
+            raise HTTPException(
+                status_code=500,
+                detail=f"Could not read knowledge base file: {str(e)}",
+            )
 
     @app.get("/health")
     async def health_glpi() -> UTF8JSONResponse:  # noqa: F401
