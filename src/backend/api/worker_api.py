@@ -97,21 +97,30 @@ class TicketSummaryOut(BaseModel):
     opened_at: str
 
 
+async def _load_and_cache_df(info: Info) -> pd.DataFrame:
+    """
+    Helper to load the tickets DataFrame and cache it in the request context
+    to avoid redundant loads within the same GraphQL query.
+    """
+    if "tickets_df" not in info.context:
+        df = await load_tickets(
+            client=info.context.get("client"), cache=info.context.get("cache")
+        )
+        info.context["tickets_df"] = df
+    return info.context["tickets_df"]
+
+
 @strawberry.type
 class Query:
     @strawberry.field
     async def tickets(self, info: Info) -> List[Ticket]:  # pragma: no cover
-        df = await load_tickets(
-            client=info.context.get("client"), cache=info.context.get("cache")
-        )
+        df = await _load_and_cache_df(info)
         records = df.astype(object).where(pd.notna(df), None).to_dict("records")
         return [Ticket(**{str(k): v for k, v in r.items()}) for r in records]
 
     @strawberry.field
     async def metrics(self, info: Info) -> Metrics:
-        df = await load_tickets(
-            client=info.context.get("client"), cache=info.context.get("cache")
-        )
+        df = await _load_and_cache_df(info)
         total = len(df)
         closed = 0
         if "status" in df:

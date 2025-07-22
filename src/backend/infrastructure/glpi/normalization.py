@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import contextlib
 from typing import List, Union
 
 import pandas as pd
@@ -45,11 +46,8 @@ def process_raw(data: TicketData) -> pd.DataFrame:
     df = _ensure_dataframe(data)
 
     for col in df.columns:
-        try:
+        with contextlib.suppress(ValueError, TypeError):
             df[col] = pd.to_numeric(df[col], downcast="integer")
-        except (ValueError, TypeError):
-            pass
-
     for src, dst in FIELD_ALIASES.items():
         if src in df.columns and dst not in df.columns:
             df.rename(columns={src: dst}, inplace=True)
