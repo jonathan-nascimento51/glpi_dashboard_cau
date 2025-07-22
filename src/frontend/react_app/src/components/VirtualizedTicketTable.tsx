@@ -20,7 +20,7 @@ const priorityClasses: Record<string, string> = {
 }
 
 const formatDate = (value?: string | Date | null) => {
-  if (!value) return ''
+  if (!value) return '-'
   try {
     return new Intl.DateTimeFormat('pt-BR', {
       dateStyle: 'short',
@@ -73,7 +73,7 @@ const Row = memo(({ index, style, data }: ListChildComponentProps<RowData>) => {
       <div role="cell" className="truncate" title={row.name}>{row.name}</div>
       <div role="cell">{row.status}</div>
       <div role="cell" className={priorityClasses[row.priority ?? '']}>
-        {row.priority}
+        {row.priority ?? '-'}
       </div>
       <div role="cell">{formatDate(row.date_creation) as ReactNode}</div>
     </div>
@@ -172,7 +172,7 @@ export function VirtualizedTicketTable({
               <div role="cell" className="truncate" title={row.name}>{row.name}</div>
               <div role="cell">{row.status}</div>
               <div role="cell" className={priorityClasses[row.priority ?? '']}>
-                {row.priority}
+                {row.priority ?? '-'}
               </div>
               <div role="cell">{formatDate(row.date_creation) as ReactNode}</div>
             </div>

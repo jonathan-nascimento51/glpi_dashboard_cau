@@ -22,4 +22,17 @@ describe('TicketTable formatting', () => {
     }).format(ticket.date_creation as Date)
     expect(screen.getByText(formatted)).toBeInTheDocument()
   })
+
+  it('renders placeholders for missing priority and date', () => {
+    const missing: Ticket = {
+      id: 2,
+      name: 'Sem prioridade',
+      status: 'New',
+      date_creation: null,
+    }
+    render(<TicketTable tickets={[missing]} />)
+    const cells = screen.getAllByRole('cell')
+    expect(cells[3]).toHaveTextContent('-')
+    expect(cells[4]).toHaveTextContent('-')
+  })
 })
