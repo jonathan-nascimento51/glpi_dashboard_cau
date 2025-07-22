@@ -49,7 +49,7 @@ def test_clean_ticket_dto_missing_required_field():
 
     ticket = CleanTicketDTO.model_validate(data)
 
-    assert ticket.title == ""
+    assert ticket.title == "[Título não informado]"
 
 
 @pytest.mark.unit

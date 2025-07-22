@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, Dict, Optional
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 if TYPE_CHECKING:  # Avoid runtime import cycle
     from backend.adapters.mapping_service import MappingService
@@ -47,7 +47,10 @@ class CleanTicketDTO(BaseModel):
     """Normalized ticket used internally by the application."""
 
     id: int
-    title: str = Field("", alias="name")
+    title: Optional[str] = Field(
+        default=None,
+        alias="name",
+    )
     status: str
     priority: Optional[str] = Field(default=None)
     created_at: Optional[datetime] = Field(default=None, alias="date_creation")
@@ -55,11 +58,15 @@ class CleanTicketDTO(BaseModel):
 
     model_config = ConfigDict(populate_by_name=True)
 
-    @field_validator("title", mode="before")
+    @model_validator(mode="before")
     @classmethod
-    def _sanitize_title(cls, v: Any) -> str:
-        """Ensure title is a non-null string."""
-        return "" if v is None else str(v)
+    def _sanitize_title(cls, data: Dict[str, Any]) -> Dict[str, Any]:
+        title = data.get("name")
+        if title in (None, ""):
+            data["name"] = "[Título não informado]"
+        else:
+            data["name"] = str(title)
+        return data
 
     @field_validator("status", mode="before")
     @classmethod
