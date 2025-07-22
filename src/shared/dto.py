@@ -49,8 +49,8 @@ class CleanTicketDTO(BaseModel):
     id: int
     title: str = Field(..., alias="name")
     status: str
-    priority: Optional[str] = None
-    created_at: Optional[datetime] = Field(None, alias="date_creation")
+    priority: Optional[str] = Field(default=None)
+    created_at: Optional[datetime] = Field(default=None, alias="date_creation")
     assigned_to: str = "Unassigned"
 
     model_config = ConfigDict(populate_by_name=True)
