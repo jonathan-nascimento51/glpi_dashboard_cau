@@ -26,8 +26,9 @@ const formatDate = (value?: string | Date | null) => {
       dateStyle: 'short',
       timeStyle: 'short',
     }).format(new Date(value))
-  } catch {
-    return String(value)
+  } catch (error) {
+    console.error('Error formatting date:', error, 'Input value:', value)
+    return '-'
   }
 }
 
