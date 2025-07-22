@@ -47,8 +47,9 @@ def test_clean_ticket_dto_missing_required_field():
         "date_creation": "2024-01-01T12:00:00",
     }
 
-    with pytest.raises(ValidationError):
-        CleanTicketDTO.model_validate(data)
+    ticket = CleanTicketDTO.model_validate(data)
+
+    assert ticket.title == ""
 
 
 @pytest.mark.unit

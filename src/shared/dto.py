@@ -47,13 +47,19 @@ class CleanTicketDTO(BaseModel):
     """Normalized ticket used internally by the application."""
 
     id: int
-    title: str = Field(..., alias="name")
+    title: str = Field("", alias="name")
     status: str
     priority: Optional[str] = Field(default=None)
     created_at: Optional[datetime] = Field(default=None, alias="date_creation")
     assigned_to: str = "Unassigned"
 
     model_config = ConfigDict(populate_by_name=True)
+
+    @field_validator("title", mode="before")
+    @classmethod
+    def _sanitize_title(cls, v: Any) -> str:
+        """Ensure title is a non-null string."""
+        return "" if v is None else str(v)
 
     @field_validator("status", mode="before")
     @classmethod
@@ -67,7 +73,7 @@ class CleanTicketDTO(BaseModel):
     ) -> Optional[str]:  # pragma: no cover - simple mapping
         if v is None:
             return None
-        
+
         return PRIORITY_MAP.get(v, "Unknown")
 
 
