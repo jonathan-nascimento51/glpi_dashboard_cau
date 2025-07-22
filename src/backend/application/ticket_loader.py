@@ -61,11 +61,19 @@ async def load_and_translate_tickets(
 ) -> List[CleanTicketDTO]:
     """Return tickets translated using :class:`GlpiApiClient`."""
     df = await load_tickets(client=client, cache=cache, response=response)
-    records = df.astype(object).where(pd.notna(df), None).to_dict(orient="records")
+    records = (
+        df.astype(object)
+        .where(pd.notna(df), None)
+        .replace({"": None})
+        .to_dict(orient="records")
+    )
 
     validated_tickets: List[CleanTicketDTO] = []
     validation_errors = 0
     for i, r in enumerate(records):
+        # Ensure keys exist if required for downstream processing
+        # r["priority"] = r.get("priority")
+        # r["date_creation"] = r.get("date_creation")
         try:
             validated_tickets.append(CleanTicketDTO.model_validate(r))
         except Exception as exc:
