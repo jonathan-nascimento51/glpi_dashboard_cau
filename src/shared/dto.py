@@ -67,6 +67,7 @@ class CleanTicketDTO(BaseModel):
     ) -> Optional[str]:  # pragma: no cover - simple mapping
         if v is None:
             return None
+        
         return PRIORITY_MAP.get(v, "Unknown")
 
 
