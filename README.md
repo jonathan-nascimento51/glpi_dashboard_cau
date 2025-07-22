@@ -410,6 +410,8 @@ estão disponíveis em
 [docs/troubleshooting_400_bad_request.md](docs/troubleshooting_400_bad_request.md).
 Detalhes completos do endpoint `initSession` encontram-se em
 [docs/init_session_api.md](docs/init_session_api.md).
+Siga o passo a passo em [docs/fix_no_tickets.md](docs/fix_no_tickets.md) caso o
+dashboard exiba "Nenhum chamado encontrado" mesmo com dados disponíveis.
 
 ## Running the Worker API
 
