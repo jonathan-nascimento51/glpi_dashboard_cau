@@ -82,12 +82,21 @@ setup_system_dependencies() {
     npm config set https-proxy "${HTTPS_PROXY:-$HTTP_PROXY}"
   fi
 
+  # Determina o pacote ALSA correto para a distribuição
+  local alsa_package="libasound2"
+  if apt-cache show libasound2t64 >/dev/null 2>&1; then
+    info "Distribuição usa 'libasound2t64'."
+    alsa_package="libasound2t64"
+  else
+    info "Distribuição usa 'libasound2'."
+  fi
+
   info "(2/7) Instalando dependências do sistema para o Playwright..."
   sudo apt-get update -y
   sudo apt-get install -y --no-install-recommends \
       curl ca-certificates libnss3 libnspr4 libatk1.0-0 libatk-bridge2.0-0 libcups2 \
       libdbus-1-3 libxkbcommon0 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 \
-      libgbm1 libpango-1.0-0 libcairo2 libasound2t64 libatspi2.0-0 libgtk-3-0 \
+      libgbm1 libpango-1.0-0 libcairo2 "${alsa_package}" libatspi2.0-0 libgtk-3-0 \
       libx11-xcb1 libxshmfence1 xvfb fonts-liberation libxslt1.1 libwoff1 \
       libharfbuzz-icu0 libwebpdemux2 libenchant-2-2 libsecret-1-0 \
       libhyphen0 libgles2 libgstreamer1.0-0 gstreamer1.0-plugins-base \
@@ -114,6 +123,8 @@ setup_mise() {
 
 setup_python_env() {
   info "(4/7) Configurando ambiente Python..."
+  eval "$(mise activate bash)" # Garante que o python do mise está no PATH
+
   local venv_dir=".venv"
   if [ ! -d "$venv_dir" ]; then
     info "Criando ambiente virtual em $venv_dir..."
@@ -140,6 +151,8 @@ setup_python_env() {
 
 setup_node_env() {
     info "(5/7) Instalando dependências do frontend..."
+    eval "$(mise activate bash)" # Garante que o node/npm do mise está no PATH
+
     local frontend_dir="src/frontend/react_app"
     local node_modules_dir="$frontend_dir/node_modules"
 
@@ -147,7 +160,7 @@ setup_node_env() {
     if [ -d "$node_modules_dir" ]; then
       if [ "$(stat -c '%U' "$node_modules_dir")" = "root" ]; then
         warn "O diretório node_modules pertence ao root. Corrigindo permissões..."
-        sudo chown -R "$(whoami)":"$(whoami)" "$frontend_dir"
+        sudo chown -R "${SUDO_USER:-$(whoami)}":"$(id -g "${SUDO_USER:-$(whoami)}")" "$frontend_dir"
       fi
     fi
 

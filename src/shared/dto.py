@@ -32,6 +32,9 @@ PRIORITY_MAP = {
     6: "Major",
 }
 
+# Fallback title assigned when a ticket comes with an empty or null name
+DEFAULT_TITLE = "Untitled ticket"
+
 
 class RawTicketFromAPI(BaseModel):
     """Shape of a ticket as returned by the GLPI REST API."""
@@ -65,10 +68,7 @@ class CleanTicketDTO(BaseModel):
     @classmethod
     def _sanitize_title(cls, data: Dict[str, Any]) -> Dict[str, Any]:
         title = data.get("name")
-        if title in (None, ""):
-            data["name"] = DEFAULT_TITLE
-        else:
-            data["name"] = str(title)
+        data["name"] = DEFAULT_TITLE if title in (None, "") else str(title)
         return data
 
     @field_validator("status", mode="before")
@@ -87,15 +87,13 @@ class CleanTicketDTO(BaseModel):
             return "Unknown"
 
         return STATUS_MAP.get(int(v), "Unknown")
+
     @field_validator("priority", mode="before")
     @classmethod
     def _validate_priority(
         cls, v: Optional[int]
     ) -> Optional[str]:  # pragma: no cover - simple mapping
-        if v is None:
-            return None
-
-        return PRIORITY_MAP.get(v, "Unknown")
+        return None if v is None else PRIORITY_MAP.get(v, "Unknown")
 
 
 class TicketTranslator:

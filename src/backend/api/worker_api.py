@@ -147,10 +147,7 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
 
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=[
-            "https://trusted-domain.com",  # Add your trusted domains here
-            # "https://another-trusted.com",
-        ],
+        allow_origins=["*"],  # Allow all origins for development
         allow_methods=["*"],
         allow_headers=["*"],
     )
