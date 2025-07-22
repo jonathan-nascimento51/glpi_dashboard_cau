@@ -7,7 +7,8 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
 )
 
 beforeEach(() => {
-  ;(import.meta as any).env = { NEXT_PUBLIC_API_BASE_URL: 'http://localhost' }
+  const mockImportMetaEnv: ImportMetaEnv = { NEXT_PUBLIC_API_BASE_URL: 'http://localhost' };
+  Object.defineProperty(import.meta, 'env', { value: mockImportMetaEnv, writable: true });
 })
 
 test('renders ticket rows with null fields', async () => {
