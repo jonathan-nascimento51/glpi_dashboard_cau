@@ -49,3 +49,17 @@ def test_clean_ticket_dto_missing_required_field():
 
     with pytest.raises(ValidationError):
         CleanTicketDTO.model_validate(data)
+
+
+@pytest.mark.unit
+def test_clean_ticket_dto_missing_optional_fields():
+    data = {
+        "id": 2,
+        "name": "Network issue",
+        "status": 1,
+    }
+
+    ticket = CleanTicketDTO.model_validate(data)
+
+    assert ticket.priority is None
+    assert ticket.created_at is None

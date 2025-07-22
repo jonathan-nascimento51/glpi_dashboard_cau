@@ -36,8 +36,8 @@ class RawTicketFromAPI(BaseModel):
     id: int
     name: str
     status: int
-    priority: int
-    date_creation: datetime
+    priority: Optional[int] = None
+    date_creation: Optional[datetime] = None
     users_id_assign: Optional[int] = Field(None, alias="users_id_assign")
 
     model_config = ConfigDict(populate_by_name=True)
@@ -49,8 +49,8 @@ class CleanTicketDTO(BaseModel):
     id: int
     title: str = Field(..., alias="name")
     status: str
-    priority: str
-    created_at: datetime = Field(..., alias="date_creation")
+    priority: Optional[str] = None
+    created_at: Optional[datetime] = Field(None, alias="date_creation")
     assigned_to: str = "Unassigned"
 
     model_config = ConfigDict(populate_by_name=True)
@@ -62,7 +62,11 @@ class CleanTicketDTO(BaseModel):
 
     @field_validator("priority", mode="before")
     @classmethod
-    def _validate_priority(cls, v: int) -> str:  # pragma: no cover - simple mapping
+    def _validate_priority(
+        cls, v: Optional[int]
+    ) -> Optional[str]:  # pragma: no cover - simple mapping
+        if v is None:
+            return None
         return PRIORITY_MAP.get(v, "Unknown")
 
 
