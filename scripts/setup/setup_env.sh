@@ -107,7 +107,16 @@ setup_mise() {
   info "(3/7) Instalando versões de ferramentas com mise..."
   if ! command -v mise >/dev/null 2>&1; then
     warn "Comando 'mise' não encontrado. Instalando..."
-    sudo -u "${SUDO_USER:-$(whoami)}" sh -c 'curl https://mise.run | sh'
+    local mise_script="/tmp/mise_install.sh"
+    info "Baixando o script de instalação do mise..."
+    sudo -u "${SUDO_USER:-$(whoami)}" curl -fsSL -o "$mise_script" https://mise.run
+    if [ ! -f "$mise_script" ]; then
+        error "Falha ao baixar o script de instalação do mise."
+        exit 1
+    fi
+    info "Executando o script de instalação do mise..."
+    sudo -u "${SUDO_USER:-$(whoami)}" sh "$mise_script"
+    rm -f "$mise_script"
     # Adiciona o mise ao PATH da sessão atual para que possa ser encontrado
     export PATH="$HOME/.local/bin:$PATH"
   fi
