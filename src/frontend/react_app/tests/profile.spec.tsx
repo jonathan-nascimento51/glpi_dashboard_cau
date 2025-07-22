@@ -28,7 +28,12 @@ jest.mock('../src/hooks/useChamadosPorDia', () => ({
 }))
 
 jest.mock('../src/hooks/useTickets', () => ({
-  useTickets: () => ({ tickets: [], isLoading: false, error: null }),
+  useTickets: () => ({
+    tickets: [],
+    isLoading: false,
+    isSuccess: true,
+    error: null,
+  }),
 }))
 
 // JSDOM lacks ResizeObserver used by Recharts

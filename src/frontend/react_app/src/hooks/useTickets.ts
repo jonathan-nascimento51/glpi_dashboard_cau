@@ -28,6 +28,7 @@ export function useTickets() {
     tickets,
     error: query.error,
     isLoading: query.isLoading,
+    isSuccess: query.isSuccess,
     refreshTickets,
   }
 }

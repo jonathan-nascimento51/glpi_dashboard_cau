@@ -26,6 +26,7 @@ describe('TicketsDisplay Component', () => {
       tickets: undefined,
       error: undefined,
       isLoading: true,
+      isSuccess: false,
       refreshTickets: jest.fn(),
     })
 
@@ -41,6 +42,7 @@ describe('TicketsDisplay Component', () => {
       tickets: undefined,
       error: new Error('Falha na API'),
       isLoading: false,
+      isSuccess: false,
       refreshTickets: refreshSpy,
     })
 
@@ -59,6 +61,7 @@ describe('TicketsDisplay Component', () => {
       tickets: [],
       error: undefined,
       isLoading: false,
+      isSuccess: true,
       refreshTickets: refreshSpy,
     })
 
@@ -79,6 +82,7 @@ describe('TicketsDisplay Component', () => {
       tickets: mockTickets,
       error: undefined,
       isLoading: false,
+      isSuccess: true,
       refreshTickets: jest.fn(),
     })
 

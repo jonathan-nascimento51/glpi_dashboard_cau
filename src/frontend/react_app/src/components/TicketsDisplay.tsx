@@ -5,7 +5,7 @@ import { ErrorMessage } from './ErrorMessage'
 import { EmptyState } from './EmptyState'
 
 function TicketsDisplay() {
-  const { tickets, error, isLoading, refreshTickets } = useTickets()
+  const { tickets, error, isLoading, isSuccess, refreshTickets } = useTickets()
 
   if (isLoading) {
     return <LoadingSpinner />
@@ -21,7 +21,7 @@ function TicketsDisplay() {
     )
   }
 
-  if (!tickets || tickets.length === 0) {
+  if (isSuccess && (!tickets || tickets.length === 0)) {
     return <EmptyState
       title="Nenhum chamado encontrado"
       message="Não há chamados para exibir no momento."

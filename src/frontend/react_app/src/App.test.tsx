@@ -51,7 +51,12 @@ describe('App Integration', () => {
   })
 
   it('renders loading state initially', () => {
-    useTicketsMock.mockReturnValue({ tickets: [], isLoading: true, error: null })
+    useTicketsMock.mockReturnValue({
+      tickets: [],
+      isLoading: true,
+      isSuccess: false,
+      error: null,
+    })
     useChamadosPorDataMock.mockReturnValue({ data: [], isLoading: true })
     useChamadosPorDiaMock.mockReturnValue({ data: [], isLoading: true })
 
@@ -66,6 +71,7 @@ describe('App Integration', () => {
     useTicketsMock.mockReturnValue({
       tickets: mockTickets,
       isLoading: false,
+      isSuccess: true,
       error: null,
     })
     useChamadosPorDataMock.mockReturnValue({
@@ -92,7 +98,12 @@ describe('App Integration', () => {
   })
 
   it('renders error messages if data fetching fails', () => {
-    useTicketsMock.mockReturnValue({ tickets: [], isLoading: false, error: { message: 'Falha ao buscar tickets' } })
+    useTicketsMock.mockReturnValue({
+      tickets: [],
+      isLoading: false,
+      isSuccess: false,
+      error: { message: 'Falha ao buscar tickets' },
+    })
     useChamadosPorDataMock.mockReturnValue({ data: [], isLoading: false, isError: true })
     useChamadosPorDiaMock.mockReturnValue({ data: [], isLoading: false, error: true })
 
