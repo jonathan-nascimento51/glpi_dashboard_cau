@@ -142,7 +142,7 @@ setup_python_env() {
   fi
 
   info "Atualizando pip e instalando dependências Python..."
-  sudo -u "${SUDO_USER:-$(whoami)}" bash - <<'EOF'
+sudo -u "${SUDO_USER:-$(whoami)}" bash - <<EOF
 source ".venv/bin/activate"
 export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 pip install --upgrade pip
