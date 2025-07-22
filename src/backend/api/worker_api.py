@@ -147,12 +147,10 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
 
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=[
-            "https://trusted-domain.com",  # Add your trusted domains here
-            # "https://another-trusted.com",
-        ],
+        allow_origin_regex=".*",  # Allow all origins for development
         allow_methods=["*"],
         allow_headers=["*"],
+        allow_credentials=True,
     )
 
     @app.get("/tickets", response_model=list[CleanTicketDTO])
