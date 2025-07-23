@@ -10,7 +10,10 @@ const config: Config = {
     ],
   },
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
-  testMatch: ['<rootDir>/src/**/*.test.ts?(x)'],
+  testMatch: [
+    '<rootDir>/src/**/*.test.ts?(x)',
+    '<rootDir>/tests/**/*.test.ts?(x)',
+  ],
   moduleFileExtensions: ['ts', 'tsx', 'js'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
