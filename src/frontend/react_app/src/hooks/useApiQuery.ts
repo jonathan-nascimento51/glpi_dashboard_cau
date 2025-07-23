@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 
 interface ApiState<T> {
   data: T | null;
@@ -6,8 +6,6 @@ interface ApiState<T> {
   error: string | null;
 }
 
-const stableStringify = (value: unknown) =>
-  JSON.stringify(value, Object.keys(value as Record<string, unknown>).sort());
 
 export function useApiQuery<T>(
   endpoint: string,
@@ -18,7 +16,9 @@ export function useApiQuery<T>(
     isLoading: true,
     error: null,
   });
-  const stableOptions = options ? stableStringify(options) : '';
+  const fetchOptions = useMemo(() => ({
+    ...(options || {}),
+  }), [options]);
 
   useEffect(() => {
     if (!endpoint) {
@@ -43,7 +43,7 @@ export function useApiQuery<T>(
       try {
         const response = await fetch(`${baseUrl}${endpoint}`, {
           signal: controller.signal,
-          ...options,
+          ...fetchOptions,
         });
 
         if (!response.ok) {
@@ -78,7 +78,7 @@ export function useApiQuery<T>(
     fetchData();
 
     return () => controller.abort();
-  }, [endpoint, stableOptions]);
+  }, [endpoint, fetchOptions]);
 
   return state;
 }
