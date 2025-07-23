@@ -8,7 +8,34 @@ interface Props {
 }
 
 export function Pagination({ currentPage, totalPages, onPageChange, className = '' }: Props) {
-  const pages = Array.from({ length: totalPages }, (_, i) => i + 1)
+  const getTruncatedPages = (currentPage: number, totalPages: number) => {
+    const delta = 2; // Number of pages to show around the current page
+    const range = [];
+    const left = Math.max(1, currentPage - delta);
+    const right = Math.min(totalPages, currentPage + delta);
+
+    for (let i = left; i <= right; i++) {
+      range.push(i);
+    }
+
+    if (left > 2) {
+      range.unshift('...');
+      range.unshift(1);
+    } else if (left === 2) {
+      range.unshift(1);
+    }
+
+    if (right < totalPages - 1) {
+      range.push('...');
+      range.push(totalPages);
+    } else if (right === totalPages - 1) {
+      range.push(totalPages);
+    }
+
+    return range;
+  };
+
+  const pages = getTruncatedPages(currentPage, totalPages);
   const goto = (page: number) => () => {
     if (page < 1 || page > totalPages || page === currentPage) return
     onPageChange(page)
