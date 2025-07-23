@@ -18,7 +18,7 @@ function toTicket(dto: CleanTicketDTO): Ticket {
 
 export function useTickets() {
   const queryClient = useQueryClient()
-  const query = useApiQuery<CleanTicketDTO[], Error>(['tickets'], '/tickets')
+  const query = useApiQuery<CleanTicketDTO[], Error>('/tickets')
   const tickets = useMemo(() => query.data?.map(toTicket), [query.data])
 
   const refreshTickets = () =>
