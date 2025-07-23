@@ -18,7 +18,7 @@ services:
       dockerfile: src/frontend/react_app/Dockerfile
       target: dev  # Usa o estágio de desenvolvimento
     ports:
-      - "5173:5173"  # Porta padrão do Vite
+      - "5174:5174"  # Porta customizada do Vite
     environment:
       NEXT_PUBLIC_API_BASE_URL: http://localhost:8000/api
     volumes:

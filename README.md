@@ -57,9 +57,11 @@ still run the manual commands below if you need finer control:
 ```bash
 python -m pip install --upgrade pip
 pip install -r requirements.txt -r requirements-dev.txt  # generated via pip-compile
+# includes dev tools like pytest-cov used by the CI coverage step
 pip install -e .
 pre-commit install
 cd src/frontend/react_app && npm ci
+# installs Node dev dependencies such as dotenv for the React tests
 # remove any stale compiled JS that might shadow the TypeScript sources
 find src/frontend/react_app/src -name '*.js' -delete
 ```
@@ -769,6 +771,7 @@ need browser automation.
 The frontend image takes advantage of BuildKit caching to speed up subsequent `npm ci` runs. Ensure BuildKit is enabled by setting `DOCKER_BUILDKIT=1`.
 
 This exposes the worker API on port `8000` and the dashboard on port `5174`.
+Open `http://localhost:5174` in your browser once the containers are ready.
 
 ## Configuration Management
 
@@ -853,7 +856,8 @@ flake8 .
 
 Node-based tests and linting require local packages as well. Navigate to
 `src/frontend/react_app` and run `npm ci` before executing `npm test` or
-`npm run lint`.
+`npm run lint`. This installs dev dependencies like `dotenv` used by the Jest
+suite.
 
 ### Bug prompt generation
 
