@@ -17,6 +17,10 @@ export function useDashboardData() {
   const query = useApiQuery<Aggregated, Error>(
     ['metrics-aggregated'],
     '/metrics/aggregated',
+    {
+      // Automatically refetch metrics every 30 seconds
+      refetchInterval: 30000,
+    },
   )
 
   const metrics: Metrics = {
@@ -71,14 +75,6 @@ export function useDashboardData() {
     return () => trendChart.current?.destroy()
   }, [])
 
-  useEffect(() => {
-    const id = setInterval(() => {
-      queryClient
-        .invalidateQueries({ queryKey: ['metrics-aggregated'] })
-        .catch(() => undefined)
-    }, 30000)
-    return () => clearInterval(id)
-  }, [queryClient])
 
   const refreshMetrics = () =>
     queryClient.invalidateQueries({ queryKey: ['metrics-aggregated'] })
