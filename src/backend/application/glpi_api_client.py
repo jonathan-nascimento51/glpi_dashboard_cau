@@ -7,11 +7,9 @@ from backend.infrastructure.glpi.glpi_session import GLPISession
 from backend.utils import paginate_items
 from shared.dto import CleanTicketDTO, TicketTranslator
 
-# Define the fields to be forcibly displayed in the GLPI API response.
-# These typically correspond to:
-# 1: ID, 2: Title/Name, 4: Requester, 12: Status, 15: Priority,
-# 21: Assigned Group, 83: Creation Date
-FORCED_DISPLAY_FIELDS = [1, 2, 4, 12, 15, 21, 83]
+# IDs of essential ticket fields to include in every GLPI search response.
+# This list documents key fields only (1 = ID, 2 = Title, 4 = Requester, 12 = Status, 15 = Priority).
+FORCED_DISPLAY_FIELDS = [1, 2, 4, 12, 15, 83]
 
 logger = logging.getLogger(__name__)
 
