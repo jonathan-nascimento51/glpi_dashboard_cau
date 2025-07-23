@@ -178,7 +178,7 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 ```
 
 The dashboard reads data produced by the worker and stored in PostgreSQL. More details on the multi-agent workflow can be found in
-[AGENTS.md](AGENTS.md). A walkthrough of the `langgraph_workflow.py` module is
+[AGENTS.md](AGENTS.md). Structural file moves are logged in [docs/REFACTOR_LOG.md](docs/REFACTOR_LOG.md). A walkthrough of the `langgraph_workflow.py` module is
 available in [docs/langgraph_workflow.md](docs/langgraph_workflow.md).
 Instructions for running the React front-end—including npm scripts and required environment variables—are available in
 [docs/frontend_architecture.md](docs/frontend_architecture.md). That document also covers how the front-end communicates with the worker API via `NEXT_PUBLIC_API_BASE_URL` and how to run the Jest and Playwright test suites.
@@ -209,7 +209,7 @@ is executed as `A1 ▶ A2 ▶ A3 ▶ A4‑6 ▶ A7 ▶ A8 ▶ A9` where:
 - **A9 – Validador & Justificativa** reviews the final result for coherence.
 
 See [docs/AGENTS.md](docs/AGENTS.md) for the full prompt templates.
-The five-block format (Identity, Instructions, Context, Examples, Question) is outlined in [docs/PROMPT_BUILDER.md](docs/PROMPT_BUILDER.md).
+Structural changes made during these steps are summarized in [docs/REFACTOR_LOG.md](docs/REFACTOR_LOG.md). The five-block format (Identity, Instructions, Context, Examples, Question) is outlined in [docs/PROMPT_BUILDER.md](docs/PROMPT_BUILDER.md).
 
 ### Node.js ESM conventions
 
