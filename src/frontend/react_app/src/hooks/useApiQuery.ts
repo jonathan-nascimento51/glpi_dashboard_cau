@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import axios, { AxiosError } from "axios";
 
 interface ApiState<T> {
   data: T | null;
@@ -7,16 +6,33 @@ interface ApiState<T> {
   error: string | null;
 }
 
-export function useApiQuery<T>(endpoint: string): ApiState<T> {
+const stableStringify = (value: unknown) =>
+  JSON.stringify(value, Object.keys(value as Record<string, unknown>).sort());
+
+export function useApiQuery<T>(
+  endpoint: string,
+  options?: RequestInit,
+): ApiState<T> {
   const [state, setState] = useState<ApiState<T>>({
     data: null,
     isLoading: true,
     error: null,
   });
+  const stableOptions = options ? stableStringify(options) : '';
 
   useEffect(() => {
     if (!endpoint) {
-      setState({ data: null, isLoading: false, error: "Endpoint não fornecido." });
+      setState({ data: null, isLoading: false, error: 'Endpoint não fornecido.' });
+      return;
+    }
+
+    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+    if (!baseUrl) {
+      setState({
+        data: null,
+        isLoading: false,
+        error: 'URL base da API não configurada. Verifique NEXT_PUBLIC_API_BASE_URL.',
+      });
       return;
     }
 
@@ -25,28 +41,44 @@ export function useApiQuery<T>(endpoint: string): ApiState<T> {
     const fetchData = async () => {
       setState({ data: null, isLoading: true, error: null });
       try {
-        const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-        if (!baseUrl) {
-          throw new Error("URL base da API não configurada. Verifique NEXT_PUBLIC_API_BASE_URL.");
+        const response = await fetch(`${baseUrl}${endpoint}`, {
+          signal: controller.signal,
+          ...options,
+        });
+
+        if (!response.ok) {
+          let errorMessage = `Erro na requisição: ${response.statusText}`;
+          try {
+            const errorBody = await response.json();
+            if (errorBody && (errorBody.message || errorBody.error)) {
+              errorMessage += ` - ${errorBody.message || errorBody.error}`;
+            }
+          } catch (e) {
+            // Falha ao fazer parse do corpo de erro, manter mensagem padrão
+          }
+          throw new Error(errorMessage);
         }
-        const response = await axios.get<T>(`${baseUrl}${endpoint}`, { signal: controller.signal });
-        setState({ data: response.data, isLoading: false, error: null });
-      } catch (err) {
-        if (axios.isCancel(err)) {
-          console.log("Requisição cancelada:", err.message);
+
+        const json = (await response.json()) as T;
+        setState({ data: json, isLoading: false, error: null });
+      } catch (err: any) {
+        if (err.name === 'AbortError') {
+          console.log('Requisição cancelada:', err.message);
           return;
         }
-        const error = err as AxiosError;
-        console.error(`Erro ao buscar de ${endpoint}:`, error);
-        const errorMessage = (error.response?.data as any)?.detail || error.message || "Ocorreu um erro desconhecido.";
-        setState({ data: null, isLoading: false, error: String(errorMessage) });
+        console.error(`Erro ao buscar de ${endpoint}:`, err);
+        setState({
+          data: null,
+          isLoading: false,
+          error: err.message ?? 'Ocorreu um erro desconhecido.',
+        });
       }
     };
 
     fetchData();
 
     return () => controller.abort();
-  }, [endpoint]);
+  }, [endpoint, stableOptions]);
 
   return state;
 }

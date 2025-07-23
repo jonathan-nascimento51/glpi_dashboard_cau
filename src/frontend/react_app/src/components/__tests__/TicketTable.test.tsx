@@ -3,11 +3,11 @@ import { TicketTable } from '../TicketTable';
 import { useApiQuery } from '../../hooks/useApiQuery';
 
 // Mock do hook useApiQuery
-jest.mock('../hooks/useApiQuery');
+jest.mock('../../hooks/useApiQuery');
 const mockedUseApiQuery = useApiQuery as jest.Mock;
 
 // Mock do componente de virtualização para simplificar o teste
-jest.mock('./VirtualizedTicketTable', () => ({
+jest.mock('../VirtualizedTicketTable', () => ({
   VirtualizedTicketTable: ({ rows }: { rows: any[] }) => (
     <div data-testid="virtualized-table">
       {rows.map(row => (

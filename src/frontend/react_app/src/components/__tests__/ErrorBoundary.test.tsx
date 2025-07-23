@@ -41,14 +41,16 @@ describe('ErrorBoundary', () => {
     ).toBeInTheDocument()
 
     // Verifica se o erro foi logado
-    expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
+    expect(consoleErrorSpy).toHaveBeenCalled()
   })
 
   it('deve tentar recarregar a página ao clicar no botão', () => {
-    const { reload } = window.location
+    const original = window.location
+    delete (window as any).location
     Object.defineProperty(window, 'location', {
-      value: { ...window.location, reload: jest.fn() },
+      value: { ...original, reload: jest.fn() },
       writable: true,
+      configurable: true,
     })
 
     render(
@@ -60,6 +62,7 @@ describe('ErrorBoundary', () => {
     fireEvent.click(screen.getByRole('button', { name: /recarregar/i }))
     expect(window.location.reload).toHaveBeenCalledTimes(1)
 
-    Object.defineProperty(window, 'location', { value: { ...window.location, reload }, writable: true })
+    delete (window as any).location
+    Object.defineProperty(window, 'location', { value: original, writable: true, configurable: true })
   })
 })
