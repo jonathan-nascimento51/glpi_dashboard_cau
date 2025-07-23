@@ -620,6 +620,8 @@ container also executes on first startup.
 - `CACHE_TYPE` – choose `redis` (default) or `simple` for in-memory caching
 - `LOG_LEVEL` – logging verbosity for backend and worker services (default `INFO`)
 - `APP_ENV` – set to `production` for JSON logs without backtraces
+- `API_CORS_ALLOW_ORIGINS` – comma-separated list of trusted origins when `APP_ENV=production`
+- `API_CORS_ALLOW_METHODS` – comma-separated HTTP methods allowed in production (default `GET,HEAD,OPTIONS`)
 - `LANGCHAIN_TRACING_V2` – set to `true` to enable LangSmith tracing
 - `LANGCHAIN_API_KEY` – API key used by LangSmith when tracing
 - `LANGCHAIN_PROJECT` – optional project name for tracing sessions
