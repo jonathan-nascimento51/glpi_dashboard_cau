@@ -20,7 +20,7 @@ services:
     ports:
       - "5174:5174"  # Porta customizada do Vite
     environment:
-      NEXT_PUBLIC_API_BASE_URL: http://localhost:8000/api
+      NEXT_PUBLIC_API_BASE_URL: http://localhost:8000
     volumes:
       # Mounts local source code for live-reloading, and uses a named volume
       # to persist node_modules, preventing it from being overwritten by the host.
