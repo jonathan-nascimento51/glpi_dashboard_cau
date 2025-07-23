@@ -5,4 +5,6 @@
 # The return value of a pipeline is the status of the last command to exit with a non-zero status.
 set -euo pipefail
 
+echo "Pre-commit started: $(date)"
 pre-commit run --color always --show-diff-on-failure
+echo "Pre-commit finished: $(date)"
