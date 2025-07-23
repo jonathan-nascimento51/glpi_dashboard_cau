@@ -74,11 +74,10 @@ async def load_and_translate_tickets(
         except Exception as exc:
             validation_errors += 1
             logger.warning(
-                "Falha ao validar ticket no índice %d (ID: %s): %s. Registro: %s",
+                "Falha ao validar ticket no índice %d (ID: %s): %s",
                 i,
                 r.get("id", "N/A"),
                 exc,
-                r,
             )
     if validation_errors > 0:
         logger.error(
