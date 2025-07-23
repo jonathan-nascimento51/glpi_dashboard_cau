@@ -1,67 +1,72 @@
-import { useMemo } from 'react'
+import { useMemo } from 'react';
 import {
   useQuery,
-  type UseQueryResult,
-  type UseQueryOptions,
   type QueryKey,
-} from '@tanstack/react-query'
-import { fetcher } from '../lib/swrClient'
-import { stableStringify } from '../lib/stableStringify'
+  type UseQueryOptions,
+  type UseQueryResult,
+} from '@tanstack/react-query';
 
-function getBaseUrl(): string | undefined {
-  return process.env.NEXT_PUBLIC_API_BASE_URL
+function stableStringify(value: unknown): string {
+  if (value === null || typeof value !== 'object') {
+    return JSON.stringify(value);
+  }
+  if (Array.isArray(value)) {
+    return `[${value.map(stableStringify).join(',')}]`;
+  }
+  const keys = Object.keys(value as Record<string, unknown>).sort();
+  const entries = keys.map(
+    (key) =>
+      `${JSON.stringify(key)}:${stableStringify(
+        (value as Record<string, unknown>)[key]
+      )}`
+  );
+  return `{${entries.join(',')}}`;
 }
 
-export function useApiQuery<TData = unknown, TError = unknown>(
+export function useApiQuery<T>(
   queryKey: QueryKey,
   endpoint: string,
-  options: Omit<UseQueryOptions<TData, TError>, 'queryKey' | 'queryFn'> = {},
-): UseQueryResult<TData, TError> {
-  const baseUrl = getBaseUrl()
+  options?: UseQueryOptions<T, Error>,
+): UseQueryResult<T, Error> {
+  const metaEnv: Record<string, string | undefined> | undefined =
+    typeof import.meta !== 'undefined' && import.meta.env
+      ? import.meta.env
+      : undefined;
 
-  const key = useMemo(
-    () =>
-      Array.isArray(queryKey)
-        ? queryKey.map((k) =>
-            typeof k === 'object'
-              ? stableStringify(k as Record<string, unknown>)
-              : k,
-          )
-        : [queryKey],
-    [queryKey],
-  )
+  const baseUrl =
+    metaEnv?.NEXT_PUBLIC_API_BASE_URL ??
+    process.env.NEXT_PUBLIC_API_BASE_URL ??
+    'http://localhost:8000';
 
-  return useQuery<TData, TError>({
-    queryKey: key,
-    ...options,
-    enabled: options.enabled ?? true,
-    queryFn: async ({ signal }) => {
-      if (!endpoint) {
-        throw new Error('Endpoint not provided.')
-      }
-      if (!baseUrl) {
-        throw new Error(
-          'API base URL not configured. Check NEXT_PUBLIC_API_BASE_URL.',
-        )
-      }
-
-      const controller = new AbortController()
-      const abort = () => controller.abort()
-
-      if (signal) {
-        if (signal.aborted) abort()
-        else signal.addEventListener('abort', abort)
-      }
-
+  const fetchFromApi = async (): Promise<T> => {
+    if (!baseUrl) {
+      throw new Error(
+        'URL base da API não configurada. Verifique NEXT_PUBLIC_API_BASE_URL.',
+      );
+    }
+    const response = await fetch(`${baseUrl}${endpoint}`);
+    if (!response.ok) {
+      let errorMessage = `Erro na requisição: ${response.statusText}`;
       try {
-        return await fetcher<TData>(
-          endpoint,
-          { signal: controller.signal },
-          { baseUrl },
-        )
-      } finally {
-        if (signal) signal.removeEventListener('abort', abort)
+        const errorBody = await response.json();
+        if (errorBody && (errorBody.message || errorBody.error)) {
+          errorMessage += ` - ${errorBody.message || errorBody.error}`;
+        }
+      } catch {
+        // ignore JSON parse errors
       }
-    },
-  })
+      throw new Error(errorMessage);
+    }
+    return (await response.json()) as T;
+  };
+
+  const serializedOpts = options ? stableStringify(options) : '';
+  return useQuery<T, Error>({
+    queryKey: [
+      ...(Array.isArray(queryKey) ? queryKey : [queryKey]),
+      serializedOpts,
+    ],
+    queryFn: fetchFromApi,
+    ...(options ?? {}),
+  });
 }
