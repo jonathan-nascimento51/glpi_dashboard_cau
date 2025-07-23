@@ -6,10 +6,11 @@ import { ErrorMessage } from './ErrorMessage'
 import { EmptyState } from './EmptyState'
 import Pagination from './Pagination'
 
+const ITEMS_PER_PAGE = 15;
+
 function TicketsDisplay() {
   const { tickets, error, isLoading, isSuccess, refreshTickets } = useTickets()
   const [currentPage, setCurrentPage] = useState(1)
-  const ITEMS_PER_PAGE = 15
 
   useEffect(() => {
     setCurrentPage(1)
