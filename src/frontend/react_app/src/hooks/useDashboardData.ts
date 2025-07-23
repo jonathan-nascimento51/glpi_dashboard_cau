@@ -5,6 +5,11 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useApiQuery } from './useApiQuery'
 import type { Chart as ChartType } from 'chart'
 import type { DashboardStats } from '../types/dashboard'
+import {
+  scheduleIdleCallback,
+  cancelIdleCallback,
+  type IdleHandle,
+} from '../lib/scheduleIdleCallback'
 
 export type Metrics = DashboardStats
 
@@ -38,15 +43,11 @@ export function useDashboardData() {
   }
 
   useEffect(() => {
-    let chartModule: typeof import('chart') | null = null
+    let handle: IdleHandle | null = null
     async function loadChart() {
-      chartModule = await import('chart')
-      const ctx = document.getElementById(
-        'trendsChart',
-      ) as HTMLCanvasElement | null
-      if (!ctx) {
-        return
-      }
+      const chartModule = await import('chart')
+      const ctx = document.getElementById('trendsChart') as HTMLCanvasElement | null
+      if (!ctx) return
       trendChart.current = new chartModule.Chart(ctx, {
         type: 'line',
         data: {
@@ -71,8 +72,11 @@ export function useDashboardData() {
         options: { responsive: true, maintainAspectRatio: false },
       })
     }
-    loadChart()
-    return () => trendChart.current?.destroy()
+    handle = scheduleIdleCallback(loadChart)
+    return () => {
+      if (handle !== null) cancelIdleCallback(handle)
+      trendChart.current?.destroy()
+    }
   }, [])
 
 
