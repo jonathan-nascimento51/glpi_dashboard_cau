@@ -2,13 +2,14 @@ import { renderHook, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useApiQuery } from '../useApiQuery'
 
+const MOCK_API_URL = 'http://test-api.com'
 beforeAll(() => {
-  process.env.NEXT_PUBLIC_API_BASE_URL = 'http://test-api.com';
-});
+  process.env.NEXT_PUBLIC_API_BASE_URL = MOCK_API_URL
+})
 
 afterAll(() => {
-  delete process.env.NEXT_PUBLIC_API_BASE_URL;
-});
+  delete process.env.NEXT_PUBLIC_API_BASE_URL
+})
 beforeEach(() => {
   global.fetch = jest.fn() as unknown as typeof fetch
 })
@@ -32,6 +33,17 @@ describe('useApiQuery', () => {
     await waitFor(() => expect(result.current.isLoading).toBe(false))
     expect(result.current.data).toEqual({ foo: 'bar' })
     expect(result.current.error).toBeNull()
+  })
+
+  it('handles missing base URL', async () => {
+    delete process.env.NEXT_PUBLIC_API_BASE_URL
+    ;(global.fetch as jest.Mock).mockResolvedValue({ ok: true, json: async () => ({}) })
+    const { result } = renderHook(() => useApiQuery(['t'], '/test'), { wrapper })
+    await waitFor(() => expect(result.current.isLoading).toBe(false))
+    expect((result.current.error as Error).message).toBe(
+      'URL base da API não configurada. Verifique NEXT_PUBLIC_API_BASE_URL.',
+    )
+    process.env.NEXT_PUBLIC_API_BASE_URL = MOCK_API_URL
   })
 
   it('updates state on error', async () => {
@@ -65,5 +77,21 @@ describe('useApiQuery', () => {
     expect(result.current.error).toBeNull()
     expect(result.current.status).toBe('loading')
     expect(result.current.data).toBeUndefined()
+  })
+
+  it('includes options in query key', async () => {
+    ;(global.fetch as jest.Mock).mockResolvedValue({ ok: true, json: async () => ({}) })
+    const { result } = renderHook(
+      () =>
+        useApiQuery(
+          ['opts'],
+          '/test',
+          { staleTime: 1000 },
+        ),
+      { wrapper },
+    )
+    await waitFor(() => expect(result.current.isSuccess).toBe(true))
+    const key = queryClient.getQueryCache().find(['opts', '{"staleTime":1000}'])
+    expect(key).toBeDefined()
   })
 })
