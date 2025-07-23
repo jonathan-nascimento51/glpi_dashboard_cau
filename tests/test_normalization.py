@@ -43,7 +43,7 @@ def test_filter_by_status(ticket_df):
 
 def test_aggregate_by_user(ticket_df):
     result = aggregate_by_user(ticket_df)
-    counts = dict(zip(result["assigned_to"], result["count"]))
+    counts = result.set_index("assigned_to")["count"].to_dict()
     assert counts == {"alice": 1, "": 2}
 
 
