@@ -401,7 +401,7 @@ class GLPISession:
             if self._session_token and not self._using_user_token:
                 try:
                     await self._kill_session()
-                except Exception as e:  # noqa: B902
+                except Exception as e:  # noqa: BLE001
                     logger.error("Failed to kill session: %s", e)
             else:
                 # Ensure token is cleared when killSession is skipped
@@ -531,7 +531,7 @@ class GLPISession:
                 raise
             except aiohttp.ClientError as e:
                 self._raise_client_error(e)
-            except Exception as e:  # noqa: B902
+            except Exception as e:  # noqa: BLE001
                 if isinstance(e, GLPIAPIError):
                     raise
                 raise GLPIAPIError(0, f"An unexpected error occurred: {e}") from e
