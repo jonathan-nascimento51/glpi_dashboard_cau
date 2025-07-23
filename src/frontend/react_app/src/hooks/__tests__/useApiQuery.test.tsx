@@ -17,8 +17,9 @@ beforeEach(() => {
   mockedAxios.mockReset()
   global.fetch = jest.fn((url: RequestInfo, options?: RequestInit) =>
     mockedAxios.get(url.toString(), { signal: options?.signal }).then(res => ({
-      ok: true,
-      status: 200,
+      ok: res.status ? res.status >= 200 && res.status < 300 : true,
+      status: res.status || 200,
+      statusText: res.statusText || 'OK',
       json: async () => res.data,
     }))
   ) as unknown as typeof fetch
@@ -39,6 +40,18 @@ describe('useApiQuery', () => {
     await waitFor(() => expect(result.current.isLoading).toBe(false))
     expect(result.current.data).toBeNull()
     expect(result.current.error).toBe('fail')
+  })
+
+  it('updates state on non-ok response', async () => {
+    mockedAxios.get.mockResolvedValue({
+      data: { message: 'Not Found' },
+      status: 404,
+      statusText: 'Not Found',
+    })
+    const { result } = renderHook(() => useApiQuery('/test'))
+    await waitFor(() => expect(result.current.isLoading).toBe(false))
+    expect(result.current.data).toBeNull()
+    expect(result.current.error).toContain('Request error: Not Found')
   })
 
   it('ignores abort errors', async () => {
