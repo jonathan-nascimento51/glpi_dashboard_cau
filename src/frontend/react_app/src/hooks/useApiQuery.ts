@@ -60,7 +60,7 @@ export function useApiQuery<T>(
     return (await response.json()) as T;
   };
 
-  const serializedOpts = options ? JSON.stringify(options) : '';
+  const serializedOpts = options ? stableStringify(options) : '';
   return useQuery<T, Error>({
     queryKey: [
       ...(Array.isArray(queryKey) ? queryKey : [queryKey]),
