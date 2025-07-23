@@ -37,11 +37,11 @@ export function useApiQuery<TData = unknown, TError = unknown>(
     enabled: options.enabled ?? true,
     queryFn: async ({ signal }) => {
       if (!endpoint) {
-        throw new Error('Endpoint não fornecido.')
+        throw new Error('Endpoint not provided.')
       }
       if (!baseUrl) {
         throw new Error(
-          'URL base da API não configurada. Verifique NEXT_PUBLIC_API_BASE_URL.',
+          'API base URL not configured. Check NEXT_PUBLIC_API_BASE_URL.',
         )
       }
 
