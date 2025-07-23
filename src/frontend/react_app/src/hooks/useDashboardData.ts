@@ -14,10 +14,7 @@ interface Aggregated {
 
 export function useDashboardData() {
   const queryClient = useQueryClient()
-  const query = useApiQuery<Aggregated, Error>(
-    ['metrics-aggregated'],
-    '/metrics/aggregated',
-  )
+  const query = useApiQuery<Aggregated, Error>('/metrics/aggregated')
 
   const metrics: Metrics = {
     new: query.data?.status?.new ?? 0,

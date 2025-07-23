@@ -14,7 +14,7 @@ export function GlpiTicketsTable() {
     isLoading,
     error,
     isSuccess,
-  } = useApiQuery<Ticket[], Error>(['tickets'], '/tickets')
+  } = useApiQuery<Ticket[], Error>('/tickets')
 
   if (isLoading) return <p>Carregando...</p>
   if (error) return <p>Erro ao buscar tickets</p>
