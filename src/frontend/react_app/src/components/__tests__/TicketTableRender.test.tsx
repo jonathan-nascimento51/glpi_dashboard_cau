@@ -1,10 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import type { Ticket } from '../../types/ticket'
 import { TicketTable } from '../../components/TicketTable'
-import { useApiQuery } from '../../hooks/useApiQuery'
-
-jest.mock('../../hooks/useApiQuery')
-const useApiQueryMock = useApiQuery as jest.Mock
 
 const ticket: Ticket = {
   id: 1,
@@ -15,13 +11,8 @@ const ticket: Ticket = {
 }
 
 describe('TicketTable formatting', () => {
-  beforeEach(() => {
-    useApiQueryMock.mockReset()
-  })
-
   it('formats date and applies styles', () => {
-    useApiQueryMock.mockReturnValue({ data: { tickets: [ticket] }, isLoading: false, error: null })
-    render(<TicketTable />)
+    render(<TicketTable tickets={[ticket]} />)
     const titleCell = screen.getByText(ticket.name)
     expect(titleCell).toHaveAttribute('title', ticket.name)
     expect(screen.getByText('High')).toHaveClass('text-red-600')
@@ -33,8 +24,7 @@ describe('TicketTable formatting', () => {
   })
 
   it('displays fallbacks when data is missing', () => {
-    useApiQueryMock.mockReturnValue({ data: { tickets: [{ id: 99 } as Ticket] }, isLoading: false, error: null })
-    render(<TicketTable />)
+    render(<TicketTable tickets={[{ id: 99 } as Ticket]} />)
     const row = screen.getAllByRole('row')[1]
     expect(row).toHaveTextContent('Sem prioridade')
     // priority and date columns should show "-"

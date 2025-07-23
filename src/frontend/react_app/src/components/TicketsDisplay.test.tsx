@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import '@testing-library/jest-dom'
 import { jest } from '@jest/globals'
 
@@ -67,11 +67,11 @@ describe('TicketsDisplay Component', () => {
     expect(refreshSpy).toHaveBeenCalled()
   })
 
-  it('deve renderizar a tabela de tickets quando os dados são recebidos com sucesso', () => {
-    const mockTickets = [
-      { id: 1, name: 'Problema na impressora', status: 'New', priority: 'High' },
-      { id: 2, name: 'Rede lenta', status: 'Open', priority: 'Low' },
-    ]
+  it('deve paginar os tickets corretamente', () => {
+    const mockTickets = Array.from({ length: 20 }, (_, i) => ({
+      id: i + 1,
+      name: `Ticket ${i + 1}`,
+    }))
 
     useTicketsMock.mockReturnValue({
       tickets: mockTickets,
@@ -83,9 +83,12 @@ describe('TicketsDisplay Component', () => {
 
     render(<TicketsDisplay />)
 
-    expect(screen.getByText(/dashboard de chamados glpi/i)).toBeInTheDocument()
-    expect(screen.getByText(/problema na impressora/i)).toBeInTheDocument()
-    expect(screen.getByText(/rede lenta/i)).toBeInTheDocument()
-    expect(screen.getByRole('table')).toBeInTheDocument()
+    expect(screen.getByText('Ticket 1')).toBeInTheDocument()
+    expect(screen.queryByText('Ticket 16')).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByLabelText('Próxima página'))
+
+    expect(screen.getByText('Ticket 16')).toBeInTheDocument()
+    expect(screen.queryByText('Ticket 1')).not.toBeInTheDocument()
   })
 })
