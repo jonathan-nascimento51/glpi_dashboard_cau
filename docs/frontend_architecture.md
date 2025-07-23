@@ -89,7 +89,7 @@ responsible for API calls verifies that `NEXT_PUBLIC_API_BASE_URL` is defined
 
 The React code can read this value using `import.meta.env.NEXT_PUBLIC_API_BASE_URL` to send requests to the worker.
 
-> **Note**: previous revisions referenced `VITE_API_URL`. The variable name was updated to `NEXT_PUBLIC_API_BASE_URL` to match Next.js conventions.
+> **Note**: this variable was renamed from `VITE_API_URL` to `NEXT_PUBLIC_API_BASE_URL` to match Next.js conventions. This change ensures compatibility with Next.js, which uses the `NEXT_PUBLIC_` prefix for environment variables exposed to the browser.
 
 Vite only exposes variables prefixed with `VITE_` by default. The project configures `envPrefix` in `vite.config.ts` so that `NEXT_PUBLIC_*` variables are also loaded.
 
