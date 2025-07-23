@@ -73,6 +73,21 @@ class Metrics:
     closed: int
 
 
+def calculate_dataframe_metrics(df: pd.DataFrame) -> Dict[str, int]:
+    """Calculates summary metrics from a tickets DataFrame."""
+    if df.empty:
+        return {"total": 0, "opened": 0, "closed": 0}
+
+    total = len(df)
+    closed = 0
+    if "status" in df.columns:
+        status_series = df["status"].astype(str).str.lower()
+        closed = df[status_series.isin(["closed", "solved"])].shape[0]
+
+    opened = total - closed
+    return {"total": total, "opened": opened, "closed": closed}
+
+
 class ChamadoPorData(BaseModel):
     """Aggregated tickets per creation date."""
 
@@ -121,17 +136,8 @@ class Query:
     @strawberry.field
     async def metrics(self, info: Info) -> Metrics:
         df = await _load_and_cache_df(info)
-        total = len(df)
-        closed = 0
-        if "status" in df:
-            status_series = df["status"].astype(str).str.lower()
-            closed = df[status_series.isin(["closed", "solved"])].shape[0]
-        opened = total - closed
-        return Metrics(
-            total=total,
-            opened=opened,
-            closed=closed,
-        )  # type: ignore[call-arg]
+        metrics_data = calculate_dataframe_metrics(df)
+        return Metrics(**metrics_data)  # type: ignore[call-arg]
 
 
 def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
@@ -181,13 +187,7 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
     @app.get("/metrics/summary")
     async def metrics_summary(response: Response) -> dict:  # noqa: F401
         df = await load_tickets(client=client, cache=cache, response=response)
-        total = len(df)
-        closed = 0
-        if "status" in df:
-            status_series = df["status"].astype(str).str.lower()
-            closed = df[status_series.isin(["closed", "solved"])].shape[0]
-        opened = total - closed
-        return {"total": total, "opened": opened, "closed": closed}
+        return calculate_dataframe_metrics(df)
 
     @app.get("/breaker")
     async def breaker_metrics() -> Response:  # noqa: F401
