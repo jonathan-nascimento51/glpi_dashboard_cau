@@ -98,7 +98,10 @@ class GLPISessionManager:
     @call_with_breaker
     @retry_api_call
     def _open(self) -> None:
-        headers = {"App-Token": self.app_token, "Content-Type": "application/json"}
+        headers = {
+            "App-Token": self.app_token,
+            "Content-Type": "application/json; charset=utf-8",
+        }
         auth = None
         if self.user_token:
             headers["Authorization"] = f"user_token {self.user_token}"
@@ -123,7 +126,7 @@ class GLPISessionManager:
         headers = {
             "App-Token": self.app_token,
             "Session-Token": self.session_token,
-            "Content-Type": "application/json",
+            "Content-Type": "application/json; charset=utf-8",
         }
         resp = self.session.get(
             f"{self.base_url}/killSession", headers=headers, verify=self.verify
@@ -146,7 +149,7 @@ class GLPISessionManager:
         headers.setdefault("App-Token", self.app_token)
         if self.session_token:
             headers.setdefault("Session-Token", self.session_token)
-        headers.setdefault("Content-Type", "application/json")
+        headers.setdefault("Content-Type", "application/json; charset=utf-8")
         url = f"{self.base_url}/{endpoint.lstrip('/')}"
 
         request_id = uuid.uuid4().hex

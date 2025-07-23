@@ -2,6 +2,16 @@
  * This file demonstrates CSS fixes for browser compatibility and best practices.
  */
 
+/*
+ * UTILITY: A reusable class to prevent text selection.
+ * FIX: 'user-select' is not supported by all browsers without a prefix.
+ * The '-webkit-' prefix is needed for Safari.
+ */
+.no-select {
+  -webkit-user-select: none; /* Safari */
+  user-select: none;
+}
+
 .some-element {
   /*
    * FIX: 'user-select' is not supported by Safari.
@@ -17,7 +27,8 @@
 .another-element {
   /*
    * FIX: 'background-clip' should be listed after '-webkit-background-clip'.
-   * The vendor-prefixed property should come before the standard one.
+   * The vendor-prefixed property should come before the standard one to ensure
+   * that browsers use the standard property once it's supported.
    */
   -webkit-background-clip: text; /* For Safari */
   background-clip: text;

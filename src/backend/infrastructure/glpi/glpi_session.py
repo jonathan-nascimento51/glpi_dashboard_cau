@@ -36,7 +36,7 @@ from shared.utils.resilience import call_with_breaker, retry_api_call
 
 logger = logging.getLogger(__name__)
 
-CONTENT_TYPE_JSON = "application/json"
+CONTENT_TYPE_JSON = "application/json; charset=utf-8"
 
 
 def parse_error(response: ClientResponse, data: Optional[dict[str, Any]] = None) -> str:

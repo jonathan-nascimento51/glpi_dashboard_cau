@@ -23,21 +23,14 @@ jobs:
           node-version: '20.19.0'
           cache: 'npm'
           cache-dependency-path: src/frontend/react_app/package-lock.json
-      - name: Setup environment
-        run: ./scripts/setup/setup_env.sh
-        env:
-          SKIP_PLAYWRIGHT: "true"
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt -r requirements-dev.txt
+      - name: Install frontend dependencies
+        run: npm ci --prefix src/frontend/react_app
       - name: Configure GitHub CLI
         run: bash scripts/setup/setup_github_access.sh
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Install frontend deps
-        run: |
-          cd src/frontend/react_app && npm ci && cd ../../..
-      - name: Install pre-commit
-        run: pip install pre-commit
-      - name: Install ruff
-        run: pip install ruff
       - name: Run ruff
         run: ruff check src tests
       - name: Run pre-commit
