@@ -51,7 +51,7 @@ describe('useApiQuery', () => {
     const { result } = renderHook(() => useApiQuery('/test'))
     await waitFor(() => expect(result.current.isLoading).toBe(false))
     expect(result.current.data).toBeNull()
-    expect(result.current.error).toContain('Erro na requisição: Not Found')
+    expect(result.current.error).toContain('Request error: Not Found')
   })
 
   it('ignores abort errors', async () => {
