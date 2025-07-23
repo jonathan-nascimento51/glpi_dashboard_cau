@@ -9,6 +9,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # Adiciona a URL base da API para que o build do frontend funcione.
+      NEXT_PUBLIC_API_BASE_URL: 'http://localhost:8000'
     steps:
       - uses: actions/checkout@v4
       - name: Configure GitHub CLI

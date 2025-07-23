@@ -69,6 +69,8 @@ jobs:
           cache-dependency-path: |
             requirements.txt
             requirements-dev.txt
+      - name: Install dependencies
+        run: pip install -r requirements.txt -r requirements-dev.txt
       - name: Setup environment
         run: ./scripts/setup/setup_env.sh
         env:

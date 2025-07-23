@@ -35,7 +35,7 @@ jobs:
       - name: Run consumer contract tests
         run: |
           cd src/frontend/react_app
-          npm test -- --runTestsByPath tests/contracts/glpi-consumer.pact.js
+          npm test -- --runTestsByPath ../../../tests/contracts/glpi-consumer.pact.js
       - name: Publish pacts
         env:
           PACT_BROKER_BASE_URL: '${{ secrets.PACT_BROKER_BASE_URL }}'
