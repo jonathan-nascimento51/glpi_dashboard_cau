@@ -2,7 +2,7 @@
    - name: Rebase automático e merge com checks verdes
      conditions:
        - base=main
-       - "status-success=ci (Mock)"   # aspas evitam erro de parsing
+       - "status-success=CI"
      actions:
        rebase: {}
        merge:

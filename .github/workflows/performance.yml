@@ -1,37 +1,38 @@
-#!/usr/bin/env bash
-# Configure GitHub access using the GitHub CLI (gh).
-# This script installs gh if missing and authenticates using $GITHUB_TOKEN.
-set -euo pipefail
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: Performance Check
 
-if ! command -v gh >/dev/null 2>&1; then
-  echo ">>> Installing GitHub CLI..."
-  type -p curl >/dev/null || (sudo apt-get update -y && sudo apt-get install -y curl)
-  curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
-  sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
-  echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list >/dev/null
-  sudo apt-get update -y
-  sudo apt-get install -y gh
-fi
+on:
+  pull_request:
 
-if [ -z "${GITHUB_TOKEN:-}" ]; then
-  cat <<EOM
-⚠️  GITHUB_TOKEN not set.
-Create a personal access token with repo permissions and run:
-  export GITHUB_TOKEN=<token>
-  bash scripts/setup_github_access.sh
-EOM
-  exit 1
-fi
+jobs:
+  performance-check:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure GitHub CLI
+        # This step executes the external shell script to configure GitHub access.
+        # It's important to call the script this way to avoid YAML syntax errors
+        # that can occur when inlining complex scripts.
+        run: bash scripts/setup/setup_github_access.sh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: 'npm'
+          cache-dependency-path: src/frontend/react_app/package-lock.json
 
-echo ">>> Authenticating GitHub CLI..."
-# No GitHub Actions, a CLI do gh usa automaticamente o GITHUB_TOKEN do ambiente.
-# Apenas verificamos o status e configuramos o git para usar o gh como auxiliar de credencial.
-gh auth status -t
+      - name: Install deps & build
+        run: |
+          cd src/frontend/react_app
+          npm ci --no-audit --progress=false
+          npm run build
 
-echo ">>> Configuring git to use GitHub CLI as a credential helper..."
-gh auth setup-git
-
-echo ">>> Marking repository as safe..."
-git config --global --add safe.directory "$(pwd)"
-
-echo "✅ GitHub access configured."
+      - name: Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v11
+        with:
+          configPath: './src/frontend/react_app/lighthouseci.config.js'
+          uploadArtifacts: true
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
