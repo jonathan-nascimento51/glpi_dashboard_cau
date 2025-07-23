@@ -7,7 +7,7 @@ interface ApiState<T> {
 }
 
 const stableStringify = (value: unknown) =>
-  JSON.stringify(value, Object.keys(value as any).sort());
+  JSON.stringify(value, Object.keys(value as Record<string, unknown>).sort());
 
 export function useApiQuery<T>(
   endpoint: string,
