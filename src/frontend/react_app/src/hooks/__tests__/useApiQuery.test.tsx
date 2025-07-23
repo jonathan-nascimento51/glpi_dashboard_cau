@@ -59,7 +59,11 @@ describe('useApiQuery', () => {
     ;(global.fetch as jest.Mock).mockRejectedValue({ name: 'AbortError' })
     const { result } = renderHook(() => useApiQuery(['test'], '/test'), { wrapper })
     await waitFor(() => expect(global.fetch).toHaveBeenCalled())
+    // React Query should ignore abort errors: isError is false, error is null, isLoading is true
     expect(result.current.isLoading).toBe(true)
+    expect(result.current.isError).toBe(false)
     expect(result.current.error).toBeNull()
+    expect(result.current.status).toBe('loading')
+    expect(result.current.data).toBeUndefined()
   })
 })
