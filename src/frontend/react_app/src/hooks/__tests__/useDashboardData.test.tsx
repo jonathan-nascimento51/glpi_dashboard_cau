@@ -6,15 +6,21 @@ import { useApiQuery } from '../useApiQuery'
 jest.mock('../useApiQuery')
 
 describe('useDashboardData refresh interval', () => {
+  beforeAll(() => {
+    process.env.NEXT_PUBLIC_API_BASE_URL = 'http://test'
+  })
+
   beforeEach(() => {
     (useApiQuery as jest.Mock).mockReturnValue({
       data: { status: {} },
       isLoading: false,
       error: null,
     })
-    process.env.NEXT_PUBLIC_API_BASE_URL = 'http://test'
   })
 
+  afterAll(() => {
+    delete process.env.NEXT_PUBLIC_API_BASE_URL
+  })
   it('clears refresh interval on unmount', () => {
     const clearSpy = jest.spyOn(global, 'clearInterval')
     const setSpy = jest
