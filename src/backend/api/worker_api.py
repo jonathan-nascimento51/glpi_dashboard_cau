@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import datetime
 import logging
+import os
 from contextlib import asynccontextmanager
 from typing import Any, Dict, List, Optional, cast
 
@@ -162,13 +163,35 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
     FastAPIInstrumentor().instrument_app(app)
     Instrumentator().instrument(app).expose(app)
 
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origin_regex=".*",  # Allow all origins for development
-        allow_methods=["*"],
-        allow_headers=["*"],
-        allow_credentials=True,
-    )
+    env = os.getenv("APP_ENV", "development").lower()
+    if env == "production":
+        allowed_origins = [
+            origin.strip()
+            for origin in os.getenv("API_CORS_ALLOW_ORIGINS", "").split(",")
+            if origin.strip()
+        ]
+        allowed_methods = [
+            method.strip().upper()
+            for method in os.getenv("API_CORS_ALLOW_METHODS", "GET,HEAD,OPTIONS").split(
+                ","
+            )
+            if method.strip()
+        ]
+        app.add_middleware(
+            CORSMiddleware,
+            allow_origins=allowed_origins,
+            allow_methods=allowed_methods,
+            allow_headers=["*"],
+            allow_credentials=True,
+        )
+    else:
+        app.add_middleware(
+            CORSMiddleware,
+            allow_origin_regex=".*",
+            allow_methods=["*"],
+            allow_headers=["*"],
+            allow_credentials=True,
+        )
 
     @app.get("/tickets", response_model=list[CleanTicketDTO])
     async def tickets(response: Response) -> list[CleanTicketDTO]:  # noqa: F401
