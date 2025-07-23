@@ -9,7 +9,10 @@ interface TicketsApiResponse {
 }
 
 export function TicketTable() {
-  const { data, isLoading, error } = useApiQuery<TicketsApiResponse>('/tickets');
+  const { data, isLoading, error } = useApiQuery<TicketsApiResponse>(
+    ['tickets'],
+    '/tickets',
+  );
 
   if (isLoading) {
     return <div className="p-4 text-center">Carregando chamados...</div>;

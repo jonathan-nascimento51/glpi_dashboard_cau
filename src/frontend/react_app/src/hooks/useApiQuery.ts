@@ -1,82 +1,53 @@
-import { useState, useEffect, useMemo } from "react";
+import { useMemo } from 'react'
+import {
+  useQuery,
+  type QueryKey,
+  type UseQueryOptions,
+  type UseQueryResult,
+} from '@tanstack/react-query'
 
-interface ApiState<T> {
-  data: T | null;
-  isLoading: boolean;
-  error: string | null;
+function stableStringify(value: Record<string, unknown>) {
+  return JSON.stringify(value, Object.keys(value).sort());
 }
 
-
 export function useApiQuery<T>(
+  queryKey: QueryKey,
   endpoint: string,
-  options?: RequestInit,
-): ApiState<T> {
-  const [state, setState] = useState<ApiState<T>>({
-    data: null,
-    isLoading: true,
-    error: null,
-  });
-  const fetchOptions = useMemo(() => options || {}, [options]);
+  options?: UseQueryOptions<T, Error>,
+): UseQueryResult<T, Error> {
+  const serializedOpts = useMemo(
+    () => (options ? stableStringify(options as Record<string, unknown>) : ''),
+    [options],
+  );
 
-  useEffect(() => {
-    if (!endpoint) {
-      setState({ data: null, isLoading: false, error: 'Endpoint não fornecido.' });
-      return;
-    }
+  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+  const fetchFromApi = async (): Promise<T> => {
     if (!baseUrl) {
-      setState({
-        data: null,
-        isLoading: false,
-        error: 'URL base da API não configurada. Verifique NEXT_PUBLIC_API_BASE_URL.',
-      });
-      return;
+      throw new Error(
+        'URL base da API não configurada. Verifique NEXT_PUBLIC_API_BASE_URL.',
+      );
     }
-
-    const controller = new AbortController();
-
-    const fetchData = async () => {
-      setState({ data: null, isLoading: true, error: null });
+    const response = await fetch(`${baseUrl}${endpoint}`);
+    if (!response.ok) {
+      let errorMessage = `Erro na requisição: ${response.statusText}`;
       try {
-        const response = await fetch(`${baseUrl}${endpoint}`, {
-          signal: controller.signal,
-          ...fetchOptions,
-        });
-
-        if (!response.ok) {
-          let errorMessage = `Erro na requisição: ${response.statusText}`;
-          try {
-            const errorBody = await response.json();
-            if (errorBody && (errorBody.message || errorBody.error)) {
-              errorMessage += ` - ${errorBody.message || errorBody.error}`;
-            }
-          } catch (e) {
-            // Falha ao fazer parse do corpo de erro, manter mensagem padrão
-          }
-          throw new Error(errorMessage);
+        const errorBody = await response.json();
+        if (errorBody && (errorBody.message || errorBody.error)) {
+          errorMessage += ` - ${errorBody.message || errorBody.error}`;
         }
-
-        const json = (await response.json()) as T;
-        setState({ data: json, isLoading: false, error: null });
-      } catch (err: any) {
-        if (err.name === 'AbortError') {
-          console.log('Requisição cancelada:', err.message);
-          return;
-        }
-        console.error(`Erro ao buscar de ${endpoint}:`, err);
-        setState({
-          data: null,
-          isLoading: false,
-          error: err.message ?? 'Ocorreu um erro desconhecido.',
-        });
+      } catch {
+        // ignore JSON parse errors
       }
-    };
+      throw new Error(errorMessage);
+    }
+    return (await response.json()) as T;
+  };
 
-    fetchData();
-
-    return () => controller.abort();
-  }, [endpoint, fetchOptions]);
-
-  return state;
+  return useQuery<T, Error>({
+    queryKey: Array.isArray(queryKey) ? queryKey : [queryKey],
+    queryFn: fetchFromApi,
+    ...(options ?? {}),
+    meta: { serializedOpts },
+  });
 }
