@@ -17,23 +17,43 @@ warn() { echo -e "${C_YELLOW}WARN: $1${C_RESET}"; }
 error() { echo -e "${C_RED}ERROR: $1${C_RESET}" >&2; }
 success() { echo -e "${C_GREEN}✅ $1${C_RESET}"; }
 
-# Verifica se o script está sendo executado como root
-if [ "$EUID" -ne 0 ]; then
-  error "Este script precisa ser executado com sudo. Use: sudo ./setup.sh"
-  exit 1
-fi
+# Função para executar comandos que exigem privilégios de root.
+# Tenta usar 'sudo' se não for root. Falha se não conseguir obter privilégios.
+run_as_root() {
+  if [[ $EUID -eq 0 ]]; then
+    # Já é root, executa diretamente
+    "$@"
+  elif command -v sudo &>/dev/null; then
+    # Não é root, mas sudo está disponível
+    sudo "$@"
+  else
+    # Não é root e sudo não está disponível
+    error "Este comando requer privilégios de root (ou sudo), mas não foram encontrados. Comando: $*"
+    return 1
+  fi
+}
 
-# Determina o usuário original que invocou o sudo e seu diretório home
+# Determina o usuário original e o prefixo do comando para executar como esse usuário
 readonly OWNER_USER="${SUDO_USER:-$(whoami)}"
-readonly OWNER_HOME="/home/${OWNER_USER}"
+readonly OWNER_HOME=$(eval echo "~$OWNER_USER") # Forma robusta de obter o diretório home
 readonly MISE_PATH="${OWNER_HOME}/.local/bin/mise"
+
+# Prefixo para executar comandos como o usuário proprietário.
+# Se o script for executado como root, usa 'sudo -u'.
+# Se for executado como um usuário normal, o prefixo fica vazio e os comandos são executados diretamente.
+CMD_PREFIX=""
+if [[ $EUID -eq 0 ]] && [[ -n "$OWNER_USER" ]] && [[ "$OWNER_USER" != "root" ]]; then
+  # Preserva variáveis de ambiente importantes que o script define
+  CMD_PREFIX="sudo -u $OWNER_USER --preserve-env=MISE_PATH,PATH,PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD,NODE_TLS_REJECT_UNAUTHORIZED,HTTP_PROXY,HTTPS_PROXY"
+fi
 
 cleanup() {
   info "Executando limpeza..."
   if [ -f "$PROXY_FILE" ]; then
     info "Removendo configuração de proxy temporária..."
-    if sudo -n true 2>/dev/null; then
-      sudo rm -f "$PROXY_FILE"
+    # Tenta remover sem senha, se falhar, avisa
+    if run_as_root -n true 2>/dev/null; then
+      run_as_root rm -f "$PROXY_FILE"
       success "Arquivo de proxy removido com sucesso."
     else
       warn "sudo requer senha. Pulei a remoção de $PROXY_FILE"
@@ -57,7 +77,7 @@ check_os() {
 }
 
 check_command() {
-  command -v "$1" >/dev/null 2>&1 || { error "Comando '$1' não encontrado. Por favor, instale-o."; exit 1; }
+  command -v "$1" >/dev/null 2>&1 || { error "Comando '$1' não encontrado. Por favor, instale-o e tente novamente."; exit 1; }
 }
 
 # Variáveis de ambiente com valores padrão
@@ -69,9 +89,15 @@ PROXY_FILE=/etc/apt/apt.conf.d/01proxy
 # Local cache for Playwright browsers (override via PLAYWRIGHT_BROWSERS_PATH)
 PLAYWRIGHT_CACHE_DIR="${PLAYWRIGHT_BROWSERS_PATH:-${OWNER_HOME}/.cache/ms-playwright}"
 export PLAYWRIGHT_BROWSERS_PATH="$PLAYWRIGHT_CACHE_DIR"
-sudo -u "$OWNER_USER" mkdir -p "$PLAYWRIGHT_CACHE_DIR"
+eval $CMD_PREFIX mkdir -p "$PLAYWRIGHT_CACHE_DIR"
 
 setup_system_dependencies() {
+  if [[ $EUID -ne 0 ]] && ! command -v sudo &>/dev/null; then
+    warn "Não foi possível executar como root (sudo não encontrado). Pulando a instalação de dependências do sistema."
+    warn "Certifique-se de que as dependências do sistema (curl, build-essential, etc.) estão instaladas manualmente."
+    return 0 # Retorna sucesso para não parar o script
+  fi
+
   info "(1/7) Verificando acesso à internet..."
   if curl -Is https://pypi.org/simple --max-time 5 >/dev/null 2>&1; then
     success "Conexão com a internet detectada"
@@ -81,10 +107,10 @@ setup_system_dependencies() {
 
   if [ -n "${HTTP_PROXY:-}" ]; then
     info "Configurando proxy para apt e npm..."
-    echo "Acquire::http::Proxy \"${HTTP_PROXY}\";" | sudo tee "$PROXY_FILE" >/dev/null
-    echo "Acquire::https::Proxy \"${HTTPS_PROXY:-$HTTP_PROXY}\";" | sudo tee -a "$PROXY_FILE" >/dev/null
-    sudo -u "$OWNER_USER" npm config set proxy "${HTTP_PROXY}"
-    sudo -u "$OWNER_USER" npm config set https-proxy "${HTTPS_PROXY:-$HTTP_PROXY}"
+    echo "Acquire::http::Proxy \"${HTTP_PROXY}\";" | run_as_root tee "$PROXY_FILE" >/dev/null
+    echo "Acquire::https::Proxy \"${HTTPS_PROXY:-$HTTP_PROXY}\";" | run_as_root tee -a "$PROXY_FILE" >/dev/null
+    eval $CMD_PREFIX npm config set proxy "${HTTP_PROXY}"
+    eval $CMD_PREFIX npm config set https-proxy "${HTTPS_PROXY:-$HTTP_PROXY}"
   fi
 
   # Determina o pacote ALSA correto para a distribuição
@@ -97,8 +123,8 @@ setup_system_dependencies() {
   fi
 
   info "(2/7) Instalando dependências do sistema para o Playwright..."
-  sudo apt-get update -y
-  sudo apt-get install -y --no-install-recommends \
+  run_as_root apt-get update -y
+  run_as_root apt-get install -y --no-install-recommends \
       curl ca-certificates libnss3 libnspr4 libatk1.0-0 libatk-bridge2.0-0 libcups2 \
       libdbus-1-3 libxkbcommon0 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 \
       libgbm1 libpango-1.0-0 libcairo2 "${alsa_package}" libatspi2.0-0 libgtk-3-0 \
@@ -114,7 +140,10 @@ setup_mise() {
   if ! command -v mise &> /dev/null; then
     if [ ! -f "$MISE_PATH" ]; then
       warn "Comando 'mise' não encontrado. Instalando para o usuário $OWNER_USER..."
-      sudo -u "$OWNER_USER" curl https://mise.run | sudo -u "$OWNER_USER" sh
+      local mise_installer="/tmp/mise-installer.sh"
+      curl -sSL https://mise.run -o "$mise_installer"
+      eval $CMD_PREFIX sh "$mise_installer"
+      rm "$mise_installer"
     fi
     # Adiciona mise ao PATH da sessão atual do script
     export PATH="${OWNER_HOME}/.local/bin:$PATH"
@@ -127,9 +156,9 @@ setup_mise() {
   fi
 
   info "Instalando ferramentas definidas no .tool-versions..."
-  sudo -u "$OWNER_USER" "$MISE_PATH" install
+  eval $CMD_PREFIX "$MISE_PATH" install
   info "Confiando na configuração do mise para este projeto..."
-  sudo -u "$OWNER_USER" "$MISE_PATH" trust --yes .
+  eval $CMD_PREFIX "$MISE_PATH" trust --yes .
 }
 
 setup_python_env() {
@@ -148,14 +177,14 @@ setup_python_env() {
   rm -rf src/*.egg-info
 
   info "Criando novo ambiente virtual em $venv_dir como usuário $OWNER_USER..."
-  sudo -u "$OWNER_USER" python3 -m venv "$venv_dir"
+  eval $CMD_PREFIX python3 -m venv "$venv_dir"
 
   info "Atualizando pip e instalando dependências Python como usuário $OWNER_USER..."
   export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 
   # Executa os comandos pip como o usuário proprietário, usando o pip do venv
   local pip_cmd="${venv_dir}/bin/pip"
-  sudo -u "$OWNER_USER" "$pip_cmd" install --upgrade pip
+  eval $CMD_PREFIX "$pip_cmd" install --upgrade pip
   if [ "$OFFLINE_INSTALL" = "true" ]; then
     local wheel_dir=${WHEELS_DIR:-./wheels}
     info "Instalando dependências de produção e desenvolvimento do cache local..."
