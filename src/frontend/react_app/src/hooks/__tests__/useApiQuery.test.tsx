@@ -13,10 +13,14 @@ beforeEach(() => {
   global.fetch = jest.fn() as unknown as typeof fetch
 })
 
-const queryClient = new QueryClient()
+let queryClient: QueryClient
 const wrapper = ({ children }: { children: React.ReactNode }) => (
   <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
 )
+
+beforeEach(() => {
+  queryClient = new QueryClient()
+})
 
 describe('useApiQuery', () => {
   it('updates state on success', async () => {
