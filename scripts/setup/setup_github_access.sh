@@ -24,7 +24,12 @@ EOM
 fi
 
 echo ">>> Authenticating GitHub CLI..."
-echo "$GITHUB_TOKEN" | gh auth login --with-token
+# No GitHub Actions, a CLI do gh usa automaticamente o GITHUB_TOKEN do ambiente.
+# Apenas verificamos o status e configuramos o git para usar o gh como auxiliar de credencial.
+gh auth status -t
+
+echo ">>> Configuring git to use GitHub CLI as a credential helper..."
+gh auth setup-git
 
 echo ">>> Marking repository as safe..."
 git config --global --add safe.directory "$(pwd)"
