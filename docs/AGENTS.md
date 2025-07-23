@@ -162,6 +162,16 @@ Após o pipeline A1-A9, pegue cada **Prompt Final** de A8 (um para cada artefato
 
 * Este `AGENTS.md` é mantido no repositório raiz e serve de referência viva.
 * Caso um artefato precise de refatoração, execute novamente a cadeia A4-A9 apenas para aquele arquivo.
+* Alterações estruturais são registradas em [docs/REFACTOR_LOG.md](REFACTOR_LOG.md). Ao rodar `bash scripts/refactor/init_refactor.sh`, registre as seguintes informações no final do log:
+  - **Data**: Use o formato ISO 8601 (`YYYY-MM-DD`), por exemplo, `2023-10-15`.
+  - **Resumo dos arquivos movidos**: Inclua o nome do arquivo, tamanho (em bytes), e o motivo da movimentação.
+  - **Exemplo de entrada no log**:
+    ```
+    Data: 2023-10-15
+    Arquivos movidos:
+    - `src/utils/helpers.py` (1024 bytes) - Refatoração para melhorar organização do código.
+    - `tests/test_helpers.py` (512 bytes) - Movido para acompanhar mudanças em `src/utils/helpers.py`.
+    ```
 
 ---
 
