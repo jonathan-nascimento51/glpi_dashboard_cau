@@ -22,6 +22,9 @@ available in [docs/install_quickstart.md](docs/install_quickstart.md).
 Always run npm commands from this directory and update any custom scripts
 or volume mounts accordingly.
 
+See [docs/DEV_SETUP.md](docs/DEV_SETUP.md#stabilizing-react-hook-dependencies)
+for tips on stabilizing React hook dependencies with `useMemo` and `useCallback`.
+
 Run `scripts/setup/setup_env.sh` (or `make setup`) to create the `.venv` directory,
 install packages from `requirements.txt` and the development set defined in
 `pyproject.toml` (compiled into `requirements-dev.txt`) and enable `pre-commit`
