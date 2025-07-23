@@ -12,7 +12,7 @@ export function scheduleIdleCallback(cb: () => void): IdleHandle {
 
 export function cancelIdleCallback(handle: IdleHandle) {
   if (typeof window !== 'undefined' && 'cancelIdleCallback' in window) {
-    ;(window as unknown as { cancelIdleCallback: (handle: IdleHandle) => void }).cancelIdleCallback(handle)
+    (window as { cancelIdleCallback: (handle: IdleHandle) => void }).cancelIdleCallback(handle)
   } else {
     clearTimeout(handle)
   }
