@@ -77,10 +77,16 @@ setup_system_dependencies() {
         npm config set https-proxy "${HTTPS_PROXY:-$HTTP_PROXY}"
     fi
 
-    # Determina o pacote ALSA correto para a distribuição
+    # Determina o pacote ALSA correto para a distribuição, usando um método mais robusto.
     local alsa_package="libasound2"
-    if apt-cache show libasound2t64 >/dev/null 2>&1; then
-        info "Distribuição usa 'libasound2t64'."
+    # Em sistemas como Ubuntu 24.04 (Noble), pacotes foram renomeados com o sufixo 't64'.
+    # Verificamos a versão do SO para usar o nome de pacote correto.
+    if command -v lsb_release >/dev/null 2>&1 && [ "$(lsb_release -cs)" = "noble" ]; then
+        info "Ubuntu Noble detectado. Usando 'libasound2t64'."
+        alsa_package="libasound2t64"
+    elif apt-cache show libasound2t64 >/dev/null 2>&1; then
+        # Fallback para o método anterior caso lsb_release não funcione ou não seja Noble
+        info "Distribuição usa 'libasound2t64' (detectado via apt-cache)."
         alsa_package="libasound2t64"
     else
         info "Distribuição usa 'libasound2'."
