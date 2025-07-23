@@ -42,6 +42,7 @@ This document condenses the main steps from the README to get the dashboard runn
 
   ```bash
   pip install -r requirements.txt -r requirements-dev.txt  # generated via pip-compile
+  # includes dev tools like pytest-cov used by coverage checks
   ```
    before running the tests.
 
@@ -79,6 +80,7 @@ mise settings add idiomatic_version_file_enable_tools node
 nvm install  # installs the version pinned in the repository's .nvmrc
 nvm use
 npm install         # installs dotenv, @eslint/js and other dev dependencies
+# dotenv is required for environment variables loaded during tests
 # npm ci can be used for reproducible installs
 npm run dev
 ```
