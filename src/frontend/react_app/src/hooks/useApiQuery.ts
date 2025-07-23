@@ -57,10 +57,14 @@ export function useApiQuery<T>(
     return (await response.json()) as T;
   };
 
+  // Serialize options for queryKey stability
+  const serializedOpts = options ? JSON.stringify(options) : '';
   return useQuery<T, Error>({
-    queryKey: Array.isArray(queryKey) ? queryKey : [queryKey],
+    queryKey: [
+      ...(Array.isArray(queryKey) ? queryKey : [queryKey]),
+      serializedOpts,
+    ],
     queryFn: fetchFromApi,
     ...(options ?? {}),
-    meta: { serializedOpts },
   });
 }
