@@ -36,6 +36,10 @@ jobs:
           cd src/frontend/react_app && npm ci && cd ../../..
       - name: Install pre-commit
         run: pip install pre-commit
+      - name: Install ruff
+        run: pip install ruff
+      - name: Run ruff
+        run: ruff check src tests
       - name: Run pre-commit
         run: pre-commit run --show-diff-on-failure --color=always --all-files
       - name: Run frontend lint
