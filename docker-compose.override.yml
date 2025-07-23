@@ -10,6 +10,7 @@ services:
     # Mounts local source code into the container for live-reloading.
     volumes:
       - ./src:/app/src
+      - ./tests:/app/tests
 
   frontend:
     build:
