@@ -28,8 +28,8 @@ export function useApiQuery<T>(
   endpoint: string,
   options?: UseQueryOptions<T, Error>,
 ): UseQueryResult<T, Error> {
-  const serializedOpts = useMemo(
-    () => (options ? stableStringify(options as Record<string, unknown>) : ''),
+  const memoizedOptions = useMemo(
+    () => (options ? { ...options, serialized: stableStringify(options as Record<string, unknown>) } : {}),
     [options],
   );
 
