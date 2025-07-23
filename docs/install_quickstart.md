@@ -74,12 +74,15 @@ Copy the React environment file, install Node packages and run Vite:
 ```bash
 cp src/frontend/react_app/.env.example src/frontend/react_app/.env
 cd src/frontend/react_app
-nvm install 20.19.0
+# optional but recommended with mise to avoid the .nvmrc warning
+mise settings add idiomatic_version_file_enable_tools node
+nvm install 20.19.0  # version pinned in the repository's .nvmrc
 nvm use 20.19.0
 npm install         # installs dotenv, @eslint/js and other dev dependencies
 # npm ci can be used for reproducible installs
 npm run dev
 ```
+The exact Node version is pinned in `.nvmrc` at the repository root.
 Docker Compose automatically loads `.env` when present.
 Docker can be used if you cannot install the required Node version.
 
