@@ -170,10 +170,6 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
             for origin in os.getenv("API_CORS_ALLOW_ORIGINS", "").split(",")
             if origin.strip()
         ]
-        if not allowed_origins:
-            raise ValueError(
-                "API_CORS_ALLOW_ORIGINS must be set to at least one origin in production."
-            )
         allowed_methods = [
             method.strip().upper()
             for method in os.getenv("API_CORS_ALLOW_METHODS", "GET,HEAD,OPTIONS").split(
