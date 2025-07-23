@@ -190,12 +190,15 @@ Altere as opções padrão do `queryClient` nesse arquivo para ajustar
 
 ### Padrão de uso do `useApiQuery`
 
-O helper `useApiQuery` padroniza chamadas ao worker API. Ele recebe o
-`endpoint` e, opcionalmente, um objeto de opções:
+O helper `useApiQuery` padroniza chamadas ao worker API. Ele recebe uma
+`queryKey`, o `endpoint` e, opcionalmente, um objeto de opções do React Query:
 
 ```ts
-const { data, isLoading } = useApiQuery('/tickets')
+const { data, isLoading } = useApiQuery(['tickets'], '/tickets')
 ```
+
+Se precisar passar opções criadas inline, serializá-las ou extraia-as para uma
+constante para evitar re-renderizações extras.
 
 Internamente a função utiliza o `fetcher` definido em `src/lib/swrClient.ts`.
 
@@ -206,7 +209,7 @@ de lógica adicional:
 
 ```ts
 export function useUsuarios() {
-  return useApiQuery('/usuarios')
+  return useApiQuery(['usuarios'], '/usuarios')
 }
 ```
 

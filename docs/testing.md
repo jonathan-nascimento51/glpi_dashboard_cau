@@ -30,3 +30,5 @@ PYTEST_ADDOPTS="" pytest tests/test_worker_api.py
 - `pydantic>=2` for data models
 
 Ensure both requirement files are installed and that your virtual environment is active.
+The backend tests expect environment variables like `GLPI_BASE_URL` to be set.
+Create a `.env` file or export minimal values (e.g. `GLPI_BASE_URL=http://example.com/apirest.php`) before running `pytest`.
