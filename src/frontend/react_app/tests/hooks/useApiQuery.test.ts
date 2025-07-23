@@ -1,16 +1,15 @@
 import { renderHook, waitFor } from '@testing-library/react';
-import axios from 'axios';
 import { useApiQuery } from '../../src/hooks/useApiQuery';
 
-jest.mock('axios');
-const mockedAxios = axios as jest.Mocked<typeof axios>;
+const fetchMock = jest.fn();
+global.fetch = fetchMock as unknown as typeof fetch;
 
 const MOCK_API_URL = 'http://test-api.com';
 process.env.NEXT_PUBLIC_API_BASE_URL = MOCK_API_URL;
 
 describe('useApiQuery', () => {
   beforeEach(() => {
-    mockedAxios.get.mockClear();
+    fetchMock.mockReset();
   });
 
   it('deve retornar o estado de carregamento inicialmente', () => {
@@ -22,7 +21,10 @@ describe('useApiQuery', () => {
 
   it('deve buscar os dados com sucesso e atualizar o estado', async () => {
     const mockData = { tickets: [{ id: 1, name: 'Test Ticket' }] };
-    mockedAxios.get.mockResolvedValue({ data: mockData });
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: async () => mockData,
+    } as Response);
 
     const { result } = renderHook(() => useApiQuery('/tickets'));
 
@@ -30,12 +32,12 @@ describe('useApiQuery', () => {
 
     expect(result.current.data).toEqual(mockData);
     expect(result.current.error).toBeNull();
-    expect(mockedAxios.get).toHaveBeenCalledWith(`${MOCK_API_URL}/tickets`, expect.any(Object));
+    expect(fetchMock).toHaveBeenCalledWith(`${MOCK_API_URL}/tickets`, expect.objectContaining({ signal: expect.any(Object) }));
   });
 
   it('deve tratar erros de busca e atualizar o estado', async () => {
     const errorMessage = 'Network Error';
-    mockedAxios.get.mockRejectedValue(new Error(errorMessage));
+    fetchMock.mockRejectedValue(new Error(errorMessage));
 
     const { result } = renderHook(() => useApiQuery('/tickets'));
 
@@ -49,7 +51,7 @@ describe('useApiQuery', () => {
     const { result } = renderHook(() => useApiQuery(''));
     expect(result.current.isLoading).toBe(false);
     expect(result.current.error).toBe('Endpoint não fornecido.');
-    expect(mockedAxios.get).not.toHaveBeenCalled();
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it('deve tratar erro de URL base não configurada', async () => {
