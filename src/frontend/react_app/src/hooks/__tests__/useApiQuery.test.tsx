@@ -5,8 +5,13 @@ import { useApiQuery } from '../useApiQuery'
 jest.mock('axios')
 const mockedAxios = axios as jest.Mocked<typeof axios>
 
-process.env.NEXT_PUBLIC_API_BASE_URL = 'http://test-api.com'
+beforeAll(() => {
+  process.env.NEXT_PUBLIC_API_BASE_URL = 'http://test-api.com';
+});
 
+afterAll(() => {
+  delete process.env.NEXT_PUBLIC_API_BASE_URL;
+});
 // Helper to make fetch use axios under the hood
 beforeEach(() => {
   mockedAxios.mockReset()
