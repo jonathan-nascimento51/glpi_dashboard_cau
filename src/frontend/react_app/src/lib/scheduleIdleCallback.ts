@@ -4,7 +4,10 @@ export function scheduleIdleCallback(cb: () => void): IdleHandle {
   if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
     return (window as unknown as { requestIdleCallback: (fn: IdleRequestCallback) => IdleHandle }).requestIdleCallback(() => cb())
   }
-  return window.setTimeout(cb, 0)
+  if (typeof window !== 'undefined') {
+    return window.setTimeout(cb, 0)
+  }
+  return setTimeout(cb, 0)
 }
 
 export function cancelIdleCallback(handle: IdleHandle) {
