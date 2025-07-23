@@ -35,10 +35,14 @@ import type { ChamadoPorData } from '../types/chamado'
  * }
  */
 export function useChamadosPorData() {
-  return useApiQuery<ChamadoPorData[], Error>('/chamados/por-data', {
-    staleTime: 1000 * 60 * 5, // 5 minutos
-    gcTime: 1000 * 60 * 10, // 10 minutos
-    refetchOnWindowFocus: true,
-    // refetchInterval: 30000, // descomente para polling a cada 30s
-  })
+  return useApiQuery<ChamadoPorData[], Error>(
+    '/chamados/por-data',
+    undefined,
+    {
+      staleTime: 1000 * 60 * 5, // 5 minutos
+      gcTime: 1000 * 60 * 10, // 10 minutos
+      refetchOnWindowFocus: true,
+      // refetchInterval: 30000, // descomente para polling a cada 30s
+    },
+  )
 }
