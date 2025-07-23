@@ -47,7 +47,16 @@ export function useApiQuery<T>(
         });
 
         if (!response.ok) {
-          throw new Error(`Erro na requisição: ${response.statusText}`);
+          let errorMessage = `Erro na requisição: ${response.statusText}`;
+          try {
+            const errorBody = await response.json();
+            if (errorBody && (errorBody.message || errorBody.error)) {
+              errorMessage += ` - ${errorBody.message || errorBody.error}`;
+            }
+          } catch (e) {
+            // Falha ao fazer parse do corpo de erro, manter mensagem padrão
+          }
+          throw new Error(errorMessage);
         }
 
         const json = (await response.json()) as T;
