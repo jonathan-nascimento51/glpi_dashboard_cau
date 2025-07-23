@@ -24,4 +24,4 @@ these guidelines to avoid unnecessary re-renders:
 
 - **Avoid `JSON.stringify`** – property order can change and functions are lost,
   causing unstable strings. Our `useApiQuery` hook uses a `stableStringify`
-  helper instead.
+  helper instead. **Note**: it does not handle nested objects.
