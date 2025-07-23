@@ -21,6 +21,6 @@
     "noFallthroughCasesInSwitch": true,
     "types": ["jest"]
   },
-  "include": ["src", "src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "tests/hooks/useApiQuery.test.ts"],
+  "include": ["src", "src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "tests/**/*.tsx"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
