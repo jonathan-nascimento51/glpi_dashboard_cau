@@ -76,8 +76,8 @@ cp src/frontend/react_app/.env.example src/frontend/react_app/.env
 cd src/frontend/react_app
 # optional but recommended with mise to avoid the .nvmrc warning
 mise settings add idiomatic_version_file_enable_tools node
-nvm install 20.19.0  # version pinned in the repository's .nvmrc
-nvm use 20.19.0
+nvm install  # installs the version pinned in the repository's .nvmrc
+nvm use
 npm install         # installs dotenv, @eslint/js and other dev dependencies
 # npm ci can be used for reproducible installs
 npm run dev
