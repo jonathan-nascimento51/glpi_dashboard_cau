@@ -146,7 +146,7 @@ This starts PostgreSQL, Redis, the FastAPI worker and the Dash app. Access the d
   prefer:
 
   ```bash
-  nvm install 20.19.0
+  nvm install
   nvm use 20.19.0
   ```
 
