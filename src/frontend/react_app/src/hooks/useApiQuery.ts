@@ -6,8 +6,21 @@ import {
   type UseQueryResult,
 } from '@tanstack/react-query'
 
-function stableStringify(value: Record<string, unknown>) {
-  return JSON.stringify(value, Object.keys(value).sort());
+function stableStringify(value: unknown): string {
+  if (value === null || typeof value !== 'object') {
+    return JSON.stringify(value);
+  }
+  if (Array.isArray(value)) {
+    return `[${value.map(stableStringify).join(',')}]`;
+  }
+  const keys = Object.keys(value as Record<string, unknown>).sort();
+  const entries = keys.map(
+    (key) =>
+      `${JSON.stringify(key)}:${stableStringify(
+        (value as Record<string, unknown>)[key]
+      )}`
+  );
+  return `{${entries.join(',')}}`;
 }
 
 export function useApiQuery<T>(
