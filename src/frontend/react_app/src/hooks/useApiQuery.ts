@@ -16,9 +16,7 @@ export function useApiQuery<T>(
     isLoading: true,
     error: null,
   });
-  const fetchOptions = useMemo(() => ({
-    ...(options || {}),
-  }), [options]);
+  const fetchOptions = useMemo(() => options || {}, [options]);
 
   useEffect(() => {
     if (!endpoint) {
