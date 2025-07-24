@@ -72,7 +72,7 @@ class CriteriaBuilder:
         if field_id is None:
             raise KeyError(f"Unknown field: {field_name}")
         logger.debug(
-            "Filtro adicionado: field '%s' (id %s) = '%s', link=%s",
+            "Filter added: field '%s' (id %s) = '%s', link=%s",
             field_name,
             field_id,
             value,
@@ -92,9 +92,10 @@ class CriteriaBuilder:
     def build(self) -> Dict[str, str]:
         """Return parameters suitable for ``requests`` ``params`` argument."""
         params: Dict[str, str] = {}
+        last_idx = len(self._criteria) - 1
         for idx, crit in enumerate(self._criteria):
             params[f"criteria[{idx}][field]"] = str(crit.field)
             params[f"criteria[{idx}][search]"] = str(crit.search)
-            if idx < len(self._criteria) - 1:
+            if idx < last_idx:
                 params[f"criteria[{idx}][link]"] = crit.link
         return params
