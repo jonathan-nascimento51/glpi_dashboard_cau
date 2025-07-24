@@ -18,11 +18,24 @@ _is_initialized: bool = False
 _correlation_id: ContextVar[str | None] = ContextVar("correlation_id", default=None)
 
 # Values used to scrub sensitive tokens from log messages
-_SECRET_TOKENS = [
-    os.getenv("GLPI_APP_TOKEN"),
-    os.getenv("GLPI_USER_TOKEN"),
-]
+_SECRET_TOKENS = {
+    token
+    for token in (
+        os.getenv("GLPI_APP_TOKEN"),
+        os.getenv("GLPI_USER_TOKEN"),
+    )
+    if token is not None
+}
 _SESSION_RE = re.compile(r"session_token=([A-Za-z0-9\-]+)")
+
+
+def _sanitize(text: str) -> str:
+    """Return *text* with secret tokens masked."""
+
+    for token in _SECRET_TOKENS:
+        if token in text:
+            text = text.replace(token, "***")
+    return _SESSION_RE.sub(r"session_token=***", text)
 
 
 class _RecordFilter:
@@ -30,23 +43,14 @@ class _RecordFilter:
         record["extra"]["correlation_id"] = _correlation_id.get()
         msg = record.get("message")
         if isinstance(msg, str):
-            for token in _SECRET_TOKENS:
-                if token and token in msg:
-                    msg = msg.replace(token, "***")
-            msg = _SESSION_RE.sub(r"session_token=***", msg)
-            record["message"] = msg
+            record["message"] = _sanitize(msg)
         return True
 
 
 class _InterceptHandler(logging.Handler):
     def emit(self, record: logging.LogRecord) -> None:  # pragma: no cover - passthrough
         bound = logger.bind(correlation_id=_correlation_id.get())
-        msg = record.getMessage()
-        for token in _SECRET_TOKENS:
-            if token and token in msg:
-                msg = msg.replace(token, "***")
-        msg = _SESSION_RE.sub(r"session_token=***", msg)
-        bound.opt(exception=record.exc_info).log(record.levelno, msg)
+        bound.opt(exception=record.exc_info).log(record.levelno, record.getMessage())
 
 
 class SensitiveFilter(logging.Filter):
@@ -54,25 +58,20 @@ class SensitiveFilter(logging.Filter):
 
     def filter(self, record: logging.LogRecord) -> bool:  # pragma: no cover - simple
         if isinstance(record.msg, str):
-            msg = record.msg
-            for token in _SECRET_TOKENS:
-                if token and token in msg:
-                    msg = msg.replace(token, "***")
-            msg = _SESSION_RE.sub(r"session_token=***", msg)
-            record.msg = msg
+            record.msg = _sanitize(record.msg)
+
         if record.args:
             new_args: list[Any] = []
+            modified = False
             for arg in record.args:
                 if isinstance(arg, str):
-                    text = arg
-                    for token in _SECRET_TOKENS:
-                        if token and token in text:
-                            text = text.replace(token, "***")
-                    text = _SESSION_RE.sub(r"session_token=***", text)
-                    new_args.append(text)
+                    sanitized = _sanitize(arg)
+                    modified |= sanitized != arg
+                    new_args.append(sanitized)
                 else:
                     new_args.append(arg)
-            record.args = tuple(new_args)
+            if modified:
+                record.args = tuple(new_args)
         return True
 
 
