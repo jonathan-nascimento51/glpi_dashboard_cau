@@ -939,3 +939,34 @@ async def test_get_full_session_error(
     async with session as glpi:
         with pytest.raises(GLPIForbiddenError):
             await glpi.get_full_session()
+
+
+@pytest.mark.asyncio
+async def test_context_exit_triggers_kill_session(
+    base_url,
+    app_token,
+    username,
+    password,
+    mock_client_session,
+    mock_response,
+):
+    """killSession is called and the token cleared when exiting."""
+    creds = Credentials(app_token=app_token, username=username, password=password)
+    session = GLPISession(base_url, creds)
+
+    mock_client_session.get.side_effect = [
+        make_cm(200, {"session_token": "active_token"}),
+        make_cm(200, {}),
+    ]
+
+    async with session:
+        assert session._session_token == "active_token"
+
+    kill_call = mock_client_session.get.call_args_list[-1]
+    assert kill_call.args[0] == f"{base_url}/killSession"
+    assert kill_call.kwargs["headers"] == {
+        "Content-Type": "application/json",
+        "Session-Token": "active_token",
+        "App-Token": app_token,
+    }
+    assert session._session_token is None
