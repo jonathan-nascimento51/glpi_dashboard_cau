@@ -42,5 +42,6 @@
 
   // ▼ Outros ------------------------------------------------------------------
   "docwriter.style": "Auto-detect",
-  "makefile.makefilePath": "Makefile"
+  "makefile.makefilePath": "Makefile",
+  "wolf.disableHotModeWarning": true
 }

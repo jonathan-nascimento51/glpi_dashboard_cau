@@ -20,7 +20,8 @@ def create_env(
         return
     if not example.exists():
         print(
-            f"❌ ERRO: O arquivo de exemplo '{example.relative_to(PROJECT_ROOT)}' não foi encontrado.",
+            f"❌ ERRO: O arquivo de exemplo '{example.relative_to(PROJECT_ROOT)}' "
+            "não foi encontrado.",
             file=sys.stderr,
         )
         print(
@@ -31,7 +32,8 @@ def create_env(
 
     shutil.copy(example, target)
     print(
-        f"✅ Criado {target.relative_to(PROJECT_ROOT)} a partir de {example.relative_to(PROJECT_ROOT)}."
+        f"✅ Criado {target.relative_to(PROJECT_ROOT)} a partir de "
+        f"{example.relative_to(PROJECT_ROOT)}."
     )
     print("   ➡️  Por favor, edite o arquivo .env com suas credenciais do GLPI.")
 
