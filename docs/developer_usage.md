@@ -234,7 +234,7 @@ cd src/frontend/react_app
 npm run storybook
 ```
 
-Este comando abre a interface em <http://localhost:6006>. Utilize as histórias
+Este comando abre a interface em <http://localhost:6006> (porta padrão, configurável). Utilize as histórias
 para validar diferentes estados (carregando, erro, sucesso) antes de integrar
 ao fluxo principal.
 
