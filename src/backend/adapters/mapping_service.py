@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, cast
 
+import aiohttp
 import redis.asyncio as redis
 from backend.core.settings import REDIS_DB, REDIS_HOST, REDIS_PORT
-from backend.infrastructure.glpi.glpi_session import GLPISession
+from backend.infrastructure.glpi.glpi_session import GLPIAPIError, GLPISession
 from shared.utils.redis_client import RedisClient
-from shared.utils.redis_client import redis_client as default_redis_client
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +31,9 @@ class MappingService:
             db=REDIS_DB,
             decode_responses=True,
         )
-        self.search_cache = search_cache or default_redis_client
+        # Avoid using a global Redis client by default to prevent cache
+        # cross-contamination in tests or multi-tenant setups.
+        self.search_cache = search_cache or RedisClient()
 
     async def initialize(self) -> None:
         """Load all mappings from the GLPI API into memory and cache."""
@@ -105,17 +107,28 @@ class MappingService:
         """Return cached search options for ``itemtype`` or fetch from GLPI."""
         cache_key = f"search_options:{itemtype}"
         cached = await self.search_cache.get(cache_key)
+        if isinstance(cached, dict):
+            return cast(Dict[str, Any], cached)
         if cached is not None:
-            return cached
+            logger.warning(
+                "Ignoring invalid cached search options for %s: %s",
+                itemtype,
+                type(cached),
+            )
 
         successful_fetch = False
         try:
             options = await self._session.list_search_options(itemtype)
             successful_fetch = True
-        except Exception as exc:  # pragma: no cover - network failures
+        except (
+            aiohttp.ClientError,
+            GLPIAPIError,
+        ) as exc:  # pragma: no cover - network failures
             logger.error("failed to load search options for %s: %s", itemtype, exc)
             options = {}
 
-        ttl = self.cache_ttl_seconds if successful_fetch else 300  # e.g., 5 minutes for failures
+        ttl = (
+            self.cache_ttl_seconds if successful_fetch else 300
+        )  # e.g., 5 minutes for failures
         await self.search_cache.set(cache_key, options, ttl_seconds=ttl)
         return options

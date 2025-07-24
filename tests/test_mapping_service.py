@@ -1,3 +1,4 @@
+import aiohttp
 import pytest
 from backend.adapters.mapping_service import MappingService
 from backend.infrastructure.glpi.glpi_session import GLPISession
@@ -102,4 +103,48 @@ async def test_get_search_options_cache_miss(mocker):
         "search_options:Ticket",
         {"1": {"name": "ID"}},
         ttl_seconds=svc.cache_ttl_seconds,
+    )
+
+
+@pytest.mark.asyncio
+async def test_get_search_options_invalid_cache(mocker):
+    session = mocker.Mock(spec=GLPISession)
+    session.list_search_options = mocker.AsyncMock(return_value={"1": {"name": "ID"}})
+    search_cache = mocker.Mock(spec=RedisClient)
+    search_cache.get = mocker.AsyncMock(return_value=INVALID_CACHE_VALUE)
+    search_cache.set = mocker.AsyncMock()
+
+    svc = MappingService(session, search_cache=search_cache)
+
+    result = await svc.get_search_options("Ticket")
+
+    assert result == {"1": {"name": "ID"}}
+    session.list_search_options.assert_awaited_once_with("Ticket")
+    search_cache.set.assert_awaited_once_with(
+        "search_options:Ticket",
+        {"1": {"name": "ID"}},
+        ttl_seconds=svc.cache_ttl_seconds,
+    )
+
+
+@pytest.mark.asyncio
+async def test_get_search_options_network_error(mocker):
+    session = mocker.Mock(spec=GLPISession)
+    session.list_search_options = mocker.AsyncMock(
+        side_effect=aiohttp.ClientError("Network connection failed")
+    )
+    search_cache = mocker.Mock(spec=RedisClient)
+    search_cache.get = mocker.AsyncMock(return_value=None)
+    search_cache.set = mocker.AsyncMock()
+
+    svc = MappingService(session, search_cache=search_cache)
+
+    result = await svc.get_search_options("Ticket")
+
+    assert result == {}
+    session.list_search_options.assert_awaited_once_with("Ticket")
+    search_cache.set.assert_awaited_once_with(
+        "search_options:Ticket",
+        {},
+        ttl_seconds=300,
     )
