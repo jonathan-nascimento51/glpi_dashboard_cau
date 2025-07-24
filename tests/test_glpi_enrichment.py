@@ -1,8 +1,7 @@
 from unittest.mock import AsyncMock
 
 import pytest
-
-from glpi_enrichment import GLPIEnrichmentService
+from backend.services.glpi_enrichment import GLPIEnrichmentService
 
 
 @pytest.mark.asyncio
