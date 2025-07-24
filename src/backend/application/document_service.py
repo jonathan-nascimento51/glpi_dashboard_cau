@@ -59,7 +59,9 @@ async def create_document(
     )
 
     data = await _post_form(session, "Document", form)
-    return int(data.get("id", 0))
+    if "id" not in data:
+        raise ValueError(f"API response does not contain 'id': {data}")
+    return int(data["id"])
 
 
 async def link_document(
