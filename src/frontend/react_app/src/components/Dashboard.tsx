@@ -1,6 +1,5 @@
-import { useEffect, useState } from 'react'
-import axios from 'axios'
-import type { MetricsOverview, LevelMetrics } from '../types/metricsOverview'
+import type { LevelMetrics } from '../types/metricsOverview'
+import { useMetricsOverview } from '../hooks/useMetricsOverview'
 import { LoadingSpinner } from './LoadingSpinner'
 import { ErrorMessage } from './ErrorMessage'
 
@@ -20,41 +19,19 @@ function MetricCard({ level, data }: MetricCardProps) {
 }
 
 export default function Dashboard() {
-  const [metrics, setMetrics] = useState<MetricsOverview | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+  const { metrics, isLoading, isError, error, refreshMetrics } = useMetricsOverview()
 
-  useEffect(() => {
-    const source = axios.CancelToken.source()
-
-    const fetchMetrics = async () => {
-      try {
-        const res = await axios.get('/metrics/overview', { cancelToken: source.token })
-        setMetrics(res.data)
-        setError('')
-      } catch (err) {
-        if (!axios.isCancel(err)) {
-          setError('Não foi possível carregar as métricas. Tente novamente mais tarde.')
-        }
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchMetrics()
-    const id = setInterval(fetchMetrics, 60000)
-    return () => {
-      clearInterval(id)
-      source.cancel('unmounted')
-    }
-  }, [])
-
-  if (loading) {
+  if (isLoading) {
     return <LoadingSpinner />
   }
 
-  if (error) {
-    return <ErrorMessage message={error} onRetry={() => { setLoading(true); setError(''); }} />
+  if (isError) {
+    return (
+      <ErrorMessage
+        message={error?.message ?? 'Não foi possível carregar as métricas. Tente novamente mais tarde.'}
+        onRetry={refreshMetrics}
+      />
+    )
   }
 
   return (
