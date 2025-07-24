@@ -9,9 +9,9 @@ from pathlib import Path
 from types import ModuleType
 
 import pytest
-from aiohttp import web
 
 pytest.importorskip("aiohttp")
+from aiohttp import web  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 main_globals = runpy.run_path(str(ROOT / "dashboard_app.py"))

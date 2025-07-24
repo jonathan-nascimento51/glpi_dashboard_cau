@@ -24,7 +24,7 @@ _SECRET_TOKENS = {
         os.getenv("GLPI_APP_TOKEN"),
         os.getenv("GLPI_USER_TOKEN"),
     )
-    if token
+    if token is not None
 }
 _SESSION_RE = re.compile(r"session_token=([A-Za-z0-9\-]+)")
 # Generic pattern for API tokens (hex strings >=40 chars)
