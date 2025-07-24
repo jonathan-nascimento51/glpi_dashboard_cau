@@ -5,9 +5,11 @@ import logging
 import os
 from typing import Optional
 
+import aiohttp
 import redis
-import requests
+from aiohttp import BasicAuth
 from backend.core.settings import (
+    CLIENT_TIMEOUT_SECONDS,
     GLPI_APP_TOKEN,
     GLPI_BASE_URL,
     GLPI_PASSWORD,
@@ -18,7 +20,6 @@ from backend.core.settings import (
     REDIS_PORT,
     REDIS_TTL_SECONDS,
 )
-from requests.auth import HTTPBasicAuth
 from shared.utils.logging import get_logger
 from tenacity import (
     before_sleep_log,
@@ -65,7 +66,7 @@ class GLPIAuthClient:
         username: Optional[str] = GLPI_USERNAME,
         password: Optional[str] = GLPI_PASSWORD,
         redis_conn: Optional[redis.Redis] = None,
-        session: Optional[requests.Session] = None,
+        session: Optional[aiohttp.ClientSession] = None,
         redis_key: str = "glpi:session_token",
         ttl_seconds: int = REDIS_TTL_SECONDS,
     ) -> None:
@@ -76,7 +77,7 @@ class GLPIAuthClient:
         self.password = password
         self.redis_key = redis_key
         self.ttl_seconds = ttl_seconds
-        self.session = session or requests.Session()
+        self.session = session
         self.redis = redis_conn or redis.Redis(
             host=REDIS_HOST,
             port=REDIS_PORT,
@@ -91,7 +92,7 @@ class GLPIAuthClient:
         retry=retry_if_exception_type(TemporaryAuthError),
         reraise=True,
     )
-    def init_session(self) -> str:
+    async def init_session(self) -> str:
         """Authenticate with GLPI and return a new ``session_token``."""
 
         headers = {"App-Token": self.app_token, "Content-Type": "application/json"}
@@ -100,36 +101,50 @@ class GLPIAuthClient:
             headers["Authorization"] = f"user_token {self.user_token}"
             logger.info(json.dumps({"event": "init_session", "method": "user_token"}))
         elif self.username and self.password:
-            auth = HTTPBasicAuth(self.username, self.password)
+            auth = BasicAuth(self.username, self.password)
             logger.info(json.dumps({"event": "init_session", "method": "basic_auth"}))
         else:
             raise GLPIAuthError("missing credentials")
 
         url = f"{self.base_url}/initSession"
+        session = self.session
+        close_session = False
+        if session is None:
+            session = aiohttp.ClientSession()
+            close_session = True
         try:
-            resp = self.session.get(url, headers=headers, auth=auth, timeout=30)
-        except requests.RequestException as exc:
+            async with session.get(
+                url,
+                headers=headers,
+                auth=auth,
+                timeout=CLIENT_TIMEOUT_SECONDS,
+            ) as resp:
+                status = resp.status
+                if status == 401:
+                    logger.error(json.dumps({"event": "unauthorized"}))
+                    raise GLPIAuthError("unauthorized")
+                if status >= 500:
+                    logger.warning(
+                        json.dumps({"event": "server_error", "status": status})
+                    )
+                    raise TemporaryAuthError(f"status {status}")
+                resp.raise_for_status()
+                data = await resp.json()
+        except aiohttp.ClientError as exc:
             logger.warning(
                 json.dumps({"event": "init_session_error", "error": str(exc)})
             )
             raise TemporaryAuthError from exc
-
-        if resp.status_code == 401:
-            logger.error(json.dumps({"event": "unauthorized"}))
-            raise GLPIAuthError("unauthorized")
-        if resp.status_code >= 500:
-            logger.warning(
-                json.dumps({"event": "server_error", "status": resp.status_code})
-            )
-            raise TemporaryAuthError(f"status {resp.status_code}")
-        resp.raise_for_status()
-        token = resp.json().get("session_token")
+        finally:
+            if close_session:
+                await session.close()
+        token = data.get("session_token")
         if not token:
             raise GLPIAuthError("session_token missing")
         logger.info(json.dumps({"event": "init_session_success"}))
         return token
 
-    def get_session_token(self, force_refresh: bool = False) -> str:
+    async def get_session_token(self, force_refresh: bool = False) -> str:
         """Return a cached ``session_token`` or authenticate if needed."""
 
         if not force_refresh:
@@ -143,7 +158,7 @@ class GLPIAuthClient:
                 return token
             logger.info(json.dumps({"event": "cache_miss"}))
 
-        token = self.init_session()
+        token = await self.init_session()
         try:
             self.redis.setex(self.redis_key, self.ttl_seconds, token)
             logger.info(json.dumps({"event": "cache_store", "ttl": self.ttl_seconds}))
