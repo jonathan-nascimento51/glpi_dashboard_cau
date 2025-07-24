@@ -22,6 +22,8 @@ class EnrichedTicket(TypedDict, total=False):
 class GLPIEnrichmentService:
     """Map and enrich raw GLPI ticket data with readable fields."""
 
+    DEFAULT_UNKNOWN_VALUE = "Unknown"
+
     def __init__(
         self,
         base_url: str = GLPI_BASE_URL,
@@ -32,13 +34,14 @@ class GLPIEnrichmentService:
         self.base_url = base_url.rstrip("/")
         self.app_token = app_token
         self.auth_client = auth_client or GLPIAuthClient(base_url, app_token)
+        self._owns_session = session is None
         self.session = session or aiohttp.ClientSession()
         self._status_map: Dict[int, str] = {}
         self._user_cache: Dict[int, str] = {}
         self._group_cache: Dict[int, str] = {}
 
     async def close(self) -> None:
-        if not self.session.closed:
+        if self._owns_session and not self.session.closed:
             await self.session.close()
 
     async def _request(self, endpoint: str) -> Dict[str, Any]:
@@ -64,19 +67,18 @@ class GLPIEnrichmentService:
             try:
                 sid = int(item.get("id"))
                 name = str(item.get("name"))
-            except Exception:  # noqa: BLE001
+            except (ValueError, TypeError):  # noqa: BLE001
                 continue
             mapping[sid] = name
         self._status_map.update(mapping)
 
     async def _get_status_name(self, status_id: int) -> str:
         await self._load_statuses()
-        return self._status_map.get(status_id, "Unknown")
+        return self._status_map.get(status_id, self.DEFAULT_UNKNOWN_VALUE)
 
     async def _fetch_user_name(self, user_id: int) -> str:
         data = await self._request(f"User/{user_id}")
-        name = str(data.get("name", "Unknown"))
-        return name
+        return str(data.get("name", self.DEFAULT_UNKNOWN_VALUE))
 
     async def _get_user_name(self, user_id: int) -> str:
         cached = self._user_cache.get(user_id)
@@ -89,8 +91,7 @@ class GLPIEnrichmentService:
 
     async def _fetch_group_name(self, group_id: int) -> str:
         data = await self._request(f"Group/{group_id}")
-        name = str(data.get("name", "Unknown"))
-        return name
+        return str(data.get("name", self.DEFAULT_UNKNOWN_VALUE))
 
     async def _get_group_name(self, group_id: int) -> str:
         cached = self._group_cache.get(group_id)
@@ -106,11 +107,11 @@ class GLPIEnrichmentService:
             ticket["status_name"] = await self._get_status_name(int(ticket["status"]))
         if "users_id_recipient" in ticket and "user_name" not in ticket:
             uid = ticket.get("users_id_recipient")
-            if uid:
+            if uid is not None:
                 ticket["user_name"] = await self._get_user_name(int(uid))
         if "groups_id_assign" in ticket and "group_name" not in ticket:
             gid = ticket.get("groups_id_assign")
-            if gid:
+            if gid is not None:
                 ticket["group_name"] = await self._get_group_name(int(gid))
         return ticket  # type: ignore[return-value]
 
@@ -121,13 +122,19 @@ class GLPIEnrichmentService:
         group_ids: Set[int] = set()
         for t in tickets:
             uid = t.get("users_id_recipient")
-            if uid and "user_name" not in t:
+            if uid is not None and "user_name" not in t:
                 user_ids.add(int(uid))
             gid = t.get("groups_id_assign")
-            if gid and "group_name" not in t:
+            if gid is not None and "group_name" not in t:
                 group_ids.add(int(gid))
-        await asyncio.gather(*(self._get_user_name(uid) for uid in user_ids))
-        await asyncio.gather(*(self._get_group_name(gid) for gid in group_ids))
+        await asyncio.gather(
+            *(self._get_user_name(uid) for uid in user_ids),
+            return_exceptions=True,
+        )
+        await asyncio.gather(
+            *(self._get_group_name(gid) for gid in group_ids),
+            return_exceptions=True,
+        )
         results = []
         for ticket in tickets:
             results.append(await self.enrich_ticket(ticket))
