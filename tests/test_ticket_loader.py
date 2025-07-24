@@ -28,6 +28,7 @@ async def test_load_and_translate_tickets_cache_hit(mocker):
 
     assert isinstance(result, list)
     assert all(isinstance(t, CleanTicketDTO) for t in result)
+    assert result[0].priority == "Low"
     cache.get.assert_awaited_once_with("tickets_clean")
 
 

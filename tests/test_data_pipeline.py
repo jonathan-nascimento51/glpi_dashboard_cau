@@ -49,8 +49,11 @@ def test_process_raw_aliases():
     ]
     df = process_raw(raw)
 
+    assert df.shape == (1, 7)
+    assert "priority" in df.columns
     assert df.iloc[0]["status"] == "new"
     assert df.iloc[0]["priority"] == 2
+    assert str(df.dtypes["priority"]) == "Int64"
     assert df.iloc[0]["assigned_to"] == "5"
     assert df.iloc[0]["group"] == "N1"
     assert df.iloc[0]["id"] == 1
