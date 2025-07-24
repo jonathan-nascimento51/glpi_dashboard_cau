@@ -48,7 +48,7 @@ async def test_create_document_posts_multipart(tmp_path):
     session._session.post.assert_called_once()
     args, kwargs = session._session.post.call_args
     assert args[0].endswith("/Document")
-    assert isinstance(kwargs["data"], object)
+    assert type(kwargs["data"]).__name__ == "FormData"
     assert doc_id == 5
 
 
