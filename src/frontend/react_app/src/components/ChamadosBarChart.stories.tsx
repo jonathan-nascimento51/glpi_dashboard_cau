@@ -32,7 +32,7 @@ const meta: Meta<typeof ChamadosBarChart> = {
           // Restore the original function when the story is unmounted.
           return () => spy.mockRestore()
         }
-      }, [context.parameters]) // Re-run the effect if the story parameters change.
+      }, [context.id]) // Re-run the effect when the story ID changes.
 
       return (
         <QueryClientProvider client={queryClient}>
