@@ -9,7 +9,7 @@ from typing import Any, Dict, List, Optional, Union
 from urllib.parse import urlsplit, urlunsplit
 
 import aiohttp
-from aiohttp import BasicAuth, ClientResponse, ClientSession, TCPConnector
+from aiohttp import BasicAuth, ClientResponse, ClientSession, FormData, TCPConnector
 from backend.core.settings import (
     GLPI_APP_TOKEN,
     GLPI_BASE_URL,
@@ -674,6 +674,60 @@ class GLPISession:
             headers=headers,
             json_data=json_data,
             return_headers=return_headers,
+        )
+
+    async def post_form(
+        self,
+        endpoint: str,
+        form: FormData,
+        headers: Optional[Dict[str, str]] = None,
+        *,
+        return_headers: bool = False,
+    ) -> Any:
+        """Send a multipart/form-data POST request to the GLPI API."""
+        request_headers = self._build_request_headers(headers)
+        request_headers.pop("Content-Type", None)
+
+        request_kwargs: Dict[str, Any] = {
+            "headers": request_headers,
+            "data": form,
+            "proxy": self.proxy,
+            "timeout": self._resolve_timeout(),
+        }
+        if not self.verify_ssl:
+            request_kwargs["ssl"] = False
+        elif self.ssl_ctx is not None:
+            request_kwargs["ssl"] = self.ssl_ctx
+
+        for attempt in range(2):
+            self._init_aiohttp_session()
+            assert self._session is not None
+            async with self._session.post(
+                f"{self.base_url}/{endpoint.lstrip('/')}",
+                **request_kwargs,
+            ) as response:
+                if response.status == 401 and attempt == 0:
+                    await self._handle_unauthorized()
+                    request_headers = self._build_request_headers(headers)
+                    request_headers.pop("Content-Type", None)
+                    request_kwargs["headers"] = request_headers
+                    continue
+                try:
+                    response.raise_for_status()
+                    data = await response.json()
+                    return (
+                        (
+                            data,
+                            dict(response.headers),
+                        )
+                        if return_headers
+                        else data
+                    )
+                except aiohttp.ClientResponseError as e:
+                    await self._handle_response_error(e, response)
+
+        raise GLPIUnauthorizedError(
+            401, "Failed to authenticate after multiple 401 retries."
         )
 
     async def put(
