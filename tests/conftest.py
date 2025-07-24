@@ -52,4 +52,5 @@ def fresh_criteria_cache():
     try:
         yield
     finally:
-        CriteriaBuilder._cache = saved
+        CriteriaBuilder._cache.clear()
+        CriteriaBuilder._cache.update(saved)

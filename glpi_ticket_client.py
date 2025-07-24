@@ -8,6 +8,8 @@ from backend.infrastructure.glpi.glpi_auth import GLPIAuthClient
 from backend.infrastructure.glpi.glpi_client import SearchCriteriaBuilder
 from shared.utils.logging import get_logger
 
+from glpi_http_utils import http_request_with_retry
+
 logger = get_logger(__name__)
 
 
@@ -55,29 +57,15 @@ class GLPITicketClient:
         url = f"{self.base_url}/search/Ticket"
         log_data = {"page": page, "page_size": page_size, "filters": filters}
         start = time.perf_counter()
-        try:
-            resp = self.session.get(url, headers=headers, params=params, timeout=30)
-        except requests.RequestException as exc:
-            logger.error(
-                json.dumps({"event": "request_error", **log_data, "error": str(exc)})
-            )
-            raise
-        if resp.status_code == 401:
-            logger.info(json.dumps({"event": "token_refresh", **log_data}))
-            token = self.auth_client.get_session_token(force_refresh=True)
-            headers["Session-Token"] = token
-            resp = self.session.get(url, headers=headers, params=params, timeout=30)
-        if resp.status_code >= 400:
-            logger.error(
-                json.dumps(
-                    {
-                        "event": "http_error",
-                        "status": resp.status_code,
-                        "body": resp.text,
-                    }
-                )
-            )
-            resp.raise_for_status()
+        resp = http_request_with_retry(
+            self.session,
+            "GET",
+            url,
+            headers=headers,
+            params=params,
+            auth_client=self.auth_client,
+        )
+        resp.raise_for_status()
         data = resp.json()
         tickets: List[Dict[str, Any]] = data.get("data", data)
         duration = time.perf_counter() - start
