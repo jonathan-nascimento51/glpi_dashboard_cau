@@ -120,7 +120,11 @@ async def test_get_search_options_invalid_cache(mocker):
 
     assert result == {"1": {"name": "ID"}}
     session.list_search_options.assert_awaited_once_with("Ticket")
-    search_cache.set.assert_awaited_once()
+    search_cache.set.assert_awaited_once_with(
+        "search_options:Ticket",
+        {"1": {"name": "ID"}},
+        ttl_seconds=svc.cache_ttl_seconds,
+    )
 
 
 @pytest.mark.asyncio
