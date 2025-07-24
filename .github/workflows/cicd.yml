@@ -19,19 +19,23 @@ jobs:
         run: |
           python -m pip install -U pip
           pip install -r requirements.txt
-          pip install flake8 black pytest pip-audit
+          pip install black isort pytest ruff pip-audit
       - name: Lint
         run: |
           black --check .
-          flake8
+          isort --check-only .
+          ruff check .
       - name: Run tests
-        run: pytest -k "nomatch" -q
+        run: pytest -q
       - name: Security audit
         run: pip-audit
 
   docker-build:
     needs: lint-test
-    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
+    # Run on direct pushes to main, PR merges to main, and tags
+    if: |
+      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+      startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -41,7 +45,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
-          password: ${{ secrets.GHCR_TOKEN }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Extract version
         id: version
         run: echo "value=$(grep -oP '^version\s*=\s*\"\K[0-9.]+(?=\")' pyproject.toml)" >> $GITHUB_OUTPUT
@@ -62,4 +66,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Deploy image
-        run: echo "Deploying ${{ needs.docker-build.outputs.version }} to production"
+        run: |
+          bash scripts/deploy/deploy_production.sh \
+            ghcr.io/${{ github.repository_owner }}/glpi-dashboard-cau:${{ needs.docker-build.outputs.version }}
