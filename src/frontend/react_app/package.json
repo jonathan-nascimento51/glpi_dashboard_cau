@@ -9,13 +9,14 @@
   "scripts": {
     "dev": "npm run check-env && vite",
     "check-env": "node ./scripts/check-env.js",
-    "build": "npm run check-env && tsc -b && vite build",
+    "build": "npm run check-env && tsc -p tsconfig.app.json && vite build",
     "lint": "eslint .",
     "preview": "npm run check-env && vite preview",
     "test": "npm run check-env && jest",
     "test:e2e": "playwright test",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "generate-types": "../../../.venv/bin/pydantic2ts --module ../../shared/models/ts_models.py --output src/types/api.ts --json2ts-cmd ./node_modules/.bin/json2ts"
   },
   "dependencies": {
     "@grafana/faro-react": "^1.19.0",
@@ -69,6 +70,7 @@
     "jest": "^30.0.3",
     "jest-environment-jsdom": "^30.0.2",
     "jscodeshift": "^17.3.0",
+    "json-schema-to-typescript": "^15.0.4",
     "playwright": "^1.53.2",
     "plop": "^4.0.1",
     "postcss": "^8.5.6",

@@ -27,5 +27,5 @@
     }
   },
   "include": ["src", "tests", "jest.setup.ts"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "references": []
 }

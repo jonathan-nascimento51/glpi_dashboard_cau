@@ -10,10 +10,6 @@
  */
 export type TicketStatus = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 /**
- * Priority
- */
-export type Priority = 0 | 1 | 2 | 3 | 4 | 5 | 6;
-/**
  * Urgency
  */
 export type Urgency = 0 | 1 | 2 | 3 | 4 | 5 | 6;
@@ -43,7 +39,10 @@ export interface CleanTicketDTO {
    */
   content?: string | null;
   status?: TicketStatus;
-  priority?: Priority;
+  /**
+   * Priority
+   */
+  priority?: string | null;
   urgency?: Urgency;
   impact?: Impact;
   type?: TicketType;

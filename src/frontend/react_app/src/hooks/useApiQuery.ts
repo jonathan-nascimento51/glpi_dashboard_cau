@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+// no react imports needed
 import {
   useQuery,
   type QueryKey,
@@ -23,11 +23,11 @@ function stableStringify(value: unknown): string {
   return `{${entries.join(',')}}`;
 }
 
-export function useApiQuery<T>(
+export function useApiQuery<T, E = Error>(
   queryKey: QueryKey,
   endpoint: string,
-  options?: UseQueryOptions<T, Error>,
-): UseQueryResult<T, Error> {
+  options?: Omit<UseQueryOptions<T, E, T, QueryKey>, 'queryKey' | 'queryFn'>,
+): UseQueryResult<T, E> {
   const metaEnv: Record<string, string | undefined> | undefined =
     typeof import.meta !== 'undefined' && import.meta.env
       ? import.meta.env
@@ -61,7 +61,7 @@ export function useApiQuery<T>(
   };
 
   const serializedOpts = options ? stableStringify(options) : '';
-  return useQuery<T, Error>({
+  return useQuery<T, E>({
     queryKey: [
       ...(Array.isArray(queryKey) ? queryKey : [queryKey]),
       serializedOpts,
