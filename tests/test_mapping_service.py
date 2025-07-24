@@ -127,7 +127,7 @@ async def test_get_search_options_invalid_cache(mocker):
 async def test_get_search_options_network_error(mocker):
     session = mocker.Mock(spec=GLPISession)
     session.list_search_options = mocker.AsyncMock(
-        side_effect=aiohttp.ClientError("fail")
+        side_effect=aiohttp.ClientError("Network connection failed")
     )
     search_cache = mocker.Mock(spec=RedisClient)
     search_cache.get = mocker.AsyncMock(return_value=None)
