@@ -16,7 +16,7 @@
     "test:e2e": "playwright test",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "generate-types": "../../../.venv/bin/pydantic2ts --module ../../shared/models/ts_models.py --output src/types/api.ts --json2ts-cmd ./node_modules/.bin/json2ts"
+    "generate-types": "sh -c \"${PYTHON:-python} -m pydantic2ts --module ../../shared/models/ts_models.py --output src/types/api.ts --json2ts-cmd ./node_modules/.bin/json2ts\""
   },
   "dependencies": {
     "@grafana/faro-react": "^1.19.0",
