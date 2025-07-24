@@ -9,14 +9,13 @@ from typing import Any, Dict, Optional
 
 import pandas as pd
 import redis.asyncio as redis
-import redis.exceptions
-
 from backend.core.settings import (
     REDIS_DB,
     REDIS_HOST,
     REDIS_PORT,
     REDIS_TTL_SECONDS,
 )
+from redis import exceptions as redis_exceptions
 
 logger = logging.getLogger(__name__)
 
@@ -71,7 +70,7 @@ class RedisClient:
             try:
                 await _maybe_await(self._client.ping())
                 logger.info("Successfully connected to Redis.")
-            except redis.exceptions.ConnectionError as e:
+            except redis_exceptions.ConnectionError as e:
                 logger.error("Could not connect to Redis: %s", e)
                 self._client = None
                 raise
@@ -97,7 +96,7 @@ class RedisClient:
             self.metrics.misses += 1
             logger.debug("Cache MISS for key: %s", key)
             return None
-        except redis.exceptions.ConnectionError as e:
+        except redis_exceptions.ConnectionError as e:
             logger.error("Redis connection error during GET: %s", e)
             self._client = None
             return None
@@ -124,7 +123,7 @@ class RedisClient:
                 )
             )
             logger.debug("Cache SET for key %s with TTL %s", redis_key, ttl)
-        except redis.exceptions.ConnectionError as e:
+        except redis_exceptions.ConnectionError as e:
             logger.error("Redis connection error during SET: %s", e)
             self._client = None
         except Exception as e:
@@ -138,8 +137,8 @@ class RedisClient:
             await _maybe_await(client.delete(redis_key))
             logger.debug("Cache DELETE for key: %s", redis_key)
         except (
-            redis.exceptions.AuthenticationError,
-            redis.exceptions.ConnectionError,
+            redis_exceptions.AuthenticationError,
+            redis_exceptions.ConnectionError,
         ) as e:
             logger.error("Redis connection error during DELETE: %s", e)
             self._client = None
@@ -154,8 +153,8 @@ class RedisClient:
             ttl = await _maybe_await(client.ttl(redis_key))
             return int(ttl)
         except (
-            redis.exceptions.AuthenticationError,
-            redis.exceptions.ConnectionError,
+            redis_exceptions.AuthenticationError,
+            redis_exceptions.ConnectionError,
         ) as e:
             logger.error("Redis connection error during TTL: %s", e)
             self._client = None

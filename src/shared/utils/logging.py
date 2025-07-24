@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import logging
 import os
+import re
 import sys
 from contextvars import ContextVar
 from typing import Any
@@ -16,17 +17,63 @@ from opentelemetry.instrumentation.logging import LoggingInstrumentor
 _is_initialized: bool = False
 _correlation_id: ContextVar[str | None] = ContextVar("correlation_id", default=None)
 
+# Values used to scrub sensitive tokens from log messages
+_SECRET_TOKENS = [
+    os.getenv("GLPI_APP_TOKEN"),
+    os.getenv("GLPI_USER_TOKEN"),
+]
+_SESSION_RE = re.compile(r"session_token=([A-Za-z0-9\-]+)")
 
-class _CorrelationFilter:
+
+class _RecordFilter:
     def __call__(self, record: dict[str, Any]) -> bool:
         record["extra"]["correlation_id"] = _correlation_id.get()
+        msg = record.get("message")
+        if isinstance(msg, str):
+            for token in _SECRET_TOKENS:
+                if token and token in msg:
+                    msg = msg.replace(token, "***")
+            msg = _SESSION_RE.sub(r"session_token=***", msg)
+            record["message"] = msg
         return True
 
 
 class _InterceptHandler(logging.Handler):
     def emit(self, record: logging.LogRecord) -> None:  # pragma: no cover - passthrough
         bound = logger.bind(correlation_id=_correlation_id.get())
-        bound.opt(exception=record.exc_info).log(record.levelno, record.getMessage())
+        msg = record.getMessage()
+        for token in _SECRET_TOKENS:
+            if token and token in msg:
+                msg = msg.replace(token, "***")
+        msg = _SESSION_RE.sub(r"session_token=***", msg)
+        bound.opt(exception=record.exc_info).log(record.levelno, msg)
+
+
+class SensitiveFilter(logging.Filter):
+    """Filter that masks known tokens in log messages."""
+
+    def filter(self, record: logging.LogRecord) -> bool:  # pragma: no cover - simple
+        if isinstance(record.msg, str):
+            msg = record.msg
+            for token in _SECRET_TOKENS:
+                if token and token in msg:
+                    msg = msg.replace(token, "***")
+            msg = _SESSION_RE.sub(r"session_token=***", msg)
+            record.msg = msg
+        if record.args:
+            new_args: list[Any] = []
+            for arg in record.args:
+                if isinstance(arg, str):
+                    text = arg
+                    for token in _SECRET_TOKENS:
+                        if token and token in text:
+                            text = text.replace(token, "***")
+                    text = _SESSION_RE.sub(r"session_token=***", text)
+                    new_args.append(text)
+                else:
+                    new_args.append(arg)
+            record.args = tuple(new_args)
+        return True
 
 
 def init_logging(
@@ -82,14 +129,16 @@ def init_logging(
         ),  # Default to "INFO" if level is None
         serialize=serialize,
         colorize=not serialize,
-        filter=_CorrelationFilter(),  # type: ignore[arg-type]
+        filter=_RecordFilter(),  # type: ignore[arg-type]
         enqueue=True,
         backtrace=debug_mode,
         diagnose=debug_mode,
     )
 
     logging.basicConfig(handlers=[_InterceptHandler()], level=0, force=True)
-    logging.getLogger().setLevel(level if level is not None else logging.INFO)
+    root_logger = logging.getLogger()
+    root_logger.setLevel(level if level is not None else logging.INFO)
+    root_logger.addFilter(SensitiveFilter())
 
     if enable_instrumentation:
         LoggingInstrumentor().instrument(set_logging_format=True)
