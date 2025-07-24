@@ -40,3 +40,16 @@ def glpi_unavailable(monkeypatch: pytest.MonkeyPatch):
         _fail,
     )
     yield
+
+
+@pytest.fixture()
+def fresh_criteria_cache():
+    """Provide a clean CriteriaBuilder cache and restore it afterwards."""
+    from glpi_criteria_builder import CriteriaBuilder
+
+    saved = CriteriaBuilder._cache.copy()
+    CriteriaBuilder._cache.clear()
+    try:
+        yield
+    finally:
+        CriteriaBuilder._cache = saved
