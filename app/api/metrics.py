@@ -27,7 +27,7 @@ class MetricsOverview(BaseModel):
     """Summary of key ticket metrics."""
 
     open_tickets: dict[str, int] = Field(default_factory=dict)
-    created_and_resolved_this_month: dict[str, int] = Field(default_factory=dict)
+    tickets_closed_this_month: dict[str, int] = Field(default_factory=dict)
     status_distribution: dict[str, int] = Field(default_factory=dict)
 
 
@@ -61,7 +61,11 @@ async def compute_overview(
             ValidationError,
             TypeError,
         ) as exc:  # pragma: no cover - bad cache content
-            logger.warning("Ignoring invalid cache entry: %s", exc)
+            logger.warning(
+                "Ignoring invalid cache entry due to %s: %s",
+                type(exc).__name__,
+                exc,
+            )
 
     df = await _fetch_dataframe(client)
     df["status"] = df["status"].astype(str).str.lower()
@@ -73,14 +77,13 @@ async def compute_overview(
 
     now = pd.Timestamp.utcnow().tz_localize("UTC")
     month_start = pd.Timestamp(year=now.year, month=now.month, day=1, tz="UTC")
-    if df["date_creation"].dt.tz is None:
-        df["date_creation"] = df["date_creation"].dt.tz_localize("UTC")
-    else:
-        df["date_creation"] = df["date_creation"].dt.tz_convert("UTC")
+
+    df["date_creation"] = pd.to_datetime(df["date_creation"], utc=True)
+
     closed_mask = df["status"].isin(["closed", "solved"]) & (
         df["date_creation"] >= month_start
     )
-    created_and_resolved_by_level = (
+    closed_this_month_by_level = (
         df[closed_mask].groupby("group", observed=True).size().astype(int).to_dict()
     )
 
@@ -88,7 +91,7 @@ async def compute_overview(
 
     result = MetricsOverview(
         open_tickets=open_by_level,
-        created_and_resolved_this_month=created_and_resolved_by_level,
+        tickets_closed_this_month=closed_this_month_by_level,
         status_distribution=status_counts,
     )
 
