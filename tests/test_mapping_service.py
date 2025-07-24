@@ -1,8 +1,8 @@
 import pytest
-from redis.asyncio import Redis
-
 from backend.adapters.mapping_service import MappingService
 from backend.infrastructure.glpi.glpi_session import GLPISession
+from redis.asyncio import Redis
+from shared.utils.redis_client import RedisClient
 
 
 @pytest.mark.asyncio
@@ -68,3 +68,38 @@ async def test_get_user_map_cache_miss(mocker):
     index_all.assert_awaited_once_with("User")
     pipe.hset.assert_called_once()
     pipe.expire.assert_called_once_with("glpi:mappings:users", svc.cache_ttl_seconds)
+
+
+@pytest.mark.asyncio
+async def test_get_search_options_cache_hit(mocker):
+    session = mocker.Mock(spec=GLPISession)
+    search_cache = mocker.Mock(spec=RedisClient)
+    search_cache.get = mocker.AsyncMock(return_value={"1": {"name": "ID"}})
+    svc = MappingService(session, search_cache=search_cache)
+
+    result = await svc.get_search_options("Ticket")
+
+    assert result == {"1": {"name": "ID"}}
+    session.list_search_options.assert_not_called()
+    search_cache.set.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_get_search_options_cache_miss(mocker):
+    session = mocker.Mock(spec=GLPISession)
+    session.list_search_options = mocker.AsyncMock(return_value={"1": {"name": "ID"}})
+    search_cache = mocker.Mock(spec=RedisClient)
+    search_cache.get = mocker.AsyncMock(return_value=None)
+    search_cache.set = mocker.AsyncMock()
+
+    svc = MappingService(session, search_cache=search_cache)
+
+    result = await svc.get_search_options("Ticket")
+
+    assert result == {"1": {"name": "ID"}}
+    session.list_search_options.assert_awaited_once_with("Ticket")
+    search_cache.set.assert_awaited_once_with(
+        "search_options:Ticket",
+        {"1": {"name": "ID"}},
+        ttl_seconds=svc.cache_ttl_seconds,
+    )
