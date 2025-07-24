@@ -6,6 +6,7 @@ from unittest.mock import MagicMock
 import pytest
 import requests
 
+from glpi_http_utils import GLPIPermissionError
 from glpi_ticket_client import GLPITicketClient
 
 
@@ -32,7 +33,8 @@ def make_session(responses):
         return _inner
 
     session = SimpleNamespace()
-    session.get = MagicMock(side_effect=side(responses))
+    session.request = MagicMock(side_effect=side(responses))
+    session.get = session.request
     return session
 
 
@@ -58,8 +60,9 @@ def test_list_tickets_basic(monkeypatch):
     tickets = client.list_tickets(filters={"status": "new"}, page=1, page_size=50)
 
     assert tickets == [{"id": 1}]
-    args, kwargs = session.get.call_args
-    assert args[0] == "http://example.com/apirest.php/search/Ticket"
+    args, kwargs = session.request.call_args
+    assert args[0] == "GET"
+    assert args[1] == "http://example.com/apirest.php/search/Ticket"
     assert kwargs["headers"]["Session-Token"] == "tok"
     assert kwargs["params"]["criteria[0][field]"] == "status"
     assert kwargs["params"]["range"] == "0-49"
@@ -71,7 +74,7 @@ def test_pagination(monkeypatch):
         base_url="http://ex.com/api", auth_client=FakeAuth(["a"]), session=session
     )
     client.list_tickets(page=2, page_size=10)
-    params = session.get.call_args.kwargs["params"]
+    params = session.request.call_args.kwargs["params"]
     assert params["range"] == "10-19"
 
 
@@ -87,7 +90,7 @@ def test_retry_on_401(monkeypatch):
 
     assert tickets == [{"id": 2}]
     assert auth.calls == 2
-    assert session.get.call_count == 2
+    assert session.request.call_count == 2
 
 
 def test_http_error(monkeypatch):
@@ -95,5 +98,5 @@ def test_http_error(monkeypatch):
     client = GLPITicketClient(
         base_url="http://ex.com/api", auth_client=FakeAuth(["tok"]), session=session
     )
-    with pytest.raises(requests.HTTPError):
+    with pytest.raises(GLPIPermissionError):
         client.list_tickets()
