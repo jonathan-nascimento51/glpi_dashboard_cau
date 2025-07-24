@@ -44,7 +44,6 @@ from shared.utils.api_auth import verify_api_key
 from shared.utils.json import UTF8JSONResponse
 from shared.utils.logging import init_logging
 from shared.utils.redis_client import redis_client
-from shared.utils.security import validate_glpi_tokens
 from strawberry.fastapi import GraphQLRouter
 from strawberry.types import Info
 
@@ -149,8 +148,6 @@ class Query:
 def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
     """Create FastAPI app with REST and GraphQL routes."""
     cache = cache or redis_client
-
-    validate_glpi_tokens()
 
     if client is None:
         client = create_glpi_api_client()
