@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 import logging
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 import redis.asyncio as redis
-
 from backend.core.settings import REDIS_DB, REDIS_HOST, REDIS_PORT
 from backend.infrastructure.glpi.glpi_session import GLPISession
+from shared.utils.redis_client import RedisClient
+from shared.utils.redis_client import redis_client as default_redis_client
 
 logger = logging.getLogger(__name__)
 
@@ -19,6 +20,7 @@ class MappingService:
         session: GLPISession,
         redis_client: Optional[redis.Redis] = None,
         cache_ttl_seconds: int = 86400,
+        search_cache: Optional[RedisClient] = None,
     ) -> None:
         self._session = session
         self._data: Dict[str, Dict[int, str]] = {}
@@ -29,6 +31,7 @@ class MappingService:
             db=REDIS_DB,
             decode_responses=True,
         )
+        self.search_cache = search_cache or default_redis_client
 
     async def initialize(self) -> None:
         """Load all mappings from the GLPI API into memory and cache."""
@@ -74,7 +77,9 @@ class MappingService:
 
         async with self.redis.pipeline() as pipe:
             if mapping:
-                await pipe.hset(cache_key, mapping=mapping)
+                await pipe.hset(
+                    cache_key, mapping={str(k): v for k, v in mapping.items()}
+                )
             await pipe.expire(cache_key, self.cache_ttl_seconds)
             await pipe.execute()
 
@@ -95,3 +100,21 @@ class MappingService:
         """Return user name for ``user_id`` or ``"Unassigned"`` if missing."""
         user_map = await self.get_user_map()
         return user_map.get(user_id, "Unassigned")
+
+    async def get_search_options(self, itemtype: str) -> Dict[str, Any]:
+        """Return cached search options for ``itemtype`` or fetch from GLPI."""
+        cache_key = f"search_options:{itemtype}"
+        cached = await self.search_cache.get(cache_key)
+        if cached is not None:
+            return cached
+
+        try:
+            options = await self._session.list_search_options(itemtype)
+        except Exception as exc:  # pragma: no cover - network failures
+            logger.error("failed to load search options for %s: %s", itemtype, exc)
+            options = {}
+
+        await self.search_cache.set(
+            cache_key, options, ttl_seconds=self.cache_ttl_seconds
+        )
+        return options
