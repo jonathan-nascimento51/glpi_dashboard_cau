@@ -12,18 +12,7 @@ from typing import Any, Dict, List, Optional, cast
 import pandas as pd
 import strawberry
 import uvicorn
-from fastapi import FastAPI, HTTPException, Request, Response
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import (
-    PlainTextResponse,
-    StreamingResponse,
-)
-from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
-from prometheus_fastapi_instrumentator import Instrumentator
-from pydantic import BaseModel, Field
-from strawberry.fastapi import GraphQLRouter
-from strawberry.types import Info
-
+from backend.api.request_id_middleware import RequestIdMiddleware
 from backend.application.aggregated_metrics import (
     get_cached_aggregated,
 )
@@ -41,9 +30,23 @@ from backend.application.ticket_loader import (
 from backend.core.settings import (
     KNOWLEDGE_BASE_FILE,
 )
+from fastapi import FastAPI, HTTPException, Request, Response
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import (
+    PlainTextResponse,
+    StreamingResponse,
+)
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from prometheus_fastapi_instrumentator import Instrumentator
+from pydantic import BaseModel, Field
 from shared.dto import CleanTicketDTO  # imported from shared DTOs
 from shared.utils.json import UTF8JSONResponse
+from shared.utils.logging import init_logging
 from shared.utils.redis_client import redis_client
+from strawberry.fastapi import GraphQLRouter
+from strawberry.types import Info
+
+init_logging()
 
 logger = logging.getLogger(__name__)
 
@@ -160,6 +163,7 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
         default_response_class=UTF8JSONResponse,
         lifespan=lifespan,
     )
+    app.add_middleware(RequestIdMiddleware)
     FastAPIInstrumentor().instrument_app(app)
     Instrumentator().instrument(app).expose(app)
 

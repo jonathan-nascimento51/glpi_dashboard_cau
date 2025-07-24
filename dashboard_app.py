@@ -5,10 +5,6 @@ import logging
 import os
 
 import pandas as pd
-from dash import Dash
-from flask import Flask
-from flask_caching import Cache
-
 from backend.core.settings import (
     DASH_PORT,
     GLPI_APP_TOKEN,
@@ -19,11 +15,15 @@ from backend.core.settings import (
     USE_MOCK_DATA,
 )
 from backend.domain.exceptions import GLPIAPIError
-from backend.infrastructure.glpi.glpi_client_logging import setup_logger
+from backend.infrastructure.glpi import glpi_client_logging
 from backend.infrastructure.glpi.glpi_session import Credentials, GLPISession
 from backend.utils import process_raw
+from dash import Dash
+from flask import Flask
+from flask_caching import Cache
 from frontend.callbacks.callbacks import register_callbacks
 from frontend.layout.layout import build_layout
+from shared.utils.logging import init_logging
 
 __all__ = ["create_app", "main"]
 
@@ -53,7 +53,8 @@ if cache_type != "simple":
 
 log_level_name = os.getenv("LOG_LEVEL", "INFO")
 log_level = getattr(logging, log_level_name.upper(), logging.INFO)
-setup_logger(__name__, level=log_level)
+init_logging(log_level)
+glpi_client_logging.init_logging(log_level)
 
 
 @cache.memoize(timeout=300)
