@@ -10,8 +10,6 @@ from urllib.parse import urlsplit, urlunsplit
 
 import aiohttp
 from aiohttp import BasicAuth, ClientResponse, ClientSession, TCPConnector
-from pydantic import BaseModel, ConfigDict, Field, model_validator
-
 from backend.core.settings import (
     GLPI_APP_TOKEN,
     GLPI_BASE_URL,
@@ -32,6 +30,7 @@ from backend.domain.exceptions import (
     GLPIUnauthorizedError,
 )
 from backend.domain.tool_error import ToolError
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 from shared.utils.resilience import call_with_breaker, retry_api_call
 
 logger = logging.getLogger(__name__)
@@ -290,7 +289,6 @@ class GLPISession:
     async def _handle_init_error(
         self, e: aiohttp.ClientResponseError, response: aiohttp.ClientResponse
     ) -> None:
-
         response_data = {}
         response_text = ""
         try:
@@ -784,7 +782,8 @@ class GLPISession:
         base_params: Dict[str, Any] = {**params, "expand_dropdowns": 1}
         endpoint = itemtype if itemtype.startswith("search/") else f"search/{itemtype}"
         return await self._paginate_search(endpoint, base_params, page_size)
-        # Note: Pagination logic, including offset increment, is handled within _paginate_search.
+        # Note: Pagination logic, including offset increment,
+        # is handled within _paginate_search.
 
     async def query_graphql(
         self, query: str, variables: Optional[Dict[str, Any]] = None
@@ -797,6 +796,15 @@ class GLPISession:
             msg = data["errors"][0].get("message", "GraphQL query failed")
             raise GLPIAPIError(0, msg, data)
         return data.get("data", data) or {}
+
+    async def get_full_session(self) -> Dict[str, Any]:
+        """Retrieve detailed information about the current session."""
+
+        headers = {
+            "Session-Token": self._session_token or "",
+            "App-Token": self.credentials.app_token,
+        }
+        return await self.get("getFullSession", headers=headers)
 
 
 async def open_session_tool(params: SessionParams) -> str:
