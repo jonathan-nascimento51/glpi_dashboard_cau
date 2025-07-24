@@ -83,6 +83,7 @@ npm install         # installs dotenv, @eslint/js and other dev dependencies
 # dotenv is required for environment variables loaded during tests
 # npm ci can be used for reproducible installs
 npm run dev
+npm run storybook   # optional: preview UI components locally
 ```
 The exact Node version is pinned in `.nvmrc` at the repository root.
 Docker Compose automatically loads `.env` when present.

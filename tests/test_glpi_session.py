@@ -889,41 +889,53 @@ async def test_circuit_breaker_opens_after_consecutive_failures(
 
 
 @pytest.mark.asyncio
-async def test_get_full_session_success(base_url, app_token, user_token):
+async def test_get_full_session_success(
+    base_url, app_token, user_token, mock_client_session, mock_response
+):
     """get_full_session should return session details."""
 
     creds = Credentials(app_token=app_token, user_token=user_token)
-    glpi = GLPISession(base_url, creds)
-    glpi._session_token = user_token
+    session = GLPISession(base_url, creds)
 
-    with patch.object(
-        glpi,
-        "get",
-        AsyncMock(return_value={"session": "info"}),
-    ) as mock_get:
+    mock_client_session.get.side_effect = [
+        make_cm(200, {"session_token": user_token}),
+        make_cm(200, {}),
+    ]
+    mock_client_session.request.return_value = make_cm(200, {"session": "info"})
+
+    async with session as glpi:
         data = await glpi.get_full_session()
         assert data == {"session": "info"}
-        mock_get.assert_awaited_once_with(
-            "getFullSession",
+        mock_client_session.request.assert_called_once_with(
+            "GET",
+            f"{base_url}/getFullSession",
             headers={
-                "Session-Token": user_token,
+                "Content-Type": "application/json",
                 "App-Token": app_token,
+                "Session-Token": user_token,
             },
+            json=None,
+            params=None,
+            proxy=ANY,
+            timeout=ANY,
         )
 
 
 @pytest.mark.asyncio
-async def test_get_full_session_error(base_url, app_token, user_token):
+async def test_get_full_session_error(
+    base_url, app_token, user_token, mock_client_session, mock_response
+):
     """get_full_session should raise mapped errors."""
 
     creds = Credentials(app_token=app_token, user_token=user_token)
-    glpi = GLPISession(base_url, creds)
-    glpi._session_token = user_token
+    session = GLPISession(base_url, creds)
 
-    with patch.object(
-        glpi,
-        "get",
-        AsyncMock(side_effect=GLPIForbiddenError(403, "no")),
-    ):
+    mock_client_session.get.side_effect = [
+        make_cm(200, {"session_token": user_token}),
+        make_cm(200, {}),
+    ]
+    mock_client_session.request.return_value = make_cm(403, {"message": "no"}, True)
+
+    async with session as glpi:
         with pytest.raises(GLPIForbiddenError):
             await glpi.get_full_session()

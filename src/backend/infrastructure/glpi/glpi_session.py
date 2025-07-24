@@ -839,6 +839,10 @@ async def index_all_paginated(
         return await session.get_all_paginated(itemtype, page_size=page_size, **params)
 
 
+# Expose the ``get_full_session`` method at module level for convenience.
+get_full_session = GLPISession.get_full_session
+
+
 __all__ = [
     "GLPISession",
     "Credentials",
@@ -850,5 +854,6 @@ __all__ = [
     "GLPINotFoundError",
     "GLPITooManyRequestsError",
     "GLPIInternalServerError",
+    "get_full_session",
     "index_all_paginated",
 ]
