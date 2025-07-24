@@ -939,3 +939,28 @@ async def test_get_full_session_error(
     async with session as glpi:
         with pytest.raises(GLPIForbiddenError):
             await glpi.get_full_session()
+
+
+@pytest.mark.asyncio
+async def test_non_json_response_raises_error(
+    base_url, app_token, user_token, mock_client_session, mock_response
+):
+    """HTML responses should raise ``GLPIAPIError`` with text snippet."""
+
+    creds = Credentials(app_token=app_token, user_token=user_token)
+    session = GLPISession(base_url, creds)
+
+    mock_client_session.get.side_effect = lambda *a, **k: make_cm(
+        200, {"session_token": user_token}
+    )
+
+    bad_resp = make_mock_response(200, {})
+    bad_resp.headers = {"Content-Type": "text/html"}
+    bad_resp.text = AsyncMock(return_value="<html>fail</html>")
+    mock_client_session.request.side_effect = lambda *a, **k: bad_resp
+
+    async with session as glpi:
+        with pytest.raises(GLPIAPIError) as excinfo:
+            await glpi.get("Ticket/1")
+        assert excinfo.value.status_code == 200
+        assert excinfo.value.response_data == {"text": "<html>fail</html>"}
