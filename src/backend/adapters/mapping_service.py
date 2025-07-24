@@ -108,13 +108,14 @@ class MappingService:
         if cached is not None:
             return cached
 
+        successful_fetch = False
         try:
             options = await self._session.list_search_options(itemtype)
+            successful_fetch = True
         except Exception as exc:  # pragma: no cover - network failures
             logger.error("failed to load search options for %s: %s", itemtype, exc)
             options = {}
 
-        await self.search_cache.set(
-            cache_key, options, ttl_seconds=self.cache_ttl_seconds
-        )
+        ttl = self.cache_ttl_seconds if successful_fetch else 300  # e.g., 5 minutes for failures
+        await self.search_cache.set(cache_key, options, ttl_seconds=ttl)
         return options
