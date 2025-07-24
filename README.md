@@ -466,9 +466,10 @@ When the FastAPI service starts it primes the Redis cache by calling
 `load_tickets()`. This fills the `chamados_por_data` and
 `metrics_aggregated` keys so endpoints are responsive immediately.
 
-The service exposes several endpoints:
+- The service exposes several endpoints:
 
-- `/tickets` – full list of tickets in JSON format.
+- `/tickets` – full list of tickets in JSON format. As of v0.2 this payload
+  includes the ticket `priority` as a text label.
 - `/tickets/stream` – Server‑Sent Events (SSE) stream of progress followed by the JSON payload.
 - `/metrics` – summary with `total`, `opened` and `closed` counts.
 - `/metrics/aggregated` – counts grouped by status and technician, pre-computed by the worker.
@@ -477,6 +478,19 @@ The service exposes several endpoints:
 - `/graphql/` – GraphQL API providing the same information.
 - `/cache/stats` – returns cache hit/miss metrics.
 - `/health` – quick check that the worker can reach the GLPI API.
+
+Example ticket payload:
+
+```json
+[
+  {
+    "id": 42,
+    "title": "Network issue",
+    "status": "New",
+    "priority": "High"
+  }
+]
+```
 
 ### Offline fallback
 
