@@ -8,7 +8,7 @@ to keep the responses fast even when the dataset is large.
 from __future__ import annotations
 
 import logging
-from typing import Optional
+from typing import Dict, Optional
 
 import pandas as pd
 from backend.application.glpi_api_client import (
@@ -21,6 +21,9 @@ from pydantic import BaseModel, Field, ValidationError
 from shared.utils.redis_client import RedisClient, redis_client
 
 from . import router
+
+# Status values that represent a closed ticket
+CLOSED_STATUSES = ["closed", "solved"]
 
 logger = logging.getLogger(__name__)
 
@@ -79,19 +82,19 @@ async def compute_overview(
     df = await _fetch_dataframe(client)
     df["status"] = df["status"].astype(str).str.lower()
 
-    open_mask = ~df["status"].isin(["closed", "solved"])
+    open_mask = ~df["status"].isin(CLOSED_STATUSES)
     open_by_level = (
         df[open_mask].groupby("group", observed=True).size().astype(int).to_dict()
     )
 
     now = pd.Timestamp.utcnow().tz_localize("UTC")
     month_start = pd.Timestamp(year=now.year, month=now.month, day=1, tz="UTC")
-    if df["date_creation"].dt.tz is None:
-        df["date_creation"] = df["date_creation"].dt.tz_localize("UTC")
+    if df["date_resolved"].dt.tz is None:
+        df["date_resolved"] = df["date_resolved"].dt.tz_localize("UTC")
     else:
-        df["date_creation"] = df["date_creation"].dt.tz_convert("UTC")
-    closed_mask = df["status"].isin(["closed", "solved"]) & (
-        df["date_creation"] >= month_start
+        df["date_resolved"] = df["date_resolved"].dt.tz_convert("UTC")
+    closed_mask = df["status"].isin(CLOSED_STATUSES) & (
+        df["date_resolved"] >= month_start
     )
     created_and_resolved_by_level = (
         df[closed_mask].groupby("group", observed=True).size().astype(int).to_dict()
@@ -134,13 +137,17 @@ async def compute_level_metrics(
     df["status"] = df["status"].astype(str).str.lower()
     level_df = df[df["group"] == level]
 
-    open_mask = ~level_df["status"].isin(["closed", "solved"])
+    open_mask = ~level_df["status"].isin(CLOSED_STATUSES)
     open_count = int(level_df[open_mask].shape[0])
 
-    now = pd.Timestamp.utcnow()
-    month_start = pd.Timestamp(year=now.year, month=now.month, day=1)
-    closed_mask = level_df["status"].isin(["closed", "solved"]) & (
-        level_df["date_creation"] >= month_start
+    now = pd.Timestamp.utcnow().tz_localize("UTC")
+    month_start = pd.Timestamp(year=now.year, month=now.month, day=1, tz="UTC")
+    if level_df["date_resolved"].dt.tz is None:
+        level_df["date_resolved"] = level_df["date_resolved"].dt.tz_localize("UTC")
+    else:
+        level_df["date_resolved"] = level_df["date_resolved"].dt.tz_convert("UTC")
+    closed_mask = level_df["status"].isin(CLOSED_STATUSES) & (
+        level_df["date_resolved"] >= month_start
     )
     resolved_count = int(level_df[closed_mask].shape[0])
 

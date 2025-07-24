@@ -44,10 +44,34 @@ class FakeClient:
 
 
 sample_tickets = [
-    {"id": 1, "status": "new", "group": "N1", "date_creation": "2024-06-10"},
-    {"id": 2, "status": "closed", "group": "N1", "date_creation": "2024-06-05"},
-    {"id": 3, "status": "pending", "group": "N2", "date_creation": "2024-05-20"},
-    {"id": 4, "status": "closed", "group": "N2", "date_creation": "2024-06-02"},
+    {
+        "id": 1,
+        "status": "new",
+        "group": "N1",
+        "date_creation": "2024-06-10",
+        "date_resolved": None,
+    },
+    {
+        "id": 2,
+        "status": "closed",
+        "group": "N1",
+        "date_creation": "2024-06-05",
+        "date_resolved": "2024-06-12",
+    },
+    {
+        "id": 3,
+        "status": "pending",
+        "group": "N2",
+        "date_creation": "2024-05-20",
+        "date_resolved": None,
+    },
+    {
+        "id": 4,
+        "status": "closed",
+        "group": "N2",
+        "date_creation": "2024-06-02",
+        "date_resolved": "2024-06-08",
+    },
 ]
 
 
@@ -60,18 +84,32 @@ def test_client(monkeypatch):
     fake_module = types.SimpleNamespace(
         create_glpi_api_client=lambda: client, GlpiApiClient=object
     )
-    sys.modules["backend.application.glpi_api_client"] = fake_module  # type: ignore[assignment]
+    monkeypatch.setitem(
+        sys.modules,
+        "backend.application.glpi_api_client",
+        fake_module,
+    )
 
     def fake_process(data):
         df = pd.DataFrame(data)
         if "date_creation" in df.columns:
             df["date_creation"] = pd.to_datetime(df["date_creation"])
+        if "date_resolved" in df.columns:
+            df["date_resolved"] = pd.to_datetime(df["date_resolved"])
         return df
 
     fake_norm = types.SimpleNamespace(process_raw=fake_process)
-    sys.modules["backend.infrastructure.glpi.normalization"] = fake_norm  # type: ignore[assignment]
+    monkeypatch.setitem(
+        sys.modules,
+        "backend.infrastructure.glpi.normalization",
+        fake_norm,
+    )
     fake_redis = types.SimpleNamespace(RedisClient=object, redis_client=cache)
-    sys.modules["shared.utils.redis_client"] = fake_redis  # type: ignore[assignment]
+    monkeypatch.setitem(
+        sys.modules,
+        "shared.utils.redis_client",
+        fake_redis,
+    )
 
     metrics_module = importlib.import_module("app.api.metrics")
     monkeypatch.setattr(metrics_module, "redis_client", cache)
@@ -82,13 +120,18 @@ def test_client(monkeypatch):
     return TestClient(app), client, cache, metrics_module
 
 
-def test_overview_endpoint(test_client):
+def test_overview_endpoint(test_client, monkeypatch):
     client, api_client, cache, metrics_module = test_client
+    monkeypatch.setattr(
+        pd.Timestamp,
+        "utcnow",
+        lambda: pd.Timestamp("2024-06-15", tz="UTC"),
+    )
     resp = client.get("/metrics/overview")
     assert resp.status_code == 200
     data = resp.json()
     assert data["open_tickets"] == {"N1": 1, "N2": 1}
-    assert data["resolved_this_month"] == {}
+    assert data["created_and_resolved_this_month"] == {"N1": 1, "N2": 1}
     assert data["status_distribution"] == {"new": 1, "closed": 2, "pending": 1}
     # call again should hit cache
     resp = client.get("/metrics/overview")
@@ -96,13 +139,18 @@ def test_overview_endpoint(test_client):
     assert api_client.calls == 1
 
 
-def test_level_endpoint(test_client):
+def test_level_endpoint(test_client, monkeypatch):
     client, api_client, cache, metrics_module = test_client
+    monkeypatch.setattr(
+        pd.Timestamp,
+        "utcnow",
+        lambda: pd.Timestamp("2024-06-15", tz="UTC"),
+    )
     resp = client.get("/metrics/level/N1")
     assert resp.status_code == 200
     data = resp.json()
     assert data["open_tickets"] == 1
-    assert data["resolved_this_month"] == 0
+    assert data["resolved_this_month"] == 1
 
 
 def test_error_handling(monkeypatch, test_client):
