@@ -51,14 +51,14 @@ async def create_document(
     form.add_field(
         "uploadManifest", json.dumps(manifest), content_type="application/json"
     )
-    form.add_field(
-        "filename",
-        file_path.read_bytes(),
-        filename=file_path.name,
-        content_type="application/octet-stream",
-    )
-
-    data = await _post_form(session, "Document", form)
+    com file_path.open("rb") como f:
+        formulário.add_field(
+            "nome do arquivo",
+            f,
+            nome do arquivo=file_path.nome,
+            content_type="aplicativo/fluxo de octeto",
+        )
+        dados = aguardar _post_form(sessão, "Documento", formulário)
     if "id" not in data:
         raise ValueError(f"API response does not contain 'id': {data}")
     return int(data["id"])
