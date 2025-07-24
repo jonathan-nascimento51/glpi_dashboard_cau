@@ -77,7 +77,7 @@ def process_raw(data: TicketData) -> pd.DataFrame:
         .astype("category")
     )
     df["priority"] = pd.to_numeric(
-        df.get("priority", pd.Series([pd.NA] * len(df), index=idx)),
+        df.get("priority", pd.Series(pd.NA, index=idx)),
         errors="coerce",
         downcast="integer",
     ).astype("Int64")
