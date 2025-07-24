@@ -7,8 +7,7 @@ from backend.infrastructure.glpi.glpi_session import GLPISession
 from backend.utils import paginate_items
 from shared.dto import CleanTicketDTO, TicketTranslator
 
-# IDs of essential ticket fields to include in every GLPI search response.
-# This list documents key fields only (1 = ID, 2 = Title, 4 = Requester, 12 = Status, 15 = Priority).
+# Essential ticket fields to always include (IDs: 1, 2, 4, 12, 15, 83).
 FORCED_DISPLAY_FIELDS = [1, 2, 4, 12, 15, 83]
 
 logger = logging.getLogger(__name__)
@@ -71,6 +70,19 @@ class GlpiApiClient:
     async def fetch_tickets(self) -> List[CleanTicketDTO]:
         """Return translated tickets from the GLPI API."""
         raw = await self.get_all_paginated("Ticket")
+        translated: List[CleanTicketDTO] = []
+        for item in raw:
+            try:
+                translated.append(await self._translator.translate_ticket(item))
+            except Exception as exc:  # pragma: no cover - best effort
+                logger.error("failed to translate ticket %s: %s", item.get("id"), exc)
+        return translated
+
+    async def fetch_tickets_by_ids(self, ids: List[int]) -> List[CleanTicketDTO]:
+        """Return translated tickets for the given ``ids``."""
+
+        pairs = [("Ticket", tid) for tid in ids]
+        raw = await self._session.get_multiple_items(pairs)
         translated: List[CleanTicketDTO] = []
         for item in raw:
             try:

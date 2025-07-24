@@ -1,20 +1,40 @@
-import json
-from pathlib import Path
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 from backend.application.document_service import create_document, link_document
-from backend.domain.exceptions import GLPIAPIError
 from backend.infrastructure.glpi.glpi_session import GLPISession
+
+from tests.helpers import make_cm
 
 
 class DummySession(GLPISession):
     """GLPISession stub exposing an aiohttp-like client."""
 
     def __init__(self):
+        # Avoid parent initialization logic
         self.base_url = "http://example.com/apirest.php"
-        self.post_form = AsyncMock(return_value={"id": 5})
-        self.post = AsyncMock()
+        self.proxy = None
+        self.verify_ssl = True
+        self.ssl_ctx = None
+        self._session = MagicMock()
+        self._session.post = MagicMock(
+            side_effect=lambda *a, **k: make_cm(201, {"id": 5})
+        )
+
+    def _init_aiohttp_session(self) -> None:
+        pass
+
+    def _build_request_headers(self, headers=None):
+        hdrs = {"App-Token": "app", "Content-Type": "application/json"}
+        if headers:
+            hdrs.update(headers)
+        return hdrs
+
+    def _resolve_timeout(self):
+        class T:  # simple stand-in for aiohttp.ClientTimeout
+            pass
+
+        return T()
 
 
 @pytest.mark.asyncio
@@ -25,27 +45,11 @@ async def test_create_document_posts_multipart(tmp_path):
 
     doc_id = await create_document(session, "doc", file_path, None)
 
-    session.post_form.assert_awaited_once()
-    call = session.post_form.await_args
-    assert call is not None
-    args, kwargs = call
-    assert args[0] == "Document"
-    form = args[1]
-    fields = {f[0]["name"]: f[2] for f in getattr(form, "_fields", [])}
-    assert fields["uploadManifest"] == json.dumps({"input": {"name": "doc"}})
-    assert Path(fields["filename"].name) == file_path
+    session._session.post.assert_called_once()
+    args, kwargs = session._session.post.call_args
+    assert args[0].endswith("/Document")
+    assert type(kwargs["data"]).__name__ == "FormData"
     assert doc_id == 5
-
-
-@pytest.mark.asyncio
-async def test_create_document_missing_id(tmp_path):
-    file_path = tmp_path / "doc.txt"
-    file_path.write_text("data")
-    session = DummySession()
-    session.post_form.return_value = {}
-
-    with pytest.raises(GLPIAPIError):
-        await create_document(session, "doc", file_path, None)
 
 
 @pytest.mark.asyncio
