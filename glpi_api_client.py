@@ -4,6 +4,7 @@ from typing import Any, Dict, List, Optional
 
 from backend.infrastructure.glpi.glpi_auth import GLPIAuthClient
 from backend.services.glpi_enrichment import GLPIEnrichmentService
+from pydantic import ValidationError
 from shared.dto import CleanTicketDTO
 
 from app.api.metrics import compute_overview
@@ -50,15 +51,14 @@ class GlpiApiClient:
         page_size: int = 50,
     ) -> List[Dict[str, Any]]:
         """Return enriched ticket dictionaries."""
-        logger.info("Buscando tickets com filtros %s", filters)
+        logger.info("Fetching tickets with filters %s", filters)
         result = await asyncio.to_thread(
             self.ticket_client.list_tickets,
             filters,
             page,
             page_size,
         )
-        enriched = await self.enrichment.enrich_tickets(result)
-        return enriched
+        return await self.enrichment.enrich_tickets(result)
 
     async def fetch_tickets(self) -> List[CleanTicketDTO]:
         """Return validated tickets without filters."""
@@ -67,13 +67,13 @@ class GlpiApiClient:
         for r in records:
             try:
                 validated.append(CleanTicketDTO.model_validate(r))
-            except Exception as exc:  # pragma: no cover - validation edge
+            except ValidationError as exc:  # pragma: no cover - validation edge
                 logger.error("validation error for ticket %s: %s", r.get("id"), exc)
         return validated
 
     async def get_metrics_overview(self) -> Dict[str, Any]:
         """Return aggregated metrics computed from tickets."""
-        logger.info("Obtendo métricas agregadas")
+        logger.info("Computing aggregated metrics")
         overview = await compute_overview(client=self)
         return overview.model_dump()
 

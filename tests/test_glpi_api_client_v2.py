@@ -1,23 +1,30 @@
+from typing import Any, Dict, List, Optional
+
 import pytest
 
-# mypy: disable-error-code=arg-type
 from glpi_api_client import GlpiApiClient
+from glpi_ticket_client import GLPITicketClient
 
 
 class FakeAuth:
     def __init__(self):
         self.called = False
 
-    async def get_session_token(self, force_refresh: bool = False):
+    async def get_session_token(self, force_refresh: bool = False) -> str:
         self.called = True
         return "tok"
 
 
-class FakeTicketClient:
+class FakeTicketClient(GLPITicketClient):
     def __init__(self):
-        self.called_with = None
+        self.called_with: Optional[Dict[str, Any]] = None
 
-    def list_tickets(self, filters=None, page=1, page_size=50):
+    def list_tickets(
+        self,
+        filters: Optional[Dict[str, str]] = None,
+        page: int = 1,
+        page_size: int = 50,
+    ) -> List[Dict[str, Any]]:
         self.called_with = {
             "filters": filters,
             "page": page,
@@ -30,13 +37,15 @@ class FakeEnrichment:
     def __init__(self):
         self.called = False
 
-    async def enrich_tickets(self, tickets):
+    async def enrich_tickets(
+        self, tickets: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
         self.called = True
         for t in tickets:
             t["status_name"] = "Ok"
         return tickets
 
-    async def close(self):
+    async def close(self) -> None:
         pass
 
 
@@ -45,9 +54,9 @@ async def test_get_tickets_flow():
     auth = FakeAuth()
     ticket_client = FakeTicketClient()
     enrichment = FakeEnrichment()
-    client = GlpiApiClient(  # type: ignore[misc]
+    client = GlpiApiClient(
         auth_client=auth, ticket_client=ticket_client, enrichment=enrichment
-    )
+    )  # type: ignore[arg-type]
 
     async with client:
         tickets = await client.get_tickets({"status": "new"}, page=2, page_size=10)
