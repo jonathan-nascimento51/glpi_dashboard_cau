@@ -225,6 +225,19 @@ Defina `staleTime` para controlar quando os dados tornam-se obsoletos e use
 `invalidateQueries` após operações de gravação. Também é possível definir
 `refetchInterval` em hooks específicos para manter métricas em tempo real.
 
+### Storybook
+
+Para visualizar os componentes React de forma isolada, execute:
+
+```bash
+cd src/frontend/react_app
+npm run storybook
+```
+
+Este comando abre a interface em <http://localhost:6006> (porta padrão, configurável). Utilize as histórias
+para validar diferentes estados (carregando, erro, sucesso) antes de integrar
+ao fluxo principal.
+
 ### Executando o Rope codemod
 
 Refatorações estruturais podem ser automatizadas com `scripts/run_py_codemod.sh`. O script usa o `refactor_move.py` da biblioteca Rope para mover módulos e atualizar os imports automaticamente.

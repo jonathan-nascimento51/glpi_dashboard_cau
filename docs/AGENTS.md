@@ -173,6 +173,10 @@ Após o pipeline A1-A9, pegue cada **Prompt Final** de A8 (um para cada artefato
     - `tests/test_helpers.py` (512 bytes) - Movido para acompanhar mudanças em `src/utils/helpers.py`.
     ```
 
+Front-end components seguem um fluxo próprio descrito em
+`src/frontend/react_app/AGENTS.md`. Esse arquivo define agentes adicionais,
+incluindo o passo **A16** para geração de histórias do Storybook.
+
 ---
 
 ### B1 — Agente Validador de Código
