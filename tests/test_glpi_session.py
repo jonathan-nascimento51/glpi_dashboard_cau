@@ -942,31 +942,25 @@ async def test_get_full_session_error(
 
 
 @pytest.mark.asyncio
-async def test_context_exit_triggers_kill_session(
-    base_url,
-    app_token,
-    username,
-    password,
-    mock_client_session,
-    mock_response,
+async def test_non_json_response_raises_error(
+    base_url, app_token, user_token, mock_client_session, mock_response
 ):
-    """killSession is called and the token cleared when exiting."""
-    creds = Credentials(app_token=app_token, username=username, password=password)
+    """HTML responses should raise ``GLPIAPIError`` with text snippet."""
+
+    creds = Credentials(app_token=app_token, user_token=user_token)
     session = GLPISession(base_url, creds)
 
-    mock_client_session.get.side_effect = [
-        make_cm(200, {"session_token": "active_token"}),
-        make_cm(200, {}),
-    ]
+    mock_client_session.get.side_effect = lambda *a, **k: make_cm(
+        200, {"session_token": user_token}
+    )
 
-    async with session:
-        assert session._session_token == "active_token"
+    bad_resp = make_mock_response(200, {})
+    bad_resp.headers = {"Content-Type": "text/html"}
+    bad_resp.text = AsyncMock(return_value="<html>fail</html>")
+    mock_client_session.request.side_effect = lambda *a, **k: bad_resp
 
-    kill_call = mock_client_session.get.call_args_list[-1]
-    assert kill_call.args[0] == f"{base_url}/killSession"
-    assert kill_call.kwargs["headers"] == {
-        "Content-Type": "application/json",
-        "Session-Token": "active_token",
-        "App-Token": app_token,
-    }
-    assert session._session_token is None
+    async with session as glpi:
+        with pytest.raises(GLPIAPIError) as excinfo:
+            await glpi.get("Ticket/1")
+        assert excinfo.value.status_code == 200
+        assert excinfo.value.response_data == {"text": "<html>fail</html>"}

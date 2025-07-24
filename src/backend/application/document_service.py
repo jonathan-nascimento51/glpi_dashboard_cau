@@ -7,34 +7,7 @@ from pathlib import Path
 
 from aiohttp import FormData
 from backend.domain.exceptions import GLPIAPIError
-
 from backend.infrastructure.glpi.glpi_session import GLPISession
-
-
-async def _post_form(session: GLPISession, endpoint: str, form: FormData) -> dict:
-    """Send a multipart/form-data POST request using the underlying session."""
-    session._init_aiohttp_session()  # type: ignore[attr-defined]
-    assert session._session is not None  # type: ignore[attr-defined]
-
-    headers = session._build_request_headers(None)  # type: ignore[attr-defined]
-    headers.pop("Content-Type", None)
-    request_kwargs = {
-        "headers": headers,
-        "data": form,
-        "proxy": session.proxy,
-        "timeout": session._resolve_timeout(),  # type: ignore[attr-defined]
-    }
-    if not session.verify_ssl:
-        request_kwargs["ssl"] = False
-    elif session.ssl_ctx is not None:
-        request_kwargs["ssl"] = session.ssl_ctx
-
-    async with session._session.post(  # type: ignore[attr-defined]
-        f"{session.base_url}/{endpoint}",
-        **request_kwargs,
-    ) as resp:
-        resp.raise_for_status()
-        return await resp.json()
 
 
 async def create_document(
@@ -53,17 +26,23 @@ async def create_document(
     form.add_field(
         "uploadManifest", json.dumps(manifest), content_type="application/json"
     )
-    com file_path.open("rb") como f:
-        formulário.add_field(
-            "nome do arquivo",
-            f,
-            nome do arquivo=file_path.nome,
-            content_type="aplicativo/fluxo de octeto",
-        )
-        dados = aguardar _post_form(sessão, "Documento", formulário)
-    if "id" not in data:
-        raise ValueError(f"API response does not contain 'id': {data}")
-    return int(data["id"])
+    file_handle = file_path.open("rb")
+    form.add_field(
+        "filename",
+        file_handle,
+        filename=file_path.name,
+        content_type="application/octet-stream",
+    )
+
+    try:
+        data = await session.post_form("Document", form)
+    finally:
+        file_handle.close()
+
+    doc_id = data.get("id")
+    if doc_id is None:
+        raise GLPIAPIError(0, "Document creation response missing 'id'", data)
+    return int(doc_id)
 
 
 async def link_document(

@@ -1,5 +1,3 @@
-import React from 'react'
-
 interface Props {
   currentPage: number
   totalPages: number
@@ -56,10 +54,12 @@ export function Pagination({ currentPage, totalPages, onPageChange, className = 
         {pages.map(page => (
           <li key={page}>
             <button
-              onClick={goto(page)}
+              onClick={typeof page === 'number' ? goto(page) : undefined}
               aria-current={page === currentPage ? 'page' : undefined}
               className={`rounded border px-3 py-1 ${
-                page === currentPage ? 'bg-blue-600 text-white' : 'bg-white text-blue-600'
+                page === currentPage
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-white text-blue-600'
               }`}
             >
               {page}

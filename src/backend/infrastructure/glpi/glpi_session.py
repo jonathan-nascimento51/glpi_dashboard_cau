@@ -585,6 +585,14 @@ class GLPISession:
                 raise GLPIUnauthorizedError(401, "401 Unauthorized")
             try:
                 response.raise_for_status()
+                content_type = response.headers.get("Content-Type", "")
+                if not content_type.startswith("application/json"):
+                    html_snippet = await response.text()
+                    raise GLPIAPIError(
+                        response.status,
+                        f"Unexpected content type: {content_type}",
+                        {"text": html_snippet},
+                    )
                 data = await response.json()
                 return (data, dict(response.headers)) if return_headers else data
             except aiohttp.ClientResponseError as e:
