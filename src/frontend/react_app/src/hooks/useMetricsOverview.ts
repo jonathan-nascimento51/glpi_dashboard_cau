@@ -1,11 +1,13 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useApiQuery } from './useApiQuery'
 import type { MetricsOverview } from '../types/metricsOverview'
 
 export const POLLING_INTERVAL_MS = 60000
+
+const METRICS_QUERY_KEY = ['metrics-overview'] as const
 
 interface ApiMetricsEntry {
   open_tickets: number
@@ -15,7 +17,7 @@ interface ApiMetricsEntry {
 export function useMetricsOverview() {
   const queryClient = useQueryClient()
   const query = useApiQuery<Record<string, ApiMetricsEntry>, Error>(
-    ['metrics-overview'],
+    METRICS_QUERY_KEY,
     '/metrics/overview',
     {
       refetchInterval: POLLING_INTERVAL_MS,
@@ -24,19 +26,21 @@ export function useMetricsOverview() {
 
   const metrics = useMemo(() => {
     if (!query.data) return undefined
-    const transformed: MetricsOverview = {}
-    for (const level of Object.keys(query.data)) {
-      const item = query.data[level]
-      transformed[level] = {
-        open: item.open_tickets ?? 0,
-        closed: item.tickets_closed_this_month ?? 0,
-      }
-    }
-    return transformed
+    return Object.fromEntries(
+      Object.entries(query.data).map(([level, item]) => [
+        level,
+        {
+          open: item.open_tickets,
+          closed: item.tickets_closed_this_month,
+        },
+      ]),
+    ) as MetricsOverview
   }, [query.data])
 
-  const refreshMetrics = () =>
-    queryClient.invalidateQueries({ queryKey: ['metrics-overview'] })
+  const refreshMetrics = useCallback(
+    () => queryClient.invalidateQueries({ queryKey: METRICS_QUERY_KEY }),
+    [queryClient],
+  )
 
   return {
     metrics,
