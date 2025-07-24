@@ -154,8 +154,8 @@ the configuration and dashboard.
 
 ### Storybook
 
-Run Storybook to preview components in isolation. Inside
-`src/frontend/react_app` execute:
+Execute o Storybook para visualizar componentes isoladamente. Dentro de
+`src/frontend/react_app`, execute:
 
 ```bash
 npm run storybook      # inicia em http://localhost:6006
