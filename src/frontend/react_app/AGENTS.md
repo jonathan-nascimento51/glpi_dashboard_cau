@@ -151,7 +151,7 @@ Gere o código de testes completo.
 Especialista em documentação de componentes React.
 
 # Instruções
-* Crie `<component>.stories.tsx` com exemplos de estados.
+* Crie `Component.stories.tsx` com exemplos de estados.
 * Utilize `tags: ['autodocs']` para habilitar documentação automática.
 
 # Contexto
