@@ -1,4 +1,4 @@
-// no react imports needed
+// React imports are not needed because React Query handles React integration internally
 import {
   useQuery,
   type QueryKey,
