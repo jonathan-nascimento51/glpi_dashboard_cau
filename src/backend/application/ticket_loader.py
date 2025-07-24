@@ -6,9 +6,6 @@ from pathlib import Path
 from typing import AsyncGenerator, List, Optional, cast
 
 import pandas as pd
-from fastapi import HTTPException
-from fastapi.responses import Response
-
 from backend.adapters.factory import create_glpi_session
 from backend.application.aggregated_metrics import (
     cache_aggregated_metrics,
@@ -20,6 +17,8 @@ from backend.application.aggregated_metrics import (
 from backend.application.glpi_api_client import GlpiApiClient
 from backend.core.settings import MOCK_TICKETS_FILE, USE_MOCK_DATA
 from backend.infrastructure.glpi.normalization import process_raw
+from fastapi import HTTPException
+from fastapi.responses import Response
 from shared.dto import CleanTicketDTO
 from shared.utils.redis_client import RedisClient, redis_client
 
@@ -135,7 +134,8 @@ async def load_tickets(
         try:
             async with client:
                 tickets = await client.fetch_tickets()
-            data = [t.model_dump() for t in cast(list, tickets)]
+            # Use aliases so ``name`` and ``date_creation`` are preserved
+            data = [t.model_dump(by_alias=True) for t in cast(list, tickets)]
             logger.info("Sucesso ao buscar %d tickets da API do GLPI.", len(data))
         except Exception as exc:
             logger.exception(
