@@ -14,7 +14,14 @@ import pandas as pd
 
 TicketData = Union[List[dict], pd.DataFrame, pd.Series]
 
-REQUIRED_FIELDS = ["id", "status", "group", "assigned_to", "date_creation"]
+REQUIRED_FIELDS = [
+    "id",
+    "status",
+    "group",
+    "assigned_to",
+    "date_creation",
+    "priority",
+]
 
 # Map alternate/underscore-prefixed field names returned by the GLPI API to the
 # canonical column names used by the dashboard.
@@ -69,6 +76,11 @@ def process_raw(data: TicketData) -> pd.DataFrame:
         .str.lower()
         .astype("category")
     )
+    df["priority"] = pd.to_numeric(
+        df.get("priority", pd.Series([pd.NA] * len(df), index=idx)),
+        errors="coerce",
+        downcast="integer",
+    ).astype("Int64")
     df["group"] = (
         df.get("group", pd.Series([""] * len(df), index=idx)).fillna("").astype(str)
     ).astype("category")
@@ -83,7 +95,9 @@ def process_raw(data: TicketData) -> pd.DataFrame:
         assigned_to = assigned_raw.astype(str)
     df["assigned_to"] = assigned_to.replace({"<NA>": "", "nan": ""}).fillna("")
 
-    return df[["id", "name", "status", "assigned_to", "group", "date_creation"]].copy()
+    return df[
+        ["id", "name", "status", "priority", "assigned_to", "group", "date_creation"]
+    ].copy()
 
 
 __all__ = [
