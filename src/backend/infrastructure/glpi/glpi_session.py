@@ -785,6 +785,20 @@ class GLPISession:
         # Note: Pagination logic, including offset increment,
         # is handled within _paginate_search.
 
+    async def get_multiple_items(
+        self, pairs: list[tuple[str, int]]
+    ) -> list[dict[str, Any]]:
+        """Return several items in a single request."""
+
+        payload = {
+            "items": [{"itemtype": itype, "items_id": iid} for itype, iid in pairs]
+        }
+        data = await self.post("getMultipleItems", json_data=payload)
+        items: Any = data.get("data", data) if isinstance(data, dict) else data
+        if isinstance(items, dict):
+            items = [items]
+        return list(items)
+
     async def query_graphql(
         self, query: str, variables: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
@@ -841,6 +855,7 @@ async def index_all_paginated(
 
 # Expose the ``get_full_session`` method at module level for convenience.
 get_full_session = GLPISession.get_full_session
+get_multiple_items = GLPISession.get_multiple_items
 
 
 __all__ = [
@@ -856,4 +871,5 @@ __all__ = [
     "GLPIInternalServerError",
     "get_full_session",
     "index_all_paginated",
+    "get_multiple_items",
 ]

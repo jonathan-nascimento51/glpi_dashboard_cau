@@ -2,12 +2,10 @@
 
 from __future__ import annotations
 
-import asyncio
 import json
 from typing import List
 
-from pydantic import BaseModel, Field
-
+from backend.application.glpi_api_client import GlpiApiClient
 from backend.core.settings import (
     GLPI_APP_TOKEN,
     GLPI_BASE_URL,
@@ -17,9 +15,9 @@ from backend.core.settings import (
 )
 
 # Import custom error raised by the GLPI client
-from backend.domain.exceptions import GLPIAPIError
 from backend.domain.tool_error import ToolError
 from backend.infrastructure.glpi.glpi_session import Credentials, GLPISession
+from pydantic import BaseModel, Field
 
 
 class BatchFetchParams(BaseModel):
@@ -29,10 +27,7 @@ class BatchFetchParams(BaseModel):
 
 
 async def fetch_all_tickets(ids: List[int]) -> List[dict]:
-    """Fetch multiple tickets concurrently with limited concurrency.
-
-    Retries on server errors (HTTP status >=500) using exponential backoff.
-    """
+    """Return raw ticket dictionaries for the provided ``ids``."""
 
     creds = Credentials(
         app_token=GLPI_APP_TOKEN,
@@ -41,28 +36,11 @@ async def fetch_all_tickets(ids: List[int]) -> List[dict]:
         password=GLPI_PASSWORD,
     )
 
-    semaphore = asyncio.Semaphore(10)
-
-    async with GLPISession(GLPI_BASE_URL, creds) as session:
-
-        async def fetch(ticket_id: int) -> dict:
-            backoff = 0.1
-            retries = 0
-            while True:
-                async with semaphore:
-                    try:
-                        data = await session.get(f"Ticket/{ticket_id}")
-                        return data.get("data", data)
-                    except GLPIAPIError as exc:
-                        if exc.status_code >= 500 and retries < 5:
-                            await asyncio.sleep(backoff)
-                            backoff *= 2
-                            retries += 1
-                            continue
-                        raise
-
-        results = await asyncio.gather(*(fetch(tid) for tid in ids))
-        return list(results)
+    session = GLPISession(GLPI_BASE_URL, creds)
+    client = GlpiApiClient(session=session)
+    async with client:
+        tickets = await client.fetch_tickets_by_ids(ids)
+    return [t.model_dump() for t in tickets]
 
 
 async def fetch_all_tickets_tool(params: BatchFetchParams) -> str:
