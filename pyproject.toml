@@ -106,6 +106,9 @@ exclude = [
 [tool.ruff.lint]
 select = ["E", "F", "W", "I"] # Enable Pyflakes, pycodestyle, and isort
 
+[tool.ruff.isort]
+known-first-party = ["backend", "shared"]
+
 [tool.ruff.format]
 quote-style = "double" # Match black's default
 

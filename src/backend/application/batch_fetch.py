@@ -5,6 +5,8 @@ from __future__ import annotations
 import json
 from typing import List
 
+from pydantic import BaseModel, Field
+
 from backend.application.glpi_api_client import GlpiApiClient
 from backend.core.settings import (
     GLPI_APP_TOKEN,
@@ -17,7 +19,6 @@ from backend.core.settings import (
 # Import custom error raised by the GLPI client
 from backend.domain.tool_error import ToolError
 from backend.infrastructure.glpi.glpi_session import Credentials, GLPISession
-from pydantic import BaseModel, Field
 
 
 class BatchFetchParams(BaseModel):
@@ -40,7 +41,7 @@ async def fetch_all_tickets(ids: List[int]) -> List[dict]:
     client = GlpiApiClient(session=session)
     async with client:
         tickets = await client.fetch_tickets_by_ids(ids)
-    # Preserve original GLPI field names when exporting to JSON
+    # Preserve field aliases (e.g., `name`, `date_creation`) for frontend compatibility
     return [t.model_dump(by_alias=True) for t in tickets]
 
 

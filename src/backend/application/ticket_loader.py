@@ -6,6 +6,9 @@ from pathlib import Path
 from typing import AsyncGenerator, List, Optional, cast
 
 import pandas as pd
+from fastapi import HTTPException
+from fastapi.responses import Response
+
 from backend.adapters.factory import create_glpi_session
 from backend.application.aggregated_metrics import (
     cache_aggregated_metrics,
@@ -17,8 +20,6 @@ from backend.application.aggregated_metrics import (
 from backend.application.glpi_api_client import GlpiApiClient
 from backend.core.settings import MOCK_TICKETS_FILE, USE_MOCK_DATA
 from backend.infrastructure.glpi.normalization import process_raw
-from fastapi import HTTPException
-from fastapi.responses import Response
 from shared.dto import CleanTicketDTO
 from shared.utils.redis_client import RedisClient, redis_client
 
@@ -65,9 +66,12 @@ async def load_and_translate_tickets(
     validated_tickets: List[CleanTicketDTO] = []
     validation_errors = 0
     for i, r in enumerate(records):
-        # Ensure keys exist if required for downstream processing
-        # r["priority"] = r.get("priority")
-        # r["date_creation"] = r.get("date_creation")
+        # Normalize optional fields that may be empty or NaN before validation
+        if "priority" in r and pd.isna(r["priority"]):
+            r["priority"] = None
+        if not r.get("date_creation"):
+            r["date_creation"] = None
+
         try:
             validated_tickets.append(CleanTicketDTO.model_validate(r))
         except Exception as exc:
