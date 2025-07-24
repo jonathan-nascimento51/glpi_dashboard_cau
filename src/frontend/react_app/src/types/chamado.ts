@@ -5,5 +5,5 @@ export interface ChamadoPorData {
 
 export interface ChamadoPorDia {
   date: string
-  count: number
+  total: number
 }

@@ -16,7 +16,7 @@ interface ApiMetricsEntry {
 
 export function useMetricsOverview() {
   const queryClient = useQueryClient()
-  const query = useApiQuery<Record<string, ApiMetricsEntry>, Error>(
+  const query = useApiQuery<Record<string, ApiMetricsEntry>>(
     METRICS_QUERY_KEY,
     '/metrics/overview',
     {

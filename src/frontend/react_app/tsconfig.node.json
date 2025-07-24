@@ -4,7 +4,8 @@
     "skipLibCheck": true,
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "allowJs": true
+    "allowJs": true,
+    "noEmit": true
   },
   "include": ["vite.config.ts", "jest.config.ts", "scripts/check-env.js"]
 }
