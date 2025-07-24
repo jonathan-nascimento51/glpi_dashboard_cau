@@ -55,7 +55,7 @@ async def test_load_field_ids():
 
 
 @pytest.mark.asyncio
-async def test_load_field_ids_cache():
+async def test_load_field_ids_cache(fresh_criteria_cache):
     calls = []
 
     class FakeSession:
@@ -63,7 +63,6 @@ async def test_load_field_ids_cache():
             calls.append(itemtype)
             return {"5": {"name": "Status"}}
 
-    CriteriaBuilder._cache.clear()
     mapping1 = await CriteriaBuilder.load_field_ids(FakeSession())
     mapping2 = await CriteriaBuilder.load_field_ids(FakeSession())
     assert mapping1 == mapping2 == {"status": 5}
