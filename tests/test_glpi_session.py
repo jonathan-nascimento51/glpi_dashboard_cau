@@ -10,11 +10,10 @@ import pytest
 
 pytest.importorskip("aiohttp")
 
-import aiohttp
-from aiohttp import BasicAuth
-
-from backend.infrastructure.glpi import glpi_session
-from backend.infrastructure.glpi.glpi_session import (
+import aiohttp  # noqa: E402
+from aiohttp import BasicAuth  # noqa: E402
+from backend.infrastructure.glpi import glpi_session  # noqa: E402
+from backend.infrastructure.glpi.glpi_session import (  # noqa: E402
     Credentials,
     GLPIAPIError,
     GLPIBadRequestError,
@@ -25,8 +24,9 @@ from backend.infrastructure.glpi.glpi_session import (
     GLPITooManyRequestsError,
     GLPIUnauthorizedError,
 )
-from shared.utils.logging import init_logging
-from tests.helpers import make_cm, make_mock_response
+from shared.utils.logging import init_logging  # noqa: E402
+
+from tests.helpers import make_cm, make_mock_response  # noqa: E402
 
 pytest.importorskip(
     "aiohttp", reason="aiohttp package is required to run glpi_session tests"
@@ -554,7 +554,9 @@ async def test_proactive_refresh_loop_username_password(
     """
     credentials = Credentials(app_token=app_token, username=username, password=password)
     glpi_session = GLPISession(
-        base_url, credentials, refresh_interval=0.2  # type: ignore
+        base_url,
+        credentials,
+        refresh_interval=0.2,  # type: ignore
     )  # Set a short interval
 
     # Mock initSession for initial and subsequent proactive refreshes
@@ -852,7 +854,6 @@ async def test_circuit_breaker_opens_after_consecutive_failures(
     """Circuit breaker opens after repeated server errors."""
     pytest.importorskip("pybreaker")
     import pybreaker
-
     from shared.utils.resilience import breaker
 
     # Reset breaker state for this test to ensure it's closed.
@@ -885,3 +886,56 @@ async def test_circuit_breaker_opens_after_consecutive_failures(
     assert breaker.current_state == pybreaker.STATE_OPEN
     # Clean up for subsequent tests.
     breaker.close()
+
+
+@pytest.mark.asyncio
+async def test_get_full_session_success(
+    base_url, app_token, user_token, mock_client_session, mock_response
+):
+    """get_full_session should return session details."""
+
+    creds = Credentials(app_token=app_token, user_token=user_token)
+    session = GLPISession(base_url, creds)
+
+    mock_client_session.get.side_effect = [
+        make_cm(200, {"session_token": user_token}),
+        make_cm(200, {}),
+    ]
+    mock_client_session.request.return_value = make_cm(200, {"session": "info"})
+
+    async with session as glpi:
+        data = await glpi.get_full_session()
+        assert data == {"session": "info"}
+        mock_client_session.request.assert_called_once_with(
+            "GET",
+            f"{base_url}/getFullSession",
+            headers={
+                "Content-Type": "application/json",
+                "App-Token": app_token,
+                "Session-Token": user_token,
+            },
+            json=None,
+            params=None,
+            proxy=ANY,
+            timeout=ANY,
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_full_session_error(
+    base_url, app_token, user_token, mock_client_session, mock_response
+):
+    """get_full_session should raise mapped errors."""
+
+    creds = Credentials(app_token=app_token, user_token=user_token)
+    session = GLPISession(base_url, creds)
+
+    mock_client_session.get.side_effect = [
+        make_cm(200, {"session_token": user_token}),
+        make_cm(200, {}),
+    ]
+    mock_client_session.request.return_value = make_cm(403, {"message": "no"}, True)
+
+    async with session as glpi:
+        with pytest.raises(GLPIForbiddenError):
+            await glpi.get_full_session()
