@@ -8,11 +8,12 @@ describe('ReportOptions Component', () => {
 
     // Check if the select element is correctly associated with its label
     const periodLabel = screen.getByText('Report Period');
-    const periodSelect = screen.getByLabelText('Report Period');
-    expect(periodLabel).toBeInTheDocument();
+    const periodSelect = screen.getByLabelText<HTMLSelectElement>('Report Period');
+    expect(periodLabel).toBeInTheDocument(); // This assertion is correct
     expect(periodSelect).toBeInTheDocument();
     expect(periodSelect).toHaveAttribute('id', 'report-period-select');
     expect(periodSelect).toHaveAttribute('name', 'report_period');
+    expect(periodSelect.value).toBe('weekly'); // Check initial value
 
     // Check if the radio group has an accessible name from the legend
     const radioGroup = screen.getByRole('radiogroup');
@@ -38,7 +39,7 @@ describe('ReportOptions Component', () => {
     // The button has no visible text, so it must have an aria-label
     const settingsButton = screen.getByRole('button', { name: /advanced settings/i });
     expect(settingsButton).toBeInTheDocument();
-    expect(settingsButton).not.toHaveTextContent(); // Ensure it's an icon-only button
+    expect(settingsButton.textContent).toBe(''); // Ensure it's an icon-only button
   });
 
   it('should update state when a different radio button is selected', async () => {
@@ -55,5 +56,18 @@ describe('ReportOptions Component', () => {
 
     expect(pdfRadio).not.toBeChecked();
     expect(csvRadio).toBeChecked();
+  });
+
+  it('should update state when a different period is selected', async () => {
+    const user = userEvent.setup();
+    render(<ReportOptions />);
+
+    const periodSelect = screen.getByLabelText<HTMLSelectElement>('Report Period');
+
+    expect(periodSelect.value).toBe('weekly');
+
+    await user.selectOptions(periodSelect, 'monthly');
+
+    expect(periodSelect.value).toBe('monthly');
   });
 });

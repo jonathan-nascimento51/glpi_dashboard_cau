@@ -1,41 +1,51 @@
 /*
- * This file demonstrates CSS fixes for browser compatibility and best practices.
+ * Este arquivo fornece correções e exemplos para avisos comuns de compatibilidade de CSS.
+ * Os avisos que você está vendo provavelmente se originam de CSS gerado por
+ * bibliotecas de terceiros (como kits de componentes de UI ou ferramentas de desenvolvedor) em tempo de execução.
+ *
+ * Ferramentas de build como o Autoprefixer (que você tem instalado) lidam com prefixos
+ * de fornecedores para o seu próprio código, mas não podem modificar estilos injetados por scripts externos.
+ *
+ * Você pode usar as classes utilitárias aqui para sobrescrever estilos problemáticos, se necessário,
+ * mas muitas vezes esses avisos de linters sobre código de terceiros podem ser ignorados com segurança,
+ * a menos que causem problemas reais de renderização em um navegador de destino.
  */
 
 /*
- * UTILITY: A reusable class to prevent text selection.
- * FIX: 'user-select' is not supported by all browsers without a prefix.
- * The '-webkit-' prefix is needed for Safari.
+ * CORREÇÃO para: 'user-select' is not supported by Safari.
+ * Adicione '-webkit-user-select' para suportar o Safari 3+.
+ *
+ * Esta classe utilitária pode ser adicionada a qualquer elemento para tornar seu texto não selecionável.
+ * As propriedades com prefixo de fornecedor devem vir ANTES da propriedade padrão.
  */
 .no-select {
-  -webkit-user-select: none; /* Safari */
-  user-select: none;
-}
-
-.some-element {
-  /*
-   * FIX: 'user-select' is not supported by Safari.
-   * Add '-webkit-user-select' to support Safari 3+.
-   * The prefixed version should come first.
-   */
   -webkit-user-select: none; /* For Safari */
   -moz-user-select: none; /* For Firefox */
   -ms-user-select: none; /* For Internet Explorer/Edge */
   user-select: none; /* Standard syntax */
 }
 
-.another-element {
-  /*
-   * FIX: 'background-clip' should be listed after '-webkit-background-clip'.
-   * The vendor-prefixed property should come before the standard one to ensure
-   * that browsers use the standard property once it's supported.
-   */
+/*
+ * CORREÇÃO para: 'background-clip' should be listed after '-webkit-background-clip'.
+ *
+ * Este é um exemplo da ordem correta para um efeito de gradiente com recorte de texto.
+ * A propriedade com prefixo de fornecedor (-webkit-background-clip) deve vir ANTES
+ * da propriedade padrão (background-clip).
+ */
+.gradient-text-example {
   -webkit-background-clip: text; /* For Safari */
   background-clip: text;
+  /* Outras propriedades como background-image e text-fill-color são necessárias para o efeito. */
 }
 
-.text-input-that-grows {
-  /* NOTE on 'field-sizing': This is an experimental feature with limited support.
-   * There are no vendor prefixes for it. Use with caution and provide fallbacks. */
+/*
+ * NOTA sobre: 'field-sizing' is not supported by Firefox, Safari.
+ *
+ * Esta é uma funcionalidade experimental com suporte limitado nos navegadores. O aviso é
+ * informativo. Não existem prefixos de fornecedores para adicionar. Use esta propriedade com
+ * cautela e considere fornecer alternativas (ex: usar JavaScript para redimensionar
+ * o elemento) para navegadores que não a suportam.
+ */
+.text-input-that-grows-example {
   field-sizing: content;
 }

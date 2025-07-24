@@ -6,6 +6,7 @@
     "noEmit": true
   },
   "include": [
+    "src",
     "jest.setup.ts",
     "tests/**/*.test.tsx"
   ]

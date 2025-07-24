@@ -1,4 +1,4 @@
-import { type FC, useState } from 'react';
+import { type FC, useReducer } from 'react';
 
 // A placeholder for an icon component
 const GearIcon = () => (
@@ -14,6 +14,31 @@ const GearIcon = () => (
   </svg>
 );
 
+type ReportOptionsState = {
+  period: 'weekly' | 'monthly';
+  format: 'pdf' | 'csv';
+};
+
+type ReportOptionsAction =
+  | { type: 'SET_PERIOD'; payload: ReportOptionsState['period'] }
+  | { type: 'SET_FORMAT'; payload: ReportOptionsState['format'] };
+
+const initialState: ReportOptionsState = {
+  period: 'weekly',
+  format: 'pdf',
+};
+
+function reportOptionsReducer(state: ReportOptionsState, action: ReportOptionsAction): ReportOptionsState {
+  switch (action.type) {
+    case 'SET_PERIOD':
+      return { ...state, period: action.payload };
+    case 'SET_FORMAT':
+      return { ...state, format: action.payload };
+    default:
+      throw new Error(`Unhandled action type`);
+  }
+}
+
 /**
  * This component demonstrates fixes for several accessibility issues:
  * 1. `Buttons must have discernible text`: The icon-only settings button has an `aria-label`.
@@ -22,7 +47,7 @@ const GearIcon = () => (
  * 4. `Certain ARIA roles must contain particular children`: A custom radio group is correctly structured.
  */
 export const ReportOptions: FC = () => {
-  const [format, setFormat] = useState('pdf');
+  const [state, dispatch] = useReducer(reportOptionsReducer, initialState);
 
   return (
     <form
@@ -32,7 +57,11 @@ export const ReportOptions: FC = () => {
     >
       <div style={{ display: 'flex', flexDirection: 'column' }}>
         <label htmlFor="report-period-select">Report Period</label>
-        <select id="report-period-select" name="report_period">
+        <select
+          id="report-period-select"
+          name="report_period"
+          value={state.period}
+          onChange={(e) => dispatch({ type: 'SET_PERIOD', payload: e.target.value as ReportOptionsState['period'] })}        >
           <option value="weekly">Weekly</option>
           <option value="monthly">Monthly</option>
         </select>
@@ -47,8 +76,8 @@ export const ReportOptions: FC = () => {
                 type="radio"
                 name="format"
                 value={fileFormat}
-                checked={format === fileFormat}
-                onChange={() => setFormat(fileFormat)}
+                checked={state.format === fileFormat}
+                onChange={() => dispatch({ type: 'SET_FORMAT', payload: fileFormat as ReportOptionsState['format'] })}
               />
               {fileFormat.toUpperCase()}
             </label>
