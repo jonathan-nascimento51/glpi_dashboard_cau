@@ -40,7 +40,8 @@ async def fetch_all_tickets(ids: List[int]) -> List[dict]:
     client = GlpiApiClient(session=session)
     async with client:
         tickets = await client.fetch_tickets_by_ids(ids)
-    return [t.model_dump() for t in tickets]
+    # Preserve original GLPI field names when exporting to JSON
+    return [t.model_dump(by_alias=True) for t in tickets]
 
 
 async def fetch_all_tickets_tool(params: BatchFetchParams) -> str:
