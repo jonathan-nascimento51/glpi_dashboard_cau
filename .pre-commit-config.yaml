@@ -1,25 +1,19 @@
 repos:
-  - repo: https://github.com/psf/black
-    rev: 89f36108caaa8e3281779a00e3fc14db1cacbf7d
-    hooks:
-      - id: black
-        args:
-          - "--line-length=88"
-          - '--exclude=/\.(env|venv|\.venv|env|\.git|build|dist)/'
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.12.3
+    # A versão foi atualizada para uma mais recente e estável.
+    rev: v0.5.0
     hooks:
       - id: ruff
-        args: ["--fix"]
-  - repo: https://github.com/pycqa/isort
-    rev: 9a400aed8a99a3dc2e5a3dccba3d3e99683a2df5
-    hooks:
-      - id: isort
+        # O --fix corrige automaticamente o que for possível, incluindo a
+        # ordenação de imports (substituindo o isort).
+        args: [--fix, --exit-non-zero-on-fix]
+      - id: ruff-format
+        # Este hook substitui o black para formatação de código.
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.16.1
     hooks:
       - id: mypy
-        additional_dependencies: ["types-requests"]
+        additional_dependencies: ["types-requests", "types-redis"]
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: 582b9c66e0791980685c8b80bb11e6a3df1a06ef
     hooks:

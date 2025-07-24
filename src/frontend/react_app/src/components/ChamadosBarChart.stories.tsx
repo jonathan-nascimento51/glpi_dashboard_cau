@@ -1,7 +1,12 @@
+import { useEffect } from 'react'
 import type { Meta, StoryObj } from '@storybook/react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { spyOn } from '@storybook/test'
 import { ChamadosBarChart } from './ChamadosBarChart'
 import * as useChamadosPorDataHook from '../hooks/useChamadosPorData'
+
+// Cria uma instância do cliente para ser usada nas histórias.
+const queryClient = new QueryClient()
 
 const meta: Meta<typeof ChamadosBarChart> = {
   title: 'Charts/ChamadosBarChart',
@@ -15,13 +20,25 @@ const meta: Meta<typeof ChamadosBarChart> = {
   // nos `parameters` de cada história.
   decorators: [
     (Story, context) => {
-      const { mockData } = context.parameters
-      if (mockData) {
-        spyOn(useChamadosPorDataHook, 'useChamadosPorData').mockReturnValue({
-          ...mockData,
-        } as any)
-      }
-      return <Story />
+      // Use useEffect to set up and tear down the mock, which is compatible with HMR.
+      useEffect(() => {
+        const { mockData } = context.parameters
+        if (mockData) {
+          const spy = spyOn(
+            useChamadosPorDataHook,
+            'useChamadosPorData',
+          ).mockReturnValue(mockData as any)
+
+          // Restore the original function when the story is unmounted.
+          return () => spy.mockRestore()
+        }
+      }, [context.parameters]) // Re-run the effect if the story parameters change.
+
+      return (
+        <QueryClientProvider client={queryClient}>
+          <Story />
+        </QueryClientProvider>
+      )
     },
   ],
 }

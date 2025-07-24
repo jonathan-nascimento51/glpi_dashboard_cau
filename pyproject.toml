@@ -59,11 +59,8 @@ dev = [
     "pytest==8.4.1",
     "pytest-cov==6.2.1",
     "pytest-asyncio==1.0.0",
-    "black",
     "mypy",
     "ruff",
-    "flake8",
-    "isort",
     "pytest-mock==3.14.1",
     "pytest-httpx==0.30.0",
     "testcontainers",
@@ -83,18 +80,34 @@ glpi-tools = "glpi_tools.__main__:cli"
 [tool.setuptools]
 package-dir = {"" = "src"}
 
-[tool.black]
-line-length = 88
-target-version = ["py310", "py311", "py312"]
-
-[tool.isort]
-profile = "black"
-line_length = 88
-
 [tool.mypy]
 python_version = "3.12"
 ignore_missing_imports = true
 check_untyped_defs = true
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"] # Enable Pyflakes, pycodestyle, and isort
+
+[tool.ruff.format]
+quote-style = "double" # Match black's default
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

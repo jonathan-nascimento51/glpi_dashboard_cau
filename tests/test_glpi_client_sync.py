@@ -4,7 +4,6 @@ from unittest.mock import ANY, MagicMock
 
 import pytest
 import requests
-
 from backend.infrastructure.glpi.glpi_client import (
     GLPIClientNotFound,
     GLPISessionManager,
@@ -18,6 +17,7 @@ class DummyResponse(requests.Response):
         super().__init__()
         self.status_code = status
         import json
+
         self._content = json.dumps(json_data).encode()
         self.headers = requests.structures.CaseInsensitiveDict(
             {"Content-Type": "application/json"}
@@ -50,6 +50,8 @@ def test_get_secret_missing(monkeypatch):
     monkeypatch.delenv("TOKEN_FILE", raising=False)
     with pytest.raises(RuntimeError):
         get_secret("TOKEN")
+
+
 def test_get_secret_file(monkeypatch, tmp_path):
     f = tmp_path / "s.txt"
     f.write_text("xyz")
