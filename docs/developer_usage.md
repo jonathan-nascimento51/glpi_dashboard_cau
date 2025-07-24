@@ -74,9 +74,23 @@ python worker.py
 Endpoints relevantes:
 
 - `/tickets` – lista completa de chamados
+-   A resposta inclui o campo `priority` em formato textual.
 - `/metrics` – contagem de abertos/fechados
 - `/graphql/` – versão GraphQL
 - `/cache/stats` – estatísticas de cache
+
+Exemplo de retorno:
+
+```json
+[
+  {
+    "id": 7,
+    "title": "Falha no proxy",
+    "status": "Closed",
+    "priority": "Medium"
+  }
+]
+```
 
 ## Utilizando o ETL
 
