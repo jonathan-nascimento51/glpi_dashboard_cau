@@ -152,6 +152,19 @@ wraps `App` inside `React.Profiler` to push render timings via
 Refer to [docs/observability.md](observability.md) for a complete example of
 the configuration and dashboard.
 
+### Storybook
+
+Run Storybook to preview components in isolation. Inside
+`src/frontend/react_app` execute:
+
+```bash
+npm run storybook      # inicia em http://localhost:6006
+npm run build-storybook  # gera a versão estática em storybook-static/
+```
+
+Use these stories to validate different loading states and to document props
+automatically via the `autodocs` tag.
+
 ## 7. Code generation with Plop
 
 Reusable boilerplate for new React components and Dash modules is created with

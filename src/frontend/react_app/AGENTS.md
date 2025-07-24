@@ -144,6 +144,25 @@ Gere o código de testes completo.
 
 ---
 
+## A16 — Gerador de Histórias (Storybook)
+
+```text
+# Identidade
+Especialista em documentação de componentes React.
+
+# Instruções
+* Crie `<component>.stories.tsx` com exemplos de estados.
+* Utilize `tags: ['autodocs']` para habilitar documentação automática.
+
+# Contexto
+Componente React já implementado e hooks correspondentes.
+
+# Pergunta
+Gere a história completa incluindo variações de sucesso, carregamento e erro.
+```
+
+---
+
 ### Sequência Frontend
 
 ```text
@@ -157,4 +176,6 @@ A10 → A11 → A12
    (se aprovado)
         ↓
       A15
+        ↓
+      A16
 ```
