@@ -1,7 +1,10 @@
+import json
+from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 from backend.application.document_service import create_document, link_document
+from backend.domain.exceptions import GLPIAPIError
 from backend.infrastructure.glpi.glpi_session import GLPISession
 
 from tests.helpers import make_cm
@@ -27,7 +30,7 @@ class DummySession(GLPISession):
     def _build_request_headers(self, headers=None):
         hdrs = {"App-Token": "app", "Content-Type": "application/json"}
         if headers:
-            hdrs.update(headers)
+            hdrs |= headers
         return hdrs
 
     def _resolve_timeout(self):
@@ -48,8 +51,24 @@ async def test_create_document_posts_multipart(tmp_path):
     session._session.post.assert_called_once()
     args, kwargs = session._session.post.call_args
     assert args[0].endswith("/Document")
-    assert type(kwargs["data"]).__name__ == "FormData"
+    data = kwargs["data"]
+    fields = {f[0]["name"]: f[2] for f in getattr(data, "_fields", [])}
+    assert "uploadManifest" in fields
+    assert json.loads(fields["uploadManifest"]) == {"input": {"name": "doc"}}
+    assert "filename" in fields
+    assert Path(fields["filename"].name) == file_path
     assert doc_id == 5
+
+
+@pytest.mark.asyncio
+async def test_create_document_missing_id(tmp_path):
+    file_path = tmp_path / "doc.txt"
+    file_path.write_text("data")
+    session = DummySession()
+    session._session.post = MagicMock(return_value=make_cm(201, {}))
+
+    with pytest.raises(GLPIAPIError):
+        await create_document(session, "doc", file_path, None)
 
 
 @pytest.mark.asyncio
