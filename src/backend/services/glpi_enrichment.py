@@ -67,7 +67,7 @@ class GLPIEnrichmentService:
             try:
                 sid = int(item.get("id"))
                 name = str(item.get("name"))
-            except (ValueError, TypeError):  # noqa: BLE001
+            except (ValueError, TypeError):
                 continue
             mapping[sid] = name
         self._status_map.update(mapping)
