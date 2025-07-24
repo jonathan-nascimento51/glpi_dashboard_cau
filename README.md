@@ -602,6 +602,11 @@ container also executes on first startup.
 - `GLPI_APP_TOKEN` – your application token
 - `GLPI_USERNAME` / `GLPI_PASSWORD` – login credentials (optional if using a user token)
 - `GLPI_USER_TOKEN` – API token for a specific user (optional)
+- The service validates these tokens on startup and will exit with an error if they
+  are missing or malformed. Log output masks any value matching the token pattern.
+- Tokens are expected to be hexadecimal strings at least 40 characters long.
+- `DASHBOARD_API_TOKEN` – optional token required in the `X-API-Token` header when
+  accessing the worker API
 - You may also provide secrets via file-based variants such as
   `GLPI_APP_TOKEN_FILE` and `GLPI_USER_TOKEN_FILE`. Set each variable with
   the path to a Docker/Kubernetes secret file and the client will read the

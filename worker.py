@@ -16,6 +16,7 @@ with contextlib.suppress(ImportError):
 
 from backend.infrastructure.glpi import glpi_client_logging
 from shared.utils.logging import init_logging
+from shared.utils.security import validate_glpi_tokens
 
 from src.backend.api.worker_api import (
     create_app,
@@ -36,6 +37,7 @@ __all__ = ["create_app", "redis_client", "GLPISession", "main"]
 
 def main() -> None:
     logger = logging.getLogger(__name__)
+    validate_glpi_tokens()
     logger.info("Knowledge base file: %s", KNOWLEDGE_BASE_FILE)
     _main()
 

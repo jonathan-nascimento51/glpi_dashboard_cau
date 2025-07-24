@@ -9,10 +9,9 @@ from pathlib import Path
 from types import ModuleType
 
 import pytest
+from aiohttp import web
 
 pytest.importorskip("aiohttp")
-
-from aiohttp import web
 
 ROOT = Path(__file__).resolve().parents[2]
 main_globals = runpy.run_path(str(ROOT / "dashboard_app.py"))
@@ -70,8 +69,8 @@ async def mock_glpi_server(unused_tcp_port):
 @pytest.mark.asyncio
 async def test_dashboard_flows(dash_duo, mock_glpi_server, monkeypatch):
     monkeypatch.setenv("GLPI_BASE_URL", mock_glpi_server)
-    monkeypatch.setenv("GLPI_APP_TOKEN", "app")
-    monkeypatch.setenv("GLPI_USER_TOKEN", "tok")
+    monkeypatch.setenv("GLPI_APP_TOKEN", "a" * 40)
+    monkeypatch.setenv("GLPI_USER_TOKEN", "b" * 40)
     monkeypatch.delenv("USE_MOCK_DATA", raising=False)
 
     df = main.load_data()
