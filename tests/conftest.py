@@ -28,6 +28,14 @@ def disable_retry_backoff_env():
             os.environ.pop("DISABLE_RETRY_BACKOFF", None)
 
 
+@pytest.fixture(autouse=True)
+def valid_tokens_env(monkeypatch: pytest.MonkeyPatch):
+    """Provide valid-looking GLPI tokens for tests that require them."""
+    monkeypatch.setenv("GLPI_APP_TOKEN", "a" * 40)
+    monkeypatch.setenv("GLPI_USER_TOKEN", "b" * 40)
+    yield
+
+
 @pytest.fixture()
 def glpi_unavailable(monkeypatch: pytest.MonkeyPatch):
     """Simulate an unreachable GLPI API for health checks."""

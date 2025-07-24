@@ -30,7 +30,7 @@ from backend.application.ticket_loader import (
 from backend.core.settings import (
     KNOWLEDGE_BASE_FILE,
 )
-from fastapi import FastAPI, HTTPException, Request, Response
+from fastapi import Depends, FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import (
     PlainTextResponse,
@@ -40,9 +40,11 @@ from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from prometheus_fastapi_instrumentator import Instrumentator
 from pydantic import BaseModel, Field
 from shared.dto import CleanTicketDTO  # imported from shared DTOs
+from shared.utils.api_auth import verify_api_key
 from shared.utils.json import UTF8JSONResponse
 from shared.utils.logging import init_logging
 from shared.utils.redis_client import redis_client
+from shared.utils.security import validate_glpi_tokens
 from strawberry.fastapi import GraphQLRouter
 from strawberry.types import Info
 
@@ -148,6 +150,8 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
     """Create FastAPI app with REST and GraphQL routes."""
     cache = cache or redis_client
 
+    validate_glpi_tokens()
+
     if client is None:
         client = create_glpi_api_client()
 
@@ -158,10 +162,12 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
         yield
         # On shutdown (if needed)
 
+    deps = [Depends(verify_api_key)] if os.getenv("DASHBOARD_API_TOKEN") else []
     app = FastAPI(
         title="GLPI Worker API",
         default_response_class=UTF8JSONResponse,
         lifespan=lifespan,
+        dependencies=deps,
     )
     app.add_middleware(RequestIdMiddleware)
     FastAPIInstrumentor().instrument_app(app)

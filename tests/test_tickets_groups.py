@@ -4,15 +4,14 @@ from typing import Any
 from unittest.mock import AsyncMock
 
 import pytest
-
 from backend.application import tickets_groups
 from backend.infrastructure.glpi.glpi_session import GLPISession
 
 
 def setup_env() -> None:
     os.environ["GLPI_BASE_URL"] = "http://example.com/apirest.php"
-    os.environ["GLPI_APP_TOKEN"] = "app"
-    os.environ["GLPI_USER_TOKEN"] = "user"
+    os.environ["GLPI_APP_TOKEN"] = "a" * 40
+    os.environ["GLPI_USER_TOKEN"] = "b" * 40
 
 
 async def _fake_get_side_effect(

@@ -24,9 +24,12 @@ _SECRET_TOKENS = {
         os.getenv("GLPI_APP_TOKEN"),
         os.getenv("GLPI_USER_TOKEN"),
     )
-    if token is not None
+    if token
 }
 _SESSION_RE = re.compile(r"session_token=([A-Za-z0-9\-]+)")
+# Generic pattern for API tokens (hex strings >=40 chars)
+_TOKEN_RE = re.compile(r"[A-Fa-f0-9]{40,}")
+_EMAIL_RE = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")
 
 
 def _sanitize(text: str) -> str:
@@ -35,6 +38,9 @@ def _sanitize(text: str) -> str:
     for token in _SECRET_TOKENS:
         if token in text:
             text = text.replace(token, "***")
+
+    text = _TOKEN_RE.sub("***", text)
+    text = _EMAIL_RE.sub("***", text)
     return _SESSION_RE.sub(r"session_token=***", text)
 
 
