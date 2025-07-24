@@ -10,7 +10,7 @@ export function scheduleIdleCallback(cb: () => void): IdleHandle {
     return (window as any).requestIdleCallback(() => cb())
   }
   if (typeof window !== 'undefined') {
-    return (window as Window & typeof globalThis).setTimeout(cb, 0)
+    return window.setTimeout(cb, 0)
   }
   return (globalThis as typeof globalThis).setTimeout(cb, 0)
 }
