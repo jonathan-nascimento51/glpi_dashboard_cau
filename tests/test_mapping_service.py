@@ -111,7 +111,7 @@ async def test_get_search_options_invalid_cache(mocker):
     session = mocker.Mock(spec=GLPISession)
     session.list_search_options = mocker.AsyncMock(return_value={"1": {"name": "ID"}})
     search_cache = mocker.Mock(spec=RedisClient)
-    search_cache.get = mocker.AsyncMock(return_value="oops")
+    search_cache.get = mocker.AsyncMock(return_value=INVALID_CACHE_VALUE)
     search_cache.set = mocker.AsyncMock()
 
     svc = MappingService(session, search_cache=search_cache)
