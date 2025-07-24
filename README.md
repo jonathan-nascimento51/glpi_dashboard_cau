@@ -1001,6 +1001,8 @@ for details on how this script was used during the structural refactor.
 
 This project is released under the [MIT License](LICENSE).
 
+### CI/CD Pipeline
+A GitHub Actions workflow (`cicd.yml`) runs linting, a minimal test suite and builds a Docker image for pushes to `main` or version tags. The resulting image is published to GHCR and can be deployed automatically.
 For CI/CD governance guidelines, see [docs/governanca_tecnica_prompt.md](docs/governanca_tecnica_prompt.md).
 Guidance on connecting the API to Copilot Studio is available in
 [docs/copilot_integration.md](docs/copilot_integration.md).
