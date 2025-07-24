@@ -41,4 +41,4 @@ Error: Cannot redefine property: useChamadosPorData
   at /src/components/ChamadosBarChart.stories.tsx:26:21
   at react-stack-bottom-frame (/node_modules/.cache/storybook/e4fbae4e7b58008cbe04b63de915d642439570f2e3543c0ed4d79f61c9edd54c/sb-vite/deps/chunk-6UV2Q5KV.js?v=fbd55151:17478:20))
   at runWithFiberInDEV (/node_modules/.cache/storybook/e4fbae4e7b58008cbe04b63de915d642439570f2e3543c0ed4d79f61c9edd54c/sb-vite/deps/chunk-6UV2Q5KV.js?v=fbd55151:1485:72))
-  at commitHookEffectListMount (/node_modules/.cache/storybook/e4fbae4e7b58008cbe04b63de915d642439570f2
+  at commitHookEffectListMount (/node_modules/.cache/storybook/e4fbae4e7b58008cbe04b63de915d642439570f2)
