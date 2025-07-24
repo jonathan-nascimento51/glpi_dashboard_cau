@@ -7,7 +7,7 @@ import pytest
 
 pytest.importorskip("aiohttp")
 
-import aiohttp
+import aiohttp  # noqa: E402
 
 
 class FakeHTTPError(aiohttp.ClientResponseError):
@@ -62,3 +62,32 @@ def make_cm(
         yield make_mock_response(status, json_data, raise_for_status)
 
     return _cm()
+
+
+def make_session(responses):
+    """Return a simple synchronous session mock.
+
+    Parameters
+    ----------
+    responses : list
+        Items to return (or raise) for each request.
+
+    Returns
+    -------
+    SimpleNamespace
+        Object with ``get`` and ``request`` methods mocking an HTTP client.
+    """
+
+    from types import SimpleNamespace
+
+    def side_effect(*_args, **_kwargs):
+        result = responses.pop(0)
+        if isinstance(result, Exception):
+            raise result
+        return result
+
+    session = SimpleNamespace()
+    session.get = MagicMock(side_effect=side_effect)
+    # some tests expect a ``request`` method
+    session.request = session.get
+    return session

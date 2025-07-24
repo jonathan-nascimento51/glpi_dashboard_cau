@@ -17,9 +17,6 @@ def test_overview_endpoint_alias(monkeypatch):
         },
     ]
 
-    async def fake_fetch(_client):
-        return [t for t in tickets]
-
     monkeypatch.setattr(
         metrics_module, "fetch_dataframe", lambda client: pd.DataFrame(tickets)
     )

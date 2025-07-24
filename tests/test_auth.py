@@ -1,30 +1,10 @@
-from types import SimpleNamespace
-from unittest.mock import MagicMock
-
-import fakeredis
+import fakeredis.aioredis as fakeredis
 import pytest
 from backend.infrastructure.glpi.glpi_auth import GLPIAuthClient, GLPIAuthError
 
-from tests.helpers import make_cm
+from tests.helpers import make_cm, make_session
 
 pytest.importorskip("aiohttp")  # noqa: E402
-
-
-def make_session(responses):
-    def side(lst):
-        calls = list(lst)
-
-        def _inner(*args, **kwargs):
-            result = calls.pop(0)
-            if isinstance(result, Exception):
-                raise result
-            return result
-
-        return _inner
-
-    session = SimpleNamespace()
-    session.get = MagicMock(side_effect=side(responses))
-    return session
 
 
 @pytest.mark.asyncio

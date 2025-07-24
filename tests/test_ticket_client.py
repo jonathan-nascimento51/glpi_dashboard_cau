@@ -1,10 +1,8 @@
-from types import SimpleNamespace
-from unittest.mock import MagicMock
-
 import pytest
 
 from glpi_http_utils import GLPIPermissionError
 from glpi_ticket_client import GLPITicketClient
+from tests.helpers import make_session
 
 
 class DummyResponse:
@@ -18,19 +16,6 @@ class DummyResponse:
     def raise_for_status(self):
         if self.status_code >= 400:
             raise GLPIPermissionError()
-
-
-def make_session(responses):
-    def side_effect(*args, **kwargs):
-        result = responses.pop(0)
-        if isinstance(result, Exception):
-            raise result
-        return result
-
-    session = SimpleNamespace()
-    session.request = MagicMock(side_effect=side_effect)
-    session.get = session.request
-    return session
 
 
 class FakeAuth:
