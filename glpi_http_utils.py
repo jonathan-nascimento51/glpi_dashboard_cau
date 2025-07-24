@@ -55,7 +55,7 @@ def http_request_with_retry(
                 logger.error("GLPI API network error: %s", exc)
                 raise GLPIRetryError(str(exc)) from exc
             logger.warning(
-                "GLPI API falhou com %s, tentativa %s de %s em %ss",
+                "GLPI API failed with %s, attempt %s of %s in %ss",
                 type(exc).__name__,
                 attempt,
                 max_attempts,
@@ -69,7 +69,7 @@ def http_request_with_retry(
         status = resp.status_code
         if status == 401 and auth_client is not None:
             logger.warning(
-                "Session token expirado, obtendo novo token e repetindo requisicao"
+                "Session token expired, obtaining new token and retrying request"
             )
             with _refresh_lock:
                 token = auth_client.get_session_token(force_refresh=True)
@@ -80,19 +80,19 @@ def http_request_with_retry(
             continue
 
         if status == 403:
-            logger.warning("Permissao negada para %s", url)
+            logger.warning("Permission denied for %s", url)
             raise GLPIPermissionError(f"permission denied: {url}")
 
         if status >= 500:
             if attempt >= max_attempts:
                 logger.error(
-                    "GLPI API retornou %s, esgotadas %s tentativas",
+                    "GLPI API returned %s, exhausted %s attempts",
                     status,
                     max_attempts,
                 )
                 raise GLPIRetryError(f"status {status}")
             logger.warning(
-                "GLPI API falhou com %s, tentativa %s de %s em %ss",
+                "GLPI API failed with %s, attempt %s of %s in %ss",
                 status,
                 attempt,
                 max_attempts,
