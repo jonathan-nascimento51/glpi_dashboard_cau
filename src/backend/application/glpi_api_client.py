@@ -76,7 +76,7 @@ class GlpiApiClient:
             self._forced_fields = FORCED_DISPLAY_FIELDS.copy()
             return
 
-        mapping = {str(info.get("field")): fid for fid, info in options.items()}
+        mapping = {str(field): fid for fid, info in options.items() if (field := info.get("field")) is not None}
         id_field = _safe_int(mapping.get("id"))
         name_field = _safe_int(mapping.get("name"))
         date_field = _safe_int(mapping.get("date_creation"))
