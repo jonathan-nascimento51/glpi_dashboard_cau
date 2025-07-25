@@ -15,4 +15,4 @@ COPY --from=builder /usr/local /usr/local
 COPY --from=builder /app /app
 USER appuser
 EXPOSE 80
-CMD ["uvicorn", "src.backend.api.worker_api:app", "--host", "0.0.0.0", "--port", "80"]
+CMD ["python", "-m", "backend.api.worker_api", "--host", "0.0.0.0", "--port", "80"]
