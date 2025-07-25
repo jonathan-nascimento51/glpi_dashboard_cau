@@ -138,21 +138,22 @@ This starts PostgreSQL, Redis, the FastAPI worker and the Dash app. Access the d
 
 - Python 3.10\u20133.12
 - PostgreSQL and Redis instances running locally (or update the `.env` file)
+
 - Node.js >=20.19.0 is required to run the React frontend locally. The required
-  version is stored in the `.nvmrc` file at the repository root. If you use
-  [mise](https://github.com/jdx/mise) for tool management run the following once
-  to silence the deprecation warning about `.nvmrc`:
-
-  ```bash
-  mise settings add idiomatic_version_file_enable_tools node
-  ```
-
-  Install the same version with [nvm](https://github.com/nvm-sh/nvm) if you
-  prefer:
+  version is stored in the `.nvmrc` file at the repository root. Install the
+  same version with [nvm](https://github.com/nvm-sh/nvm):
 
   ```bash
   nvm install
   nvm use 20.19.0
+  ```
+
+  If you use [mise](https://github.com/jdx/mise) for tool management run the
+  following once to silence the deprecation warning about `.nvmrc` (or disable
+  idiomatic files):
+
+  ```bash
+  mise settings add idiomatic_version_file_enable_tools node
   ```
 
   Docker remains an optional alternative for running the entire stack if the

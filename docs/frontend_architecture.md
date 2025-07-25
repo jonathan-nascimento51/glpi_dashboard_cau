@@ -53,6 +53,9 @@ Follow these steps inside the `src/frontend/react_app` folder to start developin
 
 ```bash
 cd src/frontend/react_app
+nvm install         # installs the version pinned in .nvmrc
+nvm use 20.19.0
+mise settings add idiomatic_version_file_enable_tools node  # or disable idiomatic files
 npm install         # installs dotenv, @eslint/js and other dev dependencies
 # npm ci can be used for reproducible installs
 npm run dev         # launch Vite dev server
