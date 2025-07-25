@@ -27,7 +27,7 @@ Crie **glpi_session.py** com:
 Você é um especialista em ETL.
 Crie backend/utils/pipeline.py com:
 - process_raw(data: List[dict]) -> pandas.DataFrame
-- Campos obrigatórios: id, status, group, date_creation, assigned_to
+- Campos obrigatórios: id, status, group, date_creation, assigned_to, requester
 - Converta datas para datetime, preencha NaN com None
 - Função save_json(df, path="mock/sample_data.json")
 ```
