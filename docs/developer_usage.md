@@ -74,7 +74,7 @@ python worker.py
 Endpoints relevantes:
 
 - `/tickets` – lista completa de chamados
-- A resposta inclui o campo `priority` em formato textual.
+ - A resposta inclui os campos `priority` e `requester` em formato textual.
 - `/metrics` – contagem de abertos/fechados
 - `/graphql/` – versão GraphQL
 - `/cache/stats` – estatísticas de cache
@@ -87,7 +87,8 @@ Exemplo de retorno:
     "id": 7,
     "title": "Falha no proxy",
     "status": "Closed",
-    "priority": "Medium"
+    "priority": "Medium",
+    "requester": "Alice"
   }
 ]
 ```
