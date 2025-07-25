@@ -21,8 +21,8 @@ describe('TicketTable', () => {
 
   it('deve renderizar a tabela com os dados dos chamados', async () => {
     const mockTickets = [
-      { id: 1, name: 'Problema na impressora', status: 'new', priority: 3 },
-      { id: 2, name: 'PC não liga', status: 'assigned', priority: 5 },
+      { id: 1, name: 'Problema na impressora', status: 'new', priority: 3, requester: 'Alice' },
+      { id: 2, name: 'PC não liga', status: 'assigned', priority: 5, requester: 'Bob' },
     ];
 
     render(<TicketTable tickets={mockTickets as any} />);
@@ -30,5 +30,6 @@ describe('TicketTable', () => {
     expect(screen.getByTestId('virtualized-table')).toBeInTheDocument();
     expect(screen.getByText('Problema na impressora')).toBeInTheDocument();
     expect(screen.getByText('PC não liga')).toBeInTheDocument();
+    expect(screen.getByText('Requerente')).toBeInTheDocument();
   });
 });

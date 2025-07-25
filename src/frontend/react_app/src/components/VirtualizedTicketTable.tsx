@@ -36,6 +36,7 @@ export interface TicketRow {
   id: number | string
   name: string
   status?: string
+  requester?: string
   priority?: string
   date_creation?: Date | string | null
   [key: string]: unknown
@@ -66,13 +67,14 @@ const Row = memo(({ index, style, data }: ListChildComponentProps<RowData>) => {
       role="row"
       data-row-index={index}
       tabIndex={0}
-      className="grid grid-cols-[80px_auto_120px_100px_160px] ticket-row border-b px-2 py-1 hover:bg-gray-100 cursor-pointer"
+      className="grid grid-cols-[80px_auto_120px_120px_100px_160px] ticket-row border-b px-2 py-1 hover:bg-gray-100 cursor-pointer"
       onClick={handleClick}
       onFocus={handleFocus}
     >
       <div role="cell">{row.id}</div>
       <div role="cell" className="truncate" title={row.name}>{row.name}</div>
       <div role="cell">{row.status}</div>
+      <div role="cell">{row.requester ?? '—'}</div>
       <div role="cell" className={priorityClasses[row.priority ?? '']}>
         {row.priority ?? '-'}
       </div>
@@ -165,13 +167,14 @@ export function VirtualizedTicketTable({
               role="row"
               data-row-index={idx}
               tabIndex={0}
-              className={`grid grid-cols-[80px_auto_120px_100px_160px] ticket-row px-2 py-1 hover:bg-gray-100 cursor-pointer ${rowHeightClass}`}
+              className={`grid grid-cols-[80px_auto_120px_120px_100px_160px] ticket-row px-2 py-1 hover:bg-gray-100 cursor-pointer ${rowHeightClass}`}
               onClick={() => handleRowClick(row)}
               onFocus={() => handleRowFocus(idx)}
             >
               <div role="cell">{row.id}</div>
               <div role="cell" className="truncate" title={row.name}>{row.name}</div>
               <div role="cell">{row.status}</div>
+              <div role="cell">{row.requester ?? '—'}</div>
               <div role="cell" className={priorityClasses[row.priority ?? '']}>
                 {row.priority ?? '-'}
               </div>
