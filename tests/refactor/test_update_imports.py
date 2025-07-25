@@ -56,4 +56,18 @@ def test_from_import_rewritten():
 def test_from_submodule_import_rewritten():
     src = "from glpi_dashboard.acl.normalization import sanitize_status_column"
     expected = "from backend.adapters.normalization import sanitize_status_column"
-    assert rewrite_imports(src, MAPPING).strip() == expected
+def test_string_literal_not_rewritten():
+    """Verify that string literals containing module names are not rewritten."""
+    src = 'variable = "import glpi_dashboard.acl.normalization"'  # Should not be rewritten
+    assert rewrite_imports(src, MAPPING).strip() == src
+
+
+def test_multiple_different_imports_rewritten():
+    """Verify that multiple different imports in the same file are all rewritten."""
+    mapping = {
+        "glpi_dashboard.acl": "backend.adapters",
+        "some.other.module": "another.new.module",
+    }
+    src = "import glpi_dashboard.acl\nimport some.other.module"
+    expected = "import backend.adapters\nimport another.new.module"
+    assert rewrite_imports(src, mapping).strip() == expected
