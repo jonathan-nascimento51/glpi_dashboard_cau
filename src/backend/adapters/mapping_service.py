@@ -149,7 +149,7 @@ class MappingService:
             if name:
                 try:
                     mapping[name] = int(fid)
-                except Exception:  # noqa: BLE001
+                except (ValueError, TypeError):  # noqa: BLE001
                     continue
         self._ticket_field_map = mapping
         return mapping
