@@ -1,13 +1,13 @@
 from unittest.mock import MagicMock
 
-import pytest
-
-pytest.importorskip("aiohttp")
 import aiohttp
+import pytest
 from aiohttp import BasicAuth
 
 from backend.infrastructure.glpi import glpi_client_logging
 from backend.infrastructure.glpi.glpi_session import Credentials, GLPISession
+
+pytest.importorskip("aiohttp")
 
 
 class DummyCM:

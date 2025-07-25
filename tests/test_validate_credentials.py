@@ -1,10 +1,9 @@
 import pytest
-
-pytest.importorskip("aiohttp")
-
 from aiohttp import BasicAuth
 
 import scripts.validate_credentials as vc
+
+pytest.importorskip("aiohttp")
 
 
 def test_get_auth_header_user_token(monkeypatch):

@@ -4,7 +4,7 @@ import pytest
 from backend.infrastructure.glpi.glpi_auth import GLPIAuthClient, GLPIAuthError
 from tests.helpers import make_cm, make_session
 
-pytest.importorskip("aiohttp")  # noqa: E402
+pytest.importorskip("aiohttp")
 
 
 @pytest.mark.asyncio
