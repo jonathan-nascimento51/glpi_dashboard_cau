@@ -6,8 +6,8 @@ set -e
 changed_files=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.py$' || true)
 if [[ -n "$changed_files" ]]; then
     echo "Running Ruff on staged files..."
-    ruff check --fix $changed_files
-    git add $changed_files
+    ruff check --fix "$changed_files"
+    git add "$changed_files"
 fi
 
 pre-commit run --color always --show-diff-on-failure
