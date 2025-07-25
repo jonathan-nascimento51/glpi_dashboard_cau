@@ -56,10 +56,12 @@ export interface VirtualizedTicketTableProps {
   rowHeightClass?: string
 }
 
+const gridTemplateColumns = 'grid grid-cols-[80px_auto_120px_120px_100px_160px]';
+
 const Row = memo(({ index, style, data }: ListChildComponentProps<RowData>) => {
-  const row = data.rows[index]
-  const handleClick = useCallback(() => data.onRowClick(row), [data, row])
-  const handleFocus = useCallback(() => data.onFocus(index), [data, index])
+  const row = data.rows[index];
+  const handleClick = useCallback(() => data.onRowClick(row), [data, row]);
+  const handleFocus = useCallback(() => data.onFocus(index), [data, index]);
 
   return (
     <div
@@ -67,7 +69,7 @@ const Row = memo(({ index, style, data }: ListChildComponentProps<RowData>) => {
       role="row"
       data-row-index={index}
       tabIndex={0}
-      className="grid grid-cols-[80px_auto_120px_120px_100px_160px] ticket-row border-b px-2 py-1 hover:bg-gray-100 cursor-pointer"
+      className={`${gridTemplateColumns} ticket-row border-b px-2 py-1 hover:bg-gray-100 cursor-pointer`}
       onClick={handleClick}
       onFocus={handleFocus}
     >
@@ -80,7 +82,7 @@ const Row = memo(({ index, style, data }: ListChildComponentProps<RowData>) => {
       </div>
       <div role="cell">{formatDate(row.date_creation) as ReactNode}</div>
     </div>
-  )
+  );
 })
 Row.displayName = 'Row'
 
