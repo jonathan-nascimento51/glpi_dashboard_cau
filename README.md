@@ -286,7 +286,18 @@ for the full suite. Install them with:
 pip install -r requirements-dev.txt --break-system-packages
 ```
 
+**Note:** The `--break-system-packages` flag is used here to bypass Python's external package management protection. This is necessary in some environments where system-level packages need to be updated directly. However, this approach can interfere with system packages and is not recommended for general use. To avoid potential issues, consider using a virtual environment as described below.
+
 Alternatively use `pip install -e '.[dev]'` to install all development extras.
+
+### Using a Virtual Environment
+
+To safely manage dependencies, set up a virtual environment:
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements-dev.txt
 
 ## Installing Dependencies Behind a Proxy or Offline
 
