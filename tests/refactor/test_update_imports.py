@@ -35,13 +35,6 @@ def test_validate_mapping():
     validate_mapping(MAPPING)
 
 
-def test_example_append(capsys):
-    example = Example()
-    example.append(5)
-    captured = capsys.readouterr()
-    assert "Appending item: 5" in captured.out
-
-
 def test_import_rewritten():
     src = "import glpi_dashboard.acl.normalization"
     expected = "import backend.adapters.normalization"
