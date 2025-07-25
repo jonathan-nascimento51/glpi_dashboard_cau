@@ -18,6 +18,7 @@ async def test_translate_ticket_maps_values(mocker):
         "priority": 4,
         "date_creation": "2024-01-01T00:00:00",
         "users_id_assign": 5,
+        "users_id_requester": 9,
     }
 
     ticket = await translator.translate_ticket(raw)
@@ -27,6 +28,10 @@ async def test_translate_ticket_maps_values(mocker):
     assert ticket.status == "Processing (assigned)"
     assert ticket.priority == "High"
     assert ticket.assigned_to == "Alice"
+    assert ticket.requester == "Alice"
+    mapper.get_username.assert_any_await(5)
+    mapper.get_username.assert_any_await(9)
+    assert mapper.get_username.await_count == 2
 
 
 @pytest.mark.asyncio
@@ -42,11 +47,14 @@ async def test_translate_ticket_unassigned(mocker):
         "priority": 3,
         "date_creation": "2024-01-02T00:00:00",
         "users_id_assign": None,
+        "users_id_requester": 7,
     }
 
     ticket = await translator.translate_ticket(raw)
 
     assert ticket.assigned_to == "Unassigned"
+    assert ticket.requester == "Bob"
+    mapper.get_username.assert_awaited_once_with(7)
 
 
 @pytest.mark.asyncio
@@ -63,9 +71,12 @@ async def test_translate_ticket_uses_priority_label(mocker):
         "priority": 4,
         "date_creation": "2024-01-03T00:00:00",
         "users_id_assign": None,
+        "users_id_requester": 7,
     }
 
     ticket = await translator.translate_ticket(raw)
 
     mapper.priority_label.assert_called_once_with(4)
     assert ticket.priority == "Alta"
+    assert ticket.requester == "Bob"
+    mapper.get_username.assert_awaited_once_with(7)
