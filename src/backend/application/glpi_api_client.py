@@ -7,8 +7,10 @@ from backend.infrastructure.glpi.glpi_session import GLPISession
 from backend.utils import paginate_items
 from shared.dto import CleanTicketDTO, TicketTranslator
 
-# Essential ticket fields to always include (IDs: 1, 2, 4, 12, 15, 83).
-FORCED_DISPLAY_FIELDS = [1, 2, 4, 12, 15, 83]
+# Field names we always include in ticket search results.
+BASE_TICKET_FIELDS = ["id", "name", "date", "priority", "status"]
+# Populated dynamically from MappingService
+FORCED_DISPLAY_FIELDS: list[int] = []
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +30,23 @@ class GlpiApiClient:
     async def __aenter__(self) -> "GlpiApiClient":
         await self._session.__aenter__()
         await self._mapper.initialize()
+        await self._populate_forced_fields()
         return self
+
+    async def _populate_forced_fields(self) -> None:
+        """Resolve numeric IDs for ``BASE_TICKET_FIELDS`` once."""
+        if self._forced_display_fields:
+            return
+        try:
+            ids = await self._mapper.get_ticket_field_ids(BASE_TICKET_FIELDS)
+            if ids:
+                self._forced_display_fields[:] = ids
+                return
+        except Exception as exc:  # pragma: no cover - defensive
+            logger.error("failed to load ticket field IDs: %s", exc)
+        # Fallback to legacy defaults if lookup fails
+        if not self._forced_display_fields:
+            self._forced_display_fields[:] = [1, 2, 4, 12, 15, 83]
 
     async def __aexit__(
         self,
