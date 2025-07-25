@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useApiQuery } from './useApiQuery'
-import type { Chart as ChartType } from 'chart'
+import type { Chart as ChartType } from 'chart.js'
 import type { DashboardStats } from '../types/dashboard'
 import {
   scheduleIdleCallback,
@@ -45,10 +45,10 @@ export function useDashboardData() {
   useEffect(() => {
     let handle: IdleHandle | null = null
     async function loadChart() {
-      const chartModule = await import('chart')
+      const Chart = (await import('chart.js/auto')).default
       const ctx = document.getElementById('trendsChart') as HTMLCanvasElement | null
       if (!ctx) return
-      trendChart.current = new chartModule.Chart(ctx, {
+      trendChart.current = new Chart(ctx, {
         type: 'line',
         data: {
           labels: Array.from({ length: 12 }, (_, i) => `${i}`),
