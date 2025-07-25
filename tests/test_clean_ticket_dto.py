@@ -14,6 +14,7 @@ def test_clean_ticket_dto_valid_creation():
         "date_creation": "2024-01-01T12:00:00",
         "assigned_to": "Alice",
         "requester": "Alice",
+        "users_id_requester": 7,
     }
 
     ticket = CleanTicketDTO.model_validate(data)
@@ -66,7 +67,7 @@ def test_clean_ticket_dto_none_name_becomes_empty_string():
 
     ticket = CleanTicketDTO.model_validate(data)
 
-    assert ticket.title == ""
+    assert ticket.title == "[Título não informado]"
 
 
 @pytest.mark.unit

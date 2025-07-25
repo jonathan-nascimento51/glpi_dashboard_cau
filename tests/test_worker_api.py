@@ -73,6 +73,8 @@ class FakeClient(GlpiApiClient):
                 "priority": 3,
                 "date_creation": "2024-06-01T00:00:00",
                 "assigned_to": "",
+                "requester": "Alice",
+                "users_id_requester": 10,
             },
             {
                 "id": 2,
@@ -81,6 +83,8 @@ class FakeClient(GlpiApiClient):
                 "priority": 2,
                 "date_creation": "2024-06-02T00:00:00",
                 "assigned_to": "",
+                "requester": "Bob",
+                "users_id_requester": 11,
             },
         ]
         return [CleanTicketDTO.model_validate(r) for r in raw]
@@ -99,6 +103,7 @@ def test_rest_endpoints(test_app: TestClient):
     tickets = resp.json()
     assert isinstance(tickets, list)
     assert tickets and "id" in tickets[0]
+    assert tickets[0]["requester"] == "Alice"
 
     resp = test_app.get("/metrics/summary")
     assert resp.status_code == 200
@@ -159,6 +164,8 @@ def test_chamados_por_data_cache(dummy_cache: DummyCache):
                 "status": 5,
                 "priority": 2,
                 "date_creation": "2024-06-03",
+                "requester": "Alice",
+                "users_id_requester": 10,
             },
             {
                 "id": 2,
@@ -166,6 +173,8 @@ def test_chamados_por_data_cache(dummy_cache: DummyCache):
                 "status": 6,
                 "priority": 3,
                 "date_creation": "2024-06-04",
+                "requester": "Bob",
+                "users_id_requester": 11,
             },
         ]
         return [CleanTicketDTO.model_validate(r) for r in raw]
@@ -191,6 +200,8 @@ def test_chamados_por_dia_cache(dummy_cache: DummyCache):
                 "status": 5,
                 "priority": 2,
                 "date_creation": "2024-06-03",
+                "requester": "Alice",
+                "users_id_requester": 10,
             },
             {
                 "id": 2,
@@ -198,6 +209,8 @@ def test_chamados_por_dia_cache(dummy_cache: DummyCache):
                 "status": 6,
                 "priority": 3,
                 "date_creation": "2024-06-04",
+                "requester": "Bob",
+                "users_id_requester": 11,
             },
         ]
         return [CleanTicketDTO.model_validate(r) for r in raw]
@@ -436,6 +449,8 @@ def test_metrics_aggregated_cache(dummy_cache: DummyCache):
                 "status": 5,
                 "priority": 2,
                 "date_creation": "2024-07-01",
+                "requester": "Carol",
+                "users_id_requester": 12,
             }
         ]
         return [CleanTicketDTO.model_validate(r) for r in raw]
