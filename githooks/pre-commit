@@ -1,4 +1,13 @@
 #!/bin/bash
-# Run lint and tests via pre-commit
+# Enforce Ruff linting before running the full pre-commit suite.
 set -e
+
+# Only run Ruff on staged Python files to keep hooks fast.
+changed_files=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.py$' || true)
+if [[ -n "$changed_files" ]]; then
+    echo "Running Ruff on staged files..."
+    ruff check --fix $changed_files
+    git add $changed_files
+fi
+
 pre-commit run --color always --show-diff-on-failure
