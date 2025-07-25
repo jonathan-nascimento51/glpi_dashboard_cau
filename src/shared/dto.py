@@ -102,10 +102,11 @@ class CleanTicketDTO(BaseModel):
             return None
         if isinstance(v, str) and not v.isdigit():
             return v
-        try:
+        if isinstance(v, int):
+            return PRIORITY_MAP.get(v, "Unknown")
+        if isinstance(v, str) and v.isdigit():
             return PRIORITY_MAP.get(int(v), "Unknown")
-        except (ValueError, TypeError):  # noqa: PERF203
-            return "Unknown"
+        return "Unknown"
 
 
 class TicketTranslator:
