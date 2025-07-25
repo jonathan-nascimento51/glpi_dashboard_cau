@@ -795,9 +795,10 @@ class GLPISession:
                 "range": f"{offset}-{offset + page_size - 1}",
             }
 
-            data, headers = await self.get(
+            response = await self.get(
                 endpoint, params=page_params, return_headers=True
             )
+            data, headers = response if isinstance(response, tuple) else (response, {})
 
             if total is None:
                 range_header = headers.get("Content-Range")
