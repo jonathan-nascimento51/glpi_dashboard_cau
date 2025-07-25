@@ -3,7 +3,6 @@ from __future__ import annotations
 import dash_bootstrap_components as dbc
 import pandas as pd
 from dash import Input, Output, callback
-
 from frontend.components.components import _status_fig, compute_ticket_stats
 
 

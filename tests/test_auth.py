@@ -1,7 +1,7 @@
 import fakeredis.aioredis as fakeredis
 import pytest
-from backend.infrastructure.glpi.glpi_auth import GLPIAuthClient, GLPIAuthError
 
+from backend.infrastructure.glpi.glpi_auth import GLPIAuthClient, GLPIAuthError
 from tests.helpers import make_cm, make_session
 
 pytest.importorskip("aiohttp")  # noqa: E402

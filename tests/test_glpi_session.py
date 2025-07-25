@@ -3,17 +3,15 @@ import json
 import os
 import ssl
 from contextlib import asynccontextmanager
-from typing import Optional
+from typing import Callable, List, Optional, Union
 from unittest.mock import ANY, AsyncMock, MagicMock, patch
 
+import aiohttp
 import pytest
+from aiohttp import BasicAuth
 
-pytest.importorskip("aiohttp")
-
-import aiohttp  # noqa: E402
-from aiohttp import BasicAuth  # noqa: E402
-from backend.infrastructure.glpi import glpi_session  # noqa: E402
-from backend.infrastructure.glpi.glpi_session import (  # noqa: E402
+from backend.infrastructure.glpi import glpi_session
+from backend.infrastructure.glpi.glpi_session import (
     Credentials,
     GLPIAPIError,
     GLPIBadRequestError,
@@ -24,9 +22,8 @@ from backend.infrastructure.glpi.glpi_session import (  # noqa: E402
     GLPITooManyRequestsError,
     GLPIUnauthorizedError,
 )
-from shared.utils.logging import init_logging  # noqa: E402
-
-from tests.helpers import make_cm, make_mock_response  # noqa: E402
+from shared.utils.logging import init_logging
+from tests.helpers import make_cm, make_mock_response
 
 pytest.importorskip(
     "aiohttp", reason="aiohttp package is required to run glpi_session tests"
@@ -34,7 +31,7 @@ pytest.importorskip(
 
 
 @pytest.fixture(autouse=True)
-def _configure_logging() -> None:
+def configure_logging() -> None:
     """Ensure logging is configured for tests."""
     init_logging()
 
@@ -88,7 +85,11 @@ class _FakeMethod:
 
     def __init__(self) -> None:
         self._mock = MagicMock()
-        self.side_effect = None
+        # Anota side_effect como opcional: pode ser um callable ou uma lista de
+        # callables.
+        self.side_effect: Optional[
+            Union[Callable[..., object], List[Callable[..., object]]]
+        ] = None
 
     def _resolve_effect(self, args, kwargs):
         effect = self.side_effect
@@ -854,6 +855,7 @@ async def test_circuit_breaker_opens_after_consecutive_failures(
     """Circuit breaker opens after repeated server errors."""
     pytest.importorskip("pybreaker")
     import pybreaker
+
     from shared.utils.resilience import breaker
 
     # Reset breaker state for this test to ensure it's closed.

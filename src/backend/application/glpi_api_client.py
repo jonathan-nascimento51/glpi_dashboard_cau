@@ -46,18 +46,18 @@ class GlpiApiClient:
 
     async def _populate_forced_fields(self) -> None:
         """Resolve numeric IDs for ``BASE_TICKET_FIELDS`` once."""
-        if self._forced_display_fields:
+        if self._forced_fields:
             return
         try:
             ids = await self._mapper.get_ticket_field_ids(BASE_TICKET_FIELDS)
             if ids:
-                self._forced_display_fields[:] = ids
+                self._forced_fields[:] = ids
                 return
         except Exception as exc:  # pragma: no cover - defensive
             logger.error("failed to load ticket field IDs: %s", exc)
         # Fallback to legacy defaults if lookup fails
-        if not self._forced_display_fields:
-            self._forced_display_fields[:] = [1, 2, 4, 12, 15, 83]
+        if not self._forced_fields:
+            self._forced_fields[:] = [1, 2, 4, 12, 15, 83]
 
     async def __aexit__(
         self,
@@ -76,7 +76,11 @@ class GlpiApiClient:
             self._forced_fields = FORCED_DISPLAY_FIELDS.copy()
             return
 
-        mapping = {str(field): fid for fid, info in options.items() if (field := info.get("field")) is not None}
+        mapping = {
+            str(field): fid
+            for fid, info in options.items()
+            if (field := info.get("field")) is not None
+        }
         id_field = _safe_int(mapping.get("id"))
         name_field = _safe_int(mapping.get("name"))
         date_field = _safe_int(mapping.get("date_creation"))
@@ -85,8 +89,12 @@ class GlpiApiClient:
         if None in (id_field, name_field, date_field, priority_field):
             self._forced_fields = FORCED_DISPLAY_FIELDS.copy()
         else:
-            # All fields are guaranteed to be non-None due to the preceding condition.
-            self._forced_fields = [id_field, name_field, date_field, priority_field]
+            # Only assign non-None integer values to _forced_fields.
+            self._forced_fields = [
+                field
+                for field in [id_field, name_field, date_field, priority_field]
+                if field is not None
+            ]
 
     async def get_all_paginated(
         self, itemtype: str, page_size: int = 100, **params: Any

@@ -69,7 +69,8 @@ async function profileComponents(useMemo: boolean): Promise<Results> {
   React.memo = useMemo ? origMemo : ((c: any) => c)
   jest.resetModules()
   const DashMod = await import('../src/features/tickets/TicketStatsPage')
-  const Dashboard = DashMod.default ?? (DashMod as any).Dashboard ?? DashMod
+  // Use 'as any' to safely access .default for compatibility with both CJS and ESM
+  const Dashboard = (DashMod as any).default ?? (DashMod as any).Dashboard ?? DashMod
   const TendMod = await import('../src/components/ChamadosTendencia')
   const ChamadosTendencia =
     (TendMod as any).ChamadosTendencia ?? TendMod.default ?? TendMod

@@ -1,6 +1,6 @@
 import logging
 from enum import Enum
-from typing import Dict, Optional, Type
+from typing import Any, Dict, Optional, Type
 
 import aiohttp
 
@@ -38,7 +38,10 @@ class GLPIAPIError(Exception):
     """
 
     def __init__(
-        self, status_code: int, message: str, response_data: Optional[dict] = None
+        self,
+        status_code: int,
+        message: str,
+        response_data: Optional[Dict[str, Any]] = None,
     ):
         self.status_code = status_code
         self.message = message
@@ -93,10 +96,14 @@ HTTP_STATUS_ERROR_MAP: Dict[int, Type[GLPIAPIError]] = {
 }
 
 
-def parse_error(response: aiohttp.ClientResponse, data: Optional[dict] = None) -> str:
+def parse_error(
+    response: aiohttp.ClientResponse,
+    data: Optional[Dict[str, Any]] = None,
+) -> str:
     """Return a readable error message from a response and optional payload."""
-    if data and isinstance(data, dict) and "error" in data:
-        return data.get("error", "")
+    if data and "error" in data:
+        error_msg = data.get("error", "")
+        return error_msg if isinstance(error_msg, str) else str(error_msg)
     try:
         status_text = response.reason or "Unknown Error"
         return f"HTTP {response.status}: {status_text}"

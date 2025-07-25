@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 
 from aiohttp import FormData
+
 from backend.domain.exceptions import GLPIAPIError
 from backend.infrastructure.glpi.glpi_session import GLPISession
 

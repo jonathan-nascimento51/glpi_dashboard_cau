@@ -6,11 +6,11 @@ import pytest
 pytest.importorskip("aiohttp")
 
 import aiohttp  # noqa: E402
+
 from backend.infrastructure.glpi.glpi_auth import (  # noqa: E402
     GLPIAuthClient,
     GLPIAuthError,
 )
-
 from tests.helpers import make_cm  # noqa: E402
 
 

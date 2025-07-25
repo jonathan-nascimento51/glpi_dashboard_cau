@@ -3,10 +3,10 @@ from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
+
 from backend.application.document_service import create_document, link_document
 from backend.domain.exceptions import GLPIAPIError
 from backend.infrastructure.glpi.glpi_session import GLPISession
-
 from tests.helpers import make_cm
 
 

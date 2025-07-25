@@ -2,6 +2,7 @@ import asyncio
 from typing import Any, Dict, List, Optional, Set, TypedDict
 
 import aiohttp
+
 from backend.core.settings import GLPI_APP_TOKEN, GLPI_BASE_URL
 from backend.infrastructure.glpi.glpi_auth import GLPIAuthClient
 from shared.utils.logging import get_logger

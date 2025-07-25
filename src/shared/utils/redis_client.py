@@ -9,13 +9,14 @@ from typing import Any, Dict, Optional
 
 import pandas as pd
 import redis.asyncio as redis
+from redis import exceptions as redis_exceptions
+
 from backend.core.settings import (
     REDIS_DB,
     REDIS_HOST,
     REDIS_PORT,
     REDIS_TTL_SECONDS,
 )
-from redis import exceptions as redis_exceptions
 
 logger = logging.getLogger(__name__)
 

@@ -1,6 +1,12 @@
 #!/bin/bash
 set -euo pipefail
 
+if [ "$(id -u)" -eq 0 ] && [ -n "${SUDO_USER-}" ]; then
+    echo -e "\033[0;31mERROR: Este script não deve ser executado com 'sudo'. Ele solicitará a senha quando necessário.\033[0m" >&2
+    echo -e "\033[0;31mPor favor, execute como o seu usuário normal: ./scripts/setup/setup_env.sh\033[0m" >&2
+    exit 1
+fi
+
 # --- Configuração e Funções Auxiliares ---
 
 # Cores para logs
@@ -117,6 +123,9 @@ setup_mise() {
     # para usar as versões de ferramentas corretas (node, python, etc.).
     eval "$(mise activate bash)"
     warn "Mise foi instalado/ativado. Para uso permanente, reinicie seu shell ou execute 'source ~/.bashrc'."
+
+    info "Confiando no arquivo de configuração do mise para evitar prompts interativos..."
+    mise trust
 
     mise install
 

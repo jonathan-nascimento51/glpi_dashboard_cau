@@ -4,6 +4,7 @@ from typing import Any
 from unittest.mock import AsyncMock
 
 import pytest
+
 from backend.application import tickets_groups
 from backend.infrastructure.glpi.glpi_session import GLPISession
 

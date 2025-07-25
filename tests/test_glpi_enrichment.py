@@ -1,6 +1,7 @@
 from unittest.mock import AsyncMock
 
 import pytest
+
 from backend.services.glpi_enrichment import GLPIEnrichmentService
 
 

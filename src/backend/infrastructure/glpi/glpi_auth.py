@@ -8,6 +8,15 @@ from typing import Optional
 import aiohttp
 import redis
 from aiohttp import BasicAuth
+from tenacity import (
+    before_sleep_log,
+    retry,
+    retry_if_exception_type,
+    stop_after_attempt,
+    wait_exponential,
+    wait_fixed,
+)
+
 from backend.core.settings import (
     CLIENT_TIMEOUT_SECONDS,
     GLPI_APP_TOKEN,
@@ -21,14 +30,6 @@ from backend.core.settings import (
     REDIS_TTL_SECONDS,
 )
 from shared.utils.logging import get_logger
-from tenacity import (
-    before_sleep_log,
-    retry,
-    retry_if_exception_type,
-    stop_after_attempt,
-    wait_exponential,
-    wait_fixed,
-)
 
 logger = get_logger(__name__)
 

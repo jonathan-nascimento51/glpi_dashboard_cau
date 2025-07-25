@@ -4,6 +4,7 @@ from unittest.mock import ANY, MagicMock
 
 import pytest
 import requests
+
 from backend.infrastructure.glpi.glpi_client import (
     GLPIClientNotFound,
     GLPISessionManager,

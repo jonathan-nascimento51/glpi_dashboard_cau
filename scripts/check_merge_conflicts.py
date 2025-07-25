@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 """Detect merge conflict markers in the project tree."""
+
 from __future__ import annotations
 
 import argparse

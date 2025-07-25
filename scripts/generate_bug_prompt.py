@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 """Generate a prompt summarizing recent errors and warnings."""
+
 from __future__ import annotations
 
 import argparse

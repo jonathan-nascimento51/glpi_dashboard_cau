@@ -10,10 +10,14 @@ repos:
       - id: ruff-format
         # Este hook substitui o black para formatação de código.
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.16.1
+    # A versão foi atualizada para a mais recente e estável.
+    rev: v1.10.1
     hooks:
       - id: mypy
         additional_dependencies: ["types-requests", "types-redis"]
+        # Garante que o ambiente do pre-commit use a mesma versão do Python
+        # que a configurada no pyproject.toml.
+        language_version: python3.12
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: 582b9c66e0791980685c8b80bb11e6a3df1a06ef
     hooks:

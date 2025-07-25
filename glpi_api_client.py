@@ -12,6 +12,27 @@ from shared.dto import CleanTicketDTO
 
 logger = logging.getLogger(__name__)
 
+BASE_TICKET_FIELDS = [
+    "id",
+    "name",
+    "status",
+    "priority",
+    "date_creation",
+    "users_id_assign",  # Garantindo as informações de atribuição
+]
+
+
+def _resolve_ticket_fields(dynamic_fields: Optional[List[str]] = None) -> List[str]:
+    """Resolve e retorna a lista completa de campos de ticket.
+
+    Garante que o campo 'users_id_assign' esteja sempre presente.
+    """
+    fields = set(BASE_TICKET_FIELDS)
+    if dynamic_fields:
+        fields.update(dynamic_fields)
+    fields.add("users_id_assign")
+    return list(fields)
+
 
 class GlpiApiClient:
     """Facade that orchestrates GLPI API modules."""
@@ -30,12 +51,19 @@ class GlpiApiClient:
         self.enrichment = enrichment or GLPIEnrichmentService(
             auth_client=self.auth_client
         )
+        # Substituído self._forced_display_fields por self._forced_fields
+        self._forced_fields = self._populate_forced_fields()
 
     async def __aenter__(self) -> "GlpiApiClient":
         await self.refresh_session()
         return self
 
-    async def __aexit__(self, exc_type, exc, tb) -> None:
+    async def __aexit__(
+        self,
+        exc_type: type | None,
+        exc: BaseException | None,
+        tb: object | None,
+    ) -> None:
         await self.enrichment.close()
 
     async def refresh_session(self) -> str:
@@ -58,7 +86,9 @@ class GlpiApiClient:
             page,
             page_size,
         )
-        return await self.enrichment.enrich_tickets(result)
+        enriched = await self.enrichment.enrich_tickets(result)
+        # Convert EnrichedTicket objects to dicts if necessary
+        return [dict(e) for e in enriched]
 
     async def fetch_tickets(self) -> List[CleanTicketDTO]:
         """Return validated tickets without filters."""
@@ -76,6 +106,15 @@ class GlpiApiClient:
         logger.info("Computing aggregated metrics")
         overview = await compute_overview(client=self)
         return overview.model_dump()
+
+    def _populate_forced_fields(self) -> List[str]:
+        """
+        Popula a lista de campos forçados que devem estar presentes em cada ticket,
+        garantindo que o campo de atribuição esteja incluído.
+        """
+        _forced_fields: List[str] = ["users_id_assign"]
+        # Aqui você pode adicionar outros campos, se necessário.
+        return _forced_fields
 
 
 __all__ = ["GlpiApiClient"]

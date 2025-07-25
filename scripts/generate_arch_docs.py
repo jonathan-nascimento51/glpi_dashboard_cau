@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 """Generate ARCHITECTURE.md from ADR-0007 table."""
+
 from __future__ import annotations
 
 import re

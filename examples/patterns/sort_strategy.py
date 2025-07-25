@@ -6,7 +6,7 @@ import timeit
 from abc import ABC, abstractmethod
 from typing import List
 
-from shared.utils.logging import get_logger, init_logging
+from shared.utils.logging import get_logger
 
 
 class SortStrategy(ABC):

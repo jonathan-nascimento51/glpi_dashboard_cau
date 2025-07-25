@@ -1,13 +1,13 @@
 from types import SimpleNamespace
 
+import httpx
+import pybreaker
 import pytest
+
+from shared.utils.resilience import ResilientClient, breaker
 
 pytest.importorskip("httpx")
 pytest.importorskip("pybreaker")
-import httpx
-import pybreaker
-
-from shared.utils.resilience import ResilientClient, breaker
 
 
 class DummyGauge:

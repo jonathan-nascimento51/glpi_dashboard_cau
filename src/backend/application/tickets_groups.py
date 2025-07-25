@@ -92,7 +92,6 @@ async def collect_tickets_with_groups(
         return data
 
     async def collect() -> pd.DataFrame:
-
         criteria = [
             {"field": "date", "searchtype": "morethan", "value": start},
             {"link": "AND"},

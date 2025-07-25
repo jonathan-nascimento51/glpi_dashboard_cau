@@ -3,9 +3,10 @@ from __future__ import annotations
 import uuid
 from typing import Callable
 
-from shared.utils.logging import set_correlation_id
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.types import ASGIApp
+
+from shared.utils.logging import set_correlation_id
 
 
 class RequestIdMiddleware(BaseHTTPMiddleware):
