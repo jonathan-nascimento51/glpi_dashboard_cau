@@ -35,5 +35,8 @@ include `dash[testing]`, `playwright`, `fakeredis`, `testcontainers` and
 ```bash
 pip install -r requirements-dev.txt --break-system-packages
 ```
-This command installs the dev tools compiled via `pip-compile`. Make sure the
-runtime dependencies are installed as well.
+**Note**: The `--break-system-packages` flag bypasses Python's external package management protection and can interfere with system packages. This flag is necessary for this project to ensure compatibility with certain development tools. However, it is strongly recommended to use a virtual environment to isolate dependencies and prevent interference with system-level Python packages. You can create and activate a virtual environment as follows:
+
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
