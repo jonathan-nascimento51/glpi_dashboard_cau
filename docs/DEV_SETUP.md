@@ -25,3 +25,18 @@ these guidelines to avoid unnecessary re-renders:
 - **Avoid `JSON.stringify`** – property order can change and functions are lost,
   causing unstable strings. Our `useApiQuery` hook uses a `stableStringify`
   helper instead. **Note**: it does not handle nested objects.
+
+### Running tests
+Install the runtime dependencies from `requirements.txt` **and** the development
+set before running `pytest`. The optional extras in `requirements-dev.txt`
+include `dash[testing]`, `playwright`, `fakeredis`, `testcontainers` and
+`pact-python`.
+
+```bash
+pip install -r requirements-dev.txt --break-system-packages
+```
+**Note**: The `--break-system-packages` flag bypasses Python's external package management protection and can interfere with system packages. This flag is necessary for this project to ensure compatibility with certain development tools. However, it is strongly recommended to use a virtual environment to isolate dependencies and prevent interference with system-level Python packages. You can create and activate a virtual environment as follows:
+
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
