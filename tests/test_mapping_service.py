@@ -1,9 +1,12 @@
 import aiohttp
 import pytest
+from redis.asyncio import Redis
+
 from backend.adapters.mapping_service import MappingService
 from backend.infrastructure.glpi.glpi_session import GLPISession
-from redis.asyncio import Redis
 from shared.utils.redis_client import RedisClient
+
+INVALID_CACHE_VALUE = object()
 
 
 @pytest.mark.asyncio
@@ -148,3 +151,10 @@ async def test_get_search_options_network_error(mocker):
         {},
         ttl_seconds=300,
     )
+
+
+@pytest.mark.unit
+def test_priority_label_lookup(mocker) -> None:
+    svc = MappingService(mocker.Mock())
+    assert svc.priority_label(3) == "Média"
+    assert svc.priority_label(99) == "Unknown"

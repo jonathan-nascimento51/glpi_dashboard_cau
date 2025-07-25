@@ -5,9 +5,20 @@ from typing import Any, Dict, Optional, cast
 
 import aiohttp
 import redis.asyncio as redis
+
 from backend.core.settings import REDIS_DB, REDIS_HOST, REDIS_PORT
 from backend.infrastructure.glpi.glpi_session import GLPIAPIError, GLPISession
 from shared.utils.redis_client import RedisClient
+
+# Map numeric priority levels to human readable labels used in the dashboard.
+PRIORITY_MAP = {
+    1: "Muito Baixa",
+    2: "Baixa",
+    3: "Média",
+    4: "Alta",
+    5: "Muito Alta",
+    6: "Maior",
+}
 
 logger = logging.getLogger(__name__)
 
@@ -102,6 +113,10 @@ class MappingService:
         """Return user name for ``user_id`` or ``"Unassigned"`` if missing."""
         user_map = await self.get_user_map()
         return user_map.get(user_id, "Unassigned")
+
+    def priority_label(self, pid: int) -> str:
+        """Return the human readable label for ``pid``."""
+        return PRIORITY_MAP.get(pid, "Unknown")
 
     async def get_search_options(self, itemtype: str) -> Dict[str, Any]:
         """Return cached search options for ``itemtype`` or fetch from GLPI."""
