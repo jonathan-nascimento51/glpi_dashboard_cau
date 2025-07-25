@@ -85,10 +85,7 @@ class GlpiApiClient:
         if None in (id_field, name_field, date_field, priority_field):
             self._forced_fields = FORCED_DISPLAY_FIELDS.copy()
         else:
-            assert id_field is not None
-            assert name_field is not None
-            assert date_field is not None
-            assert priority_field is not None
+            # All fields are guaranteed to be non-None due to the preceding condition.
             self._forced_fields = [id_field, name_field, date_field, priority_field]
 
     async def get_all_paginated(
