@@ -72,10 +72,7 @@ class CleanTicketDTO(BaseModel):
     @classmethod
     def _set_title(cls, data: dict[str, Any]) -> dict[str, Any]:
         title = data.get("title") or data.get("name")
-        if title in (None, ""):
-            data["title"] = "[Título não informado]"
-        else:
-            data["title"] = str(title)
+        data["title"] = "[Título não informado]" if title in (None, "") else str(title)
         data.pop("name", None)
         return data
 
