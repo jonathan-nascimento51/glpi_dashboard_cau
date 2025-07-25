@@ -236,6 +236,9 @@ If a script still depends on `require()`, rename it with the `.cjs` extension or
 - **`src/backend/utils/pipeline.py`** – normalizes raw ticket data into a `pandas.DataFrame` and exports JSON.
 - **`src/frontend/layout/layout.py`** – defines tables and charts for the Dash UI.
 - **`glpi_tools/__main__.py`** – exposes the CLI commands such as `list-fields`.
+- **`src/backend/adapters/mapping_service.py`** – obtém e cacheia IDs de campos
+  do GLPI. O `GlpiApiClient` usa esse mapa para preencher `forcedisplay`
+  dinamicamente.
 - **`dashboard_app.py`** – starts the Dash server.
 - **`worker.py`** – primary backend entry point used by Docker and CI to launch the FastAPI service.
 - **`scripts/`** – helper utilities grouped under `setup/`, `fetch/`, `etl/`, `diagnostics/` and `refactor/` (e.g. `setup/init_db.py`, `fetch/fetch_tickets.py`, `diagnostics/diagnose_codex.py`).

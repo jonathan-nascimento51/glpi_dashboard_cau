@@ -1,11 +1,9 @@
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from src.backend.application.glpi_api_client import (
-    FORCED_DISPLAY_FIELDS,
-    GlpiApiClient,
-)
+from src.backend.application import glpi_api_client
+from src.backend.application.glpi_api_client import GlpiApiClient
 from src.backend.infrastructure.glpi.glpi_session import GLPISession
 
 
@@ -19,7 +17,17 @@ def mock_glpi_session():
 
 
 @pytest.mark.asyncio
-@patch("src.backend.application.glpi_api_client.paginate_items", new_callable=AsyncMock)
+@patch(
+    "src.backend.application.glpi_api_client.MappingService",
+    lambda *a, **k: MagicMock(
+        initialize=AsyncMock(),
+        get_ticket_field_ids=AsyncMock(return_value=[1, 2, 3]),
+    ),
+)
+@patch(
+    "src.backend.application.glpi_api_client.paginate_items",
+    new_callable=AsyncMock,
+)
 @pytest.mark.parametrize(
     "itemtype, params, expected_endpoint, expected_params_subset",
     [
@@ -29,15 +37,18 @@ def mock_glpi_session():
             "search/Ticket",
             {
                 "criteria": {"some": "rule"},
-                "forcedisplay": FORCED_DISPLAY_FIELDS,
+                "forcedisplay": glpi_api_client.FORCED_DISPLAY_FIELDS,
                 "expand_dropdowns": 1,
             },
         ),
         (
             "search/Ticket",
             {},
-            "Ticket",
-            {"forcedisplay": FORCED_DISPLAY_FIELDS, "expand_dropdowns": 1},
+            "search/Ticket",
+            {
+                "forcedisplay": glpi_api_client.FORCED_DISPLAY_FIELDS,
+                "expand_dropdowns": 1,
+            },
         ),
         ("User", {}, "User", {"expand_dropdowns": 1}),
         (
@@ -61,10 +72,9 @@ async def test_get_all_paginated_builds_correct_request(
     for various item types and search criteria.
     """
     # Arrange
-    client = GlpiApiClient(session=mock_glpi_session)
-
-    # Act
-    await client.get_all_paginated(itemtype, **params)
+    async with GlpiApiClient(session=mock_glpi_session) as client:
+        # Act
+        await client.get_all_paginated(itemtype, **params)
 
     # Assert: Check that paginate_items was called
     mock_paginate_items.assert_called_once()
@@ -77,9 +87,8 @@ async def test_get_all_paginated_builds_correct_request(
 
     # Assert: Check that the GLPI session was called with the correct arguments
     mock_glpi_session.get.assert_called_once()
-    call_args = mock_glpi_session.get.call_args
-    actual_endpoint = call_args.args[0]
-    actual_params = call_args.kwargs.get("params", {})
+    actual_endpoint = mock_glpi_session.get.call_args.args[0]
+    actual_params = mock_glpi_session.get.call_args.kwargs.get("params", {})
 
     assert actual_endpoint == expected_endpoint
     expected_full_params = {**expected_params_subset, "range": "0-99"}
