@@ -12,6 +12,15 @@ BASE_TICKET_FIELDS = ["id", "name", "date", "priority", "status"]
 # Populated dynamically from MappingService
 FORCED_DISPLAY_FIELDS: list[int] = []
 
+
+def _safe_int(value: Any) -> Optional[int]:
+    """Return ``int(value)`` if possible, else ``None``."""
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
+
+
 logger = logging.getLogger(__name__)
 
 
@@ -26,6 +35,8 @@ class GlpiApiClient:
         self._session = session
         self._mapper = MappingService(self._session)
         self._translator = TicketTranslator(self._mapper)
+        # Default forced fields in case dynamic discovery fails
+        self._forced_fields: List[int] = FORCED_DISPLAY_FIELDS.copy()
 
     async def __aenter__(self) -> "GlpiApiClient":
         await self._session.__aenter__()
@@ -56,6 +67,27 @@ class GlpiApiClient:
     ) -> None:
         await self._session.__aexit__(exc_type, exc, tb)
 
+    async def _resolve_ticket_fields(self) -> None:
+        """Discover essential Ticket field IDs dynamically."""
+        try:
+            options = await self._mapper.get_search_options("Ticket")
+        except Exception as exc:  # pragma: no cover - network failures
+            logger.error("failed to fetch ticket search options: %s", exc)
+            self._forced_fields = FORCED_DISPLAY_FIELDS.copy()
+            return
+
+        mapping = {str(field): fid for fid, info in options.items() if (field := info.get("field")) is not None}
+        id_field = _safe_int(mapping.get("id"))
+        name_field = _safe_int(mapping.get("name"))
+        date_field = _safe_int(mapping.get("date_creation"))
+        priority_field = _safe_int(mapping.get("priority"))
+
+        if None in (id_field, name_field, date_field, priority_field):
+            self._forced_fields = FORCED_DISPLAY_FIELDS.copy()
+        else:
+            # All fields are guaranteed to be non-None due to the preceding condition.
+            self._forced_fields = [id_field, name_field, date_field, priority_field]
+
     async def get_all_paginated(
         self, itemtype: str, page_size: int = 100, **params: Any
     ) -> List[Dict[str, Any]]:
@@ -72,7 +104,7 @@ class GlpiApiClient:
 
         # For tickets, always force display of key fields
         if normalized_itemtype == "Ticket":
-            base_params.setdefault("forcedisplay", FORCED_DISPLAY_FIELDS)
+            base_params.setdefault("forcedisplay", self._forced_fields)
 
         async def fetch_page(offset: int, size: int) -> Any:
             page_params: Dict[str, Any] = {

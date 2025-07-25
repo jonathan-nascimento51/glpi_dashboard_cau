@@ -93,3 +93,27 @@ async def test_get_all_paginated_builds_correct_request(
     assert actual_endpoint == expected_endpoint
     expected_full_params = {**expected_params_subset, "range": "0-99"}
     assert actual_params == expected_full_params
+
+
+@pytest.mark.asyncio
+async def test_resolve_ticket_fields_success(mock_glpi_session):
+    client = GlpiApiClient(session=mock_glpi_session)
+    client._mapper.get_search_options = AsyncMock(
+        return_value={
+            "1": {"field": "id"},
+            "2": {"field": "name"},
+            "3": {"field": "date_creation"},
+            "4": {"field": "priority"},
+        }
+    )
+    await client._resolve_ticket_fields()
+    assert client._forced_fields == [1, 2, 3, 4]
+
+
+@pytest.mark.asyncio
+async def test_resolve_ticket_fields_failure(mock_glpi_session):
+    client = GlpiApiClient(session=mock_glpi_session)
+    client._mapper.get_search_options = AsyncMock(return_value={})
+    client._forced_fields = [99]
+    await client._resolve_ticket_fields()
+    assert client._forced_fields == FORCED_DISPLAY_FIELDS
