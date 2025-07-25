@@ -54,7 +54,7 @@ Follow these steps inside the `src/frontend/react_app` folder to start developin
 ```bash
 cd src/frontend/react_app
 nvm install         # installs the version pinned in .nvmrc
-nvm use             # uses the version specified in .nvmrc
+nvm use
 mise settings add idiomatic_version_file_enable_tools node  # or disable idiomatic files
 npm install         # installs dotenv, @eslint/js and other dev dependencies
 # npm ci can be used for reproducible installs
