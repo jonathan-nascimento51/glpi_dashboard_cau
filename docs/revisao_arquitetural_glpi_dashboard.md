@@ -81,6 +81,10 @@ Por exemplo, para procurar chamados não eliminados com urgência igual a 5, a U
 apirest.php/search/Ticket?is_deleted=0&criteria[field]=12&criteria[searchtype]=equals&criteria[value]=notold&criteria[link]=AND&criteria[field]=10&criteria[searchtype]=equals&criteria[value]=5.19
 O Desafio de Encontrar IDs de Campo: Uma das maiores dificuldades ao usar o endpoint search é determinar o field ID correto para cada atributo. Existem duas abordagens principais para descobrir estes IDs:
 Programaticamente: Utilizar o endpoint /listSearchOptions/{itemtype}. Este endpoint devolve uma lista de todas as opções de busca disponíveis para um determinado tipo de item, incluindo os seus nomes, tabelas e, mais importante, os seus IDs numéricos.4 Esta é a abordagem mais robusta para uma aplicação.
+No código do dashboard, o `MappingService` executa essa consulta de forma
+automática e mantém em cache o mapeamento dos campos mais usados (id, name, date,
+priority, status). O `GlpiApiClient` consome esse mapeamento para preencher o
+parâmetro `forcedisplay` dinamicamente, evitando listas de IDs codificadas.
 Manualmente (Engenharia Reversa): Realizar uma busca na interface web do GLPI com os filtros desejados e, em seguida, inspecionar a URL da página de resultados. A URL conterá os parâmetros criteria com os IDs de campo corretos, que podem ser copiados e adaptados para uso na API.19
 3.2. Paginação Robusta: O Parâmetro range
 Este é o conceito mais crítico para resolver o problema de "dados em falta" na aplicação. A API do GLPI não devolve todos os resultados de uma só vez; ela pagina-os.

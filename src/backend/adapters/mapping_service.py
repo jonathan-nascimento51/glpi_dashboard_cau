@@ -5,6 +5,7 @@ from typing import Any, Dict, Optional, cast
 
 import aiohttp
 import redis.asyncio as redis
+
 from backend.core.settings import REDIS_DB, REDIS_HOST, REDIS_PORT
 from backend.infrastructure.glpi.glpi_session import GLPIAPIError, GLPISession
 from shared.utils.redis_client import RedisClient
@@ -34,6 +35,7 @@ class MappingService:
         # Avoid using a global Redis client by default to prevent cache
         # cross-contamination in tests or multi-tenant setups.
         self.search_cache = search_cache or RedisClient()
+        self._ticket_field_map: Dict[str, int] | None = None
 
     async def initialize(self) -> None:
         """Load all mappings from the GLPI API into memory and cache."""
@@ -132,3 +134,32 @@ class MappingService:
         )  # e.g., 5 minutes for failures
         await self.search_cache.set(cache_key, options, ttl_seconds=ttl)
         return options
+
+    async def _get_ticket_field_map(self) -> Dict[str, int]:
+        """Return mapping from lower-case field name to numeric ID."""
+        if self._ticket_field_map is not None:
+            return self._ticket_field_map
+
+        options = await self.get_search_options("Ticket")
+        mapping: Dict[str, int] = {}
+        for fid, info in options.items():
+            if not isinstance(info, dict):
+                continue
+            name = str(info.get("name", "")).lower()
+            if name:
+                try:
+                    mapping[name] = int(fid)
+                except Exception:  # noqa: BLE001
+                    continue
+        self._ticket_field_map = mapping
+        return mapping
+
+    async def get_ticket_field_ids(self, fields: list[str]) -> list[int]:
+        """Return numeric IDs for ``fields`` using cached search options."""
+        field_map = await self._get_ticket_field_map()
+        result: list[int] = []
+        for name in fields:
+            fid = field_map.get(name.lower())
+            if fid is not None:
+                result.append(fid)
+        return result
