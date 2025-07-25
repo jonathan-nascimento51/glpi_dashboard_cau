@@ -279,9 +279,14 @@ under `src/frontend/modules/` for Dash.
 **Important:** Install packages from **both** `requirements.txt` and
 `requirements-dev.txt` before running `pytest` or invoking `make test`.
 The `requirements-dev.txt` file contains extras such as `dash[testing]`,
-`playwright`, `testcontainers` and `pact-python` which are needed for the full
-suite. Install them with `pip install -r requirements-dev.txt` or use
-`pip install -e '.[dev]'` to ensure all development extras are available.
+`playwright`, `fakeredis`, `testcontainers` and `pact-python` which are needed
+for the full suite. Install them with:
+
+```bash
+pip install -r requirements-dev.txt --break-system-packages
+```
+
+Alternatively use `pip install -e '.[dev]'` to install all development extras.
 
 ## Installing Dependencies Behind a Proxy or Offline
 
