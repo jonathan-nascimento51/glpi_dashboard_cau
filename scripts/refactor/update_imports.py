@@ -2,7 +2,7 @@ import argparse
 import json
 import logging
 from pathlib import Path
-from typing import Dict, SupportsIndex
+from typing import Dict
 
 import libcst as cst
 
@@ -89,47 +89,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
-
-MAPPING = {
-    "glpi_dashboard.acl.normalization": "backend.adapters.normalization",
-    # Adicione outros mapeamentos conforme necessário
-}
-
-
-def test_no_match():
-    src = "import some_other_module"
-    expected = "import some_other_module"  # Não deve alterar
-    assert rewrite_imports(src, MAPPING).strip() == expected
-
-
-def test_partial_match():
-    src = "from glpi_dashboard.acl import something_else"
-    expected = "from glpi_dashboard.acl import something_else"  # Não deve alterar
-    assert rewrite_imports(src, MAPPING).strip() == expected
-
-
-def test_import_rewritten():
-    src = "import glpi_dashboard.acl.normalization"
-    expected = "import backend.adapters.normalization"
-    result = rewrite_imports(src, MAPPING).strip()
-    logging.debug(f"Reescrevendo: {src} -> {result}")
-    assert result == expected
-
-
-def validate_mapping(mapping: dict[str, str]):
-    for key, value in mapping.items():
-        assert isinstance(key, str), f"Chave inválida no mapeamento: {key}"
-        assert isinstance(value, str), f"Valor inválido no mapeamento: {value}"
-
-
-validate_mapping(MAPPING)
-
-
-class Example:
-    def append(self, item: SupportsIndex, /) -> None:
-        print(f"Appending item: {item}")
-
-
-example = Example()
-example.append(5)  # Works because integers support the __index__ method

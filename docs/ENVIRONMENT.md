@@ -2,4 +2,12 @@
   You can also create `.env.local` with this setting for local scripts outside Docker.
 - `DISALLOWED_PROXIES`: comma-separated list of proxy hosts ignored by `scripts/validate_credentials.py`.
 
-- To avoid unexpected aliasing from `mise`, source `scripts/setup/unset_aliases.sh` or add its commands to your shell profile. This script unaliases core utilities (like `ls`, `grep`, `sed`, `awk`) and ensures `/usr/bin` and `/bin` are prioritized in your `$PATH`.
+## Shell configuration
+
+A project `.bashrc` is provided at the repository root. Source this file after running `scripts/setup/setup_env.sh` to ensure standard utilities like `ls`, `grep`, `sed`, and `awk` are not aliased by tools such as `mise`:
+
+```bash
+source .bashrc
+```
+
+The script unaliases these commands and warns if any are missing from `$PATH`.

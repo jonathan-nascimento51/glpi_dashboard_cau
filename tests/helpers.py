@@ -1,13 +1,12 @@
 import json
 from contextlib import asynccontextmanager
-from typing import Optional
+from typing import Optional, Sequence  # Alterado de list para Sequence
 from unittest.mock import AsyncMock, MagicMock
 
+import aiohttp
 import pytest
 
 pytest.importorskip("aiohttp")
-
-import aiohttp  # noqa: E402
 
 
 class FakeHTTPError(aiohttp.ClientResponseError):
@@ -64,12 +63,12 @@ def make_cm(
     return _cm()
 
 
-def make_session(responses):
+def make_session(responses: Sequence[object]):
     """Return a simple synchronous session mock.
 
     Parameters
     ----------
-    responses : list
+    responses : Sequence
         Items to return (or raise) for each request.
 
     Returns
@@ -77,11 +76,13 @@ def make_session(responses):
     SimpleNamespace
         Object with ``get`` and ``request`` methods mocking an HTTP client.
     """
-
     from types import SimpleNamespace
 
-    def side_effect(*_args, **_kwargs):
-        result = responses.pop(0)
+    # Converte a sequência para uma lista mutável para suportar pop()
+    responses_list: list[object] = list(responses)
+
+    def side_effect(*_args: object, **_kwargs: object) -> object:
+        result = responses_list.pop(0)
         if isinstance(result, Exception):
             raise result
         return result
