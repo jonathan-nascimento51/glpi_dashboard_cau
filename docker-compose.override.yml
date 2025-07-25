@@ -31,7 +31,7 @@ services:
 
   db:
     ports:
-      - "55432:5432"
+      - "${HOST_DB_PORT:-55432}:5432"
 
   redis:
     ports:
