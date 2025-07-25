@@ -5,9 +5,9 @@ from collections.abc import Generator
 
 import pytest
 
-_playwright_sync_api = pytest.importorskip("playwright.sync_api")
-expect = _playwright_sync_api.expect
-sync_playwright = _playwright_sync_api.sync_playwright
+playwright_sync_api = pytest.importorskip("playwright.sync_api")
+expect = playwright_sync_api.expect
+sync_playwright = playwright_sync_api.sync_playwright
 
 
 COMPOSE_CMD = ["docker", "compose"]
