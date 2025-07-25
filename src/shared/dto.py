@@ -33,7 +33,7 @@ PRIORITY_MAP = {
 }
 
 # Fallback title assigned when a ticket comes with an empty or null name
-DEFAULT_TITLE = "Untitled ticket"
+DEFAULT_TITLE = "[Título não informado]"
 
 
 class RawTicketFromAPI(BaseModel):
@@ -68,7 +68,12 @@ class CleanTicketDTO(BaseModel):
     @classmethod
     def _sanitize_title(cls, data: Dict[str, Any]) -> Dict[str, Any]:
         title = data.get("name")
-        data["name"] = DEFAULT_TITLE if title in (None, "") else str(title)
+        if "name" not in data or title == "":
+            data["name"] = DEFAULT_TITLE
+        elif title is None:
+            data["name"] = DEFAULT_TITLE
+        else:
+            data["name"] = str(title)
         return data
 
     @field_validator("status", mode="before")
@@ -91,9 +96,17 @@ class CleanTicketDTO(BaseModel):
     @field_validator("priority", mode="before")
     @classmethod
     def _validate_priority(
-        cls, v: Optional[int]
+        cls, v: int | str | None
     ) -> Optional[str]:  # pragma: no cover - simple mapping
-        return None if v is None else PRIORITY_MAP.get(v, "Unknown")
+        if v is None:
+            return None
+        if isinstance(v, str) and not v.isdigit():
+            return v
+        if isinstance(v, int):
+            return PRIORITY_MAP.get(v, "Unknown")
+        if isinstance(v, str) and v.isdigit():
+            return PRIORITY_MAP.get(int(v), "Unknown")
+        return "Unknown"
 
 
 class TicketTranslator:
@@ -111,11 +124,17 @@ class TicketTranslator:
         if validated_raw.users_id_assign:
             assigned_to = await self.mapper.get_username(validated_raw.users_id_assign)
 
+        priority_label = (
+            self.mapper.priority_label(validated_raw.priority)
+            if validated_raw.priority is not None
+            else None
+        )
+
         clean_data: Dict[str, Any] = {
             "id": validated_raw.id,
             "name": validated_raw.name,
             "status": validated_raw.status,
-            "priority": validated_raw.priority,
+            "priority": priority_label,
             "date_creation": validated_raw.date_creation,
             "assigned_to": assigned_to,
         }

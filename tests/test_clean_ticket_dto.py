@@ -94,3 +94,17 @@ def test_clean_ticket_dto_text_status():
     ticket = CleanTicketDTO.model_validate(data)
 
     assert ticket.status == "Closed"
+
+
+@pytest.mark.unit
+def test_clean_ticket_dto_preconverted_priority():
+    data = {
+        "id": 4,
+        "name": "Router",
+        "status": 1,
+        "priority": "Alta",
+    }
+
+    ticket = CleanTicketDTO.model_validate(data)
+
+    assert ticket.priority == "Alta"
