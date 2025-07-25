@@ -4,7 +4,7 @@
 
 ## Shell configuration
 
-A project `.bashrc` is provided at the repository root. Source this file after running `scripts/setup/setup_env.sh` to ensure standard utilities like `ls`, `grep` and `sed` are not aliased by tools such as `mise`:
+A project `.bashrc` is provided at the repository root. Source this file after running `scripts/setup/setup_env.sh` to ensure standard utilities like `ls`, `grep`, `sed`, and `awk` are not aliased by tools such as `mise`:
 
 ```bash
 source .bashrc
