@@ -626,7 +626,8 @@ async def test_aexit_suppresses_cancellation(
     mock_client_session.get.return_value = make_cm(200, {})
 
     async def sleep_forever() -> None:
-        await aio.sleep(10)
+        # Avoid real wait times during tests
+        await aio.sleep(0)
 
     async def fake_refresh():
         glpi_session._session_token = "tok"
