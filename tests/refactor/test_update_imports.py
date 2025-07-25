@@ -28,7 +28,7 @@ def test_no_match():
 def test_partial_match():
     src = "from glpi_dashboard.acl import something_else"
     expected = "from backend.adapters import something_else"
-    assert rewrite_imports(src, MAPPING).strip() == expected
+    assert rewrite_imports(src, MAPPING).strip() == expected, f"Expected '{expected}', but got '{rewrite_imports(src, MAPPING).strip()}'"
 
 
 def test_validate_mapping():
