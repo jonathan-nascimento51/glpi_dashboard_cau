@@ -31,6 +31,8 @@ describe('TicketTable formatting', () => {
     // requester, priority and date columns should show the fallback "—" or "-"
     const cells = row.querySelectorAll('div')
     const fallbackCount = Array.from(cells).filter((d) => d.textContent === '—' || d.textContent === '-').length
-    expect(fallbackCount).toBeGreaterThanOrEqual(3)
+    // Number of columns (requester, priority, date) expected to show fallback values when data is missing
+    const FALLBACK_COLUMN_COUNT = 3
+    expect(fallbackCount).toBeGreaterThanOrEqual(FALLBACK_COLUMN_COUNT)
   })
 })
