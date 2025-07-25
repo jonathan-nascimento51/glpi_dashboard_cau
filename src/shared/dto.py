@@ -71,7 +71,7 @@ class CleanTicketDTO(BaseModel):
         if "name" not in data or title == "":
             data["name"] = DEFAULT_TITLE
         elif title is None:
-            data["name"] = ""
+            data["name"] = DEFAULT_TITLE
         else:
             data["name"] = str(title)
         return data
