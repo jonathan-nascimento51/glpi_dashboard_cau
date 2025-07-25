@@ -163,7 +163,7 @@ Execute o Storybook para visualizar componentes isoladamente. Dentro de
 ```bash
 npm run storybook      # inicia em http://localhost:6006
 npm run build-storybook  # gera a versão estática em storybook-static/
-npx storybook test --watchAll=false  # atualiza os snapshots
+npx storybook test -u --watchAll=false # atualiza os snapshots
 ```
 
 Use these stories to validate different loading states and to document props
