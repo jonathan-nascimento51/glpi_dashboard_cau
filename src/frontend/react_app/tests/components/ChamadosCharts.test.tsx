@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
-import { ChamadosTendencia } from '@/components/ChamadosTendencia'
-import { ChamadosHeatmap } from '@/components/ChamadosHeatmap'
+import ChamadosTendencia from '@/components/ChamadosTendencia'
+import ChamadosHeatmap from '@/components/ChamadosHeatmap'
 import * as dataHook from '@/hooks/useChamadosPorData'
 import * as diaHook from '@/hooks/useChamadosPorDia'
 

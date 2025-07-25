@@ -1,8 +1,29 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import React from 'react'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { VirtualizedTicketTable } from '@/components/VirtualizedTicketTable'
-import { FixedSizeList } from 'react-window'
 import { jest } from '@jest/globals'
+
+// Cria um mock para o react-window, sobrescrevendo o FixedSizeList
+jest.mock('react-window', () => ({
+  FixedSizeList: jest.fn(function FixedSizeList(props: {
+    itemCount: number
+    itemData?: any
+    children: (args: { index: number; style: React.CSSProperties }) => JSX.Element
+  }) {
+    return (
+      <div data-testid="virtual-list">
+        {Array.from({ length: props.itemCount }).map((_, idx) => (
+          <div key={idx} role="row" tabIndex={0}>
+            {props.children({ index: idx, style: {} })}
+          </div>
+        ))}
+      </div>
+    )
+  }),
+}))
+
+// Importa o FixedSizeList do módulo mockado
+import { FixedSizeList } from 'react-window'
 
 const buildRows = (count: number) =>
   Array.from({ length: count }, (_, i) => ({ id: i, name: `Row ${i}` }))
@@ -46,14 +67,15 @@ describe('VirtualizedTicketTable', () => {
 
   test('keyboard navigation works in plain list', async () => {
     render(<VirtualizedTicketTable rows={buildRows(20)} />)
-    const table = screen.getByRole('table')
+    // Removed unused declaration for table since it's not needed.
     const first = getRow(0)
     const second = getRow(1)
 
     first.focus()
-    fireEvent.keyDown(table, { key: 'ArrowDown' })
+    // Dispara o evento de keyDown diretamente no elemento focalizado
+    fireEvent.keyDown(first, { key: 'ArrowDown' })
     await waitFor(() => expect(document.activeElement).toBe(second))
-    fireEvent.keyDown(table, { key: 'ArrowUp' })
+    fireEvent.keyDown(second, { key: 'ArrowUp' })
     await waitFor(() => expect(document.activeElement).toBe(first))
   })
 })

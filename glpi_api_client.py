@@ -2,13 +2,13 @@ import asyncio
 import logging
 from typing import Any, Dict, List, Optional
 
-from backend.infrastructure.glpi.glpi_auth import GLPIAuthClient
-from backend.services.glpi_enrichment import GLPIEnrichmentService
 from pydantic import ValidationError
-from shared.dto import CleanTicketDTO
 
 from app.api.metrics import compute_overview
+from backend.infrastructure.glpi.glpi_auth import GLPIAuthClient
+from backend.services.glpi_enrichment import GLPIEnrichmentService
 from glpi_ticket_client import GLPITicketClient
+from shared.dto import CleanTicketDTO
 
 logger = logging.getLogger(__name__)
 

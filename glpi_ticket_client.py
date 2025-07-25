@@ -3,12 +3,12 @@ import time
 from typing import Any, Dict, List, Optional
 
 import requests
+
 from backend.core.settings import GLPI_APP_TOKEN, GLPI_BASE_URL
 from backend.infrastructure.glpi.glpi_auth import GLPIAuthClient
 from backend.infrastructure.glpi.glpi_client import SearchCriteriaBuilder
-from shared.utils.logging import get_logger
-
 from glpi_http_utils import http_request_with_retry
+from shared.utils.logging import get_logger
 
 logger = get_logger(__name__)
 
@@ -36,7 +36,7 @@ class GLPITicketClient:
             builder = SearchCriteriaBuilder()
             for field, value in filters.items():
                 builder.add(field, value)
-            params.update(builder.build())
+            params |= builder.build()
         return params
 
     def list_tickets(
@@ -49,13 +49,17 @@ class GLPITicketClient:
 
         token = self.auth_client.get_session_token()
         params = self._build_params(filters, page, page_size)
-        headers = {
+        headers: Dict[str, str] = {
             "App-Token": self.app_token,
-            "Session-Token": token,
+            "Session-Token": str(token),
             "Content-Type": "application/json",
         }
         url = f"{self.base_url}/search/Ticket"
-        log_data = {"page": page, "page_size": page_size, "filters": filters}
+        log_data: Dict[str, Any] = {
+            "page": page,
+            "page_size": page_size,
+            "filters": filters,
+        }
         start = time.perf_counter()
         resp = http_request_with_retry(
             self.session,

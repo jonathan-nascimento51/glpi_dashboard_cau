@@ -1,10 +1,10 @@
- pull_request_rules:
-   - name: Rebase automático e merge com checks verdes
-     conditions:
-       - base=main
-       - "status-success=CI"
-     actions:
-       rebase: {}
-       merge:
-         method: squash
-         merge_bot_account: "mergify[bot]"
+pull_request_rules:
+  - name: Rebase automático e merge com checks verdes
+    conditions:
+      - base=main
+      - "status-success=CI"
+    actions:
+      rebase: {}
+      merge:
+        method: squash
+        merge_bot_account: "mergify[bot]"

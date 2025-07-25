@@ -116,7 +116,6 @@ quote-style = "double" # Match black's default
 asyncio_mode = "auto"
 
 [tool.pdm]
-package-type = "application"
 
 [tool.setuptools.packages.find]
 where = ["src"]

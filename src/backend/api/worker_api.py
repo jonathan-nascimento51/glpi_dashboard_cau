@@ -12,6 +12,18 @@ from typing import Any, Dict, List, Optional, cast
 import pandas as pd
 import strawberry
 import uvicorn
+from fastapi import Depends, FastAPI, HTTPException, Request, Response
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import (
+    PlainTextResponse,
+    StreamingResponse,
+)
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from prometheus_fastapi_instrumentator import Instrumentator
+from pydantic import BaseModel, Field
+from strawberry.fastapi import GraphQLRouter
+from strawberry.types import Info
+
 from backend.api.request_id_middleware import RequestIdMiddleware
 from backend.application.aggregated_metrics import (
     get_cached_aggregated,
@@ -30,22 +42,11 @@ from backend.application.ticket_loader import (
 from backend.core.settings import (
     KNOWLEDGE_BASE_FILE,
 )
-from fastapi import Depends, FastAPI, HTTPException, Request, Response
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import (
-    PlainTextResponse,
-    StreamingResponse,
-)
-from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
-from prometheus_fastapi_instrumentator import Instrumentator
-from pydantic import BaseModel, Field
 from shared.dto import CleanTicketDTO  # imported from shared DTOs
 from shared.utils.api_auth import verify_api_key
 from shared.utils.json import UTF8JSONResponse
 from shared.utils.logging import init_logging
 from shared.utils.redis_client import redis_client
-from strawberry.fastapi import GraphQLRouter
-from strawberry.types import Info
 
 init_logging()
 
@@ -266,9 +267,16 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
     @app.get("/read-model/tickets", response_model=list[TicketSummaryOut])
     async def read_model_tickets(
         limit: int = 100, offset: int = 0
-    ) -> list[TicketSummaryOut]:  # noqa: F401
-        rows = await query_ticket_summary(limit=limit, offset=offset)
-        return [TicketSummaryOut.model_validate(r.__dict__) for r in rows]
+    ) -> list[TicketSummaryOut]:
+        """Return tickets from the local read model (materialized view)."""
+        try:
+            rows = await query_ticket_summary(limit=limit, offset=offset)
+            return [TicketSummaryOut.model_validate(r.__dict__) for r in rows]
+        except Exception as exc:
+            logger.exception("Failed to query read model")
+            raise HTTPException(
+                status_code=503, detail="Read model is currently unavailable."
+            ) from exc
 
     @app.get("/cache/stats")
     async def cache_stats() -> dict:  # noqa: F401

@@ -11,13 +11,14 @@ import logging
 from typing import Dict, Optional
 
 import pandas as pd
+from fastapi import HTTPException
+from pydantic import BaseModel, Field, ValidationError
+
 from backend.application.glpi_api_client import (
     GlpiApiClient,
     create_glpi_api_client,
 )
 from backend.infrastructure.glpi.normalization import process_raw
-from fastapi import HTTPException
-from pydantic import BaseModel, Field, ValidationError
 from shared.utils.redis_client import RedisClient, redis_client
 
 from . import router

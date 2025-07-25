@@ -42,7 +42,7 @@ class ResizeObserver {
   unobserve() {}
   disconnect() {}
 }
-// @ts-expect-error JSDOM lacks ResizeObserver
+
 global.ResizeObserver = ResizeObserver
 
 function measure(Component: React.ComponentType) {

@@ -1,8 +1,27 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import App from './App'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import React from 'react'
 
+// Cria o client do react-query com opções padrão para teste
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+    },
+  },
+})
 
-// Mock dos hooks de dados para isolar o teste do componente App da camada de API
+// Função auxiliar para renderizar com o provedor do react-query
+function renderWithClient(ui: React.ReactElement) {
+  return render(
+    <QueryClientProvider client={queryClient}>
+      {ui}
+    </QueryClientProvider>
+  )
+}
+
+// Mocks dos hooks e dos componentes
 jest.mock('./hooks/useTickets', () => ({
   useTickets: jest.fn(),
 }))
@@ -13,13 +32,10 @@ jest.mock('./hooks/useChamadosPorDia', () => ({
   useChamadosPorDia: jest.fn(),
 }))
 
-// Mock dos componentes que não são essenciais para este teste de integração
 jest.mock('./components/Header', () => () => <header>Header Mock</header>)
 jest.mock('./components/FilterPanel', () => () => <div>FilterPanel Mock</div>)
 jest.mock('./components/Sidebar', () => () => <aside>Sidebar Mock</aside>)
-jest.mock('./components/LevelsPanel', () => () => (
-  <div>LevelsPanel Mock</div>
-))
+jest.mock('./components/LevelsPanel', () => () => <div>LevelsPanel Mock</div>)
 
 import { useTickets } from './hooks/useTickets'
 import { useChamadosPorData } from './hooks/useChamadosPorData'
@@ -60,7 +76,7 @@ describe('App Integration', () => {
     useChamadosPorDataMock.mockReturnValue({ data: [], isLoading: true })
     useChamadosPorDiaMock.mockReturnValue({ data: [], isLoading: true })
 
-    render(<App />)
+    renderWithClient(<App />)
 
     // Verifica se os skeletons de carregamento são exibidos
     expect(screen.getByText(/Carregando chamados.../i)).toBeInTheDocument()
@@ -83,7 +99,7 @@ describe('App Integration', () => {
       isLoading: false,
     })
 
-    render(<App />)
+    renderWithClient(<App />)
 
     // Aguarda a renderização dos dados e dos componentes lazy-loaded
     await waitFor(() => {
@@ -107,7 +123,7 @@ describe('App Integration', () => {
     useChamadosPorDataMock.mockReturnValue({ data: [], isLoading: false, isError: true })
     useChamadosPorDiaMock.mockReturnValue({ data: [], isLoading: false, error: true })
 
-    render(<App />)
+    renderWithClient(<App />)
 
     expect(screen.getByText('Falha ao buscar tickets')).toBeInTheDocument()
     expect(screen.getByText('Erro ao carregar chamados.')).toBeInTheDocument()

@@ -65,10 +65,9 @@ cd src/frontend/react_app && npm ci
 # remove any stale compiled JS that might shadow the TypeScript sources
 find src/frontend/react_app/src -name '*.js' -delete
 ```
+
 See [docs/testing.md](docs/testing.md) for tips on running individual tests and
 for common import errors.
-
-
 
 The `pip install` steps above must be run before executing any tests so that
 the local package and its development dependencies are available.
@@ -77,7 +76,6 @@ Run `make diagnose` to verify the Codex environment. The helper script
 `scripts/diagnostics/diagnose_codex.py` prints useful metadata for troubleshooting.
 
 Runtime packages come from `requirements.txt`; development and testing tools are defined in `pyproject.toml` and compiled into `requirements-dev.txt`.
-
 
 Create a `.env` file from the template and fill in your GLPI and database
 credentials. PostgreSQL is used by default but you can point the application to
@@ -285,8 +283,6 @@ The `requirements-dev.txt` file contains extras such as `dash[testing]`,
 suite. Install them with `pip install -r requirements-dev.txt` or use
 `pip install -e '.[dev]'` to ensure all development extras are available.
 
-
-
 ## Installing Dependencies Behind a Proxy or Offline
 
 If your machine needs a proxy to reach PyPI, export the proxy variables before
@@ -297,6 +293,7 @@ invoking `pip`. The `scripts/setup/setup_env.sh` script automatically configures
 export HTTP_PROXY=http://proxy.company.com:8080␊
 export HTTPS_PROXY=$HTTP_PROXY
 ```
+
 Run the installation commands from the [Development Setup](#development-setup) section to install the dependencies through the proxy.
 
 On a machine with internet access you can pre-download the wheels needed by the
@@ -860,7 +857,6 @@ You may also install only the optional development extras with:
 This reads the `[project.optional-dependencies].dev` list from `pyproject.toml`
 and installs each package via `pip`.
 
-
 Browser-based tests such as `test_dashboard_flows` rely on Chrome and
 Chromedriver. If these are unavailable you can skip them with:
 
@@ -1023,6 +1019,7 @@ for details on how this script was used during the structural refactor.
 This project is released under the [MIT License](LICENSE).
 
 ### CI/CD Pipeline
+
 A GitHub Actions workflow (`cicd.yml`) runs linting with **ruff**, **black** and **isort**, executes the full pytest suite and builds a Docker image for pushes to `main` or version tags. The resulting image is published to GHCR and deployed through `scripts/deploy/deploy_production.sh`.
 For CI/CD governance guidelines, see [docs/governanca_tecnica_prompt.md](docs/governanca_tecnica_prompt.md).
 Guidance on connecting the API to Copilot Studio is available in

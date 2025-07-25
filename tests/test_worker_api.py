@@ -5,8 +5,6 @@ import pytest
 import pytest_asyncio
 import redis
 from fastapi.testclient import TestClient
-
-pytest.importorskip("prometheus_client")
 from prometheus_client import CONTENT_TYPE_LATEST
 
 from backend.api.worker_api import get_glpi_client
@@ -15,6 +13,8 @@ from backend.application.glpi_api_client import GlpiApiClient
 from backend.domain.exceptions import GLPIUnauthorizedError
 from shared.dto import CleanTicketDTO
 from worker import create_app
+
+pytest.importorskip("prometheus_client")
 
 sys.modules.setdefault(
     "langgraph.checkpoint.sqlite", types.ModuleType("langgraph.checkpoint.sqlite")
@@ -37,7 +37,7 @@ class DummyCache:
     async def set(self, key, data, ttl_seconds=None):
         self.data[key] = data
 
-    def get_cache_metrics(self):
+    def get_cache_metrics(self) -> dict[str, float]:
         total = self.hits + self.misses
         hit_rate = (self.hits / total * 100) if total else 0.0
         return {
@@ -274,21 +274,29 @@ def test_graphql_query(dummy_cache: DummyCache):
 
 
 def test_client_reused(monkeypatch: pytest.MonkeyPatch, dummy_cache: DummyCache):
+    """
+    Verifies that the same GLPI API client instance is reused across multiple
+    requests within the application's lifespan.
+    """
     instances = []
 
-    class RecordingSession(FakeClient):
-        def __init__(self):
+    class RecordingClient(FakeClient):
+        def __init__(self, *args, **kwargs):
+            super().__init__()
             instances.append(self)
 
+    # We patch the factory function that creates the client
     monkeypatch.setattr(
-        "backend.api.worker_api.GlpiApiClient",
-        lambda *a, **k: RecordingSession(),
+        "backend.api.worker_api.create_glpi_api_client",
+        RecordingClient,
     )
 
-    client = TestClient(create_app(client=RecordingSession(), cache=dummy_cache))
+    # Create the app without passing a client, so it uses the patched factory
+    client = TestClient(create_app(cache=dummy_cache))
     client.get("/tickets")
     client.get("/metrics/summary")
 
+    # Only one client instance should have been created for the app's lifespan
     assert len(instances) == 1
 
 
@@ -399,6 +407,19 @@ def test_cache_metrics_legacy(dummy_cache: DummyCache):
     stats = client.get("/cache/stats")
     assert legacy.status_code == 200
     assert legacy.json() == stats.json()
+
+
+def test_read_model_db_error(monkeypatch: pytest.MonkeyPatch, dummy_cache: DummyCache):
+    """Test that a DB error in the read model returns a 503."""
+
+    async def raise_db_error(*args, **kwargs):
+        raise RuntimeError("Database connection failed")
+
+    monkeypatch.setattr("backend.api.worker_api.query_ticket_summary", raise_db_error)
+    client = TestClient(create_app(client=FakeClient(), cache=dummy_cache))
+    resp = client.get("/read-model/tickets")
+    assert resp.status_code == 503
+    assert "Read model is currently unavailable" in resp.json()["detail"]
 
 
 def test_metrics_aggregated_cache(dummy_cache: DummyCache):
