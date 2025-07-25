@@ -2,10 +2,8 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from src.backend.application.glpi_api_client import (
-    FORCED_DISPLAY_FIELDS,
-    GlpiApiClient,
-)
+from src.backend.application.glpi_api_client import GlpiApiClient
+from src.backend.core.settings import FORCED_DISPLAY_FIELDS
 from src.backend.infrastructure.glpi.glpi_session import GLPISession
 
 
@@ -36,7 +34,7 @@ def mock_glpi_session():
         (
             "search/Ticket",
             {},
-            "search/Ticket",
+            "Ticket",
             {"forcedisplay": FORCED_DISPLAY_FIELDS, "expand_dropdowns": 1},
         ),
         ("User", {}, "User", {"expand_dropdowns": 1}),
@@ -77,8 +75,8 @@ async def test_get_all_paginated_builds_correct_request(
 
     # Assert: Check that the GLPI session was called with the correct arguments
     mock_glpi_session.get.assert_called_once()
-    actual_endpoint, call_kwargs = mock_glpi_session.get.call_args
-    actual_params = call_kwargs.get("params", {})
+    actual_endpoint = mock_glpi_session.get.call_args.args[0]
+    actual_params = mock_glpi_session.get.call_args.kwargs.get("params", {})
 
     assert actual_endpoint == expected_endpoint
     expected_full_params = {**expected_params_subset, "range": "0-99"}

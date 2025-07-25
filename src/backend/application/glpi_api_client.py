@@ -3,12 +3,10 @@ from typing import Any, Dict, List, Optional, Type
 
 from backend.adapters.factory import create_glpi_session
 from backend.adapters.mapping_service import MappingService
+from backend.core.settings import FORCED_DISPLAY_FIELDS
 from backend.infrastructure.glpi.glpi_session import GLPISession
 from backend.utils import paginate_items
 from shared.dto import CleanTicketDTO, TicketTranslator
-
-# Essential ticket fields to always include (IDs: 1, 2, 4, 12, 15, 83).
-FORCED_DISPLAY_FIELDS = [1, 2, 4, 12, 15, 83]
 
 logger = logging.getLogger(__name__)
 

@@ -72,6 +72,9 @@ class Settings(BaseSettings):
     OTEL_EXPORTER_OTLP_HEADERS: str | None = os.getenv("OTEL_EXPORTER_OTLP_HEADERS")
     OTEL_SERVICE_NAME: str = os.getenv("OTEL_SERVICE_NAME", "glpi_dashboard_cau")
 
+    # Comma-separated list of field IDs for /search/Ticket forcedisplay.
+    GLPI_FORCED_DISPLAY_FIELDS: str = "1,2,4,12,15,83"
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
@@ -129,3 +132,18 @@ EVENT_BROKER_URL = settings.EVENT_BROKER_URL
 VERIFY_SSL = settings.VERIFY_SSL
 CLIENT_TIMEOUT_SECONDS = settings.CLIENT_TIMEOUT_SECONDS
 DASH_PORT = settings.DASH_PORT
+
+
+def _parse_int_list(value: str) -> list[int]:
+    """Return list of ints from comma-separated string, ignoring invalid parts."""
+
+    items = []
+    for part in value.split(","):
+        try:
+            items.append(int(part.strip()))
+        except ValueError:
+            continue
+    return items
+
+
+FORCED_DISPLAY_FIELDS = _parse_int_list(settings.GLPI_FORCED_DISPLAY_FIELDS)
