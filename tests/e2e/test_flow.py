@@ -4,9 +4,9 @@ import time
 from collections.abc import Generator
 
 import pytest
-from playwright.sync_api import expect, sync_playwright
 
-pytest.importorskip("playwright.sync_api")
+if pytest.importorskip("playwright.sync_api"):
+    from playwright.sync_api import expect, sync_playwright
 
 
 COMPOSE_CMD = ["docker", "compose"]
