@@ -43,6 +43,7 @@ class RawTicketDTO(BaseModel):
     impact: int | None = Field(None, description="Impact code")
     type: int | None = Field(None, description="Ticket type code")
     date_creation: str | None = Field(None, description="ISO date string")
+    users_id_requester: int | None = Field(None, description="Requester user ID")
 
     model_config = ConfigDict(extra="allow")
 
@@ -65,6 +66,7 @@ class CleanTicketDTO(BaseModel):
     creation_date: datetime | None = Field(
         None, alias="date_creation", description="Creation timestamp"
     )
+    requester: str | None = Field(None, description="Requester user name")
 
     model_config = ConfigDict(extra="forbid", populate_by_name=True)
 
@@ -170,6 +172,7 @@ def convert_ticket(raw: RawTicketDTO) -> CleanTicketDTO:
         impact=impact,
         type=ttype,
         creation_date=created,
+        requester=_resolve_requester_name(raw.users_id_requester, ticket_id),
     )
 
 

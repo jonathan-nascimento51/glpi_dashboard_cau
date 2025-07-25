@@ -26,6 +26,7 @@ async def test_translate_ticket_success(mock_mapping_service: AsyncMock) -> None
         "priority": 3,  # Medium
         "date_creation": "2024-01-01T12:00:00Z",
         "users_id_assign": 42,
+        "users_id_requester": 7,
     }
     translated_ticket = await translator.translate_ticket(raw_ticket)
     assert isinstance(translated_ticket, CleanTicketDTO)
@@ -37,3 +38,6 @@ async def test_translate_ticket_success(mock_mapping_service: AsyncMock) -> None
         "2024-01-01T12:00:00+00:00"
     )
     assert translated_ticket.assigned_to == "Test User"
+    assert translated_ticket.requester == "Test User"
+    mock_mapping_service.get_username.assert_awaited()
+    assert mock_mapping_service.get_username.await_count == 2

@@ -13,6 +13,7 @@ def test_clean_ticket_dto_valid_creation():
         "priority": 2,
         "date_creation": "2024-01-01T12:00:00",
         "assigned_to": "Alice",
+        "requester": "Alice",
     }
 
     ticket = CleanTicketDTO.model_validate(data)
@@ -22,6 +23,7 @@ def test_clean_ticket_dto_valid_creation():
     assert ticket.status == "New"
     assert ticket.priority == "Low"
     assert ticket.assigned_to == "Alice"
+    assert ticket.requester == "Alice"
 
 
 @pytest.mark.unit
@@ -79,6 +81,7 @@ def test_clean_ticket_dto_missing_optional_fields():
 
     assert ticket.priority is None
     assert ticket.created_at is None
+    assert ticket.requester is None
 
 
 @pytest.mark.unit

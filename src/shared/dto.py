@@ -45,6 +45,7 @@ class RawTicketFromAPI(BaseModel):
     priority: Optional[int] = Field(default=None)
     date_creation: Optional[datetime] = Field(default=None)
     users_id_assign: Optional[int] = Field(None, alias="users_id_assign")
+    users_id_requester: Optional[int] = Field(None, alias="users_id_requester")
 
     model_config = ConfigDict(populate_by_name=True)
 
@@ -61,6 +62,7 @@ class CleanTicketDTO(BaseModel):
     priority: Optional[str] = Field(default=None)
     created_at: Optional[datetime] = Field(default=None, alias="date_creation")
     assigned_to: str = "Unassigned"
+    requester: Optional[str] = None
 
     model_config = ConfigDict(populate_by_name=True)
 
@@ -124,6 +126,10 @@ class TicketTranslator:
         if validated_raw.users_id_assign:
             assigned_to = await self.mapper.get_username(validated_raw.users_id_assign)
 
+        requester = None
+        if validated_raw.users_id_requester:
+            requester = await self.mapper.get_username(validated_raw.users_id_requester)
+
         priority_label = (
             self.mapper.priority_label(validated_raw.priority)
             if validated_raw.priority is not None
@@ -137,5 +143,6 @@ class TicketTranslator:
             "priority": priority_label,
             "date_creation": validated_raw.date_creation,
             "assigned_to": assigned_to,
+            "requester": requester,
         }
         return CleanTicketDTO.model_validate(clean_data)
