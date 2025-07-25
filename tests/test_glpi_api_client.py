@@ -36,7 +36,7 @@ def mock_glpi_session():
         (
             "search/Ticket",
             {},
-            "search/Ticket",
+            "Ticket",
             {"forcedisplay": FORCED_DISPLAY_FIELDS, "expand_dropdowns": 1},
         ),
         ("User", {}, "User", {"expand_dropdowns": 1}),
@@ -77,9 +77,34 @@ async def test_get_all_paginated_builds_correct_request(
 
     # Assert: Check that the GLPI session was called with the correct arguments
     mock_glpi_session.get.assert_called_once()
-    actual_endpoint, call_kwargs = mock_glpi_session.get.call_args
-    actual_params = call_kwargs.get("params", {})
+    call_args = mock_glpi_session.get.call_args
+    actual_endpoint = call_args.args[0]
+    actual_params = call_args.kwargs.get("params", {})
 
     assert actual_endpoint == expected_endpoint
     expected_full_params = {**expected_params_subset, "range": "0-99"}
     assert actual_params == expected_full_params
+
+
+@pytest.mark.asyncio
+async def test_resolve_ticket_fields_success(mock_glpi_session):
+    client = GlpiApiClient(session=mock_glpi_session)
+    client._mapper.get_search_options = AsyncMock(
+        return_value={
+            "1": {"field": "id"},
+            "2": {"field": "name"},
+            "3": {"field": "date_creation"},
+            "4": {"field": "priority"},
+        }
+    )
+    await client._resolve_ticket_fields()
+    assert client._forced_fields == [1, 2, 3, 4]
+
+
+@pytest.mark.asyncio
+async def test_resolve_ticket_fields_failure(mock_glpi_session):
+    client = GlpiApiClient(session=mock_glpi_session)
+    client._mapper.get_search_options = AsyncMock(return_value={})
+    client._forced_fields = [99]
+    await client._resolve_ticket_fields()
+    assert client._forced_fields == FORCED_DISPLAY_FIELDS
