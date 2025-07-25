@@ -10,6 +10,16 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from .ticket_status import Impact, Priority, TicketStatus, Urgency, _BaseIntEnum
 
+# Map numeric priority levels to human readable labels.
+PRIORITY_LABELS = {
+    1: "Muito Baixa",
+    2: "Baixa",
+    3: "Média",
+    4: "Alta",
+    5: "Muito Alta",
+    6: "Maior",
+}
+
 logger = logging.getLogger(__name__)
 
 
@@ -41,28 +51,32 @@ class CleanTicketDTO(BaseModel):
     """Validated domain ticket object."""
 
     id: int = Field(..., description="Ticket identifier")
-    name: str | None = Field(
+    title: str | None = Field(
         None,
+        alias="name",
         description="Short summary",
     )
     content: str | None = Field(None, description="Detailed description")
     status: TicketStatus = Field(TicketStatus.UNKNOWN, description="Status")
-    priority: Priority = Field(Priority.UNKNOWN, description="Priority")
+    priority: str = Field("Unknown", description="Priority label")
     urgency: Urgency = Field(Urgency.UNKNOWN, description="Urgency")
     impact: Impact = Field(Impact.UNKNOWN, description="Impact")
     type: TicketType = Field(TicketType.UNKNOWN, description="Ticket type")
-    date_creation: datetime | None = Field(None, description="Creation timestamp")
+    creation_date: datetime | None = Field(
+        None, alias="date_creation", description="Creation timestamp"
+    )
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
 
     @model_validator(mode="before")
     @classmethod
-    def _set_name(cls, data: dict[str, Any]) -> dict[str, Any]:
-        name = data.get("name")
-        if name in (None, ""):
-            data["name"] = "[Título não informado]"
+    def _set_title(cls, data: dict[str, Any]) -> dict[str, Any]:
+        title = data.get("title") or data.get("name")
+        if title in (None, ""):
+            data["title"] = "[Título não informado]"
         else:
-            data["name"] = str(name)
+            data["title"] = str(title)
+        data.pop("name", None)
         return data
 
 
@@ -107,18 +121,32 @@ def _parse_date(value: Any, field: str, ticket_id: Any) -> datetime | None:
         return None
 
 
+def _map_priority(value: Any, field: str, ticket_id: Any) -> str:
+    """Map ``value`` to a priority label."""
+
+    if value is None:
+        logger.warning("Missing %s for ticket %r", field, ticket_id)
+        return "Unknown"
+    try:
+        pid = int(value)
+    except (TypeError, ValueError):
+        logger.warning("Invalid %s=%r for ticket %r", field, value, ticket_id)
+        return "Unknown"
+    return PRIORITY_LABELS.get(pid, "Unknown")
+
+
 def convert_ticket(raw: RawTicketDTO) -> CleanTicketDTO:
     """Convert a raw GLPI ticket to a domain model."""
 
     ticket_id = raw.id
     id_int = _parse_int(ticket_id, "id", ticket_id)
 
-    name = raw.name
+    title = raw.name
     if raw.name in (None, ""):
         logger.warning("Missing name for ticket %r", ticket_id)
     elif not isinstance(raw.name, str):
         logger.warning("Invalid name=%r for ticket %r", raw.name, ticket_id)
-        name = str(raw.name)
+        title = str(raw.name)
 
     content = None
     if raw.content is not None:
@@ -129,7 +157,7 @@ def convert_ticket(raw: RawTicketDTO) -> CleanTicketDTO:
             content = raw.content
 
     status = _parse_enum(raw.status, TicketStatus, "status", ticket_id)
-    priority = _parse_enum(raw.priority, Priority, "priority", ticket_id)
+    priority = _map_priority(raw.priority, "priority", ticket_id)
     urgency = _parse_enum(raw.urgency, Urgency, "urgency", ticket_id)
     impact = _parse_enum(raw.impact, Impact, "impact", ticket_id)
     ttype = _parse_enum(raw.type, TicketType, "type", ticket_id)
@@ -137,14 +165,14 @@ def convert_ticket(raw: RawTicketDTO) -> CleanTicketDTO:
 
     return CleanTicketDTO(
         id=id_int,
-        name=name,
+        title=title,
         content=content,
         status=status,
         priority=priority,
         urgency=urgency,
         impact=impact,
         type=ttype,
-        date_creation=created,
+        creation_date=created,
     )
 
 
