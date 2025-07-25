@@ -145,8 +145,7 @@ class MappingService:
         for fid, info in options.items():
             if not isinstance(info, dict):
                 continue
-            name = str(info.get("name", "")).lower()
-            if name:
+            if name := str(info.get("name", "")).lower():
                 try:
                     mapping[name] = int(fid)
                 except (ValueError, TypeError):  # noqa: BLE001
