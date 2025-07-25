@@ -4,4 +4,10 @@
 for cmd in ls grep sed awk; do
   unalias "$cmd" 2>/dev/null || true
 done
-export PATH="/usr/bin:/bin:$PATH"
+for dir in /usr/bin /bin; do
+  case ":$PATH:" in
+    *":$dir:"*) ;; # Directory already in PATH, do nothing
+    *) PATH="$PATH:$dir" ;; # Append directory to PATH
+  esac
+done
+export PATH
