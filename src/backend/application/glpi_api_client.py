@@ -35,19 +35,18 @@ class GlpiApiClient:
 
     async def _populate_forced_fields(self) -> None:
         """Resolve numeric IDs for ``BASE_TICKET_FIELDS`` once."""
-        global FORCED_DISPLAY_FIELDS
-        if FORCED_DISPLAY_FIELDS:
+        if self._forced_display_fields:
             return
         try:
             ids = await self._mapper.get_ticket_field_ids(BASE_TICKET_FIELDS)
             if ids:
-                FORCED_DISPLAY_FIELDS[:] = ids
+                self._forced_display_fields[:] = ids
                 return
         except Exception as exc:  # pragma: no cover - defensive
             logger.error("failed to load ticket field IDs: %s", exc)
         # Fallback to legacy defaults if lookup fails
-        if not FORCED_DISPLAY_FIELDS:
-            FORCED_DISPLAY_FIELDS[:] = [1, 2, 4, 12, 15, 83]
+        if not self._forced_display_fields:
+            self._forced_display_fields[:] = [1, 2, 4, 12, 15, 83]
 
     async def __aexit__(
         self,
