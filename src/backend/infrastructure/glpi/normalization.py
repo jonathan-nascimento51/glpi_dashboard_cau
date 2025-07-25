@@ -19,6 +19,7 @@ REQUIRED_FIELDS = [
     "status",
     "group",
     "assigned_to",
+    "requester",
     "date_creation",
     "priority",
 ]
@@ -31,7 +32,7 @@ FIELD_ALIASES = {
     "users_id_recipient": "assigned_to",
     "users_id_assign": "assigned_to",
     "_users_id_assign": "assigned_to",
-    "_users_id_requester": "assigned_to",
+    "_users_id_requester": "requester",
     "creation_date": "date_creation",
     "date": "date_creation",
     "_status": "status",
@@ -95,8 +96,25 @@ def process_raw(data: TicketData) -> pd.DataFrame:
         assigned_to = assigned_raw.astype(str)
     df["assigned_to"] = assigned_to.replace({"<NA>": "", "nan": ""}).fillna("")
 
+    requester_raw = df.get("requester", pd.Series([None] * len(df), index=idx))
+    numeric_requester = pd.to_numeric(requester_raw, errors="coerce")
+    if numeric_requester.notna().any():
+        requester = numeric_requester.astype("Int64").astype(str)
+    else:
+        requester = requester_raw.astype(str)
+    df["requester"] = requester.replace({"<NA>": "", "nan": "", "None": ""}).fillna("")
+
     return df[
-        ["id", "name", "status", "priority", "assigned_to", "group", "date_creation"]
+        [
+            "id",
+            "name",
+            "status",
+            "priority",
+            "assigned_to",
+            "requester",
+            "group",
+            "date_creation",
+        ]
     ].copy()
 
 
