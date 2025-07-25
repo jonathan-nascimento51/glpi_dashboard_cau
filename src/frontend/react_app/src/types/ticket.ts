@@ -10,6 +10,7 @@ export interface Ticket {
   impact?: Impact
   type?: TicketType
   date_creation?: Date | null
+  requester?: string
   assigned_to?: string
   solvedate?: string | null
   closedate?: string | null

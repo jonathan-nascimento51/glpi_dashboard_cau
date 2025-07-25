@@ -15,13 +15,14 @@ def test_process_raw_sanitization():
     ]
     df = process_raw(raw)
 
-    assert df.shape == (3, 7)
+    assert df.shape == (3, 8)
     assert df.columns.tolist() == [
         "id",
         "name",
         "status",
         "priority",
         "assigned_to",
+        "requester",
         "group",
         "date_creation",
     ]
@@ -30,6 +31,7 @@ def test_process_raw_sanitization():
     assert df["status"].tolist() == ["closed", "", "new"]
     assert df["name"].iloc[1] == "Chamado A"
     assert df["assigned_to"].iloc[0] == "123"
+    assert df["requester"].tolist() == ["", "", ""]
     assert df["group"].tolist() == ["", "", ""]
     assert df["priority"].isna().all()
     assert df["date_creation"].isna().all()
@@ -43,6 +45,7 @@ def test_process_raw_aliases():
             "_status": "New",
             "_priority": 2,
             "_users_id_assign": 5,
+            "_users_id_requester": 9,
             "groups_name": "N1",
             "creation_date": "2024-05-01",
         }
@@ -55,6 +58,7 @@ def test_process_raw_aliases():
         "status",
         "priority",
         "assigned_to",
+        "requester",
         "group",
         "date_creation",
     }
@@ -64,6 +68,7 @@ def test_process_raw_aliases():
     assert df.iloc[0]["priority"] == 2
     assert str(df.dtypes["priority"]) == "Int64"
     assert df.iloc[0]["assigned_to"] == "5"
+    assert df.iloc[0]["requester"] == "9"
     assert df.iloc[0]["group"] == "N1"
     assert df.iloc[0]["id"] == 1
     assert df.iloc[0]["date_creation"].strftime("%Y-%m-%d") == "2024-05-01"
