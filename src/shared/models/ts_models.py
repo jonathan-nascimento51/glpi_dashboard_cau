@@ -26,6 +26,7 @@ class CleanTicketDTO(BaseModel):
     impact: Impact = Field(Impact.UNKNOWN, description="Impact")
     type: TicketType = Field(TicketType.UNKNOWN, description="Ticket type")
     date_creation: datetime | None = Field(None, description="Creation timestamp")
+    requester: str | None = Field(None, description="Requester")
 
     model_config = ConfigDict(extra="forbid")
 
