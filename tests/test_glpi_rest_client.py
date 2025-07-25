@@ -1,16 +1,16 @@
 from typing import Any, Optional
 from unittest.mock import AsyncMock, MagicMock, patch
 
-import pytest
-
-pytest.importorskip("aiohttp")
 import aiohttp
+import pytest
 
 from backend.infrastructure.glpi.glpi_session import (
     Credentials,
     GLPISession,
     index_all_paginated,
 )
+
+pytest.importorskip("aiohttp")
 
 
 class DummyCM:
@@ -118,7 +118,6 @@ async def test_query_graphql_retry_on_429(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_get_all_paginated(monkeypatch):
-
     ranges = ["0-1", "2-3", "4-5"]
     responses = [
         DummyResponse(200, {"data": [{"id": 1}, {"id": 2}]}),
@@ -142,6 +141,37 @@ async def test_get_all_paginated(monkeypatch):
         data = await index_all_paginated("Ticket", page_size=2)
 
     assert call_count == 3
+    assert data == [{"id": 1}, {"id": 2}, {"id": 3}]
+
+
+@pytest.mark.asyncio
+async def test_get_all_paginated_content_range(monkeypatch):
+    """Stop pagination early when Content-Range provides total count."""
+
+    ranges = ["0-1", "2-3"]
+    responses = [
+        DummyResponse(200, {"data": [{"id": 1}, {"id": 2}]}),
+        DummyResponse(200, {"data": [{"id": 3}]}),
+    ]
+    responses[0].headers["Content-Range"] = "0-1/3"
+    responses[1].headers["Content-Range"] = "2-2/3"
+    call_count = 0
+
+    async def fake_request(method, url, **kwargs):
+        nonlocal call_count
+        assert kwargs["params"]["range"] == ranges[call_count]
+        resp = responses[call_count]
+        call_count += 1
+        return DummyCM(resp)
+
+    monkeypatch.setattr(
+        "backend.infrastructure.glpi.glpi_session.ClientSession.request",
+        AsyncMock(side_effect=fake_request),
+    )
+    with patch("asyncio.sleep", new=AsyncMock()):
+        data = await index_all_paginated("Ticket", page_size=2)
+
+    assert call_count == 2
     assert data == [{"id": 1}, {"id": 2}, {"id": 3}]
 
 

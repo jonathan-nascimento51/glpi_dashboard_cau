@@ -10,6 +10,8 @@ from urllib.parse import urlsplit, urlunsplit
 
 import aiohttp
 from aiohttp import BasicAuth, ClientResponse, ClientSession, FormData, TCPConnector
+from pydantic import BaseModel, ConfigDict, Field, model_validator
+
 from backend.core.settings import (
     GLPI_APP_TOKEN,
     GLPI_BASE_URL,
@@ -30,7 +32,6 @@ from backend.domain.exceptions import (
     GLPIUnauthorizedError,
 )
 from backend.domain.tool_error import ToolError
-from pydantic import BaseModel, ConfigDict, Field, model_validator
 from shared.utils.resilience import call_with_breaker, retry_api_call
 
 logger = logging.getLogger(__name__)
@@ -787,15 +788,23 @@ class GLPISession:
 
         results: List[Dict[str, Any]] = []
         offset = 0
+        total: Optional[int] = None
         while True:
             page_params: Dict[str, Any] = {
                 **params,
                 "range": f"{offset}-{offset + page_size - 1}",
             }
 
-            data: Union[Dict[str, Any], List[Any]] = await self.get(
-                endpoint, params=page_params
+            response = await self.get(
+                endpoint, params=page_params, return_headers=True
             )
+            data, headers = response if isinstance(response, tuple) else (response, {})
+
+            if total is None:
+                range_header = headers.get("Content-Range")
+                if range_header and "/" in range_header:
+                    with contextlib.suppress(ValueError):
+                        total = int(range_header.split("/")[-1])
 
             items: Any = data.get("data", data) if isinstance(data, dict) else data
             if isinstance(items, dict):
@@ -805,6 +814,9 @@ class GLPISession:
                 break
 
             results.extend(items)
+
+            if total is not None and offset + len(items) >= total:
+                break
 
             if len(items) < page_size:
                 break
