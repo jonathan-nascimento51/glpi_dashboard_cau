@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react'
-import Pagination from './Pagination'
+import Pagination from '../../src/components/Pagination'
 
 describe('Pagination component', () => {
   it('renders navigation buttons and pages', () => {
