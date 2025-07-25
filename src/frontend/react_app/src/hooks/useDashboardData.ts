@@ -45,7 +45,7 @@ export function useDashboardData() {
   useEffect(() => {
     let handle: IdleHandle | null = null
     async function loadChart() {
-      const { Chart } = await import('chart.js/auto')
+      const Chart = (await import('chart.js/auto')).default
       const ctx = document.getElementById('trendsChart') as HTMLCanvasElement | null
       if (!ctx) return
       trendChart.current = new Chart(ctx, {
