@@ -172,7 +172,7 @@ def convert_ticket(raw: RawTicketDTO) -> CleanTicketDTO:
         impact=impact,
         type=ttype,
         creation_date=created,
-        requester=None,
+        requester=_resolve_requester_name(raw.users_id_requester, ticket_id),
     )
 
 
