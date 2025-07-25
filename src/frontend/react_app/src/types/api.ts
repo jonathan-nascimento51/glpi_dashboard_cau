@@ -50,4 +50,5 @@ export interface CleanTicketDTO {
    * Creation timestamp
    */
   date_creation?: string | null;
+  requester?: string | null;
 }
