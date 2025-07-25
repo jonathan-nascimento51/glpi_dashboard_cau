@@ -1,9 +1,45 @@
+from typing import SupportsIndex
+
 from scripts.refactor.update_imports import rewrite_imports
 
 MAPPING = {
     "glpi_dashboard.acl.normalization": "backend.adapters.normalization",
     "glpi_dashboard.acl": "backend.adapters",
 }
+
+
+def validate_mapping(mapping: dict[str, str]):
+    for key, value in mapping.items():
+        assert isinstance(key, str), f"Chave inválida no mapeamento: {key}"
+        assert isinstance(value, str), f"Valor inválido no mapeamento: {value}"
+
+
+class Example:
+    def append(self, item: SupportsIndex, /) -> None:
+        print(f"Appending item: {item}")
+
+
+def test_no_match():
+    src = "import some_other_module"
+    expected = "import some_other_module"
+    assert rewrite_imports(src, MAPPING).strip() == expected
+
+
+def test_partial_match():
+    src = "from glpi_dashboard.acl import something_else"
+    expected = "from backend.adapters import something_else"
+    assert rewrite_imports(src, MAPPING).strip() == expected
+
+
+def test_validate_mapping():
+    validate_mapping(MAPPING)
+
+
+def test_example_append(capsys):
+    example = Example()
+    example.append(5)
+    captured = capsys.readouterr()
+    assert "Appending item: 5" in captured.out
 
 
 def test_import_rewritten():
