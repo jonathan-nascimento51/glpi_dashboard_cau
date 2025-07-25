@@ -478,8 +478,8 @@ When the FastAPI service starts it primes the Redis cache by calling
 
 - The service exposes several endpoints:
 
-- `/tickets` – full list of tickets in JSON format. As of v0.2 this payload
-  includes the ticket `priority` as a text label.
+ - `/tickets` – full list of tickets in JSON format. The payload includes the
+   ticket `priority` label and the `requester` name when available.
 - `/tickets/stream` – Server‑Sent Events (SSE) stream of progress followed by the JSON payload.
 - `/metrics` – summary with `total`, `opened` and `closed` counts.
 - `/metrics/aggregated` – counts grouped by status and technician, pre-computed by the worker.
@@ -497,7 +497,8 @@ Example ticket payload:
     "id": 42,
     "title": "Network issue",
     "status": "New",
-    "priority": "High"
+    "priority": "High",
+    "requester": "Maria"
   }
 ]
 ```
