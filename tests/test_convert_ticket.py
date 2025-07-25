@@ -4,7 +4,6 @@ import pytest
 
 from shared.models import (
     Impact,
-    Priority,
     RawTicketDTO,
     TicketStatus,
     TicketType,
@@ -30,7 +29,7 @@ def test_convert_ticket_enum_mapping() -> None:
     ticket = convert_ticket(raw)
 
     assert ticket.status is TicketStatus.NEW
-    assert ticket.priority is Priority.LOW
+    assert ticket.priority == "Baixa"
     assert ticket.urgency is Urgency.MEDIUM
     assert ticket.impact is Impact.HIGH
     assert ticket.type is TicketType.INCIDENT
@@ -68,4 +67,4 @@ def test_convert_ticket_missing_name(raw_name: str | None) -> None:
 
     ticket = convert_ticket(raw)
 
-    assert ticket.name == "[Título não informado]"
+    assert ticket.title == "[Título não informado]"
