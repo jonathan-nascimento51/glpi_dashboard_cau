@@ -44,7 +44,7 @@ def mock_glpi_session():
         (
             "search/Ticket",
             {},
-            "Ticket",
+            "search/Ticket",
             {
                 "forcedisplay": glpi_api_client.FORCED_DISPLAY_FIELDS,
                 "expand_dropdowns": 1,
