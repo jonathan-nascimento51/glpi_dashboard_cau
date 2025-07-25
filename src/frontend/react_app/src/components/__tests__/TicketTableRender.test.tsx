@@ -7,6 +7,7 @@ const ticket: Ticket = {
   name: 'Chamado muito longo com titulo extensivo que precisa ser truncado',
   status: 'New',
   priority: 'High',
+  requester: 'Alice',
   date_creation: new Date('2023-10-27T10:00:00Z'),
 }
 
@@ -16,6 +17,7 @@ describe('TicketTable formatting', () => {
     const titleCell = screen.getByText(ticket.name)
     expect(titleCell).toHaveAttribute('title', ticket.name)
     expect(screen.getByText('High')).toHaveClass('text-red-600')
+    expect(screen.getByText('Alice')).toBeInTheDocument()
     const formatted = new Intl.DateTimeFormat('pt-BR', {
       dateStyle: 'short',
       timeStyle: 'short',
@@ -26,10 +28,11 @@ describe('TicketTable formatting', () => {
   it('displays fallbacks when data is missing', () => {
     render(<TicketTable tickets={[{ id: 99 } as Ticket]} />)
     const row = screen.getAllByRole('row')[1]
-    expect(row).toHaveTextContent('Sem prioridade')
-    // priority and date columns should show "-"
-    const dashes = row.querySelectorAll('div')
-    const dashCount = Array.from(dashes).filter((d) => d.textContent === '-').length
-    expect(dashCount).toBeGreaterThanOrEqual(2)
+    // requester, priority and date columns should show the fallback "—" or "-"
+    const cells = row.querySelectorAll('div')
+    const fallbackCount = Array.from(cells).filter((d) => d.textContent === '—' || d.textContent === '-').length
+    // Number of columns (requester, priority, date) expected to show fallback values when data is missing
+    const FALLBACK_COLUMN_COUNT = 3
+    expect(fallbackCount).toBeGreaterThanOrEqual(FALLBACK_COLUMN_COUNT)
   })
 })
