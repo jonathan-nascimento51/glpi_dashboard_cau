@@ -7,7 +7,7 @@ export default function NotificationToast() {
       {notifications.map((n) => (
         <div
           key={n.id}
-          className={`notification-toast show ${n.type}`}
+          className={`fixed top-0 right-0 p-4 block ${n.type === 'error' ? 'bg-red-500' : n.type === 'success' ? 'bg-green-500' : 'bg-gray-500'}`}
           role="alert"
         >
           {n.message}
