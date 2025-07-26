@@ -9,12 +9,18 @@ afterEach(() => {
   global.fetch = originalFetch
 })
 
-const queryClient = new QueryClient()
-const wrapper = ({ children }: { children: React.ReactNode }) => (
-  <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-)
+let queryClient: QueryClient
+const createWrapper = () => {
+  queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  })
+  return ({ children }: { children: React.ReactNode }) => (
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+  )
+}
 
 test('fetches search results', async () => {
+  const wrapper = createWrapper()
   ;(global.fetch as jest.Mock).mockResolvedValue({
     ok: true,
     json: () => Promise.resolve([{ id: 1, name: 'ticket' }]),

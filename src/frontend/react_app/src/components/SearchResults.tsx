@@ -1,5 +1,6 @@
 import type { FC } from 'react'
 import { useSearch } from '../hooks/useSearch'
+import { useDebounce } from '../hooks/useDebounce'
 import { LoadingSpinner } from './LoadingSpinner'
 import { ErrorMessage } from './ErrorMessage'
 
@@ -9,7 +10,8 @@ interface Props {
 }
 
 const SearchResults: FC<Props> = ({ term, visible }) => {
-  const { data, isLoading, isError } = useSearch(term)
+  const debouncedTerm = useDebounce(term, 300)
+  const { data, isLoading, isError } = useSearch(debouncedTerm)
 
   if (!visible) return null
 
@@ -30,11 +32,14 @@ const SearchResults: FC<Props> = ({ term, visible }) => {
   }
 
   if (!data || data.length === 0) {
-    return (
-      <div className="search-results show">
-        <div className="no-results-message">Nenhum resultado encontrado</div>
-      </div>
-    )
+    if (debouncedTerm.trim().length > 0) {
+      return (
+        <div className="search-results show">
+          <div className="search-result-item">Nenhum resultado encontrado</div>
+        </div>
+      )
+    }
+    return null
   }
 
   return (
