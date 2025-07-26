@@ -24,9 +24,13 @@ jest.mock('@/hooks/useFilters', () => {
   }
 })
 
-test('toggles panel visibility', () => {
+test('aria-expanded toggles and focus returns to trigger', () => {
   render(<FilterPanel />)
   const btn = screen.getByRole('button')
+  expect(btn).toHaveAttribute('aria-expanded', 'false')
   fireEvent.click(btn)
-  expect(btn).toBeInTheDocument()
+  expect(btn).toHaveAttribute('aria-expanded', 'true')
+  fireEvent.click(screen.getByLabelText('Fechar filtros'))
+  expect(btn).toHaveAttribute('aria-expanded', 'false')
+  expect(document.activeElement).toBe(btn)
 })
