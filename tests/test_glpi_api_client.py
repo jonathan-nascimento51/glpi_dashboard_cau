@@ -3,33 +3,49 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 
 from backend.application.glpi_api_client import (
+    BASE_TICKET_FIELDS,
     GlpiApiClient,
 )
 
 
 @pytest.mark.asyncio
-async def test_populate_forced_fields(monkeypatch):
+async def test_populate_forced_fields_cache_hit(monkeypatch):
     session = MagicMock()
+    search_cache = MagicMock()
+    search_cache.get = AsyncMock(return_value=[7, 8, 9])
+    search_cache.set = AsyncMock()
+    mapper = MagicMock(search_cache=search_cache, cache_ttl_seconds=86400)
+    mapper.get_ticket_field_ids = AsyncMock()
     monkeypatch.setattr(
-        "backend.application.glpi_api_client.MappingService",
-        lambda *a, **k: MagicMock(),
+        "backend.application.glpi_api_client.MappingService", lambda *a, **k: mapper
     )
-    session.list_search_options = AsyncMock(
-        return_value={
-            "1": {"field": "id"},
-            "2": {"field": "name"},
-            "3": {"field": "date"},
-            "4": {"field": "priority"},
-            "5": {"field": "status"},
-            "6": {"field": "users_id_assign"},
-        }
+
+    client = GlpiApiClient(session=session)
+    await client._populate_forced_fields()
+
+    assert client._forced_fields == [7, 8, 9]
+    mapper.get_ticket_field_ids.assert_not_called()
+    search_cache.set.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_populate_forced_fields_lookup(monkeypatch):
+    session = MagicMock()
+    search_cache = MagicMock()
+    search_cache.get = AsyncMock(return_value=None)
+    search_cache.set = AsyncMock()
+    mapper = MagicMock(search_cache=search_cache, cache_ttl_seconds=86400)
+    mapper.get_ticket_field_ids = AsyncMock(return_value=[1, 2, 3, 4, 5, 6])
+    monkeypatch.setattr(
+        "backend.application.glpi_api_client.MappingService", lambda *a, **k: mapper
     )
 
     client = GlpiApiClient(session=session)
     await client._populate_forced_fields()
 
     assert client._forced_fields == [1, 2, 3, 4, 5, 6]
-    session.list_search_options.assert_awaited_once_with("Ticket")
+    mapper.get_ticket_field_ids.assert_awaited_once_with(BASE_TICKET_FIELDS)
+    search_cache.set.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -60,7 +76,8 @@ async def test_resolve_ticket_fields(monkeypatch):
 @pytest.mark.asyncio
 async def test_get_all_paginated_maps_fields(monkeypatch):
     session = MagicMock()
-    session.list_search_options = AsyncMock(
+    mapper = MagicMock()
+    mapper.get_search_options = AsyncMock(
         return_value={"1": {"field": "id"}, "2": {"field": "name"}}
     )
 
@@ -79,10 +96,11 @@ async def test_get_all_paginated_maps_fields(monkeypatch):
 
     monkeypatch.setattr(
         "backend.application.glpi_api_client.MappingService",
-        lambda *a, **k: MagicMock(initialize=AsyncMock()),
+        lambda *a, **k: mapper,
     )
     monkeypatch.setattr(
-        "backend.application.glpi_api_client.TicketTranslator", MagicMock
+        "backend.application.glpi_api_client.TicketTranslator",
+        lambda *a, **k: MagicMock(),
     )
 
     client = GlpiApiClient(session=session)
