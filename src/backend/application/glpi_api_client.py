@@ -56,8 +56,15 @@ class GlpiApiClient:
         if self._forced_fields:
             return
         try:
-            ids = await self._mapper.get_ticket_field_ids(BASE_TICKET_FIELDS)
-            if ids:
+            options = await self._session.list_search_options("Ticket")
+            field_map = {
+                info.get("field"): int(fid)
+                for fid, info in options.items()
+                if isinstance(info, dict) and info.get("field")
+            }
+            if ids := [
+                field_map[name] for name in BASE_TICKET_FIELDS if name in field_map
+            ]:
                 self._forced_fields[:] = ids
                 return
         except Exception as exc:  # pragma: no cover - defensive
@@ -73,6 +80,35 @@ class GlpiApiClient:
         tb: Optional[Any],
     ) -> None:
         await self._session.__aexit__(exc_type, exc, tb)
+
+    async def _map_numeric_fields_to_names(
+        self, itemtype: str, records: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
+        """Replace numeric keys in ``records`` with field names."""
+        try:
+            options = await self._session.list_search_options(itemtype)
+        except Exception:  # pragma: no cover - best effort
+            return records
+
+        id_to_name: Dict[int, str] = {}
+        for fid, info in options.items():
+            if not isinstance(info, dict):
+                continue
+            name = info.get("field")
+            if not name:
+                continue
+            try:
+                id_to_name[int(fid)] = name
+            except (ValueError, TypeError):
+                continue
+
+        for record in records:
+            for key in list(record.keys()):
+                if isinstance(key, int) or (isinstance(key, str) and key.isdigit()):
+                    fid = int(key)
+                    if name := id_to_name.get(fid):
+                        record[name] = record.pop(key)
+        return records
 
     async def _resolve_ticket_fields(self) -> None:
         """Discover essential Ticket field IDs dynamically."""
@@ -137,7 +173,8 @@ class GlpiApiClient:
                 endpoint, params=page_params, return_headers=True
             )
 
-        return await paginate_items(itemtype, fetch_page, page_size=page_size)
+        items = await paginate_items(itemtype, fetch_page, page_size=page_size)
+        return await self._map_numeric_fields_to_names(normalized_itemtype, items)
 
     async def fetch_tickets(self) -> List[CleanTicketDTO]:
         """Return translated tickets from the GLPI API."""
