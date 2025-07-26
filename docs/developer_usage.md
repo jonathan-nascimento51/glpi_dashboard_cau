@@ -15,7 +15,7 @@ Principais módulos do projeto:
 | `src/frontend/layout/layout.py` | Layout e callbacks do dashboard em Dash |
 | `src/backend/services/worker_api.py` | Lógica de cache e métricas usadas pelo `worker.py` |
 | `shared/config/settings.py` | Carrega variáveis de ambiente (GLPI, DB, Redis) |
-| `src/frontend/react_app/` | Projeto Next.js que consome o worker API |
+| `src/frontend/react_app/` | Projeto Vite + React que consome o worker API |
 
 Os módulos da Anti-Corruption Layer residem em `src/backend/adapters`. Importe-os diretamente desse pacote. O antigo `glpi_adapter.py` foi removido durante a refatoração.
 
@@ -161,7 +161,7 @@ Isso sobe PostgreSQL, Redis, o `worker` e o dashboard em portas 8000 e 5174.
 ├── src/
 │   ├── backend/   # serviços FastAPI e integrações GLPI
 │   ├── frontend/  # layout do dashboard em Dash
-│   ├── frontend/react_app/  # projeto React/Next.js
+│   ├── frontend/react_app/  # projeto Vite + React
 │   └── shared/    # modelos e utilidades comuns
 ├── examples/      # códigos de referência e testes
 ├── tests/         # suíte pytest

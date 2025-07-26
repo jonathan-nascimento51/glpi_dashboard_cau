@@ -4,7 +4,7 @@ Welcome to the GLPI Dashboard project. This guide helps you set up the developme
 
 ## Overview
 
-The dashboard aggregates GLPI service desk metrics using a FastAPI backend and a Next.js frontend. Postgres stores ticket data and Redis caches frequent queries.
+The dashboard aggregates GLPI service desk metrics using a FastAPI backend and a Vite-powered React frontend. Postgres stores ticket data and Redis caches frequent queries.
 
 ## Getting Started
 
@@ -48,7 +48,7 @@ The dashboard aggregates GLPI service desk metrics using a FastAPI backend and a
 ```text
 ├── src/backend/   # worker FastAPI modules
 ├── src/frontend/  # Dash components
-├── src/frontend/react_app/      # Next.js application
+├── src/frontend/react_app/      # Vite + React application
 ├── docs/          # documentation and ADRs
 ├── monitoring/    # Prometheus/Grafana config
 └── tests/         # pytest suite
@@ -66,7 +66,7 @@ flowchart TB
         Cache[(Redis)]
     end
     subgraph Frontend
-        Next[Next.js]
+        React[Vite]
     end
     API -- tickets --> DB
     API -- metrics --> Cache
