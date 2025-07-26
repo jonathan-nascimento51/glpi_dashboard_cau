@@ -6,7 +6,8 @@ const fs = require('fs');
  */
 module.exports = function transformer(fileInfo, api, options) {
   const j = api.jscodeshift;
-  const mappingPath = options.map || 'scripts/refactor/file_map.json';
+const DEFAULT_MAPPING_PATH = 'scripts/refactor/file_map.json';
+const mappingPath = options.map || DEFAULT_MAPPING_PATH;
   const raw = JSON.parse(fs.readFileSync(mappingPath, 'utf8'));
 
   const aliasMap = buildAliasMap(raw);
