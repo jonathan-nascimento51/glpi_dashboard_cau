@@ -7,7 +7,7 @@ import App from './App';
 import './index.css';
 
 // Start measuring from the initial navigation start point
-const navigationStart = performance.timing.navigationStart;
+const navigationStart = performance.getEntriesByType('navigation')[0]?.startTime || performance.timeOrigin;
 
 const queryClient = new QueryClient();
 const faroURL = import.meta.env.NEXT_PUBLIC_FARO_URL;
