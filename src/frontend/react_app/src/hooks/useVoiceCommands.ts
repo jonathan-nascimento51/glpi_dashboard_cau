@@ -20,10 +20,17 @@ export function useVoiceCommands() {
     recognition.lang = 'pt-BR'
     recognition.interimResults = false
     recognition.onresult = (e: SpeechRecognitionEvent) => {
-      const transcript = Array.from(e.results)
-        .map((r) => r[0].transcript)
-        .join(' ')
-      processCommand(transcript.trim().toLowerCase())
+      const res: SpeechRecognitionResultList = e.results
+      if (!res || typeof res[Symbol.iterator] !== 'function') return
+      Array.from(res).forEach((result: SpeechRecognitionResult) => {
+        if (!result || typeof result[Symbol.iterator] !== 'function') return
+        Array.from(result).forEach((item: SpeechRecognitionAlternative) => {
+          const transcript = item.transcript?.trim().toLowerCase()
+          if (transcript) {
+            processCommand(transcript)
+          }
+        })
+      })
     }
     recognition.onend = () => setIsListening(false)
     return recognition
@@ -46,7 +53,13 @@ export function useVoiceCommands() {
 
   useEffect(() => {
     return () => {
-      recognitionRef.current?.stop()
+      const recognition = recognitionRef.current
+      if (recognition) {
+        // avoid updating state after unmount
+        recognition.onend = null
+        recognition.onresult = null
+        recognition.stop()
+      }
     }
   }, [])
 
