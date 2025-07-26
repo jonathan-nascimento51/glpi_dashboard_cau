@@ -1,11 +1,16 @@
 # Testing Guide
 
-The test suite relies on several optional libraries and expects coverage to be enabled by default. Install all runtime and development dependencies **before** invoking pytest:
+The test suite relies on several optional libraries (such as **Playwright**) and expects coverage to be enabled by default. Install **all** runtime and development dependencies before invoking pytest:
 
 ```bash
 pip install -r requirements.txt -r requirements-dev.txt  # generated via pip-compile
 pip install -e .
 ```
+
+After installing the packages, run the following to make the browsers available:
+
+```bash
+playwright install
 
 Running a subset of tests can cause failures because `pytest.ini` enforces 85% coverage:
 
@@ -24,11 +29,13 @@ PYTEST_ADDOPTS="" pytest tests/test_worker_api.py
 
 ### Troubleshooting missing modules
 
-`ModuleNotFoundError` typically means dependencies were not installed. Common cases are:
+`ModuleNotFoundError` typically means development dependencies were not installed. Common cases are:
 
 - `aiohttp` required by the async GLPI client
 - `pydantic>=2` for data models
+- `playwright` for end-to-end tests
 
 Ensure both requirement files are installed and that your virtual environment is active.
+Missing any of these packages will cause import errors during test collection.
 The backend tests expect environment variables like `GLPI_BASE_URL` to be set.
 Create a `.env` file or export minimal values (e.g. `GLPI_BASE_URL=http://example.com/apirest.php`) before running `pytest`.
