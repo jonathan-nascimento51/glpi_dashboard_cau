@@ -69,6 +69,82 @@ describe('useVoiceCommands', () => {
       'Recognized voice command:',
       'hello world'
     )
+
+    debugSpy.mockRestore()
+  })
+
+  it('processes multiple transcripts in results', () => {
+    const { result } = renderHook(() => useVoiceCommands())
+    const debugSpy = jest.spyOn(console, 'debug').mockImplementation(() => {})
+
+    act(() => {
+      result.current.startListening()
+    })
+
+    const event = { results: [[{ transcript: 'first command' }, { transcript: 'second command' }]] }
+    act(() => {
+      recognitionInstance.triggerResult(event)
+    })
+
+    expect(debugSpy).toHaveBeenCalledWith(
+      'Recognized voice command:',
+      'first command'
+    )
+    expect(debugSpy).toHaveBeenCalledWith(
+      'Recognized voice command:',
+      'second command'
+    )
+
+    debugSpy.mockRestore()
+  })
+
+  it('handles empty results gracefully', () => {
+    const { result } = renderHook(() => useVoiceCommands())
+    const debugSpy = jest.spyOn(console, 'debug').mockImplementation(() => {})
+
+    act(() => {
+      result.current.startListening()
+    })
+
+    const event = { results: [] }
+    act(() => {
+      recognitionInstance.triggerResult(event)
+    })
+
+    expect(debugSpy).not.toHaveBeenCalled()
+
+    debugSpy.mockRestore()
+  })
+
+  it('handles unexpected result structures gracefully', () => {
+    const { result } = renderHook(() => useVoiceCommands())
+    const debugSpy = jest.spyOn(console, 'debug').mockImplementation(() => {})
+
+    act(() => {
+      result.current.startListening()
+    })
+
+    // results is undefined
+    const event1 = {}
+    act(() => {
+      recognitionInstance.triggerResult(event1)
+    })
+
+    // results is not an array
+    const event2 = { results: null }
+    act(() => {
+      recognitionInstance.triggerResult(event2)
+    })
+
+    // results is array but contains non-array
+    const event3 = { results: [null] }
+    act(() => {
+      recognitionInstance.triggerResult(event3)
+    })
+
+    expect(debugSpy).not.toHaveBeenCalled()
+
+    debugSpy.mockRestore()
   })
 
   it('sets isListening to false on end', () => {
