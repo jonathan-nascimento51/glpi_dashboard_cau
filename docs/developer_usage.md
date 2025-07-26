@@ -76,6 +76,7 @@ Endpoints relevantes:
 - `/tickets` – lista completa de chamados
 - A resposta inclui os campos `priority` e `requester` em formato textual.
 - `/metrics` – contagem de abertos/fechados
+- `/tickets/search` – busca tickets pelo nome com `?query=<termo>&limit=<n>`
 - `/graphql/` – versão GraphQL
 - `/cache/stats` – estatísticas de cache
 
