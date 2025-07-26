@@ -18,8 +18,8 @@ describe('FilterPanel', () => {
   test('toggling options updates filter state', async () => {
     render(<FilterPanel />)
     fireEvent.click(screen.getByRole('button', { name: /Abrir filtros/i }))
-    const option = screen.getByText('today').closest('.filter-option') as HTMLElement
-    expect(option.querySelector('.filter-checkbox')).toHaveClass('checked')
+    const option = screen.getByTestId('filter-today')
+    expect(option.querySelector('[data-testid="filter-checkbox"]')).toHaveClass('checked')
     fireEvent.click(option)
     await waitFor(() =>
       expect(screen.queryByText('today')).not.toBeInTheDocument(),
