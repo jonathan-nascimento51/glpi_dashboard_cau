@@ -1,10 +1,17 @@
 import { type FC, useCallback } from 'react'
 import { useThemeSwitcher } from '../hooks/useThemeSwitcher'
 import { useFilters } from '../hooks/useFilters'
+import { useVoiceCommands } from '../hooks/useVoiceCommands'
+import VoiceIndicator from './VoiceIndicator'
 
 const Header: FC = () => {
   const { theme, setTheme } = useThemeSwitcher()
   const { toggleFilters } = useFilters()
+  const { isListening, startListening, stopListening } = useVoiceCommands()
+  const toggleVoice = useCallback(
+    () => (isListening ? stopListening() : startListening()),
+    [isListening, startListening, stopListening],
+  )
 
   const setLight = useCallback(() => setTheme('light'), [setTheme])
   const setDark = useCallback(() => setTheme('dark'), [setTheme])
@@ -70,8 +77,13 @@ const Header: FC = () => {
           <i className="fas fa-filter" />
           <span>Filtros</span>
         </button>
+        <button className="refresh-btn" onClick={toggleVoice}>
+          <i className="fas fa-microphone" />
+          <span>{isListening ? 'Parar' : 'Falar'}</span>
+        </button>
         <div className="current-time" id="currentTime" />
       </div>
+      <VoiceIndicator isListening={isListening} />
     </header>
   )
 }
