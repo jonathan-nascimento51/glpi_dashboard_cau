@@ -1,43 +1,20 @@
 import { type FC, useCallback, useEffect, useRef } from 'react'
 import { useFilters } from '../hooks/useFilters'
+import { useFocusTrap } from '../hooks/useFocusTrap'
 
 const FilterPanel: FC = () => {
   const { filters, toggleFilters, toggleValue } = useFilters()
 
   const panelRef = useRef<HTMLDivElement>(null)
+  const toggleRef = useRef<HTMLButtonElement>(null)
+
+  useFocusTrap(panelRef, filters.open, toggleFilters)
 
   useEffect(() => {
-    if (!filters.open || !panelRef.current) return
-
-    const focusable = panelRef.current.querySelectorAll<HTMLElement>(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
-    )
-    const first = focusable[0]
-    const last = focusable[focusable.length - 1]
-    first?.focus()
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Tab') {
-        if (focusable.length === 0) return
-        if (e.shiftKey) {
-          if (document.activeElement === first) {
-            e.preventDefault()
-            last.focus()
-          }
-        } else if (document.activeElement === last) {
-          e.preventDefault()
-          first.focus()
-        }
-      } else if (e.key === 'Escape') {
-        toggleFilters()
-      }
+    if (!filters.open) {
+      toggleRef.current?.focus()
     }
-
-    panelElement.addEventListener('keydown', handleKeyDown)
-    return () => {
-      panelElement.removeEventListener('keydown', handleKeyDown)
-    }
-  }, [filters.open, toggleFilters])
+  }, [filters.open])
 
   const renderOptions = useCallback(
     (category: keyof Omit<typeof filters, 'open'>) => {
@@ -61,13 +38,25 @@ const FilterPanel: FC = () => {
   )
 
   return (
-    <div
-      className={`filter-panel ${filters.open ? 'open' : ''}`}
-      id="filterPanel"
-      role="dialog"
-      aria-modal="true"
-      ref={panelRef}
-    >
+    <>
+      <button
+        ref={toggleRef}
+        onClick={toggleFilters}
+        className="filter-toggle"
+        aria-controls="filterPanel"
+        aria-expanded={filters.open}
+        aria-haspopup="menu"
+      >
+        <i className="fas fa-filter" aria-hidden="true" />
+        <span className="sr-only">Abrir filtros</span>
+      </button>
+      <div
+        className={`filter-panel ${filters.open ? 'open' : ''}`}
+        id="filterPanel"
+        role="dialog"
+        aria-modal="true"
+        ref={panelRef}
+      >
       <div className="filter-header">
         <div className="filter-title">Filtros Avançados</div>
         <button className="filter-close" onClick={toggleFilters} title='Fechar filtros'>
@@ -91,6 +80,7 @@ const FilterPanel: FC = () => {
         <div className="filter-options">{renderOptions('priority')}</div>
       </div>
     </div>
+    </>
   )
 }
 
