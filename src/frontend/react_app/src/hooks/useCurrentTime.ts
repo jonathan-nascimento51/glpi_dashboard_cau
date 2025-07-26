@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 
 export function useCurrentTime(): string {
-  const [time, setTime] = useState('')
+  const [time, setTime] = useState(new Date().toLocaleTimeString('pt-BR', { hour12: false }))
 
   useEffect(() => {
     const update = () => {
