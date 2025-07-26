@@ -106,8 +106,7 @@ class GlpiApiClient:
             for key in list(record.keys()):
                 if isinstance(key, int) or (isinstance(key, str) and key.isdigit()):
                     fid = int(key)
-                    name = id_to_name.get(fid)
-                    if name:
+                    if name := id_to_name.get(fid):
                         record[name] = record.pop(key)
         return records
 
