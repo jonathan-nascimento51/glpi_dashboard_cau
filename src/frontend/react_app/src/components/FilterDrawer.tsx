@@ -1,4 +1,4 @@
-import { Drawer, DrawerContent, DrawerClose } from '@/components/ui/drawer'
+import { Drawer, DrawerContent, DrawerClose, DrawerTitle } from '@/components/ui/drawer'
 import { Button } from '@/components/ui/button'
 
 export function FilterDrawer() {
@@ -6,7 +6,7 @@ export function FilterDrawer() {
     <Drawer>
       <DrawerContent className="space-y-4">
         <div className="flex items-center justify-between border-b pb-2">
-          <h2 className="text-lg font-semibold">Filtros</h2>
+          <DrawerTitle className="text-lg font-semibold">Filtros</DrawerTitle>
           <DrawerClose asChild>
             <Button variant="ghost" aria-label="Fechar">
               <i className="fas fa-times" />

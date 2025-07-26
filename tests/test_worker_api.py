@@ -117,6 +117,15 @@ def test_rest_endpoints(test_app: TestClient):
     assert metrics == {"total": 2, "opened": 0, "closed": 2}
 
 
+def test_ticket_search_endpoint(dummy_cache: DummyCache) -> None:
+    client = TestClient(create_app(client=FakeClient(), cache=dummy_cache))
+
+    resp = client.get("/tickets/search", params={"query": "Search"})
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data and data[0]["id"] == 3
+
+
 def test_aggregated_metrics(dummy_cache: DummyCache):
     dummy_cache.data["metrics_aggregated"] = {"status": {}, "per_user": {}}
     client = TestClient(create_app(client=FakeClient(), cache=dummy_cache))

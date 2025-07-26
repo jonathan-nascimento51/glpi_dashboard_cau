@@ -210,21 +210,14 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
             client=client, cache=cache, response=response
         )
 
-    @app.get("/tickets/search", response_model=list[TicketSearchResult])
-    async def tickets_search(query: str, limit: int = 20) -> list[dict[str, Any]]:  # noqa: F401
-        """Return tickets filtered by ``query`` matching the name field."""
+    @app.get("/tickets/search", response_model=list[CleanTicketDTO])
+    async def tickets_search(query: str, limit: int = 5) -> list[CleanTicketDTO]:  # noqa: F401
+        """Return tickets matching ``query`` by name."""
 
-        if not query:
+        if not query.strip():
             return []
-
-        df = await load_tickets(client=client, cache=cache)
-        name_series = df.get("name")
-        if name_series is None:
-            return []
-        mask = name_series.astype(str).str.contains(query, case=False, na=False)
-        subset = df.loc[mask, ["id", "name", "requester"]].head(limit)
-        records = subset.astype(object).where(pd.notna(subset), None)
-        return cast(list[dict[str, Any]], records.to_dict(orient="records"))
+        async with client:
+            return await client.search_tickets(query, limit=limit)
 
     @app.get("/tickets/stream")
     async def tickets_stream(response: Response) -> StreamingResponse:  # noqa: F401
