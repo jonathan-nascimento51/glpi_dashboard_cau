@@ -21,6 +21,22 @@ test('renders results', () => {
   expect(screen.getByText('T1')).toBeInTheDocument()
 })
 
+test('container has listbox role', () => {
+  const result: Partial<UseQueryResult<useSearchHook.SearchResult[], Error>> = {
+    data: [{ id: 1, name: 'T1', requester: undefined }],
+    isLoading: false,
+    isError: false,
+  }
+  mockUseSearch.useSearch.mockReturnValue(
+    result as UseQueryResult<useSearchHook.SearchResult[], Error>,
+  )
+
+  render(<SearchResults term="t" visible={true} />)
+  const listbox = screen.getByRole('listbox')
+  expect(listbox).toHaveAttribute('id', 'search-results')
+  expect(screen.getAllByRole('option').length).toBe(1)
+})
+
 test('shows loading spinner', () => {
   const result: Partial<UseQueryResult<useSearchHook.SearchResult[], Error>> = {
     data: undefined,

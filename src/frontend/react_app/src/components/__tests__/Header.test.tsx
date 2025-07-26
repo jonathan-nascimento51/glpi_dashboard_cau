@@ -4,11 +4,12 @@ import Header from '../Header'
 describe('Header', () => {
   it('renders brand title', () => {
     render(<Header />)
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Centro de Comando')
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Dashboard')
   })
 
-  it('shows voice toggle button', () => {
+  it('links search input to results', () => {
     render(<Header />)
-    expect(screen.getByRole('button', { name: /falar/i })).toBeInTheDocument()
+    const input = screen.getByPlaceholderText('Buscar...')
+    expect(input).toHaveAttribute('aria-controls', 'search-results')
   })
 })
