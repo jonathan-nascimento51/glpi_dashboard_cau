@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useApiQuery } from './useApiQuery'
 import type { FiltersState } from './useFilters'
@@ -8,6 +8,7 @@ import { buildQueryString } from '../lib/buildQueryString'
 import { stableStringify } from '../lib/stableStringify'
 import type { Chart as ChartType } from 'chart.js'
 import type { DashboardStats } from '../types/dashboard'
+import { useSparkline } from './useSparkline'
 import {
   scheduleIdleCallback,
   cancelIdleCallback,
@@ -39,6 +40,12 @@ export function useDashboardData(filters?: FiltersState) {
     progress: query.data?.status?.progress ?? 0,
     resolved: query.data?.status?.resolved ?? 0,
   }
+  const [history, setHistory] = useState<Record<keyof Metrics, number[]>>({
+    new: [],
+    pending: [],
+    progress: [],
+    resolved: [],
+  })
   const trendChart = useRef<ChartType | null>(null)
   const sparkRefs = {
     new: useRef<HTMLCanvasElement>(null),
@@ -46,6 +53,21 @@ export function useDashboardData(filters?: FiltersState) {
     progress: useRef<HTMLCanvasElement>(null),
     resolved: useRef<HTMLCanvasElement>(null),
   }
+
+  useSparkline(sparkRefs.new, history.new)
+  useSparkline(sparkRefs.pending, history.pending)
+  useSparkline(sparkRefs.progress, history.progress)
+  useSparkline(sparkRefs.resolved, history.resolved)
+
+  useEffect(() => {
+    if (!query.data) return
+    setHistory((prev) => ({
+      new: [...prev.new.slice(-19), metrics.new],
+      pending: [...prev.pending.slice(-19), metrics.pending],
+      progress: [...prev.progress.slice(-19), metrics.progress],
+      resolved: [...prev.resolved.slice(-19), metrics.resolved],
+    }))
+  }, [metrics.new, metrics.pending, metrics.progress, metrics.resolved])
 
   useEffect(() => {
     let handle: IdleHandle | null = null
@@ -84,12 +106,19 @@ export function useDashboardData(filters?: FiltersState) {
     }
   }, [])
 
+  useEffect(() => {
+    if (filters) {
+      queryClient.invalidateQueries({ queryKey: ['metrics-aggregated'] })
+    }
+  }, [filters, queryClient])
+
   const refreshMetrics = () =>
     queryClient.invalidateQueries({ queryKey: ['metrics-aggregated'] })
 
   return {
     metrics,
     sparkRefs,
+    history,
     refreshMetrics,
     isLoading: query.isLoading,
     error: query.error as Error | null,

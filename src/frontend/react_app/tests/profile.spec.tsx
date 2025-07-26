@@ -11,6 +11,7 @@ jest.mock('../src/hooks/useDashboardData', () => ({
       progress: { current: null },
       resolved: { current: null },
     },
+    history: { new: [], pending: [], progress: [], resolved: [] },
   }),
 }))
 
