@@ -492,7 +492,7 @@ When the FastAPI service starts it primes the Redis cache by calling
 
 - The service exposes several endpoints:
 
- - `/tickets` – full list of tickets in JSON format. The payload includes the
+- `/tickets` – full list of tickets in JSON format. The payload includes the
    ticket `priority` label and the `requester` name when available.
  - `/tickets/search` – search tickets by name. Accepts `query` and optional
    `limit` parameters.
