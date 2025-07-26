@@ -45,7 +45,7 @@ const FilterPanel: FC = () => {
         className="filter-toggle"
         aria-controls="filterPanel"
         aria-expanded={filters.open}
-        aria-haspopup="dialog"
+        aria-haspopup="menu"
       >
         <i className="fas fa-filter" aria-hidden="true" />
         <span className="sr-only">Abrir filtros</span>
