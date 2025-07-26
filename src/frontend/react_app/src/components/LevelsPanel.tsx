@@ -74,7 +74,7 @@ const LevelsPanelComponent: FC<LevelsPanelProps> = ({ levels }) => {
                   {level.metrics.resolved}
                 </span>
               </div>
-            </div>
+              </button>
             </button>
         ))}
       </div>
