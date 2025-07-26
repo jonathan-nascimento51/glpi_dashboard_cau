@@ -47,5 +47,7 @@ export function useSparkline(
     }
   }, [canvasRef, data])
 
-  useEffect(() => () => chartRef.current?.destroy(), [])
+  useEffect(() => {
+    return () => chartRef.current?.destroy()
+  }, [chartRef.current])
 }
