@@ -7,7 +7,7 @@ import SearchResults from './SearchResults'
 export function Header() {
   const [term, setTerm] = useState('')
   const [visible, setVisible] = useState(false)
-  const inputRef = useRef<HTMLInputElement>(null)
+  
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
