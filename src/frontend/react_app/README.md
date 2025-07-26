@@ -28,3 +28,11 @@ The devtools component is mounted in `main.tsx` and conditionally rendered using
 Node.js 20 is expected. Run the commands from inside `src/frontend/react_app`.
 
 See the [frontend architecture guide](../../docs/frontend_architecture.md) for advanced configuration, environment variables and available npm scripts.
+
+## Theme switching
+
+The dashboard supports light, dark, corporate and tech color schemes. The
+`ThemeProvider` component persists the user's choice in `localStorage` and applies
+it to the `<html>` element via the `data-theme` attribute. Use the provided
+`ThemeSwitcher` component to toggle between modes. Your selection will be
+restored on the next visit.
