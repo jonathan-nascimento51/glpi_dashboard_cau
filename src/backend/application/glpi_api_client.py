@@ -210,7 +210,7 @@ class GlpiApiClient:
         criteria = [{"field": "name", "searchtype": "contains", "value": query}]
         raw = await self.get_all_paginated("Ticket", page_size=limit, criteria=criteria)
         translated: List[CleanTicketDTO] = []
-        for item in raw[:limit]:
+        for item in raw:
             try:
                 translated.append(await self._translator.translate_ticket(item))
             except Exception as exc:  # pragma: no cover - best effort
