@@ -98,7 +98,7 @@ class GlpiApiClient:
                 continue
             try:
                 id_to_name[int(fid)] = name
-            except (ValueError, TypeError):  # noqa: BLE001
+            except (ValueError, TypeError):
                 continue
 
         for record in records:
