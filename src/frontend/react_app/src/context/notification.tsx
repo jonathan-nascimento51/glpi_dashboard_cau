@@ -29,11 +29,18 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     (message: string, type: NotificationType = 'success') => {
       const id = ++idCounter
       setNotifications((prev) => [...prev, { id, message, type }])
-      setTimeout(() => remove(id), 4000)
+      const timeoutId = setTimeout(() => remove(id), 4000)
+      return timeoutId
     },
     [remove],
   )
 
+  useEffect(() => {
+    return () => {
+      // Clear all timeouts when the component unmounts
+      clearTimeout(timeoutId)
+    }
+  }, [])
   return (
     <NotificationContext.Provider value={{ notifications, notify, remove }}>
       {children}
