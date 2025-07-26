@@ -11,7 +11,7 @@ import SearchResults from './SearchResults'
 const SEARCH_BLUR_DELAY = 100
 
 const Header: FC = () => {
-  const { toggleFilters } = useFilters()
+  const { filters, toggleFilters } = useFilters()
   const { isListening, startListening, stopListening } = useVoiceCommands()
   const time = useCurrentTime()
   const toggleVoice = useCallback(
@@ -67,7 +67,12 @@ const Header: FC = () => {
           <i className="fas fa-sync-alt" />
           <span>Atualizar</span>
         </button>
-        <button className="refresh-btn" onClick={toggleFilters}>
+        <button
+          className="refresh-btn"
+          onClick={toggleFilters}
+          aria-controls="filterPanel"
+          aria-expanded={filters.open}
+        >
           <i className="fas fa-filter" />
           <span>Filtros</span>
         </button>
