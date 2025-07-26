@@ -1,19 +1,16 @@
-import { ErrorBoundary } from './components/ErrorBoundary'
-import DashboardLayout from './components/DashboardLayout'
-import { SidebarProvider } from './hooks/useSidebar'
-import { NotificationProvider } from './context/notification'
-import { useHotkeys } from './hooks/useHotkeys'
+import { Header } from './components/Header'
+import { FilterDrawer } from './components/FilterDrawer'
+import { MetricsSection } from './components/MetricsSection'
 
 function App() {
-  useHotkeys()
   return (
-    <ErrorBoundary>
-      <NotificationProvider>
-        <SidebarProvider>
-          <DashboardLayout />
-        </SidebarProvider>
-      </NotificationProvider>
-    </ErrorBoundary>
+    <div className="min-h-screen bg-background text-foreground">
+      <Header />
+      <FilterDrawer />
+      <main className="p-4">
+        <MetricsSection />
+      </main>
+    </div>
   )
 }
 
