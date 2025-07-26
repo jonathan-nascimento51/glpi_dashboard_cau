@@ -138,7 +138,6 @@ It reads `scripts/refactor/file_map.json`, moves each file with `git mv` and run
 `scripts/update-imports.js` with the appropriate `--oldPath` and `--newPath`
 options to update import statements automatically.
 
-
 ### Faro instrumentation
 
 Install the React tracing packages so the dashboard can report web vitals:

@@ -69,10 +69,13 @@ When the stack is running, access Grafana at <http://localhost:3001> and import 
 
 The development `docker-compose.override.yml` sets several environment variables for the Grafana service:
 
-* `GF_PLUGINS_BACKGROUNDINSTALLER_DISABLED=true` – disables automatic plugin installation during startup so builds remain deterministic.
-* `GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS` – optional list of plugin IDs that bypass signature checks. Set it only when using community plugins that are not signed.
-* `GF_DATABASE_SQLITE_ENABLE_WAL=true` – enables write-ahead logging for the embedded SQLite database, improving concurrency.
-* A healthcheck runs `wget --spider http://localhost:3000/login` to ensure the UI is reachable.
+- `GF_PLUGINS_BACKGROUNDINSTALLER_DISABLED=true` – disables automatic plugin installation during startup so builds remain deterministic.
+
+- `GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS` – optional list of plugin IDs that bypass signature checks. Set it only when using community plugins that are not signed.
+
+- `GF_DATABASE_SQLITE_ENABLE_WAL=true` – enables write-ahead logging for the embedded SQLite database, improving concurrency.
+
+- A healthcheck runs `wget --spider http://localhost:3000/login` to ensure the UI is reachable.
 
 ### Migrating Grafana to PostgreSQL
 

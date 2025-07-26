@@ -5,16 +5,20 @@ This document condenses the main steps from the README to get the dashboard runn
 ## 1. Prepare the environment
 
 1. Create the `.env` file from the template:
+
    ```bash
    python scripts/setup/setup_env.py
    ```
+
    Adjust the variables inside `.env` with your database and GLPI credentials.
    Docker Compose loads this file automatically when present.
 
 2. Install dependencies and configure pre-commit:
+
 ```bash
   bash scripts/setup/setup_env.sh
 ```
+
   This command creates the `.venv` directory, installs packages from
   `requirements.txt` and the dev dependencies defined in `pyproject.toml`
   (compiled into `requirements-dev.txt`), and sets up `pre-commit`.
@@ -36,6 +40,7 @@ This document condenses the main steps from the README to get the dashboard runn
    ```bash
    unset HTTP_PROXY HTTPS_PROXY
    ```
+
    Remove any leftover proxy entries from `.npmrc` as explained in
    [docs/solucoes_problemas.md](solucoes_problemas.md#11.1-unknown-env-config-http-proxy).
    If you prefer manual setup, execute:
@@ -44,9 +49,11 @@ This document condenses the main steps from the README to get the dashboard runn
   pip install -r requirements.txt -r requirements-dev.txt  # generated via pip-compile
   # includes dev tools like pytest-cov used by coverage checks
   ```
+
    before running the tests.
 
-3. (Optional) Authenticate the GitHub CLI if you use private repositories:
+1. (Optional) Authenticate the GitHub CLI if you use private repositories:
+
 ```bash
    export GITHUB_TOKEN=<token>
    bash scripts/setup/setup_github_access.sh
@@ -85,6 +92,7 @@ npm install         # installs dotenv, @eslint/js and other dev dependencies
 npm run dev
 npm run storybook   # optional: preview UI components locally
 ```
+
 The exact Node version is pinned in `.nvmrc` at the repository root.
 Docker Compose automatically loads `.env` when present.
 Docker can be used if you cannot install the required Node version.
