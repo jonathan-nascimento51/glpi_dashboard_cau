@@ -6,7 +6,7 @@ from shared.utils.resilience import (
     retry_api_call,
 )
 
-from .dto import CleanTicketDTO, TicketTranslator
+from .dto import CleanTicketDTO, TicketSearchResult, TicketTranslator
 from .models import (
     Impact,
     Priority,
@@ -21,6 +21,7 @@ __all__ = [
     "init_logging",
     "set_correlation_id",
     "CleanTicketDTO",
+    "TicketSearchResult",
     "TicketTranslator",
     "TicketStatus",
     "Priority",

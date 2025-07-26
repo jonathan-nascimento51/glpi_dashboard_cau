@@ -42,7 +42,10 @@ from backend.application.ticket_loader import (
 from backend.core.settings import (
     KNOWLEDGE_BASE_FILE,
 )
-from shared.dto import CleanTicketDTO  # imported from shared DTOs
+from shared.dto import (
+    CleanTicketDTO,
+    TicketSearchResult,
+)
 from shared.utils.api_auth import verify_api_key
 from shared.utils.json import UTF8JSONResponse
 from shared.utils.logging import init_logging
