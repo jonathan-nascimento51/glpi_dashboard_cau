@@ -1,4 +1,5 @@
 import { memo, type FC } from 'react'
+import { useModal } from '../hooks/useModal'
 
 export interface LevelData {
   name: string
@@ -10,6 +11,22 @@ export interface LevelsPanelProps {
 }
 
 const LevelsPanelComponent: FC<LevelsPanelProps> = ({ levels }) => {
+  const { openModal, modalElement } = useModal()
+
+  const showDetails = (level: LevelData) => {
+    openModal(
+      <div>
+        <h2 className="text-xl font-bold mb-4">{level.name}</h2>
+        <ul className="space-y-2">
+          <li>Novos: {level.metrics.new}</li>
+          <li>Progresso: {level.metrics.progress}</li>
+          <li>Pendente: {level.metrics.pending}</li>
+          <li>Resolvido: {level.metrics.resolved}</li>
+        </ul>
+      </div>,
+    )
+  }
+
   return (
     <div className="levels-section">
       <div className="levels-header">
@@ -20,9 +37,10 @@ const LevelsPanelComponent: FC<LevelsPanelProps> = ({ levels }) => {
       </div>
       <div className="levels-grid">
         {levels.map((level) => (
-          <div
+          <button
             key={level.name}
             className={`level-card ${level.name.toLowerCase()}`}
+            onClick={() => showDetails(level)}
           >
             <div className="level-header">
               <div className="level-badge">{level.name}</div>
@@ -54,6 +72,7 @@ const LevelsPanelComponent: FC<LevelsPanelProps> = ({ levels }) => {
           </div>
         ))}
       </div>
+      {modalElement}
     </div>
   )
 }
