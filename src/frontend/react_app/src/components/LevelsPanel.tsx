@@ -37,7 +37,7 @@ const LevelsPanelComponent: FC<LevelsPanelProps> = ({ levels }) => {
       </div>
       <div className="levels-grid">
         {levels.map((level) => (
-          <div
+          <button
             key={level.name}
             className={`level-card ${level.name.toLowerCase()}`}
             onClick={() => showDetails(level)}
