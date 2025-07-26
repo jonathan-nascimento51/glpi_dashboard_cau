@@ -6,16 +6,11 @@ export default function LevelsSection() {
   const levels = metrics
     ? Object.entries(metrics).map(([name, data]) => ({
         name,
-        metrics: { 
-          new: data.open, 
-          progress: data.progress !== undefined ? data.progress : 0, 
-          pending: data.pending !== undefined ? data.pending : 0, 
-          resolved: data.closed 
-        },
-          new: data.open, 
-          progress: data.progress !== undefined ? data.progress : 0, 
-          pending: data.pending !== undefined ? data.pending : 0, 
-          resolved: data.closed 
+        metrics: {
+          new: data.open,
+          progress: data.progress ?? 0,
+          pending: data.pending ?? 0,
+          resolved: data.closed,
         },
       }))
     : []

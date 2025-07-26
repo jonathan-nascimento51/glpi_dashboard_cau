@@ -1,21 +1,10 @@
-import { Suspense, lazy } from 'react'
-import TicketsDisplay from './TicketsDisplay'
-import SkeletonChart from './SkeletonChart'
-import SkeletonHeatmap from './SkeletonHeatmap'
-
-const ChamadosTendencia = lazy(() => import('./ChamadosTendencia'))
-const ChamadosHeatmap = lazy(() => import('./ChamadosHeatmap'))
-
-export default function MetricsSection() {
+export function MetricsSection() {
   return (
-    <section className="metrics-section">
-      <TicketsDisplay />
-      <Suspense fallback={<SkeletonChart />}>
-        <ChamadosTendencia />
-      </Suspense>
-      <Suspense fallback={<SkeletonHeatmap />}>
-        <ChamadosHeatmap />
-      </Suspense>
+    <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 p-4">
+      <div className="rounded-md border p-4">Métrica 1</div>
+      <div className="rounded-md border p-4">Métrica 2</div>
+      <div className="rounded-md border p-4">Métrica 3</div>
+      <div className="rounded-md border p-4">Métrica 4</div>
     </section>
   )
 }
