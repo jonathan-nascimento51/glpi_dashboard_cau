@@ -9,7 +9,7 @@ export function useVoiceCommands() {
     console.debug('Recognized voice command:', text)
   }, [])
 
-  const createRecognition = () => {
+  const createRecognition = useCallback(() => {
     const Speech =
       (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
     if (!Speech) return null
