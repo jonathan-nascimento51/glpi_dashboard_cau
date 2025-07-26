@@ -19,7 +19,7 @@ const Header: FC = () => {
 
   const handleFocus = () => setShowResults(true)
   const handleBlur = () => {
-    setTimeout(() => setShowResults(false), 100)
+    setTimeout(() => setShowResults(false), SEARCH_BLUR_DELAY)
   }
 
   const setLight = useCallback(() => setTheme('light'), [setTheme])
