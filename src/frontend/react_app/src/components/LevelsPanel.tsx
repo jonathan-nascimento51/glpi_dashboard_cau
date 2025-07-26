@@ -74,8 +74,8 @@ const LevelsPanelComponent: FC<LevelsPanelProps> = ({ levels }) => {
                   {level.metrics.resolved}
                 </span>
               </div>
-              </button>
-            </button>
+            </div>
+          </button>
         ))}
       </div>
       {modalElement}
