@@ -1,8 +1,43 @@
-import { type FC, useCallback } from 'react'
+import { type FC, useCallback, useEffect, useRef } from 'react'
 import { useFilters } from '../hooks/useFilters'
 
 const FilterPanel: FC = () => {
   const { filters, toggleFilters, toggleValue } = useFilters()
+
+  const panelRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!filters.open || !panelRef.current) return
+
+    const focusable = panelRef.current.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+    )
+    const first = focusable[0]
+    const last = focusable[focusable.length - 1]
+    first?.focus()
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Tab') {
+        if (focusable.length === 0) return
+        if (e.shiftKey) {
+          if (document.activeElement === first) {
+            e.preventDefault()
+            last.focus()
+          }
+        } else if (document.activeElement === last) {
+          e.preventDefault()
+          first.focus()
+        }
+      } else if (e.key === 'Escape') {
+        toggleFilters()
+      }
+    }
+
+    panelRef.current.addEventListener('keydown', handleKeyDown)
+    return () => {
+      panelRef.current?.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [filters.open, toggleFilters])
 
   const renderOptions = useCallback(
     (category: keyof Omit<typeof filters, 'open'>) => {
@@ -29,6 +64,9 @@ const FilterPanel: FC = () => {
     <div
       className={`filter-panel ${filters.open ? 'open' : ''}`}
       id="filterPanel"
+      role="dialog"
+      aria-modal="true"
+      ref={panelRef}
     >
       <div className="filter-header">
         <div className="filter-title">Filtros Avançados</div>

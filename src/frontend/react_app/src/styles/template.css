@@ -310,6 +310,13 @@
       transition: background-color var(--transition-fast);
     }
 
+    .search-result-item:focus-visible,
+    .search-result-item.active {
+      outline: 2px solid var(--primary);
+      outline-offset: -2px;
+      background: var(--surface-hover);
+    }
+
     .search-result-item:hover {
       background: var(--surface-hover);
     }
@@ -364,6 +371,11 @@
       transition: all var(--transition-fast);
     }
 
+    .filter-close:focus-visible {
+      outline: 2px solid var(--primary);
+      outline-offset: 2px;
+    }
+
     .filter-close:hover {
       background: var(--surface-hover);
       color: var(--text-primary);
@@ -396,6 +408,11 @@
       border-radius: 8px;
       cursor: pointer;
       transition: background-color var(--transition-fast);
+    }
+
+    .filter-option:focus-visible {
+      outline: 2px solid var(--primary);
+      outline-offset: 2px;
     }
 
     .filter-option:hover {
