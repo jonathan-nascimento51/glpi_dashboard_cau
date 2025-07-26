@@ -38,9 +38,9 @@ function useFocusTrap(ref: React.RefObject<HTMLDivElement>, isActive: boolean, o
         onClose()
       }
     }
-    root.addEventListener('keydown', handleKeyDown)
+    document.addEventListener('keydown', handleKeyDown)
     return () => {
-      root.removeEventListener('keydown', handleKeyDown)
+      document.removeEventListener('keydown', handleKeyDown)
       previouslyFocused?.focus()
     }
   }, [isActive, ref, onClose])
