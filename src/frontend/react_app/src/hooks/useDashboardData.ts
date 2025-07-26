@@ -67,7 +67,7 @@ export function useDashboardData(filters?: FiltersState) {
       progress: [...prev.progress.slice(-19), metrics.progress],
       resolved: [...prev.resolved.slice(-19), metrics.resolved],
     }))
-  }, [query.data])
+  }, [metrics.new, metrics.pending, metrics.progress, metrics.resolved])
 
   useEffect(() => {
     let handle: IdleHandle | null = null
