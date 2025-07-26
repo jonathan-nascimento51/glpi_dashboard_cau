@@ -12,7 +12,10 @@ export function useVoiceCommands() {
   const createRecognition = useCallback(() => {
     const Speech =
       (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
-    if (!Speech) return null
+    if (!Speech) {
+      alert('Reconhecimento de voz não está disponível neste navegador.');
+      return null;
+    }
     const recognition: SpeechRecognition = new Speech()
     recognition.lang = 'pt-BR'
     recognition.interimResults = false
