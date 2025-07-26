@@ -112,7 +112,6 @@ export function useDashboardData(filters?: FiltersState) {
     }
   }, [filters, queryClient])
 
-
   const refreshMetrics = () =>
     queryClient.invalidateQueries({ queryKey: ['metrics-aggregated'] })
 

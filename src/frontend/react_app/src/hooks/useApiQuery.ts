@@ -29,7 +29,7 @@ export function useApiQuery<T, E = Error>(
   options?: Omit<UseQueryOptions<T, E, T, QueryKey>, 'queryKey' | 'queryFn'>,
 ): UseQueryResult<T, E> {
   const metaEnv: Record<string, string | undefined> | undefined =
-    typeof import.meta !== 'undefined' && import.meta.env
+    typeof import.meta.env !== 'undefined' && import.meta.env
       ? import.meta.env
       : undefined;
 

@@ -30,11 +30,6 @@ export function useTickets(filters?: FiltersState) {
   )
   const tickets = useMemo(() => query.data?.map(toTicket), [query.data])
 
-  useEffect(() => {
-    if (filters) {
-      queryClient.invalidateQueries({ queryKey: ['tickets', serialized] })
-    }
-  }, [filters, queryClient])
 
   const refreshTickets = () =>
     queryClient.invalidateQueries({ queryKey: ['tickets', serialized] })

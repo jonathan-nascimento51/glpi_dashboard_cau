@@ -6,6 +6,9 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import App from './App';
 import './index.css';
 
+// Start measuring from the initial navigation start point
+const navigationStart = performance.getEntriesByType('navigation')[0]?.startTime || performance.timeOrigin;
+
 const queryClient = new QueryClient();
 const faroURL = import.meta.env.NEXT_PUBLIC_FARO_URL;
 
@@ -31,3 +34,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     </QueryClientProvider>
   </StrictMode>,
 );
+
+// Measure how long it took from navigation start to React hydration
+const hydrationTime = performance.now() - navigationStart;
+console.log(`⚡ React hydrated in ${hydrationTime.toFixed(2)}ms`);
