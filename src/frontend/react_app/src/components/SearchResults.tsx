@@ -30,7 +30,11 @@ const SearchResults: FC<Props> = ({ term, visible }) => {
   }
 
   if (!data || data.length === 0) {
-    return null
+    return (
+      <div className="search-results show">
+        <div className="no-results-message">Nenhum resultado encontrado</div>
+      </div>
+    )
   }
 
   return (
