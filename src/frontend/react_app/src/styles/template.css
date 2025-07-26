@@ -1109,16 +1109,23 @@
     }
 
     /* Notification Toast enhancements */
-    .notification-toast {
+    .notification-container {
       position: fixed;
       top: 20px;
       right: 20px;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: flex-end;
+    }
+
+    .notification-toast {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 16px;
       padding: 20px 24px;
       box-shadow: var(--shadow-xl);
-      z-index: 1000;
       transform: translateX(400px);
       opacity: 0;
       transition: all var(--transition-normal);
