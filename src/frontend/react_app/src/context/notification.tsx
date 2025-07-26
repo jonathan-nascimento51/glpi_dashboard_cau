@@ -1,4 +1,12 @@
-import { createContext, useCallback, useContext, useState, type ReactNode } from 'react'
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react'
 
 export type NotificationType = 'success' | 'warning' | 'error'
 
@@ -14,32 +22,39 @@ interface NotificationContextValue {
   remove: (id: number) => void
 }
 
-const NotificationContext = createContext<NotificationContextValue | undefined>(undefined)
-
-let idCounter = 0
+const NotificationContext = createContext<NotificationContextValue | undefined>(
+  undefined,
+)
 
 export function NotificationProvider({ children }: { children: ReactNode }) {
   const [notifications, setNotifications] = useState<Notification[]>([])
+  const idCounter = useRef(0)
+  const timeoutsRef = useRef<Record<number, ReturnType<typeof setTimeout>>>({})
+  const removeRef = useRef<(id: number) => void>(() => {})
 
   const remove = useCallback((id: number) => {
+    if (timeoutsRef.current[id]) {
+      clearTimeout(timeoutsRef.current[id])
+      delete timeoutsRef.current[id]
+    }
     setNotifications((prev) => prev.filter((n) => n.id !== id))
   }, [])
 
-  const notify = useCallback(
-    (message: string, type: NotificationType = 'success') => {
-      const id = ++idCounter
-      setNotifications((prev) => [...prev, { id, message, type }])
-      const timeoutId = setTimeout(() => remove(id), 4000)
-      return timeoutId
-    },
-    [remove],
-  )
+  useEffect(() => {
+    removeRef.current = remove
+  }, [remove])
 
   useEffect(() => {
+    const existing = timeoutsRef.current
     return () => {
-      // Clear all timeouts when the component unmounts
-      clearTimeout(timeoutId)
+      Object.values(existing).forEach(clearTimeout)
     }
+  }, [])
+
+  const notify = useCallback((message: string, type: NotificationType = 'success') => {
+    const id = ++idCounter.current
+    setNotifications((prev) => [...prev, { id, message, type }])
+    timeoutsRef.current[id] = setTimeout(() => removeRef.current(id), 4000)
   }, [])
   return (
     <NotificationContext.Provider value={{ notifications, notify, remove }}>
