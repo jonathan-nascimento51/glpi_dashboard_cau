@@ -77,6 +77,8 @@ const Header: FC = () => {
         <div className="search-container">
           <i className="fas fa-search search-icon" />
           <input
+            id="searchInput"
+            name="search"
             type="text"
             className="search-input"
             placeholder="Buscar chamados, técnicos..."
