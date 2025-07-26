@@ -28,6 +28,8 @@ describe('FilterPanel', () => {
 
   test('axe accessibility check', async () => {
     const { container } = render(<FilterPanel />)
+    // The 'aria-dialog-name' rule is disabled because the FilterPanel component does not use ARIA dialogs,
+    // and this rule is not applicable in this context. This ensures the test focuses on relevant accessibility checks.
     const results = await axe(container, { rules: { 'aria-dialog-name': { enabled: false } } })
     expect(results).toHaveNoViolations()
   })
