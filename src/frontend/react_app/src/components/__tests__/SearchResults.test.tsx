@@ -67,3 +67,31 @@ test('shows no results message', () => {
   render(<SearchResults term="t" visible={true} />)
   expect(screen.getByText('Nenhum resultado encontrado')).toBeInTheDocument()
 })
+
+test("does not show 'Nenhum resultado encontrado' when search term is empty", () => {
+  const result: Partial<UseQueryResult<useSearchHook.SearchResult[], Error>> = {
+    data: [],
+    isLoading: false,
+    isError: false,
+  }
+  mockUseSearch.useSearch.mockReturnValue(
+    result as UseQueryResult<useSearchHook.SearchResult[], Error>,
+  )
+
+  render(<SearchResults term="" visible={true} />)
+  expect(screen.queryByText('Nenhum resultado encontrado')).not.toBeInTheDocument()
+})
+
+test("does not show 'Nenhum resultado encontrado' when search term is whitespace only", () => {
+  const result: Partial<UseQueryResult<useSearchHook.SearchResult[], Error>> = {
+    data: [],
+    isLoading: false,
+    isError: false,
+  }
+  mockUseSearch.useSearch.mockReturnValue(
+    result as UseQueryResult<useSearchHook.SearchResult[], Error>,
+  )
+
+  render(<SearchResults term="   " visible={true} />)
+  expect(screen.queryByText('Nenhum resultado encontrado')).not.toBeInTheDocument()
+})
