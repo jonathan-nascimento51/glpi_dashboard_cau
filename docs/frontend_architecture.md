@@ -123,18 +123,18 @@ Jest and Playwright tests rely on this same URL when exercising real API calls, 
 
 ### Refactoring TypeScript imports
 
-When the front-end files were reorganised into `src/frontend/react_app`, existing TypeScript imports pointing to the old `frontend/src` paths needed adjustment. The script `scripts/refactor/update_ts_imports.js` automates this process using jscodeshift. It reads `file_map.json` to map old locations to the new `@/` alias and updates all matching `import` statements.
+When the front-end files were reorganised into `src/frontend/react_app`, existing TypeScript imports pointing to the old `frontend/src` paths needed adjustment. The script `scripts/refactor/update_ts_imports.js` automates this process using jscodeshift. It reads `scripts/refactor/file_map.json` to map old locations to the new `@/` alias and updates all matching `import` statements.
 
 Run it from the repository root after moving files:
 
 ```bash
-jscodeshift -t scripts/refactor/update_ts_imports.js <paths> --map file_map.json
+jscodeshift -t scripts/refactor/update_ts_imports.js <paths> --map scripts/refactor/file_map.json
 ```
 
 Pass one or more files or directories as `<paths>` to transform.
 
 For small moves you can also invoke the helper script `scripts/run_ts_codemod.sh`.
-It reads `file_map.json`, moves each file with `git mv` and runs the codemod
+It reads `scripts/refactor/file_map.json`, moves each file with `git mv` and runs the codemod
 `scripts/update-imports.js` with the appropriate `--oldPath` and `--newPath`
 options to update import statements automatically.
 

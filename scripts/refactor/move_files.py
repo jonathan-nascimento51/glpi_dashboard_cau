@@ -28,7 +28,11 @@ def git_mv(src: Path, dest: Path) -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Move files according to a map")
-    parser.add_argument("--map", default="file_map.json", help="Mapping JSON path")
+    parser.add_argument(
+        "--map",
+        default="scripts/refactor/file_map.json",
+        help="Mapping JSON path",
+    )
     args = parser.parse_args()
 
     mapping = json.loads(Path(args.map).read_text())
