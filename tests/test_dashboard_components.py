@@ -19,9 +19,9 @@ def test_status_fig_bar_counts() -> None:
     assert isinstance(fig, go.Figure)
 
     # Type hints for better static analysis
-    data = fig.data[0]
-    x: Any = getattr(data, "x", None)
-    y: Any = getattr(data, "y", None)
+    data: go.Bar = fig.data[0]  # type: ignore
+    x: tuple[Any, ...] | None = getattr(data, "x", None)
+    y: tuple[Any, ...] | None = getattr(data, "y", None)
     assert x is not None and y is not None
 
     bars = dict(zip(x, y))

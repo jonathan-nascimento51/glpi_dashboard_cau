@@ -1,25 +1,25 @@
-import { useState, useRef } from 'react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { DrawerTrigger } from '@/components/ui/drawer'
-import SearchResults from './SearchResults'
+import React, { useRef, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Drawer, DrawerTrigger, DrawerContent } from '@/components/ui/drawer';
+import SearchResults from './SearchResults';
 
 export function Header() {
-  const [term, setTerm] = useState('')
-  const [visible, setVisible] = useState(false)
-  
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [term, setTerm] = useState('');
+  const [visible, setVisible] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-    setTerm(value)
-    setVisible(value.trim().length > 0)
-  }
+    const value = e.target.value;
+    setTerm(value);
+    setVisible(value.trim().length > 0);
+  };
 
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     if (!e.relatedTarget) {
-      setVisible(false)
+      setVisible(false);
     }
-  }
+  };
 
   return (
     <header className="flex items-center justify-between border-b bg-background p-4">
@@ -44,13 +44,19 @@ export function Header() {
           </span>
           <SearchResults term={term} visible={visible} id="search-results" />
         </div>
-        <Button variant="outline">Atualizar</Button>
-        <DrawerTrigger asChild>
-          <Button variant="outline">
-            <i className="fas fa-filter mr-2" />Filtros
-          </Button>
-        </DrawerTrigger>
+        <Button className="btn-outline">Atualizar</Button>
+        <Drawer>
+          <DrawerTrigger asChild>
+            <Button className="btn-outline">
+              <i className="fas fa-filter mr-2" />Filtros
+            </Button>
+          </DrawerTrigger>
+          <DrawerContent>
+            <h2 className="text-lg font-bold">Filtros</h2>
+            {/* Add filter options here */}
+          </DrawerContent>
+        </Drawer>
       </div>
     </header>
-  )
+  );
 }

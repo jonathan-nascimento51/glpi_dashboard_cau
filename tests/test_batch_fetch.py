@@ -1,4 +1,3 @@
-# ruff: noqa: E402
 import asyncio
 import json
 import sys
@@ -6,6 +5,9 @@ import time
 from types import ModuleType, SimpleNamespace
 
 import pytest
+
+from backend.application import batch_fetch
+from shared.dto import CleanTicketDTO
 
 structlog = ModuleType("structlog")
 setattr(structlog, "get_logger", lambda *a, **k: SimpleNamespace())
@@ -21,9 +23,6 @@ setattr(httpx_mod, "AsyncClient", object)
 sys.modules.setdefault("httpx", httpx_mod)
 sys.modules.setdefault("redis.asyncio", ModuleType("redis.asyncio"))
 
-from backend.application import batch_fetch
-from shared.dto import CleanTicketDTO
-
 
 class DummyClient:
     def __init__(self, delay: float = 0.01) -> None:
@@ -33,7 +32,7 @@ class DummyClient:
     async def __aenter__(self):
         return self
 
-    async def __aexit__(self, exc_type, exc, tb):
+    async def __aexit__(self, exc_type: object, exc: object, tb: object):
         pass
 
     async def fetch_tickets_by_ids(self, ids: list[int]):
