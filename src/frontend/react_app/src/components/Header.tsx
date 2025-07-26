@@ -1,8 +1,9 @@
-import { type FC, useCallback } from 'react'
+import { type FC, useCallback, useState } from 'react'
 import { useThemeSwitcher } from '../hooks/useThemeSwitcher'
 import { useFilters } from '../hooks/useFilters'
 import { useVoiceCommands } from '../hooks/useVoiceCommands'
 import VoiceIndicator from './VoiceIndicator'
+import SearchResults from './SearchResults'
 
 const Header: FC = () => {
   const { theme, setTheme } = useThemeSwitcher()
@@ -12,6 +13,14 @@ const Header: FC = () => {
     () => (isListening ? stopListening() : startListening()),
     [isListening, startListening, stopListening],
   )
+
+  const [term, setTerm] = useState('')
+  const [showResults, setShowResults] = useState(false)
+
+  const handleFocus = () => setShowResults(true)
+  const handleBlur = () => {
+    setTimeout(() => setShowResults(false), 100)
+  }
 
   const setLight = useCallback(() => setTheme('light'), [setTheme])
   const setDark = useCallback(() => setTheme('dark'), [setTheme])
@@ -62,8 +71,12 @@ const Header: FC = () => {
             type="text"
             className="search-input"
             placeholder="Buscar chamados, técnicos..."
+            value={term}
+            onChange={(e) => setTerm(e.target.value)}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
           />
-          <div className="search-results" id="searchResults" />
+          <SearchResults term={term} visible={showResults} />
         </div>
         <div className="status-live">
           <div className="live-indicator" />
