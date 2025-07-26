@@ -8,9 +8,10 @@ import { ErrorMessage } from './ErrorMessage'
 interface Props {
   term: string
   visible: boolean
+  id?: string
 }
 
-const SearchResults: FC<Props> = ({ term, visible }) => {
+const SearchResults: FC<Props> = ({ term, visible, id = 'search-results' }) => {
   const debouncedTerm = useDebounce(term, 300)
   const { data, isLoading, isError } = useSearch(debouncedTerm)
   const [activeIndex, setActiveIndex] = useState(0)
@@ -62,10 +63,13 @@ const SearchResults: FC<Props> = ({ term, visible }) => {
 
   return (
     <div
+      id={id}
       className="search-results show"
       role="listbox"
       tabIndex={0}
-      aria-activedescendant={data && data.length > 0 ? `result-${data[activeIndex].id}` : undefined}
+      aria-activedescendant={
+        data && data.length > 0 ? `result-${data[activeIndex].id}` : undefined
+      }
       onKeyDown={handleKeyDown}
       ref={listRef}
     >
