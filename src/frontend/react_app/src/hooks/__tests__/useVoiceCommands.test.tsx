@@ -162,4 +162,21 @@ describe('useVoiceCommands', () => {
 
     expect(result.current.isListening).toBe(false)
   })
+
+  it('cleans up recognition handlers on unmount', () => {
+    const { result, unmount } = renderHook(() => useVoiceCommands())
+
+    act(() => {
+      result.current.startListening()
+    })
+
+    expect(recognitionInstance.onend).toBeDefined()
+    expect(recognitionInstance.onresult).toBeDefined()
+
+    unmount()
+
+    expect(recognitionInstance.stop).toHaveBeenCalledTimes(1)
+    expect(recognitionInstance.onend).toBeNull()
+    expect(recognitionInstance.onresult).toBeNull()
+  })
 })
