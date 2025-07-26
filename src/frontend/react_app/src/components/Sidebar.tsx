@@ -1,4 +1,5 @@
 import { memo, type FC } from 'react'
+import { useSidebar } from '../hooks/useSidebar'
 
 export interface PerformanceMetric {
   label: string
@@ -25,8 +26,10 @@ export interface SidebarProps {
   alerts: AlertItem[]
 }
 
-const SidebarComponent: FC<SidebarProps> = ({ performance, ranking, alerts }) => (
-  <aside className="sidebar">
+const SidebarComponent: FC<SidebarProps> = ({ performance, ranking, alerts }) => {
+  const { open } = useSidebar()
+  return (
+  <aside className={`sidebar ${open ? 'open' : ''}`}>
     <div className="sidebar-card">
       <div className="sidebar-header">
         <i className="fas fa-chart-line sidebar-icon" />
@@ -77,6 +80,7 @@ const SidebarComponent: FC<SidebarProps> = ({ performance, ranking, alerts }) =>
       </div>
     </div>
   </aside>
-)
+  )
+}
 
 export const Sidebar = memo(SidebarComponent)

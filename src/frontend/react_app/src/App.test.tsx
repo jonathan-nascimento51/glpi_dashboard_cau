@@ -36,6 +36,7 @@ jest.mock('./components/Header', () => () => <header>Header Mock</header>)
 jest.mock('./components/FilterPanel', () => () => <div>FilterPanel Mock</div>)
 jest.mock('./components/Sidebar', () => () => <aside>Sidebar Mock</aside>)
 jest.mock('./components/LevelsPanel', () => () => <div>LevelsPanel Mock</div>)
+jest.mock('./components/SidebarToggle', () => () => <button>Toggle</button>)
 
 import { useTickets } from './hooks/useTickets'
 import { useChamadosPorData } from './hooks/useChamadosPorData'
