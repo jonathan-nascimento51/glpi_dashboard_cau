@@ -5,6 +5,10 @@ import { useVoiceCommands } from '../hooks/useVoiceCommands'
 import VoiceIndicator from './VoiceIndicator'
 import SearchResults from './SearchResults'
 
+// The delay value for the blur handler ensures smooth UI transitions and prevents
+// accidental dismissal of search results when interacting with related elements.
+const SEARCH_BLUR_DELAY = 100
+
 const Header: FC = () => {
   const { theme, setTheme } = useThemeSwitcher()
   const { toggleFilters } = useFilters()
@@ -18,7 +22,10 @@ const Header: FC = () => {
   const [showResults, setShowResults] = useState(false)
 
   const handleFocus = () => setShowResults(true)
-  const handleBlur = () => {
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    if (e.relatedTarget?.closest('.search-container')) {
+      return
+    }
     setTimeout(() => setShowResults(false), SEARCH_BLUR_DELAY)
   }
 
