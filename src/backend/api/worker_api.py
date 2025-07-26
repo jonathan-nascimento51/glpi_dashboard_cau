@@ -207,6 +207,15 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
             client=client, cache=cache, response=response
         )
 
+    @app.get("/tickets/search", response_model=list[CleanTicketDTO])
+    async def tickets_search(query: str, limit: int = 5) -> list[CleanTicketDTO]:  # noqa: F401
+        """Return tickets matching ``query`` by name."""
+
+        if not query.strip():
+            return []
+        async with client:
+            return await client.search_tickets(query, limit=limit)
+
     @app.get("/tickets/stream")
     async def tickets_stream(response: Response) -> StreamingResponse:  # noqa: F401
         return StreamingResponse(

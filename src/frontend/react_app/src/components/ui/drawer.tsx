@@ -4,6 +4,7 @@ import { cn } from '@/lib/cn'
 export const Drawer = DialogPrimitive.Root
 export const DrawerTrigger = DialogPrimitive.Trigger
 export const DrawerClose = DialogPrimitive.Close
+export const DrawerTitle = DialogPrimitive.Title
 
 export function DrawerContent({ className, ...props }: DialogPrimitive.DialogContentProps) {
   return (

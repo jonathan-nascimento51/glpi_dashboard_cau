@@ -204,6 +204,19 @@ class GlpiApiClient:
                 logger.error("failed to translate ticket %s: %s", item.get("id"), exc)
         return translated
 
+    async def search_tickets(self, query: str, limit: int = 5) -> List[CleanTicketDTO]:
+        """Return tickets whose names contain ``query``."""
+
+        criteria = [{"field": "name", "searchtype": "contains", "value": query}]
+        raw = await self.get_all_paginated("Ticket", page_size=limit, criteria=criteria)
+        translated: List[CleanTicketDTO] = []
+        for item in raw[:limit]:
+            try:
+                translated.append(await self._translator.translate_ticket(item))
+            except Exception as exc:  # pragma: no cover - best effort
+                logger.error("failed to translate ticket %s: %s", item.get("id"), exc)
+        return translated
+
 
 def create_glpi_api_client() -> Optional[GlpiApiClient]:
     try:
