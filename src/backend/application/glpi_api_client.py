@@ -8,7 +8,14 @@ from backend.utils import paginate_items
 from shared.dto import CleanTicketDTO, TicketTranslator
 
 # Field names we always include in ticket search results.
-BASE_TICKET_FIELDS = ["id", "name", "date", "priority", "status"]
+BASE_TICKET_FIELDS = [
+    "id",
+    "name",
+    "date",
+    "priority",
+    "status",
+    "users_id_assign",
+]
 # Populated dynamically from MappingService
 FORCED_DISPLAY_FIELDS: list[int] = []
 
@@ -85,14 +92,21 @@ class GlpiApiClient:
         name_field = _safe_int(mapping.get("name"))
         date_field = _safe_int(mapping.get("date_creation"))
         priority_field = _safe_int(mapping.get("priority"))
+        assign_field = _safe_int(mapping.get("users_id_assign"))
 
-        if None in (id_field, name_field, date_field, priority_field):
+        if None in (id_field, name_field, date_field, priority_field, assign_field):
             self._forced_fields = FORCED_DISPLAY_FIELDS.copy()
         else:
             # Only assign non-None integer values to _forced_fields.
             self._forced_fields = [
                 field
-                for field in [id_field, name_field, date_field, priority_field]
+                for field in [
+                    id_field,
+                    name_field,
+                    date_field,
+                    priority_field,
+                    assign_field,
+                ]
                 if field is not None
             ]
 
