@@ -20,12 +20,12 @@ export function useVoiceCommands() {
     recognition.lang = 'pt-BR'
     recognition.interimResults = false
     recognition.onresult = (e: SpeechRecognitionEvent) => {
-      const res: any = e.results
+      const res: SpeechRecognitionResultList = e.results
       if (!res || typeof res[Symbol.iterator] !== 'function') return
-      Array.from(res).forEach((result: any) => {
+      Array.from(res).forEach((result: SpeechRecognitionResult) => {
         if (!result || typeof result[Symbol.iterator] !== 'function') return
-        Array.from(result).forEach((item: any) => {
-          const transcript = item?.transcript?.trim().toLowerCase()
+        Array.from(result).forEach((item: SpeechRecognitionAlternative) => {
+          const transcript = item.transcript?.trim().toLowerCase()
           if (transcript) {
             processCommand(transcript)
           }
