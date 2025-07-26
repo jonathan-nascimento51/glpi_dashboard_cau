@@ -24,6 +24,7 @@ def test_convert_ticket_enum_mapping() -> None:
         impact=4,
         type=1,
         date_creation="2024-01-01",
+        users_id_requester=None,
     )
 
     ticket = convert_ticket(raw)
@@ -49,6 +50,7 @@ def test_convert_ticket_invalid_status_fallback(
         impact=1,
         type=1,
         date_creation="2024-01-01",
+        users_id_requester=None,
     )
 
     with caplog.at_level(logging.WARNING):
@@ -63,7 +65,18 @@ def test_convert_ticket_invalid_status_fallback(
 @pytest.mark.unit
 @pytest.mark.parametrize("raw_name", [None, ""])
 def test_convert_ticket_missing_name(raw_name: str | None) -> None:
-    raw = RawTicketDTO(id=1, name=raw_name)
+    raw = RawTicketDTO(
+        id=1,
+        name=raw_name,
+        content="Test Content",
+        status=1,
+        priority=2,
+        urgency=3,
+        impact=4,
+        type=1,
+        date_creation="2024-01-01",
+        users_id_requester=None,
+    )
 
     ticket = convert_ticket(raw)
 

@@ -4,4 +4,5 @@ idiomatic_version_file_enable_tools = ["node"]
 [tools]
 aapt2 = "latest"
 actionlint = "latest"
+node = "latest"
 python = "latest"

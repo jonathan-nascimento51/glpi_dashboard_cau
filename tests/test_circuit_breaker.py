@@ -1,3 +1,5 @@
+from typing import Any
+
 import pybreaker
 import pytest
 
@@ -14,24 +16,31 @@ wrapped = call_with_breaker(failing)
 
 
 def test_breaker_opens_after_failures():
-    for _ in range(5):
-        try:
+    # Parametrize the number of calls to avoid a loop in the test
+    from contextlib import suppress
+
+    def call_wrapped():
+        with suppress(RuntimeError, pybreaker.CircuitBreakerError):
             wrapped()
-        except (RuntimeError, pybreaker.CircuitBreakerError):
-            pass
+
+    call_wrapped()
+    call_wrapped()
+    call_wrapped()
+    call_wrapped()
+    call_wrapped()
     assert breaker.current_state == pybreaker.STATE_OPEN
 
 
 class DummyGauge:
     def __init__(self):
-        self.calls = []
+        self.calls: list[tuple[str, int]] = []
 
-    def labels(self, *, state):
+    def labels(self, *, state: Any) -> object:
         class L:
-            def __init__(self, outer):
-                self.outer = outer
+            def __init__(self, outer: "DummyGauge"):
+                self.outer: DummyGauge = outer
 
-            def set(self, value):
+            def set(self, value: Any) -> None:
                 self.outer.calls.append((state, value))
 
         return L(self)
@@ -45,7 +54,7 @@ class DummyCounter:
         self.count += 1
 
 
-def test_call_with_breaker_records_metrics(monkeypatch):
+def test_call_with_breaker_records_metrics(monkeypatch: pytest.MonkeyPatch):
     breaker.close()
     gauge = DummyGauge()
     counter = DummyCounter()
@@ -70,7 +79,7 @@ def test_call_with_breaker_records_metrics(monkeypatch):
     assert counter.count == 1
 
 
-def test_call_with_breaker_open_state(monkeypatch):
+def test_call_with_breaker_open_state(monkeypatch: pytest.MonkeyPatch):
     gauge = DummyGauge()
     counter = DummyCounter()
     monkeypatch.setattr("shared.utils.resilience.circuit_breaker.state_gauge", gauge)

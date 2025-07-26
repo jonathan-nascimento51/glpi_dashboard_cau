@@ -28,14 +28,11 @@ export function useApiQuery<T, E = Error>(
   endpoint: string,
   options?: Omit<UseQueryOptions<T, E, T, QueryKey>, 'queryKey' | 'queryFn'>,
 ): UseQueryResult<T, E> {
-  const metaEnv: Record<string, string | undefined> | undefined =
-    typeof import.meta.env !== 'undefined' && import.meta.env
-      ? import.meta.env
-      : undefined;
-
+  // Use process.env for SSR and test environments, import.meta.env for Vite/browser
+  // Only use import.meta.env in environments where it is defined (Vite/browser), otherwise use process.env (Node/Jest)
   const baseUrl =
-    metaEnv?.NEXT_PUBLIC_API_BASE_URL ??
-    process.env.NEXT_PUBLIC_API_BASE_URL ??
+    (typeof process !== 'undefined' && process.env && process.env.NEXT_PUBLIC_API_BASE_URL) ||
+    (typeof window !== 'undefined' && typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.NEXT_PUBLIC_API_BASE_URL) ||
     'http://localhost:8000';
 
   const fetchFromApi = async (): Promise<T> => {

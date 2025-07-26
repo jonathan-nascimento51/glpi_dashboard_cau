@@ -36,8 +36,8 @@ test('useChamadosPorData handles error', async () => {
   // If error is an Error object, check its message
   if (result.current.error instanceof Error) {
     expect(result.current.error.message).toMatch(/fail|500/i)
-  } else if (typeof result.current.error === 'string') {
-    expect(result.current.error).toMatch(/fail|500/i)
+  } else if (result.current.error && typeof (result.current.error as any) === 'string') {
+    expect((result.current.error as string)).toMatch(/fail|500/i)
   }
 })
 

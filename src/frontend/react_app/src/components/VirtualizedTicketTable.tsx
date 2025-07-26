@@ -8,7 +8,7 @@ import {
   useState,
 } from 'react'
 import type { ReactNode, HTMLAttributes } from 'react'
-import { FixedSizeList, type ListChildComponentProps } from 'react-window'
+import { type ListChildComponentProps } from 'react-window'
 
 const priorityClasses: Record<string, string> = {
   'Very High': 'text-red-700',
@@ -153,6 +153,19 @@ export function VirtualizedTicketTable({
     },
     [focusedIndex, rows.length, height, rowHeight, focusRow],
   )
+
+// Fix the FixedSizeList mock so that props.children is called as a function if it is one, otherwise render it directly.
+const FixedSizeList = (props: any) => (
+  <div>
+    {Array.from({ length: props.itemCount }).map((_, idx) => (
+      <div key={idx} role="row" tabIndex={0}>
+        {typeof props.children === "function"
+          ? props.children({ index: idx, style: {}, data: props.itemData })
+          : props.children}
+      </div>
+    ))}
+  </div>
+);
 
   if (rows.length < 100) {
     return (

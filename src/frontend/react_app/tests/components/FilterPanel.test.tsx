@@ -14,10 +14,10 @@ jest.mock('@/hooks/useFilters', () => {
       filters: state,
       toggleFilters: jest.fn(() => { state.open = !state.open }),
       toggleValue: jest.fn((c: keyof typeof state, v: string) => {
-        if (state[c].includes(v)) {
-          state[c] = state[c].filter((x: string) => x !== v)
-        } else {
-          state[c].push(v)
+        if (Array.isArray(state[c]) && state[c].includes(v)) {
+          (state[c] as string[]).splice((state[c] as string[]).indexOf(v), 1);
+        } else if (Array.isArray(state[c])) {
+          (state[c] as string[]).push(v);
         }
       }),
     }),

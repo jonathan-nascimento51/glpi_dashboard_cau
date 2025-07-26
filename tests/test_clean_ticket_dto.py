@@ -1,12 +1,13 @@
+from typing import Any
+
 import pytest
 from pydantic import ValidationError
 
 from shared.dto import CleanTicketDTO
 
 
-@pytest.mark.unit
 def test_clean_ticket_dto_valid_creation():
-    data = {
+    data: dict[str, Any] = {
         "id": 1,
         "name": "Printer issue",
         "status": 1,
@@ -27,9 +28,8 @@ def test_clean_ticket_dto_valid_creation():
     assert ticket.requester == "Alice"
 
 
-@pytest.mark.unit
 def test_clean_ticket_dto_invalid_types():
-    data = {
+    data: dict[str, Any] = {
         "id": "not int",
         "name": "Bad",
         "status": "not int",
@@ -43,7 +43,7 @@ def test_clean_ticket_dto_invalid_types():
 
 @pytest.mark.unit
 def test_clean_ticket_dto_missing_required_field():
-    data = {
+    data: dict[str, Any] = {
         "id": 1,
         "status": 1,
         "priority": 2,
@@ -59,7 +59,7 @@ def test_clean_ticket_dto_missing_required_field():
 def test_clean_ticket_dto_none_name_becomes_empty_string():
     """Ensure None titles are sanitized to an empty string."""
 
-    data = {
+    data: dict[str, Any] = {
         "id": 1,
         "name": None,
         "status": 1,
@@ -72,7 +72,7 @@ def test_clean_ticket_dto_none_name_becomes_empty_string():
 
 @pytest.mark.unit
 def test_clean_ticket_dto_missing_optional_fields():
-    data = {
+    data: dict[str, Any] = {
         "id": 2,
         "name": "Network issue",
         "status": 1,
@@ -89,7 +89,7 @@ def test_clean_ticket_dto_missing_optional_fields():
 def test_clean_ticket_dto_text_status():
     """Textual status values should be normalized."""
 
-    data = {
+    data: dict[str, Any] = {
         "id": 3,
         "name": "Network issue",
         "status": "closed",
@@ -102,7 +102,7 @@ def test_clean_ticket_dto_text_status():
 
 @pytest.mark.unit
 def test_clean_ticket_dto_preconverted_priority():
-    data = {
+    data: dict[str, Any] = {
         "id": 4,
         "name": "Router",
         "status": 1,

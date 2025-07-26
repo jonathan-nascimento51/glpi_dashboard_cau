@@ -1,7 +1,9 @@
 import importlib
 
+import pytest
 
-def test_load_data_mock(monkeypatch):
+
+def test_load_data_mock(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("USE_MOCK_DATA", "true")
     import backend.core.settings as settings
 
