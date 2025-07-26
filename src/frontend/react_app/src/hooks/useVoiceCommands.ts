@@ -41,7 +41,8 @@ export function useVoiceCommands() {
 
   const stopListening = useCallback(() => {
     recognitionRef.current?.stop()
-  }, [])
+    setIsListening(false)
+  }, [setIsListening])
 
   useEffect(() => {
     return () => {
