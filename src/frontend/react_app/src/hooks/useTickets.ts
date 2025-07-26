@@ -32,12 +32,12 @@ export function useTickets(filters?: FiltersState) {
 
   useEffect(() => {
     if (filters) {
-      queryClient.invalidateQueries({ queryKey: ['tickets'] })
+      queryClient.invalidateQueries({ queryKey: ['tickets', serialized] })
     }
   }, [filters, queryClient])
 
   const refreshTickets = () =>
-    queryClient.invalidateQueries({ queryKey: ['tickets'] })
+    queryClient.invalidateQueries({ queryKey: ['tickets', serialized] })
 
   return {
     tickets,
