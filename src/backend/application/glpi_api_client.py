@@ -62,8 +62,9 @@ class GlpiApiClient:
                 for fid, info in options.items()
                 if isinstance(info, dict) and info.get("field")
             }
-            ids = [field_map[name] for name in BASE_TICKET_FIELDS if name in field_map]
-            if ids:
+            if ids := [
+                field_map[name] for name in BASE_TICKET_FIELDS if name in field_map
+            ]:
                 self._forced_fields[:] = ids
                 return
         except Exception as exc:  # pragma: no cover - defensive
