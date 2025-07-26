@@ -103,7 +103,7 @@ const Header: FC = () => {
           <i className="fas fa-microphone" />
           <span>{isListening ? 'Parar' : 'Falar'}</span>
         </button>
-        <span>{time}</span>
+        <span aria-live="polite" aria-label="Current time">{time}</span>
       </div>
       <VoiceIndicator isListening={isListening} />
     </header>
