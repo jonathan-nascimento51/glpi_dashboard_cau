@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Drawer, DrawerTrigger, DrawerContent } from '@/components/ui/drawer';
+import { Drawer, DrawerTrigger, DrawerContent, DrawerTitle } from '@/components/ui/drawer';
 import SearchResults from './SearchResults';
 
 export function Header() {
@@ -52,7 +52,7 @@ export function Header() {
             </Button>
           </DrawerTrigger>
           <DrawerContent>
-            <h2 className="text-lg font-bold">Filtros</h2>
+            <DrawerTitle className="text-lg font-bold">Filtros</DrawerTitle>
             {/* Add filter options here */}
           </DrawerContent>
         </Drawer>
