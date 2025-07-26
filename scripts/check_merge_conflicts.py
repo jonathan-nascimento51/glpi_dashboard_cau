@@ -16,7 +16,7 @@ MERGE_MARKERS = (
 
 def scan_file(path: Path) -> list[int]:
     """Return line numbers containing merge markers."""
-    lines = []
+    lines: list[int] = []
     try:
         with path.open("r", encoding="utf-8", errors="ignore") as fh:
             for idx, line in enumerate(fh, 1):
