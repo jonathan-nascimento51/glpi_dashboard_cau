@@ -27,7 +27,7 @@ pytest tests/test_worker_api.py::test_health_glpi --no-cov
 PYTEST_ADDOPTS="" pytest tests/test_worker_api.py
 ```
 
-### Troubleshooting missing modules
+## Troubleshooting missing modules
 
 `ModuleNotFoundError` typically means development dependencies were not installed. Common cases are:
 
