@@ -11,7 +11,7 @@ export function useHotkeys() {
       if (!e.ctrlKey) return
       const target = e.target as HTMLElement | null
       const tag = target?.tagName
-      if (tag === 'INPUT' || tag === 'TEXTAREA') return
+if (target?.isContentEditable || tag === 'INPUT' || tag === 'TEXTAREA') return
       if (e.key.toLowerCase() === 'r') {
         e.preventDefault()
         queryClient.invalidateQueries()
