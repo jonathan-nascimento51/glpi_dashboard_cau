@@ -8,13 +8,13 @@ Accepted
 
 ## Context
 
-The project requires a modern front-end stack capable of delivering high performance and maintainability. The architectural plan recommends React with TypeScript, Next.js for server-side rendering, and a testing toolchain based on Jest and Playwright.
+The project requires a modern front-end stack capable of delivering high performance and maintainability. The architectural plan now recommends React with TypeScript bundled by Vite, and a testing toolchain based on Jest and Playwright.
 
 ## Decision
 
-Adopt **Next.js 14** with React 18 and TypeScript 5 as the baseline. Use Jest for unit tests, Playwright for end-to-end tests, and Storybook for UI development. This combination provides strong typing, fast builds and a rich ecosystem of tools.
+Adopt **Vite** with React 18 and TypeScript 5 as the baseline. Use Jest for unit tests, Playwright for end-to-end tests, and Storybook for UI development. This combination provides strong typing, fast builds and a rich ecosystem of tools.
 
-While the original plan targeted Next.js 15, that version is still in prerelease and several key dependencies do not yet provide stable support. Until the ecosystem catches up, we pin the dashboard to the latest 14.x release for predictable builds and easier upgrades later.
+The switch away from Next.js reduces complexity since server-side rendering is not required for the dashboard. Vite offers faster iteration times and simpler configuration.
 
 ## Consequences
 

@@ -6,7 +6,7 @@ This document provides a quick overview of how the repository is structured, the
 
 - **`src/backend/`** – FastAPI worker that talks to the GLPI API and exposes REST/GraphQL endpoints.
 - **`src/frontend/`** – Dash application composed of callbacks and layout files.
-- **`src/frontend/react_app/`** – Stand‑alone React/Next.js dashboard that consumes the worker API.
+- **`src/frontend/react_app/`** – Stand‑alone Vite + React dashboard that consumes the worker API.
 - **`src/shared/`** – Shared models and utilities reused by both back‑end and front‑end modules.
 - **`scripts/`** – Helper scripts organised into `setup/`, `fetch/` and `etl/` subfolders.
 - **`examples/`** – Reference code and prototypes only.
@@ -38,7 +38,7 @@ Aggregated metrics are computed under `src/backend/application/aggregated_metric
 ## Dependencies
 
 - **Backend**: FastAPI, httpx, pandas, SQLAlchemy, Redis, PostgreSQL.
-- **Frontend**: Dash for the Python UI and React/Next.js with Tailwind for the web dashboard.
+- **Frontend**: Dash for the Python UI and a Vite + React application with Tailwind for the web dashboard.
 
 ## GLPI Integration and Metrics
 

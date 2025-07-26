@@ -12,7 +12,7 @@ The first iteration of the dashboard mixed data ingestion and UI logic in a
 single service.  As the scope grew—adding offline mode, GraphQL endpoints and
 background updates—it became clear that the project needed a clearer separation
 between data processing and presentation.  The architecture document proposes a
-dedicated FastAPI worker for GLPI integration and a Dash/Next.js front-end for
+dedicated FastAPI worker for GLPI integration and a Dash/Vite React front-end for
 visualization.
 
 ## Decision

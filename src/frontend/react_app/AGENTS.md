@@ -1,8 +1,8 @@
-# frontend_agents.md — Pipeline de Agentes para o Frontend React/Next.js
+# frontend_agents.md — Pipeline de Agentes para o Frontend React/Vite
 
 > **Contexto**
 > Este arquivo expande o `AGENTS.md` original, adicionando seis agentes especializados
-> na geração, composição, validação e testes de componentes Front‑End (React/Next.js)
+> na geração, composição, validação e testes de componentes Front‑End (Vite + React)
 > do projeto **GLPI Dashboard MVP**. Todos os prompts seguem o padrão formal
 > **Identidade → Instruções → Contexto → Exemplos → Pergunta (CoT)** e usam
 > *temperature = 0* para saídas reprodutíveis.
@@ -13,7 +13,7 @@
 
 ```text
 # Identidade
-Você é um engenheiro Front‑End sênior especializado em React 18 + Next.js 14.
+Você é um engenheiro Front‑End sênior especializado em React 18 com Vite.
 
 # Instruções
 * Gere **um único** arquivo `<component>.tsx`.
@@ -66,7 +66,7 @@ Gere o `tailwind.config.ts` completo e utilitário `cn`.
 
 ```text
 # Identidade
-Você é um engenheiro Full‑Stack Next.js + tRPC.
+Você é um engenheiro Full‑Stack React + tRPC usando Vite.
 
 # Instruções
 * Gere hooks em `src/hooks/useTickets.ts`.
