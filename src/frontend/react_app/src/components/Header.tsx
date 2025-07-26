@@ -1,5 +1,5 @@
 import { type FC, useCallback, useState } from 'react'
-import { useThemeSwitcher } from '../hooks/useThemeSwitcher'
+import ThemeSwitcher from './ThemeSwitcher'
 import { useFilters } from '../hooks/useFilters'
 import { useVoiceCommands } from '../hooks/useVoiceCommands'
 import { useCurrentTime } from '../hooks/useCurrentTime'
@@ -11,7 +11,6 @@ import SearchResults from './SearchResults'
 const SEARCH_BLUR_DELAY = 100
 
 const Header: FC = () => {
-  const { theme, setTheme } = useThemeSwitcher()
   const { toggleFilters } = useFilters()
   const { isListening, startListening, stopListening } = useVoiceCommands()
   const time = useCurrentTime()
@@ -31,10 +30,6 @@ const Header: FC = () => {
     setTimeout(() => setShowResults(false), SEARCH_BLUR_DELAY)
   }
 
-  const setLight = useCallback(() => setTheme('light'), [setTheme])
-  const setDark = useCallback(() => setTheme('dark'), [setTheme])
-  const setCorporate = useCallback(() => setTheme('corporate'), [setTheme])
-  const setTech = useCallback(() => setTheme('tech'), [setTheme])
 
   return (
     <header className="header">
@@ -48,32 +43,7 @@ const Header: FC = () => {
         </div>
       </div>
       <div className="header-controls">
-        <div className="theme-switcher">
-          <button
-            className={`theme-btn ${theme === 'light' ? 'active' : ''}`}
-            onClick={setLight}
-          >
-            Light
-          </button>
-          <button
-            className={`theme-btn ${theme === 'dark' ? 'active' : ''}`}
-            onClick={setDark}
-          >
-            Dark
-          </button>
-          <button
-            className={`theme-btn ${theme === 'corporate' ? 'active' : ''}`}
-            onClick={setCorporate}
-          >
-            Corp
-          </button>
-          <button
-            className={`theme-btn ${theme === 'tech' ? 'active' : ''}`}
-            onClick={setTech}
-          >
-            Tech
-          </button>
-        </div>
+        <ThemeSwitcher />
         <div className="search-container">
           <i className="fas fa-search search-icon" />
           <input

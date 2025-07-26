@@ -4,6 +4,7 @@ import { initializeFaro } from '@grafana/faro-react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import App from './App';
+import { ThemeProvider } from './context/theme';
 import './index.css';
 
 // Start measuring from the initial navigation start point
@@ -29,7 +30,9 @@ if (faroURL && faroURL.startsWith('http')) {
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <App />
+      <ThemeProvider>
+        <App />
+      </ThemeProvider>
       {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
     </QueryClientProvider>
   </StrictMode>,
