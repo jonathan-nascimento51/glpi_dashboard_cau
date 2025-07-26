@@ -7,7 +7,10 @@ pip install -r requirements.txt -r requirements-dev.txt  # generated via pip-com
 pip install -e .
 ```
 
-`requirements-dev.txt` already pulls in **Playwright** for Dash component tests. After installing the packages run `playwright install` so the browsers are available.
+After installing the packages, run the following to make the browsers available:
+
+```bash
+playwright install
 
 Running a subset of tests can cause failures because `pytest.ini` enforces 85% coverage:
 
