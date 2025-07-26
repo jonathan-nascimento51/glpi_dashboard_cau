@@ -9,6 +9,8 @@ import TicketsDisplay from './components/TicketsDisplay'
 import SkeletonChart from './components/SkeletonChart'
 import SkeletonHeatmap from './components/SkeletonHeatmap'
 import { SidebarProvider } from './hooks/useSidebar'
+import { NotificationProvider } from './context/notification'
+import NotificationToast from './components/NotificationToast'
 
 // Lazy load heavy components to split them into separate chunks.
 // This tells Vite/Rollup to create separate .js files for these components.
@@ -18,26 +20,29 @@ const ChamadosHeatmap = lazy(() => import('./components/ChamadosHeatmap'))
 function App() {
   return (
     <ErrorBoundary>
-      <SidebarProvider>
-        <div className="app-container">
-          <Header />
-          <FilterPanel />
-          <SidebarToggle />
-          <main className="main-content">
-            <div className="dashboard-grid">
-              <TicketsDisplay />
-              <Suspense fallback={<SkeletonChart />}>
-                <ChamadosTendencia />
-              </Suspense>
-              <Suspense fallback={<SkeletonHeatmap />}>
-                <ChamadosHeatmap />
-              </Suspense>
-              <LevelsPanel levels={[]} />
-            </div>
-            <Sidebar performance={[]} ranking={[]} alerts={[]} />
-          </main>
-        </div>
-      </SidebarProvider>
+      <NotificationProvider>
+        <SidebarProvider>
+          <div className="app-container">
+            <Header />
+            <FilterPanel />
+            <SidebarToggle />
+            <main className="main-content">
+              <div className="dashboard-grid">
+                <TicketsDisplay />
+                <Suspense fallback={<SkeletonChart />}>
+                  <ChamadosTendencia />
+                </Suspense>
+                <Suspense fallback={<SkeletonHeatmap />}>
+                  <ChamadosHeatmap />
+                </Suspense>
+                <LevelsPanel levels={[]} />
+              </div>
+              <Sidebar performance={[]} ranking={[]} alerts={[]} />
+            </main>
+            <NotificationToast />
+          </div>
+        </SidebarProvider>
+      </NotificationProvider>
     </ErrorBoundary>
   )
 }
