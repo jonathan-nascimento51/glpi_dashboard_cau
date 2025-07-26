@@ -1,5 +1,5 @@
 import { Drawer, DrawerContent, DrawerClose, DrawerTitle } from '@/components/ui/drawer'
-import { Button } from '@/components/ui/button'
+import { Button, ButtonProps } from '@/components/ui/button'
 
 export function FilterDrawer() {
   return (
@@ -8,7 +8,7 @@ export function FilterDrawer() {
         <div className="flex items-center justify-between border-b pb-2">
           <DrawerTitle className="text-lg font-semibold">Filtros</DrawerTitle>
           <DrawerClose asChild>
-            <Button variant="ghost" aria-label="Fechar">
+            <Button className="btn-ghost" aria-label="Fechar">
               <i className="fas fa-times" />
             </Button>
           </DrawerClose>
@@ -17,11 +17,15 @@ export function FilterDrawer() {
         <div className="space-y-2">
           <label className="block text-sm font-medium">Status</label>
           <div className="flex gap-2">
-            <Button variant="outline">Aberto</Button>
-            <Button variant="outline">Fechado</Button>
+            <Button className="btn-outline">Aberto</Button>
+            <Button className="btn-outline">Fechado</Button>
           </div>
         </div>
       </DrawerContent>
     </Drawer>
   )
+}
+
+export interface ExtendedButtonProps extends ButtonProps {
+  // Adicione aqui as props adicionais que você precisa
 }

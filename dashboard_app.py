@@ -3,6 +3,7 @@
 import asyncio
 import logging
 import os
+from typing import Any
 
 import pandas as pd
 from dash import Dash
@@ -59,7 +60,7 @@ glpi_client_logging.init_logging(log_level)
 
 
 @cache.memoize(timeout=300)
-def _fetch_api_data(ticket_range: str = "0-99", **filters: str) -> list[dict]:
+def _fetch_api_data(ticket_range: str = "0-99", **filters: str) -> list[dict[str, Any]]:
     """Fetch ticket data directly from the GLPI API."""
 
     creds = Credentials(
@@ -69,7 +70,7 @@ def _fetch_api_data(ticket_range: str = "0-99", **filters: str) -> list[dict]:
         password=GLPI_PASSWORD,
     )
 
-    async def _run() -> list[dict]:
+    async def _run() -> list[dict[str, Any]]:
         async with GLPISession(GLPI_BASE_URL, creds) as client:
             return await client.get_all("Ticket", range=ticket_range, **filters)
 
@@ -144,7 +145,11 @@ def main() -> None:
     df = load_data()
     app = create_app(df)
     app.run(
-        host="0.0.0.0", port=DASH_PORT, debug=False, use_reloader=False, threaded=True
+        host="0.0.0.0",
+        port=int(DASH_PORT),
+        debug=False,
+        use_reloader=False,
+        threaded=True,
     )
 
 

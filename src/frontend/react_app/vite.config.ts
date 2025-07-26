@@ -5,6 +5,9 @@ import { fileURLToPath, URL } from 'node:url'
 
 export default defineConfig({
   plugins: [react(), tsconfigPaths()],
+  css: {
+    postcss: './postcss.config.js', // certifique-se de que esse arquivo está presente e configurado para o Tailwind
+  },
   envPrefix: ['VITE_', 'NEXT_PUBLIC_'],
   resolve: {
     alias: {

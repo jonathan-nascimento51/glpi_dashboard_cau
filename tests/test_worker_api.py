@@ -310,7 +310,8 @@ def test_client_reused(monkeypatch: pytest.MonkeyPatch, dummy_cache: DummyCache)
 
     class RecordingClient(FakeClient):
         def __init__(self, *args, **kwargs):
-            super().__init__()
+            print("RecordingClient.__init__ called")  # Linha de depuração
+            super().__init__(*args, **kwargs)
             instances.append(self)
 
     # We patch the factory function that creates the client

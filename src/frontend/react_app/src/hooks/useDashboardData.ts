@@ -54,10 +54,12 @@ export function useDashboardData(filters?: FiltersState) {
     resolved: useRef<HTMLCanvasElement>(null),
   }
 
-  useSparkline(sparkRefs.new, history.new)
-  useSparkline(sparkRefs.pending, history.pending)
-  useSparkline(sparkRefs.progress, history.progress)
-  useSparkline(sparkRefs.resolved, history.resolved)
+/* The code snippet you provided is using the `useSparkline` custom hook to create sparkline charts for
+different metrics based on historical data stored in the `history` state object. */
+  useSparkline(sparkRefs.new as React.RefObject<HTMLCanvasElement>, history.new)
+  useSparkline(sparkRefs.pending as React.RefObject<HTMLCanvasElement>, history.pending)
+  useSparkline(sparkRefs.progress as React.RefObject<HTMLCanvasElement>, history.progress)
+  useSparkline(sparkRefs.resolved as React.RefObject<HTMLCanvasElement>, history.resolved)
 
   useEffect(() => {
     if (!query.data) return

@@ -1,6 +1,12 @@
 import { useMetricsOverview } from '../hooks/useMetricsOverview'
 import { LevelsPanel } from './LevelsPanel'
 
+export interface LevelMetrics {
+  progress: number
+  pending: number
+  // Outras propriedades...
+}
+
 export default function LevelsSection() {
   const { metrics } = useMetricsOverview()
   const levels = metrics

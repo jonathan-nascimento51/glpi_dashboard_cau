@@ -8,7 +8,7 @@ const FilterPanel: FC = () => {
   const panelRef = useRef<HTMLDivElement>(null)
   const toggleRef = useRef<HTMLButtonElement>(null)
 
-  useFocusTrap(panelRef, filters.open, toggleFilters)
+  useFocusTrap(panelRef as React.RefObject<HTMLDivElement>, filters.open, toggleFilters)
 
   useEffect(() => {
     if (!filters.open) {

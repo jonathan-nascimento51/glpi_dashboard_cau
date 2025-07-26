@@ -5,14 +5,8 @@
  */
 export type IdleHandle = number | ReturnType<typeof setTimeout>
 
-export function scheduleIdleCallback(cb: () => void): IdleHandle {
-  if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
-    return (window as any).requestIdleCallback(() => cb())
-  }
-  if (typeof window !== 'undefined') {
-    return window.setTimeout(cb, 0)
-  }
-  return globalThis.setTimeout(cb, 0)
+export function scheduleIdleCallback(cb: () => void): number {
+  return window.setTimeout(cb, 0);
 }
 
 export function cancelIdleCallback(handle: IdleHandle) {

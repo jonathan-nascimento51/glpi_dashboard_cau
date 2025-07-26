@@ -8,7 +8,7 @@ pytest.importorskip("aiohttp")
 
 
 @pytest.mark.asyncio
-async def test_init_session_success(monkeypatch):
+async def test_init_session_success(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("DISABLE_RETRY_BACKOFF", "1")
     redis = fakeredis.FakeRedis(decode_responses=True)
     session = make_session([make_cm(200, {"session_token": "tok"})])
@@ -25,7 +25,7 @@ async def test_init_session_success(monkeypatch):
 
 
 @pytest.mark.asyncio
-async def test_init_session_failure(monkeypatch):
+async def test_init_session_failure(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("DISABLE_RETRY_BACKOFF", "1")
     redis = fakeredis.FakeRedis(decode_responses=True)
     session = make_session([make_cm(401, {})])
@@ -41,7 +41,7 @@ async def test_init_session_failure(monkeypatch):
 
 
 @pytest.mark.asyncio
-async def test_get_session_token_cache(monkeypatch):
+async def test_get_session_token_cache(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("DISABLE_RETRY_BACKOFF", "1")
     redis = fakeredis.FakeRedis(decode_responses=True)
     await redis.set("glpi:session_token", "cached")

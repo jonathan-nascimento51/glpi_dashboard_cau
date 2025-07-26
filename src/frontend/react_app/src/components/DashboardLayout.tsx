@@ -1,6 +1,6 @@
 import FilterPanel from './FilterPanel'
-import Header from './Header'
-import MetricsSection from './MetricsSection'
+import { Header } from './Header'
+import { MetricsSection } from './MetricsSection'
 import LevelsSection from './LevelsSection'
 import { Sidebar } from './Sidebar'
 import SidebarToggle from './SidebarToggle'

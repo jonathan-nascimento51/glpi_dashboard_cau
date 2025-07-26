@@ -5,9 +5,10 @@ import { Drawer, DrawerTrigger, DrawerContent, DrawerTitle } from '@/components/
 import SearchResults from './SearchResults';
 
 export function Header() {
-  const inputRef = useRef<HTMLInputElement>(null);
+
   const [term, setTerm] = useState('');
   const [visible, setVisible] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;

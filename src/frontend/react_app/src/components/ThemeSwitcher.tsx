@@ -1,10 +1,11 @@
-import { useCallback } from 'react'
-import { useTheme } from '../context/theme'
+import { useTheme } from '../context/theme';
+
+type Theme = 'light' | 'dark' | 'corporate' | 'tech';
 
 export default function ThemeSwitcher() {
-  const { theme, setTheme } = useTheme()
+  const { theme, setTheme } = useTheme();
 
-  const handleSetTheme = (theme: string) => setTheme(theme)
+  const handleSetTheme = (theme: Theme) => setTheme(theme);
 
   return (
     <div className="theme-switcher">
