@@ -54,7 +54,9 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   const notify = useCallback((message: string, type: NotificationType = 'success') => {
     const id = ++idCounter.current
     setNotifications((prev) => [...prev, { id, message, type }])
-    timeoutsRef.current[id] = setTimeout(() => removeRef.current(id), 4000)
+    const timeoutId = setTimeout(() => removeRef.current(id), 4000)
+    timeoutsRef.current[id] = timeoutId
+    return timeoutId
   }, [])
   return (
     <NotificationContext.Provider value={{ notifications, notify, remove }}>
