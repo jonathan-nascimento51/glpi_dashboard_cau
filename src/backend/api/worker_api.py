@@ -42,7 +42,10 @@ from backend.application.ticket_loader import (
 from backend.core.settings import (
     KNOWLEDGE_BASE_FILE,
 )
-from shared.dto import CleanTicketDTO  # imported from shared DTOs
+from shared.dto import (
+    CleanTicketDTO,
+    TicketSearchResult,
+)
 from shared.utils.api_auth import verify_api_key
 from shared.utils.json import UTF8JSONResponse
 from shared.utils.logging import init_logging
@@ -206,6 +209,22 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
         return await load_and_translate_tickets(
             client=client, cache=cache, response=response
         )
+
+    @app.get("/tickets/search", response_model=list[TicketSearchResult])
+    async def tickets_search(query: str, limit: int = 20) -> list[dict[str, Any]]:  # noqa: F401
+        """Return tickets filtered by ``query`` matching the name field."""
+
+        if not query:
+            return []
+
+        df = await load_tickets(client=client, cache=cache)
+        name_series = df.get("name")
+        if name_series is None:
+            return []
+        mask = name_series.astype(str).str.contains(query, case=False, na=False)
+        subset = df.loc[mask, ["id", "name", "requester"]].head(limit)
+        records = subset.astype(object).where(pd.notna(subset), None)
+        return cast(list[dict[str, Any]], records.to_dict(orient="records"))
 
     @app.get("/tickets/stream")
     async def tickets_stream(response: Response) -> StreamingResponse:  # noqa: F401

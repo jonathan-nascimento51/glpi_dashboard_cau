@@ -105,6 +105,12 @@ def test_rest_endpoints(test_app: TestClient):
     assert tickets and "id" in tickets[0]
     assert tickets[0]["requester"] == "Alice"
 
+    resp = test_app.get("/tickets/search", params={"query": "A", "limit": 1})
+    assert resp.status_code == 200
+    results = resp.json()
+    assert results[0]["name"] == "A"
+    assert len(results) <= 1
+
     resp = test_app.get("/metrics/summary")
     assert resp.status_code == 200
     metrics = resp.json()

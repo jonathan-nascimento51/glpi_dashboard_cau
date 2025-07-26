@@ -111,6 +111,14 @@ class CleanTicketDTO(BaseModel):
         return "Unknown"
 
 
+class TicketSearchResult(BaseModel):
+    """Simplified ticket info returned by the search endpoint."""
+
+    id: int
+    name: str
+    requester: Optional[str] = None
+
+
 class TicketTranslator:
     """Translate raw GLPI ticket dictionaries into :class:`CleanTicketDTO`."""
 
