@@ -23,6 +23,9 @@ node_modules/
 dist/
 build/
 *.tsbuildinfo
+_metadata.json
+package.json
+
 # compiled JS artifacts generated from TypeScript (ignored)
 src/frontend/react_app/src/**/*.js
 src/frontend/react_app/src/**/*.js.map
