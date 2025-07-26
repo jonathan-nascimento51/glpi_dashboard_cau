@@ -52,23 +52,27 @@ class GlpiApiClient:
         return self
 
     async def _populate_forced_fields(self) -> None:
-        """Resolve numeric IDs for ``BASE_TICKET_FIELDS`` once."""
+        """Resolve numeric IDs for ``BASE_TICKET_FIELDS`` once and cache them."""
         if self._forced_fields:
             return
+
+        cache_key = "ticket:forced_fields"
+        cached = await self._mapper.search_cache.get(cache_key)
+        if isinstance(cached, list) and all(isinstance(x, int) for x in cached[:10]):
+            self._forced_fields[:] = cached
+            return
+
         try:
-            options = await self._session.list_search_options("Ticket")
-            field_map = {
-                info.get("field"): int(fid)
-                for fid, info in options.items()
-                if isinstance(info, dict) and info.get("field")
-            }
-            if ids := [
-                field_map[name] for name in BASE_TICKET_FIELDS if name in field_map
-            ]:
+            ids = await self._mapper.get_ticket_field_ids(BASE_TICKET_FIELDS)
+            if ids:
                 self._forced_fields[:] = ids
+                await self._mapper.search_cache.set(
+                    cache_key, ids, ttl_seconds=self._mapper.cache_ttl_seconds
+                )
                 return
         except Exception as exc:  # pragma: no cover - defensive
             logger.error("failed to load ticket field IDs: %s", exc)
+
         # Fallback to legacy defaults if lookup fails
         if not self._forced_fields:
             self._forced_fields[:] = [1, 2, 4, 12, 15, 83]
@@ -86,7 +90,7 @@ class GlpiApiClient:
     ) -> List[Dict[str, Any]]:
         """Replace numeric keys in ``records`` with field names."""
         try:
-            options = await self._session.list_search_options(itemtype)
+            options = await self._mapper.get_search_options(itemtype)
         except Exception:  # pragma: no cover - best effort
             return records
 
