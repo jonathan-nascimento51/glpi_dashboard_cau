@@ -112,22 +112,7 @@ def test_rest_endpoints(test_app: TestClient):
 
 
 def test_ticket_search_endpoint(dummy_cache: DummyCache) -> None:
-    session = FakeClient()
-
-    async def fake_search(query: str, limit: int = 5):
-        raw = [
-            {
-                "id": 3,
-                "name": "Search Result",
-                "status": 5,
-                "priority": 2,
-                "date_creation": "2024-06-03",
-            }
-        ]
-        return [CleanTicketDTO.model_validate(r) for r in raw[:limit]]
-
-    session.search_tickets = fake_search  # type: ignore[assignment]
-    client = TestClient(create_app(client=session, cache=dummy_cache))
+    client = TestClient(create_app(client=FakeClient(), cache=dummy_cache))
 
     resp = client.get("/tickets/search", params={"query": "Search"})
     assert resp.status_code == 200
