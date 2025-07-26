@@ -58,7 +58,7 @@ class GlpiApiClient:
 
         cache_key = "ticket:forced_fields"
         cached = await self._mapper.search_cache.get(cache_key)
-        if isinstance(cached, list) and all(isinstance(x, int) for x in cached):
+        if isinstance(cached, list) and all(isinstance(x, int) for x in cached[:10]):
             self._forced_fields[:] = cached
             return
 
