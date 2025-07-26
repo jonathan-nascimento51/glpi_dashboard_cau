@@ -33,9 +33,9 @@ const FilterPanel: FC = () => {
       }
     }
 
-    panelRef.current.addEventListener('keydown', handleKeyDown)
+    panelElement.addEventListener('keydown', handleKeyDown)
     return () => {
-      panelRef.current?.removeEventListener('keydown', handleKeyDown)
+      panelElement.removeEventListener('keydown', handleKeyDown)
     }
   }, [filters.open, toggleFilters])
 
