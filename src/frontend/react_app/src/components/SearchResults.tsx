@@ -65,7 +65,7 @@ const SearchResults: FC<Props> = ({ term, visible }) => {
       className="search-results show"
       role="listbox"
       tabIndex={0}
-      aria-activedescendant={data ? `result-${data[activeIndex].id}` : undefined}
+      aria-activedescendant={data && data.length > 0 ? `result-${data[activeIndex].id}` : undefined}
       onKeyDown={handleKeyDown}
       ref={listRef}
     >
