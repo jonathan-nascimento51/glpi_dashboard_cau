@@ -11,6 +11,7 @@ import SkeletonHeatmap from './components/SkeletonHeatmap'
 import { SidebarProvider } from './hooks/useSidebar'
 import { NotificationProvider } from './context/notification'
 import NotificationToast from './components/NotificationToast'
+import { useHotkeys } from './hooks/useHotkeys'
 
 // Lazy load heavy components to split them into separate chunks.
 // This tells Vite/Rollup to create separate .js files for these components.
@@ -18,6 +19,7 @@ const ChamadosTendencia = lazy(() => import('./components/ChamadosTendencia'))
 const ChamadosHeatmap = lazy(() => import('./components/ChamadosHeatmap'))
 
 function App() {
+  useHotkeys()
   return (
     <ErrorBoundary>
       <NotificationProvider>
