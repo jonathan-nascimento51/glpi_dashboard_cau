@@ -35,6 +35,20 @@ test('shows loading spinner', () => {
   expect(screen.getByRole('status')).toBeInTheDocument()
 })
 
+test('renders nothing when visible is false', () => {
+  const result: Partial<UseQueryResult<useSearchHook.SearchResult[], Error>> = {
+    data: [{ id: 1, name: 'T1', requester: undefined }],
+    isLoading: false,
+    isError: false,
+  }
+  mockUseSearch.useSearch.mockReturnValue(
+    result as UseQueryResult<useSearchHook.SearchResult[], Error>,
+  )
+
+  const { container } = render(<SearchResults term="t" visible={false} />)
+  expect(container).toBeEmptyDOMElement()
+})
+
 test('shows error message', () => {
   const result: Partial<UseQueryResult<useSearchHook.SearchResult[], Error>> = {
     data: undefined,
