@@ -1,12 +1,13 @@
 const fs = require('fs');
 
 /**
- * Transform TypeScript import paths based on mapping from file_map.json.
- * Usage: jscodeshift -t scripts/refactor/update_ts_imports.js <paths> --map path/to/file_map.json
+ * Transform TypeScript import paths based on mapping from scripts/refactor/file_map.json.
+ * Usage: jscodeshift -t scripts/refactor/update_ts_imports.js <paths> --map scripts/refactor/file_map.json
  */
 module.exports = function transformer(fileInfo, api, options) {
   const j = api.jscodeshift;
-  const mappingPath = options.map || 'file_map.json';
+const DEFAULT_MAPPING_PATH = 'scripts/refactor/file_map.json';
+const mappingPath = options.map || DEFAULT_MAPPING_PATH;
   const raw = JSON.parse(fs.readFileSync(mappingPath, 'utf8'));
 
   const aliasMap = buildAliasMap(raw);
