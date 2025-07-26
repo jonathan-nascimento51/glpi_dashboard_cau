@@ -1,6 +1,7 @@
 import { renderHook, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useDashboardData } from '@/hooks/useDashboardData'
+import { DEFAULT_FILTERS } from '@/hooks/useFilters'
 
 const queryClient = new QueryClient()
 const wrapper = ({ children }: { children: React.ReactNode }) => (
@@ -14,7 +15,7 @@ test('loads metrics from API', async () => {
       Promise.resolve({ status: { new: 2, pending: 1, progress: 3, resolved: 4 } }),
   }) as jest.Mock
 
-  const { result } = renderHook(() => useDashboardData(), { wrapper })
+  const { result } = renderHook(() => useDashboardData(DEFAULT_FILTERS), { wrapper })
 
   await waitFor(() => expect(result.current.metrics.new).toBe(2))
 
@@ -32,7 +33,7 @@ test('handles API error', async () => {
     text: () => Promise.resolve('fail'),
   }) as jest.Mock
 
-  const { result } = renderHook(() => useDashboardData(), { wrapper })
+  const { result } = renderHook(() => useDashboardData(DEFAULT_FILTERS), { wrapper })
   await waitFor(() => expect(result.current.error).toBeTruthy())
 })
 
@@ -51,7 +52,7 @@ test('refreshMetrics triggers refetch', async () => {
     })
   global.fetch = fetchMock as unknown as typeof fetch
 
-  const { result } = renderHook(() => useDashboardData(), { wrapper })
+  const { result } = renderHook(() => useDashboardData(DEFAULT_FILTERS), { wrapper })
   await waitFor(() => expect(result.current.metrics.new).toBe(1))
 
   await result.current.refreshMetrics()

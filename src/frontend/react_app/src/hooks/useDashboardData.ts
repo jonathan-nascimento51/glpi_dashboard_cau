@@ -3,6 +3,9 @@
 import { useEffect, useRef } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useApiQuery } from './useApiQuery'
+import type { FiltersState } from './useFilters'
+import { buildQueryString } from '../lib/buildQueryString'
+import { stableStringify } from '../lib/stableStringify'
 import type { Chart as ChartType } from 'chart.js'
 import type { DashboardStats } from '../types/dashboard'
 import {
@@ -17,11 +20,13 @@ interface Aggregated {
   status: Record<string, number>
 }
 
-export function useDashboardData() {
+export function useDashboardData(filters?: FiltersState) {
   const queryClient = useQueryClient()
+  const qs = buildQueryString(filters)
+  const serialized = stableStringify(filters)
   const query = useApiQuery<Aggregated>(
-    ['metrics-aggregated'],
-    '/metrics/aggregated',
+    ['metrics-aggregated', serialized],
+    `/metrics/aggregated${qs}`,
     {
       // Automatically refetch metrics every 30 seconds
       refetchInterval: 30000,
@@ -78,6 +83,12 @@ export function useDashboardData() {
       trendChart.current?.destroy()
     }
   }, [])
+
+  useEffect(() => {
+    if (filters) {
+      queryClient.invalidateQueries({ queryKey: ['metrics-aggregated'] })
+    }
+  }, [filters, queryClient])
 
 
   const refreshMetrics = () =>

@@ -8,14 +8,16 @@ export interface FiltersState {
   priority: string[]
 }
 
-export function useFilters() {
-  const [filters, setFilters] = useState<FiltersState>({
-    open: false,
-    period: ['today'],
-    level: ['n1', 'n2', 'n3', 'n4'],
-    status: ['new', 'progress', 'pending', 'resolved'],
-    priority: ['medium', 'low'],
-  })
+export const DEFAULT_FILTERS: FiltersState = {
+  open: false,
+  period: ['today'],
+  level: ['n1', 'n2', 'n3', 'n4'],
+  status: ['new', 'progress', 'pending', 'resolved'],
+  priority: ['medium', 'low'],
+}
+
+export function useFilters(initial: FiltersState = DEFAULT_FILTERS) {
+  const [filters, setFilters] = useState<FiltersState>({ ...initial })
 
   const toggleFilters = () => setFilters((f) => ({ ...f, open: !f.open }))
 
