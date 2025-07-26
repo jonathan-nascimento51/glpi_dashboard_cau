@@ -13,7 +13,7 @@ export default function DashboardLayout() {
       <FilterPanel />
       <SidebarToggle />
       <main className="main-content">
-        <div className="flex flex-col gap-6 flex-1 overflow-auto">
+        <div className="dashboard-grid">
           <MetricsSection />
           <LevelsSection />
         </div>
