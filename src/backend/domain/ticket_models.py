@@ -164,15 +164,17 @@ def convert_ticket(raw: RawTicketDTO) -> CleanTicketDTO:
 
     return CleanTicketDTO(
         id=id_int,
-        title=title,
+        name=title,
         content=content,
         status=status,
         priority=priority,
         urgency=urgency,
         impact=impact,
         type=ttype,
-        creation_date=created,
-        requester=_resolve_requester_name(raw.users_id_requester, ticket_id),
+        date_creation=created,
+        requester=str(raw.users_id_requester)
+        if raw.users_id_requester is not None
+        else None,
     )
 
 

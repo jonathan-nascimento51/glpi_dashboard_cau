@@ -74,7 +74,7 @@ python worker.py
 Endpoints relevantes:
 
 - `/tickets` – lista completa de chamados
- - A resposta inclui os campos `priority` e `requester` em formato textual.
+- A resposta inclui os campos `priority` e `requester` em formato textual.
 - `/metrics` – contagem de abertos/fechados
 - `/graphql/` – versão GraphQL
 - `/cache/stats` – estatísticas de cache
