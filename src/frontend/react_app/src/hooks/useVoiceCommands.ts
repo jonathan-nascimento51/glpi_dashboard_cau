@@ -20,18 +20,22 @@ export function useVoiceCommands() {
       recognitionRef.current = new SpeechRecognition()
       recognitionRef.current.lang = 'pt-BR'
       recognitionRef.current.interimResults = false
-      recognitionRef.current.onresult = (e: SpeechRecognitionResult) => {
-        const res: SpeechRecognitionResultList = e.results as SpeechRecognitionResultList
-        if (!res || typeof res[Symbol.iterator] !== 'function') return
-        Array.from(res).forEach((result: SpeechRecognitionResult) => {
-          if (!result || typeof result[Symbol.iterator] !== 'function') return
-          Array.from(result).forEach((item: SpeechRecognitionAlternative) => {
-            const transcript = item.transcript?.trim().toLowerCase()
-            if (transcript) {
-              processCommand(transcript)
-            }
-          })
-        })
+      recognitionRef.current.onresult = (event: SpeechRecognitionEvent) => {
+        try {
+          const res: SpeechRecognitionResultList = event.results;
+          if (!res || typeof res[Symbol.iterator] !== 'function') return;
+          Array.from(res).forEach((result: SpeechRecognitionResult) => {
+            if (!result || typeof result[Symbol.iterator] !== 'function') return;
+            Array.from(result).forEach((item) => {
+              const transcript = item.transcript?.trim().toLowerCase();
+              if (transcript) {
+                processCommand(transcript);
+              }
+            });
+          });
+        } catch (error) {
+          console.error('Error processing speech recognition result:', error);
+        }
       }
       recognitionRef.current.onend = () => setIsListening(false)
     }
