@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 export function useVoiceCommands() {
   const recognitionRef = useRef<SpeechRecognition | null>(null)
@@ -27,7 +27,7 @@ export function useVoiceCommands() {
     }
     recognition.onend = () => setIsListening(false)
     return recognition
-  }
+  }, [processCommand])
 
   const startListening = useCallback(() => {
     if (isListening) return
@@ -37,11 +37,17 @@ export function useVoiceCommands() {
       recognition.start()
       setIsListening(true)
     }
-  }, [isListening, processCommand])
+  }, [isListening, createRecognition])
 
   const stopListening = useCallback(() => {
     recognitionRef.current?.stop()
     setIsListening(false)
+  }, [setIsListening])
+
+  useEffect(() => {
+    return () => {
+      recognitionRef.current?.stop()
+    }
   }, [])
 
   return { isListening, startListening, stopListening, processCommand }
