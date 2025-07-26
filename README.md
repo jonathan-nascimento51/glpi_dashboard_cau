@@ -217,6 +217,20 @@ is executed as `A1 ▶ A2 ▶ A3 ▶ A4‑6 ▶ A7 ▶ A8 ▶ A9` where:
 See [docs/AGENTS.md](docs/AGENTS.md) for the full prompt templates.
 Structural changes made during these steps are summarized in [docs/REFACTOR_LOG.md](docs/REFACTOR_LOG.md). The five-block format (Identity, Instructions, Context, Examples, Question) is outlined in [docs/PROMPT_BUILDER.md](docs/PROMPT_BUILDER.md).
 
+### Frontend pipeline (A10–A16)
+
+New React components follow an extended sequence documented in
+[`src/frontend/react_app/AGENTS.md`](src/frontend/react_app/AGENTS.md).
+The flow executes `A10 → A11 → A12 → A13 → A14 → A15 → A16`:
+
+- **A10 – UI & Components** generates the initial `.tsx` file.
+- **A11 – Styles & Responsiveness** builds the `tailwind.config.ts` theme.
+- **A12 – API Integration** creates hooks using SWR.
+- **A13 – Prompt Composer** merges the previous blocks for Codex.
+- **A14 – UI & Accessibility Validator** reviews ARIA usage.
+- **A15 – Test Generator** writes Jest tests with `@testing-library/react`.
+- **A16 – Storybook** produces `Component.stories.tsx` with example states.
+
 ### Node.js ESM conventions
 
 `package.json` declares `"type": "module"`, so all `.js` files use ES Module syntax by default. Configuration files that still rely on `module.exports` have been renamed with the `.cjs` extension. When adding new scripts or configs prefer ESM (`import`/`export`) and only use `.cjs` for legacy CommonJS code.
@@ -1030,6 +1044,12 @@ everything automatically.
 See the
 [Codemod Python (Rope) entry](docs/REFACTOR_LOG.md#codemod-python-rope)
 for details on how this script was used during the structural refactor.
+
+## Opening pull requests
+
+Before sending a PR, run `pre-commit` and `pytest` locally. Commit messages
+should follow the Conventional Commits style documented in
+[docs/CONTRIBUTING.md](docs/CONTRIBUTING.md#5-commit-messages).
 
 ## License
 
