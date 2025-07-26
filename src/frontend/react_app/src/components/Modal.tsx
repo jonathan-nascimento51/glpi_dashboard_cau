@@ -57,8 +57,8 @@ export const Modal: FC<ModalProps> = ({ isOpen, onClose, children }) => {
         onClose()
       }
     }
-    document.addEventListener('mousedown', handleClick)
-    return () => document.removeEventListener('mousedown', handleClick)
+    document.addEventListener('click', handleClick)
+    return () => document.removeEventListener('click', handleClick)
   }, [isOpen, onClose])
 
   if (!isOpen) return null
