@@ -13,7 +13,7 @@ function stableStringify(value: unknown): string {
   if (Array.isArray(value)) {
     return `[${value.map(stableStringify).join(',')}]`;
   }
-  const keys = Object.keys(value as Record<string, unknown>).sort();
+  const keys = Object.keys(value as Record<string, unknown>).sort((a, b) => a.localeCompare(b));
   const entries = keys.map(
     (key) =>
       `${JSON.stringify(key)}:${stableStringify(
@@ -31,8 +31,8 @@ export function useApiQuery<T, E = Error>(
   // Use process.env for SSR and test environments, import.meta.env for Vite/browser
   // Only use import.meta.env in environments where it is defined (Vite/browser), otherwise use process.env (Node/Jest)
   const baseUrl =
-    (typeof process !== 'undefined' && process.env && process.env.NEXT_PUBLIC_API_BASE_URL) ||
-    (typeof window !== 'undefined' && typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.NEXT_PUBLIC_API_BASE_URL) ||
+    process?.env?.NEXT_PUBLIC_API_BASE_URL ||
+    import.meta?.env?.NEXT_PUBLIC_API_BASE_URL ||
     'http://localhost:8000';
 
   const fetchFromApi = async (): Promise<T> => {
