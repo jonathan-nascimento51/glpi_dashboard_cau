@@ -9,3 +9,8 @@ declare module 'react-window' {
   }
   export const FixedSizeList: React.ComponentType<unknown>
 }
+
+interface Window {
+  webkitSpeechRecognition: typeof SpeechRecognition
+  SpeechRecognition: typeof SpeechRecognition
+}
