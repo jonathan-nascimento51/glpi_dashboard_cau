@@ -24,7 +24,7 @@ const SearchResults: FC<Props> = ({ term, visible }) => {
   if (isError) {
     return (
       <div className="search-results show">
-        <ErrorMessage message="Erro ao buscar" />
+        <ErrorMessage message="Erro ao buscar chamados. Tente novamente ou verifique sua conexão." />
       </div>
     )
   }
