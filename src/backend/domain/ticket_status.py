@@ -16,7 +16,7 @@ class _BaseIntEnum(IntEnum):
     def from_int(cls: Type[E], value: int) -> E:
         """Return enum value or ``UNKNOWN`` if ``value`` is invalid."""
         try:
-            return cast(E, cls(value))
+            return cls(value)
         except ValueError:
             logger.warning("Unknown %s value: %r", cls.__name__, value)
             return cast(E, cls.__members__["UNKNOWN"])

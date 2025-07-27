@@ -39,7 +39,8 @@ function mapTicketToTicketRow(ticket: Ticket): TicketRow {
     requester: ticket.requester,
     priority: ticket.priority,
     // Use `undefined` when the date is missing so the formatter displays a fallback
-    date_creation:
-      ticket.date_creation != null ? new Date(ticket.date_creation) : undefined,
+    date_creation: ticket.date_creation !== undefined && ticket.date_creation !== null
+      ? String(ticket.date_creation)
+      : undefined,
   };
 }

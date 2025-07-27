@@ -4,6 +4,7 @@ import logging
 import os  # Importamos o módulo 'os' para ler as variáveis de ambiente
 import sys
 from pathlib import Path
+from typing import Any
 
 from dotenv import load_dotenv
 
@@ -19,7 +20,12 @@ init_logging(logging.INFO)
 logger = logging.getLogger(__name__)
 
 if sys.platform.startswith("win"):
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+    # WindowsSelectorEventLoopPolicy is only
+    # available on Windows and in some Python versions.
+    # Import it explicitly and use getattr for type checker compatibility.
+    policy = getattr(asyncio, "WindowsSelectorEventLoopPolicy", None)
+    if policy is not None:
+        asyncio.set_event_loop_policy(policy())
 
 
 def fetch_raw_data():
@@ -66,7 +72,7 @@ def fetch_raw_data():
 async def _save_raw_tickets(client: GLPISession) -> None:
     logger.info("Cliente da API inicializado corretamente. Buscando chamados...")
 
-    params = {
+    params: dict[str, Any] = {
         "is_deleted": 0,
         "sort": "date_mod",
         "order": "desc",
@@ -83,7 +89,7 @@ async def _save_raw_tickets(client: GLPISession) -> None:
     logger.info(f"Dados brutos salvos com sucesso em '{output_filename}'")
 
 
-async def fetch_and_save(output):
+async def fetch_and_save(output: str) -> None:
     """
     Função assíncrona para buscar dados e salvar em um arquivo.
     Substitua o conteúdo desta função pela lógica de busca de dados necessária.
@@ -110,7 +116,7 @@ async def fetch_and_save(output):
     try:
         creds = Credentials(app_token=app_token, user_token=user_token)
         async with GLPISession(glpi_url, creds) as client:
-            params = {
+            params: dict[str, Any] = {
                 "is_deleted": 0,
                 "sort": "date_mod",
                 "order": "desc",
@@ -119,14 +125,11 @@ async def fetch_and_save(output):
             raw_tickets = await client.get_all("Ticket", **params)
 
             # Guarantee each ticket has "id" and "status"
-            for i, ticket in enumerate(raw_tickets):
-                if not isinstance(ticket, dict):
-                    raw_tickets[i] = {"id": 0, "status": ""}
-                else:
-                    if "id" not in ticket:
-                        ticket["id"] = 0
-                    if "status" not in ticket:
-                        ticket["status"] = ""
+            for ticket in raw_tickets:
+                if "id" not in ticket:
+                    ticket["id"] = 0
+                elif "status" not in ticket:
+                    ticket["status"] = ""
 
             out_path = Path(output)
             out_path.parent.mkdir(parents=True, exist_ok=True)
