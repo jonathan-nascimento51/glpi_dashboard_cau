@@ -42,7 +42,9 @@ class RawTicketFromAPI(BaseModel):
     id: int
     name: Optional[str] = Field(default=None)
     status: Union[int, str]
-    priority: Optional[int] = Field(default=None)
+    priority: Optional[int] = Field(
+        None, description="Priority as a numeric value from GLPI"
+    )
     date_creation: Optional[datetime] = Field(default=None)
     users_id_assign: Optional[int] = Field(None, alias="users_id_assign")
     users_id_requester: Optional[int] = Field(None, alias="users_id_requester")
@@ -59,7 +61,9 @@ class CleanTicketDTO(BaseModel):
         alias="name",
     )
     status: str
-    priority: Optional[str] = Field(default=None)
+    priority: Optional[str] = Field(
+        None, description="Priority as a human-readable label"
+    )
     created_at: Optional[datetime] = Field(default=None, alias="date_creation")
     assigned_to: str = "Unassigned"
     requester: Optional[str] = None
@@ -70,9 +74,7 @@ class CleanTicketDTO(BaseModel):
     @classmethod
     def _sanitize_title(cls, data: Dict[str, Any]) -> Dict[str, Any]:
         title = data.get("name")
-        if "name" not in data or title == "":
-            data["name"] = DEFAULT_TITLE
-        elif title is None:
+        if "name" not in data or title == "" or title is None:
             data["name"] = DEFAULT_TITLE
         else:
             data["name"] = str(title)
@@ -80,7 +82,7 @@ class CleanTicketDTO(BaseModel):
 
     @field_validator("status", mode="before")
     @classmethod
-    def _validate_status(cls, v: int | str) -> str:  # pragma: no cover - simple mapping
+    def _validate_status(cls, v: int | str) -> str:
         """Normalize integer or textual status values to labels."""
 
         if isinstance(v, str):
@@ -90,25 +92,18 @@ class CleanTicketDTO(BaseModel):
             else:
                 return TEXT_STATUS_MAP.get(value.lower(), "Unknown")
 
-        if not isinstance(v, int) and not str(v).isdigit():
-            return "Unknown"
-
-        return STATUS_MAP.get(int(v), "Unknown")
+        return STATUS_MAP.get(int(v), "Unknown") if str(v).isdigit() else "Unknown"
 
     @field_validator("priority", mode="before")
     @classmethod
-    def _validate_priority(
-        cls, v: int | str | None
-    ) -> Optional[str]:  # pragma: no cover - simple mapping
+    def _validate_priority(cls, v: int | str | None) -> Optional[str]:
         if v is None:
             return None
         if isinstance(v, str) and not v.isdigit():
             return v
         if isinstance(v, int):
             return PRIORITY_MAP.get(v, "Unknown")
-        if isinstance(v, str) and v.isdigit():
-            return PRIORITY_MAP.get(int(v), "Unknown")
-        return "Unknown"
+        return PRIORITY_MAP.get(int(v), "Unknown") if str(v).isdigit() else "Unknown"
 
 
 class TicketTranslator:

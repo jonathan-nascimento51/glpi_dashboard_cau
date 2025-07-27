@@ -5,7 +5,7 @@ export interface Ticket {
   name: string
   content?: string | null
   status?: string
-  priority?: string
+  priority?: number | string
   urgency?: Urgency
   impact?: Impact
   type?: TicketType

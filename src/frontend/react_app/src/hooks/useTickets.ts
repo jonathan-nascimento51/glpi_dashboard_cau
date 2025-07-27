@@ -2,7 +2,7 @@ import { useEffect, useMemo } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useApiQuery } from '../hooks/useApiQuery'
 import type { FiltersState } from './useFilters'
-import { buildQueryString } from '../lib/buildQueryString'
+import { buildQueryString, FilterQuery } from '../lib/buildQueryString'
 import { stableStringify } from '../lib/stableStringify'
 import type { CleanTicketDTO } from '../types/api'
 import type { Ticket } from '../types/ticket'
@@ -22,8 +22,8 @@ function toTicket(dto: CleanTicketDTO): Ticket {
 
 export function useTickets(filters?: FiltersState) {
   const queryClient = useQueryClient()
-  const qs = buildQueryString(filters)
-  const serialized = stableStringify(filters)
+  const qs = buildQueryString(filters as FilterQuery | undefined)
+  const serialized = stableStringify(filters as Record<string, unknown> | undefined)
   const query = useApiQuery<CleanTicketDTO[]>(
     ['tickets', serialized],
     `/tickets${qs}`,

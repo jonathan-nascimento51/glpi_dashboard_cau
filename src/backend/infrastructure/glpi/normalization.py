@@ -44,7 +44,7 @@ def _ensure_dataframe(data: TicketData) -> pd.DataFrame:
     if isinstance(data, pd.DataFrame):
         return data.copy()
     if isinstance(data, pd.Series):
-        return pd.DataFrame([data.to_dict()])
+        return pd.DataFrame([data.to_dict()])  # type: ignore
     return pd.DataFrame(list(data))
 
 
@@ -55,24 +55,32 @@ def process_raw(data: TicketData) -> pd.DataFrame:
 
     for col in df.columns:
         with contextlib.suppress(ValueError, TypeError):
-            df[col] = pd.to_numeric(df[col], downcast="integer")
+            df[col] = pd.to_numeric(df[col], downcast="integer")  # type: ignore
     for src, dst in FIELD_ALIASES.items():
         if src in df.columns and dst not in df.columns:
             df.rename(columns={src: dst}, inplace=True)
 
     idx = df.index
 
-    df["id"] = pd.to_numeric(
-        df.get("id", pd.Series([None] * len(df), index=idx)),
-        errors="coerce",
-        downcast="integer",
-    ).fillna(0)
+    df["id"] = (
+        pd.to_numeric(
+            df.get("id", pd.Series([None] * len(df), index=idx)),
+            errors="coerce",
+            downcast="integer",
+        )
+        .fillna(0)
+        .astype("Int64")
+    )  # type: ignore
+
     df["name"] = (
-        df.get("name", pd.Series([""] * len(df), index=idx)).fillna("").astype(str)
+        df.get("name", pd.Series([""] * len(df), index=idx))
+        .fillna("")  # type: ignore
+        .astype(str)
     )
+
     df["status"] = (
         df.get("status", pd.Series([""] * len(df), index=idx))
-        .fillna("", downcast=None)
+        .fillna("")  # type: ignore
         .astype(str)
         .str.lower()
         .astype("category")
@@ -81,18 +89,26 @@ def process_raw(data: TicketData) -> pd.DataFrame:
         df.get("priority", pd.Series(pd.NA, index=idx)),
         errors="coerce",
         downcast="integer",
-    ).astype("Int64")
+    ).astype("Int64")  # type: ignore
     df["group"] = (
-        df.get("group", pd.Series([""] * len(df), index=idx)).fillna("").astype(str)
+        df.get("group", pd.Series([""] * len(df), index=idx))
+        .fillna("")  # type: ignore
+        .astype(str)
     ).astype("category")
     df["date_creation"] = pd.to_datetime(
         df.get("date_creation", pd.Series([pd.NaT] * len(df), index=idx))
     )
-    assigned_to = _extracted_from_process_raw_41(df, "assigned_to", idx)
-    df["assigned_to"] = assigned_to.replace({"<NA>": "", "nan": ""}).fillna("")
+    assigned_to = _normalize_assigned_field(df, "assigned_to", idx)
+    df["assigned_to"] = (
+        assigned_to.replace({"<NA>": "", "nan": "", "None": ""})
+        .fillna(
+            "",
+        )
+        .astype(str)
+    )  # type: ignore
 
-    requester = _extracted_from_process_raw_41(df, "requester", idx)
-    df["requester"] = requester.replace({"<NA>": "", "nan": "", "None": ""}).fillna("")
+    requester = _normalize_assigned_field(df, "requester", idx)
+    df["requester"] = requester.replace({"<NA>": "", "nan": "", "None": ""}).fillna("")  # type: ignore
 
     return df[
         [
@@ -108,12 +124,11 @@ def process_raw(data: TicketData) -> pd.DataFrame:
     ].copy()
 
 
-# TODO Rename this here and in `process_raw`
-def _extracted_from_process_raw_41(
-    df: pd.DataFrame, arg1: str, idx: pd.Index
+def _normalize_assigned_field(
+    df: pd.DataFrame, field_name: str, idx: pd.Index
 ) -> pd.Series:
-    assigned_raw = df.get(arg1, pd.Series([None] * len(df), index=idx))
-    numeric_assigned = pd.to_numeric(assigned_raw, errors="coerce")
+    assigned_raw = df.get(field_name, pd.Series([None] * len(df), index=idx))
+    numeric_assigned = pd.to_numeric(assigned_raw, errors="coerce")  # type: ignore
     return (
         numeric_assigned.astype("Int64").astype(str)
         if numeric_assigned.notna().any()
