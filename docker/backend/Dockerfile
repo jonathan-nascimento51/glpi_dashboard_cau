@@ -1,5 +1,6 @@
 FROM python:3.12-slim AS builder
 WORKDIR /app
+ENV PYTHONPATH=/app
 COPY requirements.txt requirements-dev.txt pyproject.toml ./
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip install --upgrade pip && \

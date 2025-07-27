@@ -12,7 +12,7 @@ import pandas as pd
 # circular imports and ease reuse.
 
 
-TicketData = Union[List[dict], pd.DataFrame, pd.Series]
+TicketData = Union[List[dict[str, object]], pd.DataFrame, pd.Series]
 
 REQUIRED_FIELDS = [
     "id",
@@ -72,7 +72,7 @@ def process_raw(data: TicketData) -> pd.DataFrame:
     )
     df["status"] = (
         df.get("status", pd.Series([""] * len(df), index=idx))
-        .fillna("")
+        .fillna("", downcast=None)
         .astype(str)
         .str.lower()
         .astype("category")
@@ -88,20 +88,10 @@ def process_raw(data: TicketData) -> pd.DataFrame:
     df["date_creation"] = pd.to_datetime(
         df.get("date_creation", pd.Series([pd.NaT] * len(df), index=idx))
     )
-    assigned_raw = df.get("assigned_to", pd.Series([None] * len(df), index=idx))
-    numeric_assigned = pd.to_numeric(assigned_raw, errors="coerce")
-    if numeric_assigned.notna().any():
-        assigned_to = numeric_assigned.astype("Int64").astype(str)
-    else:
-        assigned_to = assigned_raw.astype(str)
+    assigned_to = _extracted_from_process_raw_41(df, "assigned_to", idx)
     df["assigned_to"] = assigned_to.replace({"<NA>": "", "nan": ""}).fillna("")
 
-    requester_raw = df.get("requester", pd.Series([None] * len(df), index=idx))
-    numeric_requester = pd.to_numeric(requester_raw, errors="coerce")
-    if numeric_requester.notna().any():
-        requester = numeric_requester.astype("Int64").astype(str)
-    else:
-        requester = requester_raw.astype(str)
+    requester = _extracted_from_process_raw_41(df, "requester", idx)
     df["requester"] = requester.replace({"<NA>": "", "nan": "", "None": ""}).fillna("")
 
     return df[
@@ -116,6 +106,19 @@ def process_raw(data: TicketData) -> pd.DataFrame:
             "date_creation",
         ]
     ].copy()
+
+
+# TODO Rename this here and in `process_raw`
+def _extracted_from_process_raw_41(
+    df: pd.DataFrame, arg1: str, idx: pd.Index
+) -> pd.Series:
+    assigned_raw = df.get(arg1, pd.Series([None] * len(df), index=idx))
+    numeric_assigned = pd.to_numeric(assigned_raw, errors="coerce")
+    return (
+        numeric_assigned.astype("Int64").astype(str)
+        if numeric_assigned.notna().any()
+        else assigned_raw.astype(str)
+    )
 
 
 __all__ = [

@@ -1,8 +1,10 @@
 from __future__ import annotations
 
-import dash_bootstrap_components as dbc
+from typing import Any, Callable, Dict, List, Optional
+
+import dash_bootstrap_components as dbc  # type: ignore
 import pandas as pd
-from dash import Input, Output, callback
+from dash import Dash, Input, Output, callback
 from frontend.components.components import _status_fig, compute_ticket_stats
 
 
@@ -11,7 +13,13 @@ def _get_filtered(df: pd.DataFrame, status: str | None) -> pd.DataFrame:
     return df[df["status"] == status.lower()] if status else df
 
 
-def register_callbacks(app, loader, *, ticket_range: str = "0-99", **filters) -> None:
+def register_callbacks(
+    app: Dash,
+    loader: Callable[..., pd.DataFrame],
+    *,
+    ticket_range: str = "0-99",
+    **filters: Any,
+) -> None:
     """Register Dash callbacks using ``loader`` to fetch data.
 
     Example
@@ -26,8 +34,8 @@ def register_callbacks(app, loader, *, ticket_range: str = "0-99", **filters) ->
         Output("stats", "children"),
         Input("init-load", "n_intervals"),
     )
-    def load_data(_: int) -> tuple[dict, dict, list]:
-        df = loader(ticket_range, **filters)
+    def load_data(_: int) -> tuple[dict[str, str], dict[str, Any], list[Any]]:
+        df: pd.DataFrame = loader(ticket_range, **filters)
         fig = _status_fig(df)
         stats = compute_ticket_stats(df)
         # Convert fig to dict if it's a plotly.graph_objs.Figure
@@ -43,11 +51,13 @@ def register_callbacks(app, loader, *, ticket_range: str = "0-99", **filters) ->
         Input("ticket-store", "data"),
         Input("status-filter", "value"),
     )
-    def update_table(store: dict, status: str | None) -> tuple[list[dict], dict]:
-        rng = store.get("ticket_range", ticket_range) if store else ticket_range
-        df = loader(rng, **filters)
-        filtered = _get_filtered(df, status)
-        fig = {
+    def update_table(
+        store: Optional[Dict[str, Any]], status: Optional[str]
+    ) -> tuple[List[Dict[str, Any]], Dict[str, Any]]:
+        rng: str = store.get("ticket_range", ticket_range) if store else ticket_range
+        df: pd.DataFrame = loader(rng, **filters)
+        filtered: pd.DataFrame = _get_filtered(df, status)
+        fig: Dict[str, Any] = {
             "data": [
                 {
                     "type": "scattergl",
@@ -57,7 +67,7 @@ def register_callbacks(app, loader, *, ticket_range: str = "0-99", **filters) ->
                 }
             ]
         }
-        return filtered.to_dict("records"), fig
+        return list(filtered.to_dict("records")), fig  # type: ignore
 
     @callback(
         Output("notification-container", "children"),

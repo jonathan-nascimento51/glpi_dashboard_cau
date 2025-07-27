@@ -24,7 +24,6 @@ from backend.domain.exceptions import GLPIAPIError
 from backend.infrastructure.glpi import glpi_client_logging
 from backend.infrastructure.glpi.glpi_session import Credentials, GLPISession
 from backend.utils import process_raw
-from shared.utils.logging import init_logging
 
 __all__ = ["create_app", "main"]
 
@@ -54,12 +53,13 @@ if cache_type != "simple":
 
 log_level_name = os.getenv("LOG_LEVEL", "INFO")
 log_level = getattr(logging, log_level_name.upper(), logging.INFO)
-init_logging(log_level)
 glpi_client_logging.init_logging(log_level)
 
 
 @cache.memoize(timeout=300)
-def _fetch_api_data(ticket_range: str = "0-99", **filters: str) -> list[dict]:
+def _fetch_api_data(
+    ticket_range: str = "0-99", **filters: str
+) -> list[dict[str, object]]:
     """Fetch ticket data directly from the GLPI API."""
 
     creds = Credentials(
@@ -69,7 +69,7 @@ def _fetch_api_data(ticket_range: str = "0-99", **filters: str) -> list[dict]:
         password=GLPI_PASSWORD,
     )
 
-    async def _run() -> list[dict]:
+    async def _run() -> list[dict[str, object]]:
         async with GLPISession(GLPI_BASE_URL, creds) as client:
             return await client.get_all("Ticket", range=ticket_range, **filters)
 
@@ -114,10 +114,10 @@ def create_app(df: pd.DataFrame | None) -> Dash:
     server = Flask(__name__)
     cache.init_app(server)
 
-    @server.route("/ping")
-    def ping() -> tuple[str, int]:
-        """Simple health check endpoint."""
-        return "OK", 200
+    # @server.route("/ping")
+    # def ping() -> tuple[str, int]:
+    #     """Simple health check endpoint."""
+    #     return "OK", 200
 
     app = Dash(__name__, server=server)
     app.layout = build_layout(df)
