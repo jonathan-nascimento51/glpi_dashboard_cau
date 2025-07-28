@@ -37,7 +37,7 @@ const LevelsPanelComponent: FC = () => {
         </div>
       </div>
       <div className="levels-grid">
-        {isLoading && <span>Carregando...</span>}
+        {isLoading && <span aria-live="polite" role="status">Carregando...</span>}
         {isError && <span>Erro ao carregar métricas</span>}
         {levels?.map((level) => (
           <button
