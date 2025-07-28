@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 export type Theme = 'light' | 'dark' | 'corporate' | 'tech'
 
 export function useThemeSwitcher() {
-  const [theme, setTheme] = useState<Theme>('light')
+  const [theme, setTheme] = useState<Theme>('dark')
 
   useEffect(() => {
     const saved = localStorage.getItem('theme') as Theme | null

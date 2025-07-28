@@ -99,8 +99,10 @@
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       background: var(--surface-secondary);
       color: var(--text-primary);
-      height: 100vh;
-      overflow: hidden;
+      min-height: 100vh;
+      height: auto;
+      overflow-y: auto !important;
+      overflow-x: hidden;
       line-height: 1.5;
       font-weight: 400;
       -webkit-font-smoothing: antialiased;
