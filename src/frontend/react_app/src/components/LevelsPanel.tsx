@@ -1,16 +1,14 @@
 import { memo, type FC, useCallback } from 'react'
 import { useModal } from '../hooks/useModal'
+import { useMetricsLevels } from '../hooks/useMetricsLevels'
 
 export interface LevelData {
   name: string
   metrics: { new: number; progress: number; pending: number; resolved: number }
 }
 
-export interface LevelsPanelProps {
-  levels: LevelData[]
-}
-
-const LevelsPanelComponent: FC<LevelsPanelProps> = ({ levels }) => {
+const LevelsPanelComponent: FC = () => {
+  const { levels, isLoading, isError } = useMetricsLevels()
   const { openModal, modalElement } = useModal()
 
   const showDetails = useCallback(
@@ -39,7 +37,9 @@ const LevelsPanelComponent: FC<LevelsPanelProps> = ({ levels }) => {
         </div>
       </div>
       <div className="levels-grid">
-        {levels.map((level) => (
+        {isLoading && <span>Carregando...</span>}
+        {isError && <span>Erro ao carregar métricas</span>}
+        {levels?.map((level) => (
           <button
             key={level.name}
             className={`level-card ${level.name.toLowerCase()}`}
