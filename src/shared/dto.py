@@ -7,6 +7,11 @@ from typing import TYPE_CHECKING, Any, Dict, Optional, Union
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+try:  # Avoid runtime import cycle during initialization
+    from backend.adapters.mapping_service import MISSING_PRIORITY
+except Exception:  # pragma: no cover - fallback if import fails
+    MISSING_PRIORITY = -1
+
 if TYPE_CHECKING:  # Avoid runtime import cycle
     from backend.adapters.mapping_service import MappingService
 
@@ -138,10 +143,10 @@ class TicketTranslator:
         if validated_raw.users_id_requester:
             requester = await self.mapper.get_username(validated_raw.users_id_requester)
 
-        priority_value = (
-            validated_raw.priority if validated_raw.priority is not None else MISSING_PRIORITY
-        )
-        priority_label = self.mapper.priority_label(priority_value)
+        if validated_raw.priority is not None:
+            priority_label = self.mapper.priority_label(validated_raw.priority)
+        else:
+            priority_label = "Unknown"
 
         clean_data: Dict[str, Any] = {
             "id": validated_raw.id,
