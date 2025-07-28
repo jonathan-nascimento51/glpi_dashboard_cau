@@ -140,7 +140,7 @@ def test_metrics_router_endpoints(
     monkeypatch: pytest.MonkeyPatch,
     dummy_cache: DummyCache,
 ) -> None:
-    """Ensure metrics overview and level endpoints are accessible via create_app."""
+    """Ensure metrics overview and level endpoints are accessible via the api_router inclusion in create_app."""
     from app.api.metrics import LevelMetrics, MetricsOverview
 
     overview = MetricsOverview(
