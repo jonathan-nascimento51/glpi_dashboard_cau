@@ -21,7 +21,10 @@ class CleanTicketDTO(BaseModel):
     name: str = Field("", description="Short summary")
     content: str | None = Field(None, description="Detailed description")
     status: TicketStatus = Field(TicketStatus.UNKNOWN, description="Status")
-    priority: str | None = Field(None, description="Priority")
+    priority: str = Field(
+        "Unknown",
+        description="Priority",
+    )
     urgency: Urgency = Field(Urgency.UNKNOWN, description="Urgency")
     impact: Impact = Field(Impact.UNKNOWN, description="Impact")
     type: TicketType = Field(TicketType.UNKNOWN, description="Ticket type")
