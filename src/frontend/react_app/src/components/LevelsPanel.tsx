@@ -1,5 +1,7 @@
 import { memo, type FC, useCallback } from 'react'
 import { useModal } from '../hooks/useModal'
+import { LoadingSpinner } from './LoadingSpinner'
+import { ErrorMessage } from './ErrorMessage'
 
 export interface LevelData {
   name: string
@@ -8,9 +10,17 @@ export interface LevelData {
 
 export interface LevelsPanelProps {
   levels: LevelData[]
+  isLoading?: boolean
+  error?: Error | null
+  onRetry?: () => void
 }
 
-const LevelsPanelComponent: FC<LevelsPanelProps> = ({ levels }) => {
+const LevelsPanelComponent: FC<LevelsPanelProps> = ({
+  levels,
+  isLoading = false,
+  error,
+  onRetry,
+}) => {
   const { openModal, modalElement } = useModal()
 
   const showDetails = useCallback(
@@ -29,6 +39,24 @@ const LevelsPanelComponent: FC<LevelsPanelProps> = ({ levels }) => {
     },
     [openModal],
   )
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center p-4">
+        <LoadingSpinner />
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <ErrorMessage
+        title="Erro ao carregar níveis"
+        message={error.message || 'Não foi possível carregar os níveis.'}
+        onRetry={onRetry}
+      />
+    )
+  }
 
   return (
     <div className="levels-section">
