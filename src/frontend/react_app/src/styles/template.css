@@ -1375,3 +1375,14 @@
         border: 1px solid #000 !important;
       }
     }
+
+/* Ticket table styling */
+.ticket-table {
+    @apply w-full text-sm text-left;
+
+}
+
+.ticket-row {
+    @apply grid items-center text-sm;
+
+}
