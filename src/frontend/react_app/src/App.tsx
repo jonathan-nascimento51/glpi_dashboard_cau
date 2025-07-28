@@ -12,6 +12,7 @@ import { SidebarProvider } from './hooks/useSidebar'
 import { NotificationProvider } from './context/notification'
 import NotificationToast from './components/NotificationToast'
 import { useHotkeys } from './hooks/useHotkeys'
+import { useLevelsMetrics } from './hooks/useLevelsMetrics'
 
 // Lazy load heavy components to split them into separate chunks.
 // This tells Vite/Rollup to create separate .js files for these components.
@@ -20,6 +21,7 @@ const ChamadosHeatmap = lazy(() => import('./components/ChamadosHeatmap'))
 
 function App() {
   useHotkeys()
+  const { levels } = useLevelsMetrics()
   return (
     <ErrorBoundary>
       <NotificationProvider>
@@ -37,7 +39,7 @@ function App() {
                 <Suspense fallback={<SkeletonHeatmap />}>
                   <ChamadosHeatmap />
                 </Suspense>
-                <LevelsPanel levels={[]} />
+                <LevelsPanel levels={levels} />
               </div>
               <Sidebar performance={[]} ranking={[]} alerts={[]} />
             </main>

@@ -31,6 +31,9 @@ jest.mock('./hooks/useChamadosPorData', () => ({
 jest.mock('./hooks/useChamadosPorDia', () => ({
   useChamadosPorDia: jest.fn(),
 }))
+jest.mock('./hooks/useLevelsMetrics', () => ({
+  useLevelsMetrics: jest.fn(),
+}))
 
 jest.mock('./components/Header', () => () => <header>Header Mock</header>)
 jest.mock('./components/FilterPanel', () => () => <div>FilterPanel Mock</div>)
@@ -41,10 +44,12 @@ jest.mock('./components/SidebarToggle', () => () => <button>Toggle</button>)
 import { useTickets } from './hooks/useTickets'
 import { useChamadosPorData } from './hooks/useChamadosPorData'
 import { useChamadosPorDia } from './hooks/useChamadosPorDia'
+import { useLevelsMetrics } from './hooks/useLevelsMetrics'
 
 const useTicketsMock = useTickets as jest.Mock
 const useChamadosPorDataMock = useChamadosPorData as jest.Mock
 const useChamadosPorDiaMock = useChamadosPorDia as jest.Mock
+const useLevelsMetricsMock = useLevelsMetrics as jest.Mock
 
 const mockTickets = [
   {
@@ -65,6 +70,7 @@ describe('App Integration', () => {
     useTicketsMock.mockClear()
     useChamadosPorDataMock.mockClear()
     useChamadosPorDiaMock.mockClear()
+    useLevelsMetricsMock.mockClear()
   })
 
   it('renders loading state initially', () => {
@@ -76,6 +82,7 @@ describe('App Integration', () => {
     })
     useChamadosPorDataMock.mockReturnValue({ data: [], isLoading: true })
     useChamadosPorDiaMock.mockReturnValue({ data: [], isLoading: true })
+    useLevelsMetricsMock.mockReturnValue({ levels: [], isLoading: true })
 
     renderWithClient(<App />)
 
@@ -99,6 +106,7 @@ describe('App Integration', () => {
       data: mockChamadosPorDia,
       isLoading: false,
     })
+    useLevelsMetricsMock.mockReturnValue({ levels: [], isLoading: false })
 
     renderWithClient(<App />)
 
@@ -123,6 +131,7 @@ describe('App Integration', () => {
     })
     useChamadosPorDataMock.mockReturnValue({ data: [], isLoading: false, isError: true })
     useChamadosPorDiaMock.mockReturnValue({ data: [], isLoading: false, error: true })
+    useLevelsMetricsMock.mockReturnValue({ levels: [], isLoading: false, error: true })
 
     renderWithClient(<App />)
 
