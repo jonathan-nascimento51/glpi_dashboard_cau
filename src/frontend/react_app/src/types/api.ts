@@ -42,7 +42,7 @@ export interface CleanTicketDTO {
   /**
    * Priority
    */
-  priority?: string | null;
+  priority?: string;
   urgency?: Urgency;
   impact?: Impact;
   type?: TicketType;
