@@ -187,6 +187,11 @@ async def metrics_overview() -> MetricsOverview:
 @router.get("/metrics/level/{level}", response_model=LevelMetrics)
 async def metrics_by_level(level: str) -> LevelMetrics:
     """Return metrics for a specific support level."""
+    VALID_LEVELS = {"level1", "level2", "level3"}  # Define valid levels
+    if level not in VALID_LEVELS:
+        raise HTTPException(
+            status_code=400, detail=f"Invalid level: {level}. Valid levels are: {', '.join(VALID_LEVELS)}"
+        )
     try:
         return await compute_level_metrics(level)
     except Exception as exc:  # pragma: no cover - defensive
