@@ -49,3 +49,6 @@ patch.diff
 patch_atualizado.diff
 codex_diagnostic_test.txt
 .vscode/PythonImportHelper-v2-Completion.json
+resources/data/tickets_master_full.json
+resources/data/tickets_metricas.csv
+scripts/fetch/coletar_tickets_e_metricas.py
