@@ -1,17 +1,7 @@
-import { Header } from './components/Header'
-import { FilterDrawer } from './components/FilterDrawer'
-import { MetricsSection } from './components/MetricsSection'
+import DashboardLayout from './components/DashboardLayout'
 
 function App() {
-  return (
-    <div className="min-h-screen bg-background text-foreground">
-      <Header />
-      <FilterDrawer />
-      <main className="p-4">
-        <MetricsSection />
-      </main>
-    </div>
-  )
+  return <DashboardLayout />
 }
 
 export default App
