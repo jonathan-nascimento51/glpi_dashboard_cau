@@ -1,5 +1,8 @@
 import { memo, type FC, useCallback } from 'react'
 import { useModal } from '../hooks/useModal'
+import SkeletonChart from './SkeletonChart'
+import { ErrorMessage } from './ErrorMessage'
+import { EmptyState } from './EmptyState'
 
 export interface LevelData {
   name: string
@@ -8,9 +11,17 @@ export interface LevelData {
 
 export interface LevelsPanelProps {
   levels: LevelData[]
+  isLoading?: boolean
+  error?: Error | null
+  onRetry?: () => void
 }
 
-const LevelsPanelComponent: FC<LevelsPanelProps> = ({ levels }) => {
+const LevelsPanelComponent: FC<LevelsPanelProps> = ({
+  levels,
+  isLoading = false,
+  error,
+  onRetry,
+}) => {
   const { openModal, modalElement } = useModal()
 
   const showDetails = useCallback(
@@ -29,6 +40,30 @@ const LevelsPanelComponent: FC<LevelsPanelProps> = ({ levels }) => {
     },
     [openModal],
   )
+
+  if (isLoading) {
+    return <SkeletonChart />
+  }
+
+  if (error) {
+    return (
+      <ErrorMessage
+        title="Erro ao carregar níveis"
+        message={error.message || 'Não foi possível carregar os níveis.'}
+        onRetry={onRetry}
+      />
+    )
+  }
+
+  if (!isLoading && levels.length === 0) {
+    return (
+      <EmptyState
+        title="Nenhum nível encontrado"
+        message="Não há dados para exibir."
+        onAction={onRetry}
+      />
+    )
+  }
 
   return (
     <div className="levels-section">

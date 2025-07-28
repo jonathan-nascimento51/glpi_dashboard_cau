@@ -10,7 +10,7 @@ export interface LevelMetrics {
 }
 
 export default function LevelsSection() {
-  const { metrics } = useMetricsOverview()
+  const { metrics, isLoading, error, refreshMetrics } = useMetricsOverview()
   const levels = metrics
     ? Object.entries(metrics).map(([name, data]) => ({
         name,
@@ -25,7 +25,12 @@ export default function LevelsSection() {
 
   return (
     <section className="levels-section">
-      <LevelsPanel levels={levels} />
+      <LevelsPanel
+        levels={levels}
+        isLoading={isLoading}
+        error={error}
+        onRetry={refreshMetrics}
+      />
     </section>
   )
 }
