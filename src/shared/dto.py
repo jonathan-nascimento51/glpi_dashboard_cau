@@ -139,7 +139,7 @@ class TicketTranslator:
             requester = await self.mapper.get_username(validated_raw.users_id_requester)
 
         priority_value = (
-            validated_raw.priority if validated_raw.priority is not None else -1
+            validated_raw.priority if validated_raw.priority is not None else MISSING_PRIORITY
         )
         priority_label = self.mapper.priority_label(priority_value)
 
