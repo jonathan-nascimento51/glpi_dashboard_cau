@@ -182,3 +182,20 @@ async def metrics_overview() -> MetricsOverview:
         raise HTTPException(
             status_code=500, detail="Failed to compute metrics"
         ) from exc
+
+
+@router.get("/metrics/level/{level}", response_model=LevelMetrics)
+async def metrics_by_level(level: str = Path(..., min_length=1, max_length=50, regex="^[A-Z0-9]+$")) -> LevelMetrics:
+    """Return metrics for a specific support level."""
+    VALID_LEVELS = {"level1", "level2", "level3"}  # Define valid levels
+    if level not in VALID_LEVELS:
+        raise HTTPException(
+            status_code=400, detail=f"Invalid level: {level}. Valid levels are: {', '.join(VALID_LEVELS)}"
+        )
+    try:
+        return await compute_level_metrics(level)
+    except Exception as exc:  # pragma: no cover - defensive
+        logger.exception("Error computing metrics for level %s", level)
+        raise HTTPException(
+            status_code=500, detail="Failed to compute level metrics"
+        ) from exc
