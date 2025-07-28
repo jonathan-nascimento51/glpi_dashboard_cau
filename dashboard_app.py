@@ -4,6 +4,7 @@ import asyncio
 import logging
 import os
 
+import dash_bootstrap_components as dbc
 import pandas as pd
 from dash import Dash
 from flask import Flask
@@ -119,7 +120,7 @@ def create_app(df: pd.DataFrame | None) -> Dash:
     #     """Simple health check endpoint."""
     #     return "OK", 200
 
-    app = Dash(__name__, server=server)
+    app = Dash(__name__, server=server, external_stylesheets=[dbc.themes.BOOTSTRAP])
     app.layout = build_layout(df)
     if df is not None:
         register_callbacks(app, load_data)
