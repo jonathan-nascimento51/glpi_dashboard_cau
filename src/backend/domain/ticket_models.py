@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime
-from typing import Any, Optional, Type, TypeVar
+from typing import Any, Type, TypeVar
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -60,7 +60,10 @@ class CleanTicketDTO(BaseModel):
     )
     content: str | None = Field(None, description="Detailed description")
     status: TicketStatus = Field(TicketStatus.UNKNOWN, description="Status")
-    priority: Optional[str] = Field(None, description="Prioridade do ticket")
+    priority: str = Field(
+        "Unknown",
+        description="Prioridade do ticket",
+    )
     urgency: Urgency = Field(Urgency.UNKNOWN, description="Urgency")
     impact: Impact = Field(Impact.UNKNOWN, description="Impact")
     type: TicketType = Field(TicketType.UNKNOWN, description="Ticket type")
