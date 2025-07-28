@@ -164,6 +164,10 @@ def convert_ticket(raw: RawTicketDTO) -> CleanTicketDTO:
     ttype = _parse_enum(raw.type, TicketType, "type", ticket_id)
     date_creation = _parse_date(raw.date_creation, "date_creation", ticket_id)
 
+    # Only return tickets with status "NEW"
+    if status != TicketStatus.NEW:
+        raise ValueError("Ticket is not NEW")
+
     return CleanTicketDTO(
         id=id_int,
         name=name,
