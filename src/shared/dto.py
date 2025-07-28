@@ -23,6 +23,7 @@ STATUS_MAP = {
 # Map textual statuses (e.g., "closed") to the same canonical labels
 TEXT_STATUS_MAP = {label.lower(): label for label in STATUS_MAP.values()}
 
+# Priority labels in English (legacy) and Portuguese used in the dashboard.
 PRIORITY_MAP = {
     1: "Very Low",
     2: "Low",
@@ -30,6 +31,15 @@ PRIORITY_MAP = {
     4: "High",
     5: "Very High",
     6: "Major",
+}
+
+PRIORITY_MAP_PT = {
+    1: "Muito Baixa",
+    2: "Baixa",
+    3: "Média",
+    4: "Alta",
+    5: "Muito Alta",
+    6: "Maior",
 }
 
 # Fallback title assigned when a ticket comes with an empty or null name
@@ -102,8 +112,11 @@ class CleanTicketDTO(BaseModel):
         if isinstance(v, str) and not v.isdigit():
             return v
         if isinstance(v, int):
-            return PRIORITY_MAP.get(v, "Unknown")
-        return PRIORITY_MAP.get(int(v), "Unknown") if str(v).isdigit() else "Unknown"
+            return PRIORITY_MAP_PT.get(v, PRIORITY_MAP.get(v, "Unknown"))
+        if str(v).isdigit():
+            num = int(v)
+            return PRIORITY_MAP_PT.get(num, PRIORITY_MAP.get(num, "Unknown"))
+        return "Unknown"
 
 
 class TicketTranslator:

@@ -51,4 +51,4 @@ lint: ## Run all linters
 
 gen-types: ## Generate TypeScript types from Pydantic models
 	@echo "🔄 Generating TypeScript types from Pydantic models..."
-	$(VENV_ACTIVATE) pydantic-to-typescript --input src/backend/models/ts_models.py --output $(FRONTEND_DIR)/src/types/api.ts
+	$(VENV_ACTIVATE) pydantic2ts --module shared.models.ts_models --output $(FRONTEND_DIR)/src/types/api.ts
