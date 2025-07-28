@@ -22,9 +22,23 @@ export function useMetricsLevels() {
     if (!query.data) return undefined
     return Object.entries(query.data)
       .sort(([a], [b]) => {
-        const na = parseInt(a.replace(/\D+/g, ''), 10)
-        const nb = parseInt(b.replace(/\D+/g, ''), 10)
-        return na - nb
+        const parseLevelName = (name: string) => {
+          return name.match(/(\d+|\D+)/g)?.map(part => isNaN(Number(part)) ? part : Number(part)) || [];
+        };
+        const componentsA = parseLevelName(a);
+        const componentsB = parseLevelName(b);
+        for (let i = 0; i < Math.max(componentsA.length, componentsB.length); i++) {
+          const partA = componentsA[i];
+          const partB = componentsB[i];
+          if (partA === undefined) return -1;
+          if (partB === undefined) return 1;
+          if (typeof partA === 'number' && typeof partB === 'number') {
+            if (partA !== partB) return partA - partB;
+          } else if (partA !== partB) {
+            return partA < partB ? -1 : 1;
+          }
+        }
+        return 0;
       })
       .map(([name, metrics]) => ({
         name,
