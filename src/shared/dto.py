@@ -9,7 +9,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 
 try:  # Avoid runtime import cycle during initialization
     from backend.adapters.mapping_service import MISSING_PRIORITY
-except Exception:  # pragma: no cover - fallback if import fails
+except (ImportError, ModuleNotFoundError):  # pragma: no cover - fallback if import fails
     MISSING_PRIORITY = -1
 
 if TYPE_CHECKING:  # Avoid runtime import cycle
