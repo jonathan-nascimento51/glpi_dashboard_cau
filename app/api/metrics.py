@@ -185,7 +185,7 @@ async def metrics_overview() -> MetricsOverview:
 
 
 @router.get("/metrics/level/{level}", response_model=LevelMetrics)
-async def metrics_by_level(level: str) -> LevelMetrics:
+async def metrics_by_level(level: str = Path(..., min_length=1, max_length=50, regex="^[A-Z0-9]+$")) -> LevelMetrics:
     """Return metrics for a specific support level."""
     VALID_LEVELS = {"level1", "level2", "level3"}  # Define valid levels
     if level not in VALID_LEVELS:
