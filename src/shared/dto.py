@@ -138,11 +138,10 @@ class TicketTranslator:
         if validated_raw.users_id_requester:
             requester = await self.mapper.get_username(validated_raw.users_id_requester)
 
-        priority_label = (
-            self.mapper.priority_label(validated_raw.priority)
-            if validated_raw.priority is not None
-            else None
+        priority_value = (
+            validated_raw.priority if validated_raw.priority is not None else MISSING_PRIORITY
         )
+        priority_label = self.mapper.priority_label(priority_value)
 
         clean_data: Dict[str, Any] = {
             "id": validated_raw.id,
