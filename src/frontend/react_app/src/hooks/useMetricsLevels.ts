@@ -25,6 +25,8 @@ export function useMetricsLevels() {
         new: metrics.new ?? 0,
         progress: metrics.progress ?? 0,
         pending: metrics.pending ?? 0,
+        // The API may return either 'resolved' or 'solved' for the same metric.
+        // Use 'resolved' if available, otherwise fallback to 'solved'. Default to 0 if neither is present.
         resolved: metrics.resolved ?? metrics.solved ?? 0,
       },
     }))
