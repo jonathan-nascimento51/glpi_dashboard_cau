@@ -39,7 +39,7 @@ function App() {
                 <Suspense fallback={<SkeletonHeatmap />}>
                   <ChamadosHeatmap />
                 </Suspense>
-                <LevelsPanel levels={levels} />
+                <LevelsPanel />
               </div>
               <Sidebar performance={[]} ranking={[]} alerts={[]} />
             </main>
