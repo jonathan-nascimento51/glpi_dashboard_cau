@@ -98,5 +98,5 @@ async def test_translate_ticket_missing_priority_defaults_unknown(mocker):
 
     ticket = await translator.translate_ticket(raw)
 
-    mapper.priority_label.assert_called_once_with(-1)
+    mapper.priority_label.assert_not_called()
     assert ticket.priority == "Unknown"
