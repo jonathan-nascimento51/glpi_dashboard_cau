@@ -80,3 +80,23 @@ async def test_translate_ticket_uses_priority_label(mocker):
     assert ticket.priority == "Alta"
     assert ticket.requester == "Bob"
     mapper.get_username.assert_awaited_once_with(7)
+
+
+@pytest.mark.asyncio
+async def test_translate_ticket_missing_priority_defaults_unknown(mocker):
+    mapper = mocker.Mock(spec=MappingService)
+    mapper.get_username = mocker.AsyncMock(return_value="Bob")
+    mapper.priority_label = mocker.Mock(return_value="Unknown")
+
+    translator = TicketTranslator(mapper)
+    raw = {
+        "id": 4,
+        "name": "No priority",
+        "status": 1,
+        "date_creation": "2024-01-04T00:00:00",
+    }
+
+    ticket = await translator.translate_ticket(raw)
+
+    mapper.priority_label.assert_not_called()
+    assert ticket.priority == "Unknown"
