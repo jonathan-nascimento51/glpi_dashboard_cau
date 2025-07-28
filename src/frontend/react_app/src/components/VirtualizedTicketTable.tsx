@@ -11,13 +11,14 @@ import type { ReactNode, HTMLAttributes } from 'react'
 import { FixedSizeList, type ListChildComponentProps } from 'react-window'
 
 const priorityClasses: Record<string, string> = {
-  'Very High': 'text-red-700',
-  High: 'text-red-600',
-  Major: 'text-red-800',
-  Medium: 'text-yellow-600',
-  Low: 'text-green-600',
-  'Very Low': 'text-green-700',
-}
+  "Muito Alta": "text-red-700",
+  "Alta": "text-red-600",
+  "Major": "text-red-800", // if "Maior" should be styled similarly
+  "Média": "text-yellow-600",
+  "Baixa": "text-green-600",
+  "Muito Baixa": "text-green-700",
+  "Unknown": "text-gray-500",  // optionally handle unknown values
+};
 
 const formatDate = (value?: string | Date | null) => {
   if (!value) return '-'

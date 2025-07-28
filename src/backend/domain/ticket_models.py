@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime
-from typing import Any, Type, TypeVar
+from typing import Any, Optional, Type, TypeVar
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -13,12 +13,12 @@ from .ticket_status import _BaseIntEnum as _BaseIntEnumLocal
 
 # Map numeric priority levels to human readable labels.
 PRIORITY_LABELS = {
-    1: "Muito Baixa",
-    2: "Baixa",
-    3: "Média",
-    4: "Alta",
-    5: "Muito Alta",
-    6: "Maior",
+    1: "Very Low",
+    2: "Low",
+    3: "Medium",
+    4: "High",
+    5: "Very High",
+    6: "Major",
 }
 
 logger = logging.getLogger(__name__)
@@ -60,7 +60,7 @@ class CleanTicketDTO(BaseModel):
     )
     content: str | None = Field(None, description="Detailed description")
     status: TicketStatus = Field(TicketStatus.UNKNOWN, description="Status")
-    priority: str = Field("Unknown", description="Priority label")
+    priority: Optional[str] = Field(None, description="Prioridade do ticket")
     urgency: Urgency = Field(Urgency.UNKNOWN, description="Urgency")
     impact: Impact = Field(Impact.UNKNOWN, description="Impact")
     type: TicketType = Field(TicketType.UNKNOWN, description="Ticket type")

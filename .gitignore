@@ -43,6 +43,8 @@ src/frontend/react_app/src/**/*.js.map
 
 prompts/bug_prompt.md
 resources/data/raw_tickets_sample.json
+resources/data/tickets_master.json
+resources/data/tickets_with_group.json
 patch.diff
 patch_atualizado.diff
 codex_diagnostic_test.txt

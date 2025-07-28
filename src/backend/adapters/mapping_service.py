@@ -11,7 +11,7 @@ from backend.infrastructure.glpi.glpi_session import GLPIAPIError, GLPISession
 from shared.utils.redis_client import RedisClient
 
 # Map numeric priority levels to human readable labels used in the dashboard.
-PRIORITY_MAP = {
+PRIORITY_MAPPING = {
     1: "Muito Baixa",
     2: "Baixa",
     3: "Média",
@@ -116,7 +116,7 @@ class MappingService:
 
     def priority_label(self, pid: int) -> str:
         """Return the human readable label for ``pid``."""
-        return PRIORITY_MAP.get(pid, "Unknown")
+        return PRIORITY_MAPPING.get(pid, "Unknown")
 
     async def get_search_options(self, itemtype: str) -> Dict[str, Any]:
         """Return cached search options for ``itemtype`` or fetch from GLPI."""
@@ -176,3 +176,11 @@ class MappingService:
             if fid is not None:
                 result.append(fid)
         return result
+
+    def normalize_ticket(self, raw_ticket: dict[str, Any]) -> dict[str, Any]:
+        return {
+            # ...
+            "priority": PRIORITY_MAPPING.get(
+                int(raw_ticket.get("priority", 0)), "Unknown"
+            ),
+        }

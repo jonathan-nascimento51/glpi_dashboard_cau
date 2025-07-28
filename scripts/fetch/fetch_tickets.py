@@ -4,15 +4,18 @@ import sys
 from typing import Any
 
 import requests
+from dotenv import load_dotenv
 
-# --- Configuração ---
-GLPI_URL = os.getenv("GLPI_URL", "https://seu-glpi.com")
-APP_TOKEN = os.getenv("APP_TOKEN", "seu-app-token")
-USER_TOKEN = os.getenv("USER_TOKEN", "seu-user-token")
+# # Carrega as variáveis de ambiente do arquivo .env
+load_dotenv()
+
+glpi_url = "http://cau.ppiratini.intra.rs.gov.br/glpi"
+app_token = os.getenv("GLPI_APP_TOKEN")
+user_token = os.getenv("GLPI_USER_TOKEN")
 OUTPUT_FILE_PATH = "resources/data/tickets_master.json"
 
 # IDs dos campos que queremos investigar
-FIELDS_TO_VALIDATE = ["8", "95", "83"]
+fields_to_validate = ["8", "95", "83"]
 
 # --- Funções de Suporte (Robustas e com Tratamento de Erros) ---
 
@@ -43,49 +46,54 @@ def get_session_token(glpi_url: str, app_token: str, user_token: str) -> str:
 
 
 def get_search_options_map(
-    GLPI_URL: str, SESSION_TOKEN: str, APP_TOKEN: str, item_type: str = "Ticket"
-) -> dict[str, str]:
+    glpi_url: str, session_token: str, app_token: str, item_type: str = "Ticket"
+) -> dict[int, str]:
     """
-    Busca as opções de busca da API e cria dois dicionários:
-    1. Mapeia o nome amigável para o ID (para uso futuro).
-    2. Mapeia o ID para o nome amigável (para nosso diagnóstico).
+    Busca as opções de busca da API e cria um dicionário mapeando o ID
+    (inteiro) para o nome amigável do campo (para nosso diagnóstico).
     """
-    headers: dict[str, str] = {"Session-Token": SESSION_TOKEN, "App-Token": APP_TOKEN}
-    url = f"{GLPI_URL}/apirest.php/listSearchOptions/{item_type}"
+    headers: dict[str, str] = {"Session-Token": session_token, "App-Token": app_token}
+    url = f"{glpi_url}/apirest.php/listSearchOptions/{item_type}"
     try:
-        return _extracted_from_get_search_options_map_10(url, headers)
-    except requests.exceptions.RequestException as e:
+        return _extracted_from_get_search_options_map_11(url, headers)
+    except (requests.exceptions.RequestException, KeyError) as e:
         print(
-            f"Erro Crítico: Não foi possível obter as opções de busca da API."
+            f"Erro Crítico: Não foi possível obter ou processar"
+            f" as opções de busca da API. "
             f"Detalhes: {e}",
             file=sys.stderr,
         )
         sys.exit(1)
 
 
-# TODO Rename this here and in `get_search_options_map`
-def _extracted_from_get_search_options_map_10(GLPI_URL: str, headers: dict[str, str]):
-    r = requests.get(GLPI_URL, headers=headers, timeout=10)
+def _extracted_from_get_search_options_map_11(
+    url: str, headers: dict[str, str]
+) -> dict[int, str]:
+    r = requests.get(url, headers=headers, timeout=10)
     r.raise_for_status()
     options = r.json()
 
-    id_to_name_map = {opt["id"]: opt["name"] for opt in options.values()}
+    # CORRIGIDO: mapeia corretamente as chaves do dict
+    id_to_name_map: dict[int, str] = {
+        int(k): v["name"]
+        for k, v in options.items()
+        if k.isdigit() and isinstance(v, dict) and "name" in v
+    }
 
     print(
         f"Mapa de campos dinâmicos carregado."
         f" {len(id_to_name_map)} campos encontrados."
     )
 
-    # --- Bloco de Diagnóstico ---
     print("\n--- Diagnóstico dos Campos com Valor `null` ---")
-    for field_id in FIELDS_TO_VALIDATE:
-        if field_id in id_to_name_map:
-            print(f"  -> O Campo ID '{field_id}' corresponde a: '{
-                id_to_name_map[field_id]
-                }'")
+    for field_id_str in fields_to_validate:
+        field_id_int = int(field_id_str)
+        if field_id_int in id_to_name_map:
+            print(f"  -> O Campo ID '{field_id_str}' corresponde a:")
+            print(f"    -> '{id_to_name_map[field_id_int]}'")
         else:
             print(
-                f"  -> Alerta: O Campo ID '{field_id}' "
+                f"  -> Alerta: O Campo ID '{field_id_str}' "
                 f"não foi encontrado nas opções de busca da API."
             )
     print("--------------------------------------------\n")
@@ -118,7 +126,7 @@ def fetch_all_tickets(
 
 
 def _extracted_from_fetch_all_tickets_13(
-    url: str, headers: dict[str, str], params: dict[str, str]
+    url: str, headers: dict[str, str], params: dict[str, Any]
 ) -> list[dict[str, Any]]:
     print("Buscando todos os chamados com todos os campos...")
     r = requests.get(url, headers=headers, params=params, timeout=180)
@@ -146,13 +154,31 @@ def save_data_to_json(data: Any, file_path: str) -> None:
 # --- Execução Principal ---
 if __name__ == "__main__":
     print("--- Iniciando Script de Coleta e Diagnóstico de Chamados GLPI ---")
-    session_token = get_session_token(GLPI_URL, APP_TOKEN, USER_TOKEN)
-    search_map = get_search_options_map(GLPI_URL, session_token, APP_TOKEN)
-    if all_tickets := fetch_all_tickets(GLPI_URL, session_token, APP_TOKEN):
-        save_data_to_json(all_tickets, OUTPUT_FILE_PATH)
-    else:
-        print("Nenhum chamado foi retornado pela API.")
-    print("--- Script concluído com sucesso! ---")
+    try:
+        if not all([glpi_url, app_token, user_token]):
+            raise ValueError(
+                "Variáveis de ambiente GLPI_BASE_URL, GLPI_APP_TOKEN ou GLPI_USER_TOKEN"
+                " não estão definidas."
+            )
+
+        # Garantir que as variáveis não são None para o type checker
+        assert glpi_url is not None
+        assert app_token is not None
+        assert user_token is not None
+
+        session_token = get_session_token(glpi_url, app_token, user_token)
+        search_map = get_search_options_map(glpi_url, session_token, app_token)
+        if all_tickets := fetch_all_tickets(glpi_url, session_token, app_token):
+            save_data_to_json(all_tickets, OUTPUT_FILE_PATH)
+        else:
+            print("Nenhum chamado foi retornado pela API.")
+        print("--- Script concluído com sucesso! ---")
+    except ValueError as e:
+        print(f"Erro de configuração: {e}", file=sys.stderr)
+        sys.exit(1)
+    except Exception as e:
+        print(f"Ocorreu um erro inesperado: {e}", file=sys.stderr)
+        sys.exit(1)
 
 # import asyncio
 # import json

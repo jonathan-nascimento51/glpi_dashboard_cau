@@ -642,7 +642,7 @@ container also executes on first startup.
   conhecidos utilizado pelo worker (padrão `docs/knowledge_base_errors.md`)
 - `DB_HOST` – PostgreSQL host
 - `DB_PORT` – PostgreSQL port
-- `HOST_DB_PORT` – host port bound to the PostgreSQL container (default `55432`)
+- `HOST_DB_PORT` – host port bound to the PostgreSQL container (default `5432`)
 - `DB_NAME` – database name
 - `DB_USER` – database username
 - `DB_PASSWORD` – database password
@@ -775,7 +775,7 @@ cp .env.example .env
 
 Docker Compose loads `.env` automatically when it exists.
 
-PostgreSQL binds to port `${HOST_DB_PORT:-55432}` on the host. Change
+PostgreSQL binds to port `${HOST_DB_PORT:-5432}` on the host. Change
 `HOST_DB_PORT` in `.env` if this port is already taken or if you prefer a
 different mapping.
 
