@@ -178,9 +178,9 @@ class MappingService:
         return result
 
     def normalize_ticket(self, raw_ticket: dict[str, Any]) -> dict[str, Any]:
+        raw_priority = raw_ticket.get("priority")
+        pid = int(raw_priority) if raw_priority is not None else MISSING_PRIORITY
         return {
             # ...
-            "priority": PRIORITY_MAPPING.get(
-                int(raw_ticket.get("priority", 0)), "Unknown"
-            ),
+            "priority": PRIORITY_MAPPING.get(pid, "Unknown"),
         }
