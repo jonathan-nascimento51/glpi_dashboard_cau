@@ -20,8 +20,6 @@ const ChamadosHeatmap = lazy(() => import('./components/ChamadosHeatmap'))
 
 function App() {
   useHotkeys()
-  // useLevelsMetrics() apenas executa efeitos, não passa dados para LevelsPanel
-
   return (
     <ErrorBoundary>
       <NotificationProvider>
