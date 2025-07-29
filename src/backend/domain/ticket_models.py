@@ -173,7 +173,7 @@ def convert_ticket(raw: RawTicketDTO) -> CleanTicketDTO:
 
     return CleanTicketDTO(
         id=id_int,
-        name=title,
+        title=title,
         content=content,
         status=status,
         priority=priority,
