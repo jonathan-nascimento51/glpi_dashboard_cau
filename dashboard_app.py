@@ -119,7 +119,6 @@ def create_app(df: pd.DataFrame | None) -> Dash:
     def ping() -> tuple[str, int]:
         """Simple health check endpoint."""
         return ("OK", 200)
-
     app = Dash(__name__, server=server, external_stylesheets=[dbc.themes.BOOTSTRAP])
     app.layout = build_layout(df)
     if df is not None:
