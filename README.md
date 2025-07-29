@@ -491,7 +491,6 @@ endpoints are responsive immediately.
 - `/metrics/levels` – mapping of levels to status counts stored in the
   `metrics_levels` cache.
 - `/chamados/por-data` – tickets per creation date, refreshed every 10 minutes.
--
 - `/chamados/por-dia` – totals for calendar heatmaps, refreshed every 10 minutes.
 - `/graphql/` – GraphQL API providing the same information.
 - `/cache/stats` – returns cache hit/miss metrics.
