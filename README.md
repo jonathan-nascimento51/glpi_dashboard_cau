@@ -29,7 +29,7 @@ Run `scripts/setup/setup_env.sh` (or `make setup`) to create the `.venv` directo
 install packages from `requirements.txt` and the development set defined in
 `pyproject.toml` (compiled into `requirements-dev.txt`) and enable `pre-commit`
 hooks automatically. Optional extras can be added later with
-`./scripts/install_dev_extras.sh`. These packages include browsers and
+`./scripts/install_dev_extras.sh full-tests`. These packages include browsers and
 instrumentation required for the full test suite. If you prefer to install
 packages manually, remember to run `pre-commit install` afterward.
 
@@ -897,14 +897,20 @@ missing:
 cp .env.example .env
 ```
 
-You may also install only the optional development extras with:
+You may also install optional extras manually. For development tools run:
 
 ```bash
-./scripts/install_dev_extras.sh
+./scripts/install_dev_extras.sh dev
 ```
 
-This reads the `[project.optional-dependencies].dev` list from `pyproject.toml`
-and installs each package via `pip`.
+To install the heavier end-to-end dependencies use:
+
+```bash
+./scripts/install_dev_extras.sh full-tests
+```
+
+The script reads the requested extras group from `pyproject.toml` and installs
+each package via `pip`.
 
 Browser-based tests such as `test_dashboard_flows` rely on Chrome and
 Chromedriver. If these are unavailable you can skip them with:
