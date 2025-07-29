@@ -5,6 +5,7 @@ import logging
 import os
 from typing import Any
 
+import dash_bootstrap_components as dbc
 import pandas as pd
 from dash import Dash
 from flask import Flask
@@ -25,7 +26,6 @@ from backend.domain.exceptions import GLPIAPIError
 from backend.infrastructure.glpi import glpi_client_logging
 from backend.infrastructure.glpi.glpi_session import Credentials, GLPISession
 from backend.utils import process_raw
-from shared.utils.logging import init_logging
 
 __all__ = ["create_app", "main"]
 
@@ -55,7 +55,6 @@ if cache_type != "simple":
 
 log_level_name = os.getenv("LOG_LEVEL", "INFO")
 log_level = getattr(logging, log_level_name.upper(), logging.INFO)
-init_logging(log_level)
 glpi_client_logging.init_logging(log_level)
 
 
@@ -115,12 +114,12 @@ def create_app(df: pd.DataFrame | None) -> Dash:
     server = Flask(__name__)
     cache.init_app(server)
 
-    @server.route("/ping")
-    def ping() -> tuple[str, int]:
-        """Simple health check endpoint."""
-        return "OK", 200
+    # @server.route("/ping")
+    # def ping() -> tuple[str, int]:
+    #     """Simple health check endpoint."""
+    #     return "OK", 200
 
-    app = Dash(__name__, server=server)
+    app = Dash(__name__, server=server, external_stylesheets=[dbc.themes.BOOTSTRAP])
     app.layout = build_layout(df)
     if df is not None:
         register_callbacks(app, load_data)

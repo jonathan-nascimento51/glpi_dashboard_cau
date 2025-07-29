@@ -99,8 +99,10 @@
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       background: var(--surface-secondary);
       color: var(--text-primary);
-      height: 100vh;
-      overflow: hidden;
+      min-height: 100vh;
+      height: auto;
+      overflow-y: auto !important;
+      overflow-x: hidden;
       line-height: 1.5;
       font-weight: 400;
       -webkit-font-smoothing: antialiased;
@@ -1389,4 +1391,24 @@
         box-shadow: none !important;
         border: 1px solid #000 !important;
       }
+
+      /* Ticket table styling */
+      .ticket-table {
+        width: 100%;
+        font-size: 0.875rem;
+        text-align: left;
+      }
+
+      .ticket-row {
+        display: grid;
+        align-items: center;
+        font-size: 0.875rem;
+      }
+
+    }
+
+    .gradient-text {
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
     }

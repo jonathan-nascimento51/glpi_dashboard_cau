@@ -1,0 +1,9 @@
+/* Custom styles for Dash DataTable */
+#ticket-table .dash-header {
+    background-color: #f8f9fa;
+    font-weight: bold;
+}
+#ticket-table .dash-cell {
+    padding: 8px;
+    font-size: 14px;
+}

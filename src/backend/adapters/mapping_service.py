@@ -11,7 +11,7 @@ from backend.infrastructure.glpi.glpi_session import GLPIAPIError, GLPISession
 from shared.utils.redis_client import RedisClient
 
 # Map numeric priority levels to human readable labels used in the dashboard.
-PRIORITY_MAP = {
+PRIORITY_MAPPING = {
     1: "Muito Baixa",
     2: "Baixa",
     3: "Média",
@@ -19,6 +19,8 @@ PRIORITY_MAP = {
     5: "Muito Alta",
     6: "Maior",
 }
+
+MISSING_PRIORITY = -1
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +31,7 @@ class MappingService:
     def __init__(
         self,
         session: GLPISession,
-        redis_client: Optional[redis.Redis] = None,
+        redis_client: Optional[redis.Redis[str]] = None,
         cache_ttl_seconds: int = 86400,
         search_cache: Optional[RedisClient] = None,
     ) -> None:
@@ -60,7 +62,7 @@ class MappingService:
             mapping = await self._get_mapping(cache_key, endpoint)
             self._data[key] = mapping
 
-    async def _index_all(self, endpoint: str) -> list[dict]:
+    async def _index_all(self, endpoint: str) -> list[dict[str, Any]]:
         """Return all records for ``endpoint`` using the GLPI session."""
         return await self._session.get_all(endpoint)
 
@@ -95,7 +97,6 @@ class MappingService:
                     cache_key, mapping={str(k): v for k, v in mapping.items()}
                 )
             await pipe.expire(cache_key, self.cache_ttl_seconds)
-            await pipe.execute()
 
         logger.info("Loaded %d entries for %s", len(mapping), endpoint)
         return mapping
@@ -117,14 +118,14 @@ class MappingService:
 
     def priority_label(self, pid: int) -> str:
         """Return the human readable label for ``pid``."""
-        return PRIORITY_MAP.get(pid, "Unknown")
+        return PRIORITY_MAPPING.get(pid, "Unknown")
 
     async def get_search_options(self, itemtype: str) -> Dict[str, Any]:
         """Return cached search options for ``itemtype`` or fetch from GLPI."""
         cache_key = f"search_options:{itemtype}"
         cached = await self.search_cache.get(cache_key)
         if isinstance(cached, dict):
-            return cast(Dict[str, Any], cached)
+            return cached
         if cached is not None:
             logger.warning(
                 "Ignoring invalid cached search options for %s: %s",
@@ -156,13 +157,14 @@ class MappingService:
 
         options = await self.get_search_options("Ticket")
         mapping: Dict[str, int] = {}
-        for fid, info in options.items():
-            if not isinstance(info, dict):
+        for fid, info_raw in options.items():
+            if not isinstance(info_raw, dict) or "name" not in info_raw:
                 continue
+            info = cast(Dict[str, Any], info_raw)
             if name := str(info.get("name", "")).lower():
                 try:
                     mapping[name] = int(fid)
-                except (ValueError, TypeError):  # noqa: BLE001
+                except (ValueError, TypeError):
                     continue
         self._ticket_field_map = mapping
         return mapping
@@ -176,3 +178,14 @@ class MappingService:
             if fid is not None:
                 result.append(fid)
         return result
+
+    def normalize_ticket(self, raw_ticket: dict[str, Any]) -> dict[str, Any]:
+        raw_priority = raw_ticket.get("priority")
+        try:
+            pid = int(raw_priority) if raw_priority is not None else 0
+        except (ValueError, TypeError):
+            pid = 0
+        return {
+            # ...
+            "priority": PRIORITY_MAPPING.get(pid, "Unknown"),
+        }

@@ -23,6 +23,9 @@ node_modules/
 dist/
 build/
 *.tsbuildinfo
+_metadata.json
+package.json
+
 # compiled JS artifacts generated from TypeScript (ignored)
 src/frontend/react_app/src/**/*.js
 src/frontend/react_app/src/**/*.js.map
@@ -40,7 +43,12 @@ src/frontend/react_app/src/**/*.js.map
 
 prompts/bug_prompt.md
 resources/data/raw_tickets_sample.json
+resources/data/tickets_master.json
+resources/data/tickets_with_group.json
 patch.diff
 patch_atualizado.diff
 codex_diagnostic_test.txt
 .vscode/PythonImportHelper-v2-Completion.json
+resources/data/tickets_master_full.json
+resources/data/tickets_metricas.csv
+scripts/fetch/coletar_tickets_e_metricas.py

@@ -8,22 +8,23 @@ from typing import Any, Type, TypeVar
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from .ticket_status import Impact, Priority, TicketStatus, Urgency, _BaseIntEnum
+from .ticket_status import Impact, Priority, TicketStatus, Urgency
+from .ticket_status import _BaseIntEnum as _BaseIntEnumLocal
 
 # Map numeric priority levels to human readable labels.
 PRIORITY_LABELS = {
-    1: "Muito Baixa",
-    2: "Baixa",
-    3: "Média",
-    4: "Alta",
-    5: "Muito Alta",
-    6: "Maior",
+    1: "Very Low",
+    2: "Low",
+    3: "Medium",
+    4: "High",
+    5: "Very High",
+    6: "Major",
 }
 
 logger = logging.getLogger(__name__)
 
 
-class TicketType(_BaseIntEnum):
+class TicketType(_BaseIntEnumLocal):
     """Category of ticket."""
 
     UNKNOWN = 0
@@ -59,7 +60,10 @@ class CleanTicketDTO(BaseModel):
     )
     content: str | None = Field(None, description="Detailed description")
     status: TicketStatus = Field(TicketStatus.UNKNOWN, description="Status")
-    priority: str = Field("Unknown", description="Priority label")
+    priority: str = Field(
+        "Unknown",
+        description="Prioridade do ticket",
+    )
     urgency: Urgency = Field(Urgency.UNKNOWN, description="Urgency")
     impact: Impact = Field(Impact.UNKNOWN, description="Impact")
     type: TicketType = Field(TicketType.UNKNOWN, description="Ticket type")
@@ -79,7 +83,7 @@ class CleanTicketDTO(BaseModel):
         return data
 
 
-E = TypeVar("E", bound="_BaseIntEnum")
+E = TypeVar("E", bound="_BaseIntEnumLocal")
 
 
 def _parse_int(value: Any, field: str, ticket_id: Any) -> int:
@@ -140,16 +144,17 @@ def convert_ticket(raw: RawTicketDTO) -> CleanTicketDTO:
     ticket_id = raw.id
     id_int = _parse_int(ticket_id, "id", ticket_id)
 
-    title = raw.name
+    name = raw.name
     if raw.name in (None, ""):
         logger.warning("Missing name for ticket %r", ticket_id)
-    elif not isinstance(raw.name, str):
+        name = "[Título não informado]"
+    elif type(raw.name) is not str:
         logger.warning("Invalid name=%r for ticket %r", raw.name, ticket_id)
-        title = str(raw.name)
+        name = str(raw.name)
 
     content = None
     if raw.content is not None:
-        if not isinstance(raw.content, str):
+        if type(raw.content) is not str:
             logger.warning("Invalid content=%r for ticket %r", raw.content, ticket_id)
             content = str(raw.content)
         else:
@@ -160,7 +165,11 @@ def convert_ticket(raw: RawTicketDTO) -> CleanTicketDTO:
     urgency = _parse_enum(raw.urgency, Urgency, "urgency", ticket_id)
     impact = _parse_enum(raw.impact, Impact, "impact", ticket_id)
     ttype = _parse_enum(raw.type, TicketType, "type", ticket_id)
-    created = _parse_date(raw.date_creation, "date_creation", ticket_id)
+    date_creation = _parse_date(raw.date_creation, "date_creation", ticket_id)
+
+    # Only return tickets with status "NEW"
+    if status != TicketStatus.NEW:
+        raise ValueError("Ticket is not NEW")
 
     return CleanTicketDTO(
         id=id_int,
