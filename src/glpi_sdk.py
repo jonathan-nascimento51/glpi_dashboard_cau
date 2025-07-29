@@ -5,8 +5,8 @@ from collections.abc import Iterable
 from py_glpi.connection import GLPISession
 from py_glpi.resources.tickets import Tickets
 
-# Mapping of ticket status names to their corresponding numeric codes in the GLPI
-# system.
+#: Mapping of ticket status names to their corresponding numeric codes in the GLPI
+#: system.
 STATUS_CODES: dict[str, int] = {"new": 1, "pending": 4, "solved": 5}
 
 
