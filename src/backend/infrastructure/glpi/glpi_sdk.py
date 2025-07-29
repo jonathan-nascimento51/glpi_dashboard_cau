@@ -7,17 +7,21 @@ from py_glpi.models import FilterCriteria, ResourceNotFound  # type: ignore
 from py_glpi.resources.tickets import Ticket, Tickets  # type: ignore
 from py_glpi.resources.users import Users  # type: ignore
 
+from shared.dto import STATUS_MAP as STATUS_LABEL_MAP
+
+# Map ticket status names to their numeric codes used by the GLPI API.
+_STATUS_INV = {label.lower(): code for code, label in STATUS_LABEL_MAP.items()}
+STATUS_MAP: Dict[str, int] = {
+    "new": _STATUS_INV.get("new", 1),
+    "processing": _STATUS_INV.get("processing (assigned)", 2),
+    "waiting": _STATUS_INV.get("processing (planned)", 3),
+    "solved": _STATUS_INV.get("solved", 5),
+    "closed": _STATUS_INV.get("closed", 6),
+}
+
 
 class GLPISDK:
     """Synchronous helper that wraps :mod:`py_glpi` for common queries."""
-
-    STATUS_MAP: Dict[str, int] = {
-        "new": 1,
-        "processing": 2,
-        "waiting": 3,
-        "solved": 4,
-        "closed": 5,
-    }
 
     def __init__(
         self,
@@ -89,6 +93,6 @@ class GLPISDK:
             tickets = self.list_tickets_by_level(level_field, value)
             status_list = [t.status for t in tickets]
             results[name] = {
-                key: status_list.count(code) for key, code in self.STATUS_MAP.items()
+                key: status_list.count(code) for key, code in STATUS_MAP.items()
             }
         return results
