@@ -359,6 +359,18 @@ More setup tips—including offline usage with mock data—are documented in
 [docs/dev_performance_guide.md](docs/dev_performance_guide.md) for
 strategies to pre-build Docker images and cache Python wheels.
 
+### SSL Certificate Issues with pact-python Installation
+
+Corporate proxies that inspect TLS traffic may cause `pip install pact-python`
+to fail with `CERTIFICATE_VERIFY_FAILED`. Provide the company's root certificate
+export REQUESTS_CA_BUNDLE=/path/to/company-ca.pem
+export SSL_CERT_FILE=$REQUESTS_CA_BUNDLE
+pip install pact-python
+
+Refer back to the
+[Installing Dependencies Behind a Proxy or Offline](#installing-dependencies-behind-a-proxy-or-offline)
+section for more proxy configuration tips.
+
 ## Instalação em rede restrita
 
 Caso o ambiente tenha acesso limitado à internet ou exija proxy corporativo,
