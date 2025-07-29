@@ -1,18 +1,13 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tsconfigPaths from 'vite-tsconfig-paths'
-import { fileURLToPath, URL } from 'node:url'
 
+// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react(), tsconfigPaths()],
-  envPrefix: ['VITE_', 'NEXT_PUBLIC_'],
-  resolve: {
-    alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url)),
-    },
-  },
+  // Expose environment variables with NEXT_PUBLIC_ prefix to the client
+  envPrefix: 'NEXT_PUBLIC_',
   server: {
-    host: true,
-    port: 5173,
+    host: '0.0.0.0',
   },
 })
