@@ -922,10 +922,9 @@ class GLPISession:
             except (ValueError, TypeError):
                 return 0
 
-        results = {}
-        for label, sid in STATUS_CODES.items():
-            results[label] = await _query(sid)
-        return results
+        tasks = [_query(sid) for sid in STATUS_CODES.values()]
+        counts = await asyncio.gather(*tasks)
+        return dict(zip(STATUS_CODES.keys(), counts))
 
 
 async def open_session_tool(params: SessionParams) -> str:
