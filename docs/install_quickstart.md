@@ -87,8 +87,7 @@ npm install         # installs dotenv, @eslint/js and other dev dependencies
 npm run dev
 npm run storybook   # optional: preview UI components locally
 ```
-Run `mise trust` once to silence the untrusted `.mise.toml` warning.
-The exact Node version is pinned in `.nvmrc` at the repository root.
+The exact Node version is pinned in `.nvmrc` at the repository root. If you use `mise`, it will be picked up automatically; run `mise trust` once to silence the untrusted `.mise.toml` warning.
 Docker Compose automatically loads `.env` when present.
 Docker can be used if you cannot install the required Node version.
 
