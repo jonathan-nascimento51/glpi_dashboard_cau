@@ -18,8 +18,8 @@ This document condenses the main steps from the README to get the dashboard runn
 Run `mise trust` once after cloning to silence warnings about the `.mise.toml`
 configuration.
   This command creates the `.venv` directory, installs packages from
-  `requirements.txt` and the dev dependencies defined in `pyproject.toml`
-  (compiled into `requirements-dev.txt`), and sets up `pre-commit`.
+  `requirements.txt` and the base development dependencies compiled into
+  `requirements-dev.txt`, and sets up `pre-commit`.
   Run it once before executing any tests (or use `make setup`). The script
   accepts proxy variables (`HTTP_PROXY`/`HTTPS_PROXY`). When a `wheels/`
   directory is present you can install completely offline by passing
@@ -40,11 +40,12 @@ configuration.
    ```
    Remove any leftover proxy entries from `.npmrc` as explained in
    [docs/solucoes_problemas.md](solucoes_problemas.md#11.1-unknown-env-config-http-proxy).
-   If you prefer manual setup, execute:
+  If you prefer manual setup, execute:
 
   ```bash
   pip install -r requirements.txt -r requirements-dev.txt  # generated via pip-compile
-  # includes dev tools like pytest-cov used by coverage checks
+  # extras for the end-to-end suite live in requirements-full-tests.txt
+  # or install them with: pip install -e '.[full-tests]'
   ```
    before running the tests.
 
