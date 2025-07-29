@@ -23,4 +23,3 @@ if not pkgs:
 print("Installing optional packages from", ", ".join(groups) + ":", " ".join(pkgs))
 subprocess.check_call([sys.executable, "-m", "pip", "install", *pkgs])
 PY
-EOF
