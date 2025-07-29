@@ -7,6 +7,7 @@ export GIT_SSL_NO_VERIFY=1
 pip install pact-python --no-binary :all:  # <‑‑ ainda tentará baixar o tar, mas sem verificar
 # 2) Opção pontual usando env var da própria lib
 export PACT_DO_NOT_VERIFY_SSL=1     # suportada pelo hatch_build do pact-python
+export NODE_TLS_REJECT_UNAUTHORIZED=1
 
 if [ "$(id -u)" -eq 0 ] && [ -n "${SUDO_USER-}" ]; then
     echo -e "\033[0;31mERROR: Este script não deve ser executado com 'sudo'. Ele solicitará a senha quando necessário.\033[0m" >&2
