@@ -9,14 +9,14 @@ export const POLLING_INTERVAL_MS = 60000
 
 const METRICS_QUERY_KEY = ['metrics-overview'] as const
 
-interface ApiMetricsEntry {
-  open_tickets: number
-  tickets_closed_this_month: number
+interface ApiMetricsOverview {
+  open_tickets: Record<string, number>
+  tickets_closed_this_month: Record<string, number>
 }
 
 export function useMetricsOverview() {
   const queryClient = useQueryClient()
-  const query = useApiQuery<Record<string, ApiMetricsEntry>>(
+  const query = useApiQuery<ApiMetricsOverview>(
     METRICS_QUERY_KEY,
     '/metrics/overview',
     {
@@ -26,15 +26,13 @@ export function useMetricsOverview() {
 
   const metrics = useMemo(() => {
     if (!query.data) return undefined
-    return Object.fromEntries(
-      Object.entries(query.data).map(([level, item]) => [
-        level,
-        {
-          open: item.open_tickets,
-          closed: item.tickets_closed_this_month,
-        },
-      ]),
-    ) as MetricsOverview
+    return Object.keys(query.data.open_tickets).reduce((acc, level) => {
+      acc[level] = {
+        open: query.data.open_tickets[level] ?? 0,
+        closed: query.data.tickets_closed_this_month[level] ?? 0,
+      }
+      return acc
+    }, {} as MetricsOverview)
   }, [query.data])
 
   const refreshMetrics = useCallback(
