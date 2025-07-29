@@ -65,7 +65,7 @@ async def update_metrics(ctx: Dict[str, Any], ticket: Dict[str, Any]) -> None:
         except (
             ConnectionError,
             TimeoutError,
-            Exception,
+            RuntimeError,  # Replace with specific SDK-related exceptions if applicable
         ) as exc:  # pragma: no cover - network failures
             logging.error("failed to fetch counts via SDK: %s", exc)
             await cache.set("metrics_levels", status_by_group(df))
