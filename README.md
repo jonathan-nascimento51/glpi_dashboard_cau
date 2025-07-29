@@ -379,7 +379,7 @@ export NODE_EXTRA_CA_CERTS=$REQUESTS_CA_BUNDLE
 pip install pact-python
 ```
 
-See the [Installing Dependencies Behind a Proxy or Offline](#installing-dependencies-behind-a-proxy-or-offline)
+See the [Installing dependencies offline](#installing-dependencies-offline)
 section above for proxy variables.
 
 ## GitHub access
