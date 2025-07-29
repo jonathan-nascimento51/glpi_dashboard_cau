@@ -17,7 +17,7 @@ classifiers = [
 ]
 dependencies = [
     "dash>=2.17",
-    "dash-bootstrap-components>=1.3.1",   # Necessário para dash_bootstrap_components
+    "dash-bootstrap-components>=1.3.1",
     "pandas>=2.2",
     "requests>=2.32",
     "python-dotenv>=1.0",
@@ -46,14 +46,14 @@ dependencies = [
     "pydantic-settings>=2.2",
     "tenacity>=8.2",
     "purgatory>=3.0",
-    "loguru>=0.7",                 # Já presente, para suporte ao loguru
+    "loguru>=0.7",
     "structlog>=24.1",
     "orjson>=3.10",
     "arq>=0.26",
     "pybreaker>=0.20",
     "prometheus-client",
     "prometheus-fastapi-instrumentator>=6.0",
-    "plotly>=5.0",                 # Adicionado para plotly
+    "plotly>=5.0",
     "py-glpi",
 ]
 
@@ -73,7 +73,7 @@ dev = [
     "pytest-mock==3.14.1",
     "types-requests",
     "types-redis",
-    "pytest-httpx==0.30.0",  # Exige httpx==0.27.*
+    "pytest-httpx==0.30.0",
     "pact-python",
     "pydantic-to-typescript",
     "opentelemetry-instrumentation-fastapi",
@@ -87,10 +87,8 @@ dev = [
     "plotly>=5.0",
     "libcst",
     "rope",
-    # Forcing versions to resolve conflicts:
-    "tomli>=0.2.6,<2.0.0",      # para o black
-    "urllib3~=1.26",            # para o selenium
-    "httpx==0.27.*"             # para o pytest-httpx
+    "tomli>=0.2.6,<2.0.0",
+    "urllib3~=1.26",
 ]
 
 [project.scripts]
@@ -125,13 +123,13 @@ exclude = [
 ]
 
 [tool.ruff.lint]
-select = ["E", "F", "W", "I"] # Enable Pyflakes, pycodestyle, and isort
+select = ["E", "F", "W", "I"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["backend", "shared"]
 
 [tool.ruff.format]
-quote-style = "double" # Match black's default
+quote-style = "double"
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
