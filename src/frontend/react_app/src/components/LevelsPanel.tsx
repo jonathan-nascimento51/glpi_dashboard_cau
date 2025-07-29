@@ -1,6 +1,6 @@
 import { memo, type FC, useCallback } from 'react'
 import { useModal } from '../hooks/useModal'
-import { useMetricsLevels } from '../hooks/useMetricsLevels'
+import { useLevelsMetrics } from '../hooks/useLevelsMetrics'
 
 export interface LevelData {
   name: string
@@ -8,7 +8,7 @@ export interface LevelData {
 }
 
 const LevelsPanelComponent: FC = () => {
-  const { levels, isLoading, isError } = useMetricsLevels()
+  const { levels, isLoading, isError } = useLevelsMetrics()
   const { openModal, modalElement } = useModal()
 
   const showDetails = useCallback(

@@ -1,5 +1,4 @@
-import { useCallback, useMemo } from 'react'
-import { useQueryClient } from '@tanstack/react-query'
+import { useMemo } from 'react'
 import { useApiQuery } from './useApiQuery'
 
 export interface LevelMetrics {
@@ -17,7 +16,6 @@ export interface LevelEntry {
 const LEVELS_QUERY_KEY = ['levels-metrics'] as const
 
 export function useLevelsMetrics() {
-  const queryClient = useQueryClient()
   const query = useApiQuery<Record<string, LevelMetrics>>(LEVELS_QUERY_KEY, '/metrics/levels')
 
   const levels = useMemo<LevelEntry[]>(() => {
@@ -25,14 +23,8 @@ export function useLevelsMetrics() {
     return Object.entries(query.data).map(([name, metrics]) => ({ name, metrics }))
   }, [query.data])
 
-  const refreshLevels = useCallback(
-    () => queryClient.invalidateQueries({ queryKey: LEVELS_QUERY_KEY }),
-    [queryClient],
-  )
-
   return {
     levels,
-    refreshLevels,
     isLoading: query.isLoading,
     isError: query.isError,
     error: query.error,
