@@ -1,6 +1,14 @@
 #!/bin/bash
 set -euo pipefail
 
+# 1) Opção global (menos segura)
+export PIP_CERT=""                 # força pip a não validar
+export GIT_SSL_NO_VERIFY=1
+pip install pact-python --no-binary :all:  # <‑‑ ainda tentará baixar o tar, mas sem verificar
+# 2) Opção pontual usando env var da própria lib
+export PACT_DO_NOT_VERIFY_SSL=1     # suportada pelo hatch_build do pact-python
+export NODE_TLS_REJECT_UNAUTHORIZED=1
+
 if [ "$(id -u)" -eq 0 ] && [ -n "${SUDO_USER-}" ]; then
     echo -e "\033[0;31mERROR: Este script não deve ser executado com 'sudo'. Ele solicitará a senha quando necessário.\033[0m" >&2
     echo -e "\033[0;31mPor favor, execute como o seu usuário normal: ./scripts/setup/setup_env.sh\033[0m" >&2
@@ -8,9 +16,6 @@ if [ "$(id -u)" -eq 0 ] && [ -n "${SUDO_USER-}" ]; then
 fi
 
 # --- Configuração e Funções Auxiliares ---
-export REQUESTS_CA_BUNDLE=$HOME/certs/corp-ca.pem
-export NODE_EXTRA_CA_CERTS=$HOME/certs/corp-ca.pem
-export SSL_CERT_FILE=$HOME/certs/corp-ca.pem
 
 # Cores para logs
 readonly C_RESET='\033[0m'
@@ -64,6 +69,7 @@ setup_system_dependencies() {
     # Variáveis de ambiente com valores padrão
     SKIP_PLAYWRIGHT=${SKIP_PLAYWRIGHT:-true}
     OFFLINE_INSTALL=${OFFLINE_INSTALL:-false}
+    INSECURE_TLS=${INSECURE_TLS:-false}
 
     # Local cache for Playwright browsers (override via PLAYWRIGHT_BROWSERS_PATH)
     PLAYWRIGHT_CACHE_DIR="${PLAYWRIGHT_BROWSERS_PATH:-$HOME/.cache/ms-playwright}"
@@ -71,17 +77,6 @@ setup_system_dependencies() {
     mkdir -p "$PLAYWRIGHT_CACHE_DIR"
 
     info "(1/7) Verificando acesso à internet..."
-    # Verifica e informa sobre o uso de certificados CA customizados
-    if [ -n "${REQUESTS_CA_BUNDLE:-}" ]; then
-        info "Usando CA bundle customizado para Python/pip: ${REQUESTS_CA_BUNDLE}"
-        info "Configurando git para usar o mesmo CA bundle..."
-        git config --global http.sslCAInfo "${REQUESTS_CA_BUNDLE}"
-    fi
-
-    if [ -n "${NODE_EXTRA_CA_CERTS:-}" ]; then
-        info "Usando CA bundle customizado para Node/npm: ${NODE_EXTRA_CA_CERTS}"
-    fi
-
     if curl -Is https://pypi.org/simple --max-time 5 >/dev/null 2>&1; then
         success "Conexão com a internet detectada"
     else
@@ -168,7 +163,8 @@ setup_python_env() {
         wheel_dir=${WHEELS_DIR:-./wheels}
         pip install --no-index --find-links="$wheel_dir" -r requirements.txt -r requirements-dev.txt
     else
-        pip install -r requirements.txt -r requirements-dev.txt
+        pip install --trusted-host github.com --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt
+        pip install -e .[dev]
     fi
     unset PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD
 
@@ -219,6 +215,10 @@ setup_git_hooks() {
 setup_playwright() {
     if [ "$SKIP_PLAYWRIGHT" = "false" ]; then
         info "(7/7) Instalando o browser Chromium para o Playwright..."
+        if [ "$INSECURE_TLS" = "true" ]; then
+            export NODE_TLS_REJECT_UNAUTHORIZED=0 # Cuidado: desativa a verificação de certificado TLS
+        fi
+
         info "Instalando dependências do Playwright via npm..."
         (cd src/frontend/react_app && npm install @playwright/test)
         info "Instalando o browser Chromium para o Playwright..."
