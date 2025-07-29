@@ -5,13 +5,14 @@ from collections.abc import Iterable
 from py_glpi.connection import GLPISession
 from py_glpi.resources.tickets import Tickets
 
-#: Mapping of ticket status names to their corresponding numeric codes in the GLPI system.
-STATUS_CODES: Dict[str, int] = {"new": 1, "pending": 4, "solved": 5}
+# Mapping of ticket status names to their corresponding numeric codes in the GLPI
+# system.
+STATUS_CODES: dict[str, int] = {"new": 1, "pending": 4, "solved": 5}
 
 
 def count_by_levels(
     session: GLPISession, levels: Iterable[str]
-) -> Dict[str, Dict[str, int]]:
+) -> dict[str, dict[str, int]]:
     """Return status counts for each level using ``py_glpi``.
 
     Parameters
@@ -22,10 +23,10 @@ def count_by_levels(
         Iterable of level identifiers (e.g. N1, N2).
     """
     tickets = Tickets(session)
-    results: Dict[str, Dict[str, int]] = {}
+    results: dict[str, dict[str, int]] = {}
 
     for level in levels:
-        level_counts: Dict[str, int] = {}
+        level_counts: dict[str, int] = {}
         for status_name, status_id in STATUS_CODES.items():
             criteria = [
                 {"field": "groups_id_assign", "searchtype": "equals", "value": level},
