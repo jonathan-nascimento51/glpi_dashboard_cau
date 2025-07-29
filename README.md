@@ -368,6 +368,22 @@ pip install --no-index --find-links=wheels/ -r requirements.txt
 O front-end já executa `npm ci --prefer-offline`, reutilizando o cache de
 dependências sempre que possível.
 
+### Confiar no certificado corporativo
+
+Se a rede utiliza inspeção TLS, tanto o `pip` quanto o `npm` precisam confiar no
+mesmo certificado raiz da empresa. Defina `REQUESTS_CA_BUNDLE` apontando para o
+arquivo `.pem` e reutilize esse caminho em `NODE_EXTRA_CA_CERTS`:
+
+```bash
+export REQUESTS_CA_BUNDLE=/path/to/corp-ca.pem
+export NODE_EXTRA_CA_CERTS=$REQUESTS_CA_BUNDLE
+```
+
+Essas variáveis garantem que as ferramentas Python e Node validem os servidores
+HTTPS com a mesma autoridade certificadora. Para entender por que desativar a
+verificação TLS com `NODE_TLS_REJECT_UNAUTHORIZED=0` não é seguro, consulte a
+[seção 11.2 de docs/solucoes_problemas.md](docs/solucoes_problemas.md#112-node_tls_reject_unauthorized0).
+
 ## GitHub access
 
 Repositórios privados ou actions personalizadas exigem autenticação. Defina
