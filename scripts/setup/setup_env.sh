@@ -8,10 +8,6 @@ export PIP_TRUSTED_HOST=github.com
 export PIP_CERT=$(python -m certifi)
 export PYTHONHTTPSVERIFY=0
 
-
-# Caso necessário, você pode desabilitar temporariamente a verificação de certificados (não recomendado para produção)
-export PYTHONHTTPSVERIFY=0
-
 if [ "$(id -u)" -eq 0 ] && [ -n "${SUDO_USER-}" ]; then
     echo -e "\033[0;31mERROR: Este script não deve ser executado com 'sudo'. Ele solicitará a senha quando necessário.\033[0m" >&2
     echo -e "\033[0;31mPor favor, execute como o seu usuário normal: ./scripts/setup/setup_env.sh\033[0m" >&2
