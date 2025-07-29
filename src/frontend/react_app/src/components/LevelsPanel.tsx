@@ -1,6 +1,7 @@
 import { memo, type FC, useCallback } from 'react'
 import { useModal } from '../hooks/useModal'
 import { useLevelsMetrics } from '../hooks/useLevelsMetrics'
+import slugify from 'slugify'
 
 export interface LevelData {
   name: string
