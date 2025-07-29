@@ -83,7 +83,7 @@ dev = [
     "plotly>=5.0",
     "libcst",
     "rope",
-    "tomli>=0.2.6,<3.0.0",
+    "tomli>=0.2.6,<2.0.0",
 ]
 
 full-tests = [
