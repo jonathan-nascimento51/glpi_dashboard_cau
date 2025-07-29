@@ -3,7 +3,11 @@ set -euo pipefail
 
 # Install packages from [project.optional-dependencies]
 python - "$@" <<'PY'
-import subprocess, sys, tomllib
+import subprocess, sys
+try:
+    import tomllib
+except ModuleNotFoundError:  # Python <3.11
+    import tomli as tomllib
 from pathlib import Path
 
 groups = sys.argv[1:] or ["dev"]

@@ -7,9 +7,6 @@ from pathlib import Path
 from unittest.mock import MagicMock, call, patch
 
 import pytest
-
-pytest.importorskip("py_glpi")
-
 from glpi_sdk import count_by_levels  # noqa: E402
 
 # Dynamically import ``GLPISDK`` from the infrastructure module without loading

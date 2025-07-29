@@ -12,7 +12,11 @@ from contextvars import ContextVar
 from typing import Any
 
 from loguru import logger
-from opentelemetry.instrumentation.logging import LoggingInstrumentor
+
+try:
+    from opentelemetry.instrumentation.logging import LoggingInstrumentor
+except ImportError:  # pragma: no cover - optional dependency
+    LoggingInstrumentor = None
 
 _is_initialized: bool = False
 _correlation_id: ContextVar[str | None] = ContextVar("correlation_id", default=None)
@@ -145,7 +149,7 @@ def init_logging(
     root_logger.setLevel(level if level is not None else logging.INFO)
     root_logger.addFilter(SensitiveFilter())
 
-    if enable_instrumentation:
+    if enable_instrumentation and LoggingInstrumentor is not None:
         LoggingInstrumentor().instrument(set_logging_format=True)
 
     _is_initialized = True
