@@ -14,6 +14,8 @@ with Path("pyproject.toml").open("rb") as f:
 optional = data.get("project", {}).get("optional-dependencies", {})
 pkgs = []
 for g in groups:
+    if g not in optional:
+        print(f"Warning: group '{g}' not found in optional dependencies")
     pkgs.extend(optional.get(g, []))
 
 if not pkgs:
