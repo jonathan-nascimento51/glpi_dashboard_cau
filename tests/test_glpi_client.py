@@ -1,4 +1,4 @@
-from unittest.mock import MagicMock
+from unittest.mock import AsyncMock, MagicMock
 
 import aiohttp
 import pytest
@@ -146,3 +146,24 @@ def test_setup_logger_initializes_logging():
 
     mod.setup_logger("t")
     assert mod.is_logging_configured()
+
+
+@pytest.mark.asyncio
+async def test_get_ticket_counts_by_level(monkeypatch):
+    session = GLPISession(
+        "http://example.com/apirest.php",
+        Credentials(app_token="APP", user_token="USER"),
+    )
+
+    async def fake_get(endpoint, *, params=None, headers=None, return_headers=False):
+        # Determine status from params
+        status_criteria = [c for c in params["criteria"] if c.get("field") == "status"]
+        status_value = int(status_criteria[0]["value"])
+        mapping = {1: 2, 4: 1, 5: 3}
+        return {"totalcount": mapping.get(status_value, 0)}
+
+    monkeypatch.setattr(session, "get", AsyncMock(side_effect=fake_get))
+
+    counts = await session.get_ticket_counts_by_level("N1")
+
+    assert counts == {"new": 2, "pending": 1, "solved": 3}
