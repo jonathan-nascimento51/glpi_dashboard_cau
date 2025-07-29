@@ -1,5 +1,6 @@
 import pytest
 
+from backend.application import metrics_worker
 from backend.application.events_consumer import TicketEventConsumer
 from backend.application.metrics_worker import update_metrics
 from shared.utils.redis_client import RedisClient
@@ -27,7 +28,8 @@ class DummyCache(RedisClient):
 
 
 @pytest.mark.asyncio
-async def test_update_metrics_writes_cache():
+async def test_update_metrics_writes_cache(monkeypatch):
+    monkeypatch.setattr(metrics_worker, "create_glpi_sdk", lambda: None)
     cache = DummyCache()
     ticket = {"id": 1, "status": 1, "priority": 2, "date_creation": "2024-06-01"}
     await update_metrics({"cache": cache}, ticket)
@@ -36,7 +38,8 @@ async def test_update_metrics_writes_cache():
 
 
 @pytest.mark.asyncio
-async def test_consumer_processes_events():
+async def test_consumer_processes_events(monkeypatch):
+    monkeypatch.setattr(metrics_worker, "create_glpi_sdk", lambda: None)
     events = [
         {
             "type": "TicketCreated",
