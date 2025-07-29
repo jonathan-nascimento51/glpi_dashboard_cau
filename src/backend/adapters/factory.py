@@ -54,7 +54,7 @@ def create_glpi_sdk() -> Optional[GLPISDK]:
             username=GLPI_USERNAME,
             password=GLPI_PASSWORD,
         )
-    except Exception as exc:  # pragma: no cover - init failures
+    except (ValueError, ConnectionError) as exc:  # pragma: no cover - init failures
         logger.exception("GLPI SDK init failed: %s", exc)
         return None
 
