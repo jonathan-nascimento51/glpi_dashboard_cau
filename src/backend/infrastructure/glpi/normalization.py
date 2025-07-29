@@ -108,7 +108,7 @@ def process_raw(data: TicketData) -> pd.DataFrame:
     )  # type: ignore
 
     requester = _normalize_assigned_field(df, "requester", idx)
-    df["requester"] = requester.replace({"<NA>": "", "nan": "", "None": ""}).fillna("")  # type: ignore
+    df["requester"] = requester.replace({"<NA>": "", "nan": "", "None": ""}).fillna("")
 
     return df[
         [

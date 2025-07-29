@@ -5,10 +5,19 @@ from typing import Dict, List, Mapping, Optional
 from py_glpi.connection import GLPISession
 from py_glpi.models import FilterCriteria, ResourceNotFound
 from py_glpi.resources.tickets import Ticket, Tickets
+from py_glpi.resources.users import Users
 
 
 class GLPISDK:
     """Synchronous helper that wraps :mod:`py_glpi` for common queries."""
+
+    STATUS_MAP: Dict[str, int] = {
+        "new": 1,
+        "processing": 2,
+        "waiting": 3,
+        "solved": 4,
+        "closed": 5,
+    }
 
     def __init__(
         self,
@@ -55,9 +64,9 @@ class GLPISDK:
         requester = None
         user_id = getattr(ticket, "users_id_recipient", None)
         if user_id:
-
             try:
-                requester = Users(self._client).get(user_id).name
+                user = Users(self._client).get(user_id)
+                requester = getattr(user, "name", None)
             except ResourceNotFound:
                 requester = None
         return {"priority": priority, "requester": requester}

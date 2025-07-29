@@ -7,6 +7,9 @@ from types import ModuleType, SimpleNamespace
 
 import pytest
 
+from backend.application import batch_fetch
+from shared.dto import CleanTicketDTO
+
 structlog = ModuleType("structlog")
 setattr(structlog, "get_logger", lambda *a, **k: SimpleNamespace())
 contextvars = ModuleType("contextvars")
@@ -20,9 +23,6 @@ httpx_mod = ModuleType("httpx")
 setattr(httpx_mod, "AsyncClient", object)
 sys.modules.setdefault("httpx", httpx_mod)
 sys.modules.setdefault("redis.asyncio", ModuleType("redis.asyncio"))
-
-from backend.application import batch_fetch
-from shared.dto import CleanTicketDTO
 
 
 class DummyClient:
