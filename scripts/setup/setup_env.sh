@@ -1,6 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
+export PYTHONHTTPSVERIFY=0
 export REQUESTS_CA_BUNDLE=$(python -m certifi)
 
 if [ "$(id -u)" -eq 0 ] && [ -n "${SUDO_USER-}" ]; then
