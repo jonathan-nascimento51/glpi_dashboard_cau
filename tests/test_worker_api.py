@@ -461,3 +461,12 @@ def test_metrics_aggregated_cache(dummy_cache: DummyCache):
     assert first == second
     stats = client.get("/cache/stats").json()
     assert stats["hits"] >= 1
+
+
+def test_metrics_levels_endpoint(dummy_cache: DummyCache) -> None:
+    """Return cached status counts grouped by ticket level."""
+    dummy_cache.data["metrics_levels"] = {"N1": {"new": 1, "pending": 0, "solved": 2}}
+    client = TestClient(create_app(client=FakeClient(), cache=dummy_cache))
+    resp = client.get("/metrics/levels")
+    assert resp.status_code == 200
+    assert resp.json() == dummy_cache.data["metrics_levels"]
