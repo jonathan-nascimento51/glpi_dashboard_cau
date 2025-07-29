@@ -72,27 +72,26 @@ dev = [
     "types-redis",
     "pytest-httpx==0.30.0",
     "pydantic-to-typescript",
+    "pre-commit",
+    "requests-mock",
+    "libcst",
+    "rope",
+    # tomli is bundled with Python >=3.11
+]
+
+full-tests = [
     "opentelemetry-instrumentation-fastapi",
     "opentelemetry-instrumentation-logging",
     "opentelemetry-instrumentation-redis",
     "opentelemetry-instrumentation-requests",
     "opentelemetry-instrumentation-aiohttp-client",
-    "pre-commit",
-    "requests-mock",
-    "dash-bootstrap-components>=1.3.1",
-    "plotly>=5.0",
-    "libcst",
-    "rope",
-    "tomli>=0.2.6,<2.0.0",
-]
-
-full-tests = [
     "testcontainers",
     "playwright",
     "dash[testing]",
     "pact-python",
     "fakeredis",
 ]
+
 
 [project.scripts]
 glpi-worker = "worker:main"

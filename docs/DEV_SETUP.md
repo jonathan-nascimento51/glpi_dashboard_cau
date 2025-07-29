@@ -27,13 +27,15 @@ these guidelines to avoid unnecessary re-renders:
   helper instead. **Note**: it does not handle nested objects.
 
 ### Running tests
-Install the runtime dependencies from `requirements.txt` **and** the development
-set before running `pytest`. Heavy packages used by the end-to-end tests are
-listed separately in `requirements-full-tests.txt`.
+Install the runtime dependencies from `requirements.txt` **and** the base
+development set before running `pytest`. Heavy packages used by the end-to-end
+tests are listed separately in `requirements-full-tests.txt` and can also be
+installed with `pip install -e '.[full-tests]'`.
 
 ```bash
-pip install -r requirements-dev.txt -r requirements-full-tests.txt \
-    --break-system-packages
+pip install -r requirements-dev.txt -r requirements-full-tests.txt
+# or
+pip install -e '.[full-tests]'
 ```
 **Note**: The `--break-system-packages` flag bypasses Python's external package management protection and can interfere with system packages. This flag is necessary for this project to ensure compatibility with certain development tools. However, it is strongly recommended to use a virtual environment to isolate dependencies and prevent interference with system-level Python packages. You can create and activate a virtual environment as follows:
 

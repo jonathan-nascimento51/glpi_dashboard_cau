@@ -24,6 +24,8 @@ python -m venv .venv
 source .venv/bin/activate        # Linux/macOS
 # .venv\Scripts\Activate.ps1   # Windows PowerShell
 pip install -r requirements.txt -r requirements-dev.txt
+# extras for the full test suite are in requirements-full-tests.txt
+# or: pip install -e '.[full-tests]'
 pip install -e .  # install package locally (packages live under src/)
 pip install opentelemetry-instrumentation-fastapi opentelemetry-instrumentation-logging
 ```
@@ -116,6 +118,8 @@ O backend irá ler `tests/resources/mock_tickets.json`.
 
 ```bash
 pip install -r requirements.txt -r requirements-dev.txt
+# optional: pip install -r requirements-full-tests.txt
+# or: pip install -e '.[full-tests]'
 pip install opentelemetry-instrumentation-fastapi opentelemetry-instrumentation-logging
 pytest --cov=./
 pre-commit run --all-files

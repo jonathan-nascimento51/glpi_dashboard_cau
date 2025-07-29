@@ -29,6 +29,8 @@ py -m venv .venv
 
 ```bash
 pip install -r requirements.txt -r requirements-dev.txt  # generated via pip-compile
+# extras for browser tests: pip install -r requirements-full-tests.txt
+# or: pip install -e '.[full-tests]'
 pip install -e .  # install package locally (packages live under src/)
 pip install opentelemetry-instrumentation-fastapi opentelemetry-instrumentation-logging
 pre-commit install  # optional
