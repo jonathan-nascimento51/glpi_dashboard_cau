@@ -43,6 +43,8 @@ describe('Dashboard component', () => {
     expect(screen.getByTestId('card-N1')).toBeInTheDocument()
     expect(screen.getByText('Abertos: 5')).toBeInTheDocument()
     expect(screen.getByText('Fechados: 2')).toBeInTheDocument()
+    const cards = screen.getAllByTestId(/card-/)
+    expect(cards).toHaveLength(Object.keys(mockMetrics).length)
   })
 
   it('shows error message on failure', () => {
