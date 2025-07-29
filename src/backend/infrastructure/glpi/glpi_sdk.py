@@ -55,7 +55,6 @@ class GLPISDK:
         requester = None
         user_id = getattr(ticket, "users_id_recipient", None)
         if user_id:
-            from py_glpi.resources.auth import Users
 
             try:
                 requester = Users(self._client).get(user_id).name
