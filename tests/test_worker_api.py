@@ -136,6 +136,43 @@ def test_aggregated_metrics(dummy_cache: DummyCache):
     assert "per_user" in data
 
 
+def test_metrics_router_endpoints(
+    monkeypatch: pytest.MonkeyPatch,
+    dummy_cache: DummyCache,
+) -> None:
+    """Ensure metrics overview and level endpoints are accessible via create_app."""
+    from app.api.metrics import LevelMetrics, MetricsOverview
+
+    overview = MetricsOverview(
+        open_tickets={"N1": 1},
+        tickets_closed_this_month={"N1": 1},
+        status_distribution={"new": 1},
+    )
+    level = LevelMetrics(
+        open_tickets=1,
+        resolved_this_month=1,
+        status_distribution={"new": 1},
+    )
+
+    async def fake_overview(*args, **kwargs):
+        return overview
+
+    async def fake_level_metrics(*args, **kwargs):
+        return level
+
+    monkeypatch.setattr("app.api.metrics.compute_overview", fake_overview)
+    monkeypatch.setattr("app.api.metrics.compute_level_metrics", fake_level_metrics)
+
+    client = TestClient(create_app(client=FakeClient(), cache=dummy_cache))
+    resp = client.get("/metrics/overview")
+    assert resp.status_code == 200
+    assert resp.json() == overview.model_dump()
+
+    resp = client.get("/metrics/level/N1")
+    assert resp.status_code == 200
+    assert resp.json() == level.model_dump()
+
+
 def test_chamados_por_data(dummy_cache: DummyCache):
     dummy_cache.data["chamados_por_data"] = [
         {"date": "2024-06-01", "total": 1},
