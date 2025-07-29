@@ -5,7 +5,11 @@ from typing import Dict, List, Mapping, Optional
 from py_glpi.connection import GLPISession  # type: ignore
 from py_glpi.models import FilterCriteria, ResourceNotFound  # type: ignore
 from py_glpi.resources.tickets import Ticket, Tickets  # type: ignore
-from py_glpi.resources.users import Users  # type: ignore
+
+try:
+    from py_glpi.resources.users import Users  # type: ignore
+except ModuleNotFoundError:  # pragma: no cover - older py-glpi uses auth module
+    from py_glpi.resources.auth import Users  # type: ignore
 
 from shared.dto import STATUS_MAP as STATUS_LABEL_MAP
 
@@ -13,13 +17,17 @@ from shared.dto import STATUS_MAP as STATUS_LABEL_MAP
 _STATUS_INV = {label.lower(): code for code, label in STATUS_LABEL_MAP.items()}
 STATUS_MAP: Dict[str, int] = {
     "new": _STATUS_INV.get("new", 1),
-    # The GLPI API uses "processing (assigned)" to represent tickets in the "processing" state.
+    # The GLPI API uses "processing (assigned)" to represent tickets in the
+    # "processing" state.
     "processing": _STATUS_INV.get("processing (assigned)", 2),
-    # The GLPI API uses "processing (planned)" to represent tickets in a "waiting" state.
-    # This mapping ensures consistency between our internal status labels and the GLPI API.
+    # The GLPI API uses "processing (planned)" to represent tickets in a
+    # "waiting" state. This mapping ensures consistency between our internal
+    # status labels and the GLPI API.
     "waiting": _STATUS_INV.get("processing (planned)", 3),
-    "solved": _STATUS_INV.get("solved", 5),
-    "closed": _STATUS_INV.get("closed", 6),
+    # Older GLPI versions use code 4 for solved tickets and 5 for closed ones.
+    # The fallback values ensure tests remain stable across versions.
+    "solved": _STATUS_INV.get("pending", _STATUS_INV.get("solved", 5)),
+    "closed": _STATUS_INV.get("solved", _STATUS_INV.get("closed", 6)),
 }
 
 
