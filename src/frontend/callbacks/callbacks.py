@@ -5,6 +5,7 @@ from typing import Any, Callable, Dict, List, Optional
 import dash_bootstrap_components as dbc  # type: ignore
 import pandas as pd
 from dash import Dash, Input, Output, callback
+
 from frontend.components.components import _status_fig, compute_ticket_stats
 
 
