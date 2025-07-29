@@ -382,7 +382,7 @@ export NODE_EXTRA_CA_CERTS=$REQUESTS_CA_BUNDLE
 Essas variáveis garantem que as ferramentas Python e Node validem os servidores
 HTTPS com a mesma autoridade certificadora. Para entender por que desativar a
 verificação TLS com `NODE_TLS_REJECT_UNAUTHORIZED=0` não é seguro, consulte a
-[seção 11.2 de docs/solucoes_problemas.md](docs/solucoes_problemas.md#112-node_tls_reject_unauthorized0).
+[seção 11.2 de docs/solucoes_problemas.md](docs/solucoes_problemas.md#112-node-tls-reject-unauthorized-0).
 
 ## GitHub access
 
