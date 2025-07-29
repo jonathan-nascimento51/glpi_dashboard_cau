@@ -28,7 +28,8 @@ def test_no_match():
 def test_partial_match():
     src = "from glpi_dashboard.acl import something_else"
     expected = "from backend.adapters import something_else"
-    assert rewrite_imports(src, MAPPING).strip() == expected, f"Expected '{expected}', but got '{rewrite_imports(src, MAPPING).strip()}'"
+    result = rewrite_imports(src, MAPPING).strip()
+    assert result == expected, f"{result!r} != {expected!r}"
 
 
 def test_validate_mapping():
@@ -56,9 +57,13 @@ def test_from_import_rewritten():
 def test_from_submodule_import_rewritten():
     src = "from glpi_dashboard.acl.normalization import sanitize_status_column"
     expected = "from backend.adapters.normalization import sanitize_status_column"
+    assert rewrite_imports(src, MAPPING).strip() == expected
+
+
 def test_string_literal_not_rewritten():
     """Verify that string literals containing module names are not rewritten."""
-    src = 'variable = "import glpi_dashboard.acl.normalization"'  # Should not be rewritten
+    # Should not be rewritten
+    src = 'variable = "import glpi_dashboard.acl.normalization"'
     assert rewrite_imports(src, MAPPING).strip() == src
 
 
