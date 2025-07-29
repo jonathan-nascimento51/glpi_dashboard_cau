@@ -24,6 +24,7 @@ from pydantic import BaseModel, Field
 from strawberry.fastapi import GraphQLRouter
 from strawberry.types import Info
 
+from app.api import router as api_router
 from backend.api.request_id_middleware import RequestIdMiddleware
 from backend.application.aggregated_metrics import (
     get_cached_aggregated,
@@ -170,6 +171,7 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
     app.add_middleware(RequestIdMiddleware)
     FastAPIInstrumentor().instrument_app(app)
     Instrumentator().instrument(app).expose(app)
+    app.include_router(api_router)
 
     env = os.getenv("APP_ENV", "development").lower()
     if env == "production":

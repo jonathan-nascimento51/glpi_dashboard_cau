@@ -23,18 +23,18 @@ sys.modules.setdefault(
 
 class DummyCache:
     def __init__(self):
-        self.data = {}
+        self.data: dict[str, object] = {}
         self.hits = 0
         self.misses = 0
 
-    async def get(self, key):
+    async def get(self, key: str) -> object | None:
         if key in self.data:
             self.hits += 1
             return self.data[key]
         self.misses += 1
         return None
 
-    async def set(self, key, data, ttl_seconds=None):
+    async def set(self, key: str, data: object, ttl_seconds: int | None = None) -> None:
         self.data[key] = data
 
     def get_cache_metrics(self) -> dict[str, float]:
@@ -61,11 +61,18 @@ class FakeClient(GlpiApiClient):
     async def __aenter__(self):
         return self
 
-    async def __aexit__(self, exc_type, exc, tb):
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc: BaseException | None,
+        tb: types.TracebackType | None,
+    ) -> None:
         pass
 
-    async def fetch_tickets(self, *args, **kwargs):
-        raw = [
+    async def fetch_tickets(
+        self, *args: object, **kwargs: object
+    ) -> list[CleanTicketDTO]:
+        raw: list[dict[str, object]] = [
             {
                 "id": 1,
                 "name": "A",
@@ -121,6 +128,43 @@ def test_aggregated_metrics(dummy_cache: DummyCache):
     assert "per_user" in data
 
 
+def test_metrics_router_endpoints(
+    monkeypatch: pytest.MonkeyPatch,
+    dummy_cache: DummyCache,
+) -> None:
+    """Ensure metrics overview and level endpoints are accessible via create_app."""
+    from app.api.metrics import LevelMetrics, MetricsOverview
+
+    overview = MetricsOverview(
+        open_tickets={"N1": 1},
+        tickets_closed_this_month={"N1": 1},
+        status_distribution={"new": 1},
+    )
+    level = LevelMetrics(
+        open_tickets=1,
+        resolved_this_month=1,
+        status_distribution={"new": 1},
+    )
+
+    async def fake_overview(*args: object, **kwargs: object) -> MetricsOverview:
+        return overview
+
+    async def fake_level_metrics(*args: object, **kwargs: object) -> LevelMetrics:
+        return level
+
+    monkeypatch.setattr("app.api.metrics.compute_overview", fake_overview)
+    monkeypatch.setattr("app.api.metrics.compute_level_metrics", fake_level_metrics)
+
+    client = TestClient(create_app(client=FakeClient(), cache=dummy_cache))
+    resp = client.get("/metrics/overview")
+    assert resp.status_code == 200
+    assert resp.json() == overview.model_dump()
+
+    resp = client.get("/metrics/level/N1")
+    assert resp.status_code == 200
+    assert resp.json() == level.model_dump()
+
+
 def test_chamados_por_data(dummy_cache: DummyCache):
     dummy_cache.data["chamados_por_data"] = [
         {"date": "2024-06-01", "total": 1},
@@ -156,8 +200,8 @@ def test_chamados_por_data_cache(dummy_cache: DummyCache):
     client = TestClient(create_app(client=session, cache=dummy_cache))
     first = client.get("/chamados/por-data").json()
 
-    def later_data(*args, **kwargs):
-        raw = [
+    def later_data(*args: object, **kwargs: object) -> list[CleanTicketDTO]:
+        raw: list[dict[str, object]] = [
             {
                 "id": 1,
                 "name": "X",
@@ -192,8 +236,8 @@ def test_chamados_por_dia_cache(dummy_cache: DummyCache):
     client = TestClient(create_app(client=session, cache=dummy_cache))
     first = client.get("/chamados/por-dia").json()
 
-    def later_data(*args, **kwargs):
-        raw = [
+    def later_data(*args: object, **kwargs: object) -> list[CleanTicketDTO]:
+        raw: list[dict[str, object]] = [
             {
                 "id": 1,
                 "name": "X",
@@ -256,14 +300,19 @@ def test_openapi_schema_models(dummy_cache: DummyCache):
 
 
 def test_tickets_stream(monkeypatch: pytest.MonkeyPatch, dummy_cache: DummyCache):
-    async def fake_gen(_client):
+    from typing import Any, AsyncGenerator
+
+    async def fake_gen(_client: Any) -> AsyncGenerator[bytes, None]:
         yield b"fetching...\n"
         yield b"done\n"
+
+    def typed_stream_tickets(client: Any) -> AsyncGenerator[bytes, None]:
+        return fake_gen(client)
 
     monkeypatch.setitem(
         create_app.__globals__,
         "_stream_tickets",
-        lambda client, cache=None: fake_gen(client),
+        typed_stream_tickets,
     )
 
     client = TestClient(create_app(client=FakeClient(), cache=dummy_cache))
@@ -294,7 +343,7 @@ def test_client_reused(monkeypatch: pytest.MonkeyPatch, dummy_cache: DummyCache)
     instances = []
 
     class RecordingClient(FakeClient):
-        def __init__(self, *args, **kwargs):
+        def __init__(self, *args: object, **kwargs: object):
             super().__init__()
             instances.append(self)
 
@@ -350,7 +399,7 @@ def test_health_glpi_head_success(dummy_cache: DummyCache) -> None:
 def test_redis_connection_error(
     monkeypatch: pytest.MonkeyPatch, dummy_cache: DummyCache
 ):
-    async def raise_conn(*args, **kwargs):
+    async def raise_conn(*args: object, **kwargs: object) -> None:
         raise redis.exceptions.ConnectionError("fail")
 
     monkeypatch.setattr(dummy_cache, "get", raise_conn)
@@ -441,8 +490,8 @@ def test_metrics_aggregated_cache(dummy_cache: DummyCache):
     client = TestClient(create_app(client=session, cache=dummy_cache))
     first = client.get("/metrics/aggregated").json()
 
-    def later_data(*args, **kwargs):
-        raw = [
+    def later_data(*args: object, **kwargs: object) -> list[CleanTicketDTO]:
+        raw: list[dict[str, object]] = [
             {
                 "id": 99,
                 "name": "Z",

@@ -201,3 +201,16 @@ async def metrics_overview() -> MetricsOverview:
         raise HTTPException(
             status_code=500, detail="Failed to compute metrics"
         ) from exc
+
+
+@router.get("/metrics/level/{level}", response_model=LevelMetrics)
+async def metrics_level(level: str) -> LevelMetrics:
+    """Return metrics for a single support level (e.g. N1, N2)."""
+    try:
+        normalized = level.upper()
+        return await compute_level_metrics(normalized)
+    except Exception as exc:  # pragma: no cover - defensive
+        logger.exception("Error computing level metrics for %s", level)
+        raise HTTPException(
+            status_code=500, detail="Failed to compute metrics"
+        ) from exc
