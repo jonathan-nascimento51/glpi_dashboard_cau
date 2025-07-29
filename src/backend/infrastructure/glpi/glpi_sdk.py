@@ -68,11 +68,10 @@ class GLPISDK:
     ) -> Dict[str, Dict[str, int]]:
         """Return status counts for each level key/value pair."""
         results: Dict[str, Dict[str, int]] = {}
-        STATUS_MAP = {"new": 1, "pending": 4, "solved": 5}
         for name, value in levels.items():
             tickets = self.list_tickets_by_level(level_field, value)
             status_list = [t.status for t in tickets]
             results[name] = {
-                key: status_list.count(code) for key, code in STATUS_MAP.items()
+                key: status_list.count(code) for key, code in self.STATUS_MAP.items()
             }
         return results
