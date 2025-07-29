@@ -26,13 +26,16 @@ export function useMetricsOverview() {
 
   const metrics = useMemo(() => {
     if (!query.data) return undefined
-    return Object.keys(query.data.open_tickets).reduce((acc, level) => {
+    const openLevels = Object.keys(query.data.open_tickets);
+    const closedLevels = Object.keys(query.data.tickets_closed_this_month);
+    const allLevels = Array.from(new Set([...openLevels, ...closedLevels]));
+    return allLevels.reduce((acc, level) => {
       acc[level] = {
         open: query.data.open_tickets[level] ?? 0,
         closed: query.data.tickets_closed_this_month[level] ?? 0,
-      }
-      return acc
-    }, {} as MetricsOverview)
+      };
+      return acc;
+    }, {} as MetricsOverview);
   }, [query.data])
 
   const refreshMetrics = useCallback(
