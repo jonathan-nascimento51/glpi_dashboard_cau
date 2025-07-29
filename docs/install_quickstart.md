@@ -15,6 +15,8 @@ This document condenses the main steps from the README to get the dashboard runn
 ```bash
   bash scripts/setup/setup_env.sh
 ```
+Run `mise trust` once after cloning to silence warnings about the `.mise.toml`
+configuration.
   This command creates the `.venv` directory, installs packages from
   `requirements.txt` and the dev dependencies defined in `pyproject.toml`
   (compiled into `requirements-dev.txt`), and sets up `pre-commit`.
@@ -85,7 +87,7 @@ npm install         # installs dotenv, @eslint/js and other dev dependencies
 npm run dev
 npm run storybook   # optional: preview UI components locally
 ```
-The exact Node version is pinned in `.nvmrc` at the repository root.
+The exact Node version is pinned in `.nvmrc` at the repository root. If you use `mise`, it will be picked up automatically; run `mise trust` once to silence the untrusted `.mise.toml` warning.
 Docker Compose automatically loads `.env` when present.
 Docker can be used if you cannot install the required Node version.
 
