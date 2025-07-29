@@ -28,10 +28,18 @@ export function useApiQuery<T, E = Error>(
   endpoint: string,
   options?: Omit<UseQueryOptions<T, E, T, QueryKey>, 'queryKey' | 'queryFn'>,
 ): UseQueryResult<T, E> {
-  const metaEnv: Record<string, string | undefined> | undefined =
-    typeof import.meta !== 'undefined' && import.meta.env
-      ? import.meta.env
-      : undefined;
+  // Access `import.meta.env` dynamically to avoid syntax errors in environments
+  // that do not support the `import.meta` construct (e.g. Jest running in CJS
+  // mode).  When executed in such environments the `eval` call will throw and
+  // we gracefully fall back to `process.env`.
+  const metaEnv: Record<string, string | undefined> | undefined = (() => {
+    try {
+      // eslint-disable-next-line no-eval
+      return (0, eval)('import.meta.env') as Record<string, string | undefined>;
+    } catch {
+      return undefined;
+    }
+  })();
 
   const baseUrl =
     metaEnv?.NEXT_PUBLIC_API_BASE_URL ??
