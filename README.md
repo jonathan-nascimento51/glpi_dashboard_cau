@@ -287,7 +287,7 @@ counts = sdk.get_ticket_counts_by_level("groups_id_assign", levels)
 print(counts["N1"])
 ```
 
-`get_ticket_counts_by_level` retrieves only count values, keeping data transfers to a minimum.
+`get_ticket_counts_by_level` retrieves all tickets for the given levels and then counts them by status.
 ### Generating components and modules
 
 Use [Plop](https://plopjs.com) to scaffold new React components or Dash modules.
