@@ -78,13 +78,15 @@ def list_fields(itemtype: str, csv_path: Path | None) -> None:
         Console().print(f"Saved CSV to {csv_path}")
 
 
+import click
+
 @cli.command("count-by-level")
 @click.argument("levels", nargs=-1)
 def count_by_level(levels: tuple[str]) -> None:
     """Show ticket status counts for one or more ``LEVELS``."""
 
     if not levels:
-        raise SystemExit("Specify at least one level")
+        raise click.UsageError("Specify at least one level")
 
     load_dotenv()
 
