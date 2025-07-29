@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Dict, Iterable
+from collections.abc import Iterable
 
 from py_glpi.connection import GLPISession
 from py_glpi.resources.tickets import Tickets
