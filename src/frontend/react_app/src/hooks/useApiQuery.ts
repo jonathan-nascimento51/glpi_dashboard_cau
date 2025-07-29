@@ -43,7 +43,9 @@ export function useApiQuery<T, E = Error>(
 
   const baseUrl =
     metaEnv?.NEXT_PUBLIC_API_BASE_URL ??
-    process.env.NEXT_PUBLIC_API_BASE_URL ??
+    (typeof process !== 'undefined'
+      ? process.env?.NEXT_PUBLIC_API_BASE_URL
+      : undefined) ??
     'http://localhost:8000';
 
   const fetchFromApi = async (): Promise<T> => {
