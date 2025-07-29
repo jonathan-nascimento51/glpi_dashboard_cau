@@ -96,6 +96,7 @@ def test_count_by_levels_calls_tickets_count(fake_session):
         "N2": {"new": 4, "pending": 5, "solved": 6},
     }
 
+
 def test_get_ticket_counts_by_level_empty_levels(monkeypatch: pytest.MonkeyPatch):
     """Returns empty dict if levels is empty."""
     monkeypatch.setattr(glpi_sdk_impl, "GLPISession", MagicMock())
@@ -103,6 +104,7 @@ def test_get_ticket_counts_by_level_empty_levels(monkeypatch: pytest.MonkeyPatch
     sdk.list_tickets_by_level = MagicMock()
     result = sdk.get_ticket_counts_by_level("lvl", {})
     assert result == {}
+
 
 def test_get_ticket_counts_by_level_empty_tickets(monkeypatch: pytest.MonkeyPatch):
     """Returns all status counts as 0 if list_tickets_by_level returns empty list."""
@@ -113,6 +115,7 @@ def test_get_ticket_counts_by_level_empty_tickets(monkeypatch: pytest.MonkeyPatc
     assert result == {
         "A": {"new": 0, "processing": 0, "waiting": 0, "solved": 0, "closed": 0},
     }
+
 
 def test_list_tickets_by_level_handles_not_found(monkeypatch: pytest.MonkeyPatch):
     """``list_tickets_by_level`` returns an empty list on ``ResourceNotFound``."""
