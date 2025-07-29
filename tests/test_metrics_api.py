@@ -131,7 +131,7 @@ def test_overview_endpoint(test_client, monkeypatch):
     assert resp.status_code == 200
     data = resp.json()
     assert data["open_tickets"] == {"N1": 1, "N2": 1}
-    assert data["created_and_resolved_this_month"] == {"N1": 1, "N2": 1}
+    assert data["tickets_closed_this_month"] == {"N1": 1, "N2": 1}
     assert data["status_distribution"] == {"new": 1, "closed": 2, "pending": 1}
     # call again should hit cache
     resp = client.get("/metrics/overview")
