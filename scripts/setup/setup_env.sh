@@ -1,12 +1,9 @@
 #!/bin/bash
 set -euo pipefail
 
-#!/bin/bash
-set -euo pipefail
-
 # Se você tiver um arquivo com os certificados corporativos:
-export REQUESTS_CA_BUNDLE="/caminho/para/corporate-ca.pem"
-export NODE_EXTRA_CA_CERTS="/caminho/para/corporate-ca.pem"
+export REQUESTS_CA_BUNDLE=$(python -m certifi)
+export NODE_EXTRA_CA_CERTS=$(python -m certifi)
 
 # Caso necessário, você pode desabilitar temporariamente a verificação de certificados (não recomendado para produção)
 export PYTHONHTTPSVERIFY=0
