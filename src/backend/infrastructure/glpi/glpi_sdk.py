@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from typing import Dict, List, Mapping, Optional
 
-from py_glpi.connection import GLPISession
-from py_glpi.models import FilterCriteria, ResourceNotFound
-from py_glpi.resources.tickets import Ticket, Tickets
-from py_glpi.resources.users import Users
+from py_glpi.connection import GLPISession  # type: ignore
+from py_glpi.models import FilterCriteria, ResourceNotFound  # type: ignore
+from py_glpi.resources.tickets import Ticket, Tickets  # type: ignore
+from py_glpi.resources.users import Users  # type: ignore
 
 
 class GLPISDK:
@@ -28,14 +28,23 @@ class GLPISDK:
         username: Optional[str] = None,
         password: Optional[str] = None,
     ) -> None:
-        auth_type = "user_token" if user_token else "basic"
+        # GLPISession expects auth_type to be "basic" or "user_auth"
+        # and user_token, user, password to be str (not None)
+        if user_token:
+            auth_type = "user_auth"
+            _user_token = user_token
+        else:
+            auth_type = "basic"
+            _user_token = ""
+        _user = username if username is not None else ""
+        _password = password if password is not None else ""
         self._client = GLPISession(
             api_url=api_url,
             app_token=app_token,
             auth_type=auth_type,
-            user_token=user_token,
-            user=username,
-            password=password,
+            user_token=_user_token,
+            user=_user,
+            password=_password,
         )
         self._tickets = Tickets(self._client)
 
