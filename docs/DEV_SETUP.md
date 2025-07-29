@@ -40,3 +40,17 @@ pip install -r requirements-dev.txt --break-system-packages
 ```bash
 python -m venv venv
 source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
+pip install -r requirements.txt -r requirements-dev.txt
+```
+
+### SSL inspection and `pact-python`
+
+Corporate proxies that inspect TLS traffic may cause `pip install pact-python` to fail with `CERTIFICATE_VERIFY_FAILED`. Provide the company's root certificate bundle and reuse it for Node scripts that invoke Pact:
+
+```bash
+export REQUESTS_CA_BUNDLE=/path/to/company-ca.pem
+export NODE_EXTRA_CA_CERTS=$REQUESTS_CA_BUNDLE
+pip install pact-python
+```
+
+Refer to the [Installing Dependencies Behind a Proxy or Offline](../README.md#installing-dependencies-behind-a-proxy-or-offline) section in the README for additional proxy configuration.
