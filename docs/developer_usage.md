@@ -76,8 +76,18 @@ Endpoints relevantes:
 - `/tickets` – lista completa de chamados
  - A resposta inclui os campos `priority` e `requester` em formato textual.
 - `/metrics` – contagem de abertos/fechados
+- `/metrics/overview` – retorna `open_tickets`,
+  `tickets_closed_this_month` e `status_distribution`.
+- `/metrics/level/<nivel>` – mesmos campos do endpoint acima mas
+  restritos ao nível informado.
+- `/metrics/levels` – dicionário com contagem de status por nível
+  armazenado em `metrics_levels`.
 - `/graphql/` – versão GraphQL
 - `/cache/stats` – estatísticas de cache
+
+O comando `load_tickets()` executado na inicialização preenche os
+redis-keys `metrics_aggregated`, `metrics_levels` e `metrics:overview`
+para que esses endpoints respondam rapidamente já no primeiro acesso.
 
 Exemplo de retorno:
 

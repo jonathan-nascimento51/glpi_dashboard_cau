@@ -473,8 +473,9 @@ python -m backend.application.metrics_worker
 ```
 
 When the FastAPI service starts it primes the Redis cache by calling
-`load_tickets()`. This fills the `chamados_por_data` and
-`metrics_aggregated` keys so endpoints are responsive immediately.
+`load_tickets()`. This fills the `chamados_por_data`,
+`metrics_aggregated`, `metrics_levels` and `metrics:overview` keys so
+endpoints are responsive immediately.
 
 - The service exposes several endpoints:
 
@@ -483,11 +484,31 @@ When the FastAPI service starts it primes the Redis cache by calling
 - `/tickets/stream` – Server‑Sent Events (SSE) stream of progress followed by the JSON payload.
 - `/metrics` – summary with `total`, `opened` and `closed` counts.
 - `/metrics/aggregated` – counts grouped by status and technician, pre-computed by the worker.
+- `/metrics/overview` – dictionary with `open_tickets`,
+  `tickets_closed_this_month` and `status_distribution`.
+- `/metrics/level/<level>` – same fields as `/metrics/overview` but scoped
+  to a single support level.
+- `/metrics/levels` – mapping of levels to status counts stored in the
+  `metrics_levels` cache.
 - `/chamados/por-data` – tickets per creation date, refreshed every 10 minutes.
 - `/chamados/por-dia` – totals for calendar heatmaps, refreshed every 10 minutes.
 - `/graphql/` – GraphQL API providing the same information.
 - `/cache/stats` – returns cache hit/miss metrics.
 - `/health` – quick check that the worker can reach the GLPI API.
+
+Example `/metrics/overview` payload:
+
+```json
+{
+  "open_tickets": {"N1": 5},
+  "tickets_closed_this_month": {"N1": 2},
+  "status_distribution": {"new": 3, "closed": 2}
+}
+```
+
+The `/metrics/level/N1` endpoint yields the same fields scoped to the
+requested level. `/metrics/levels` returns a dictionary of levels mapped
+to status counts.
 
 Example ticket payload:
 
