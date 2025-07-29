@@ -28,6 +28,8 @@ Scripts utilitários residem em `scripts/` organizados por categoria, como `setu
    ```bash
    python -m pip install --upgrade pip
    pip install --no-cache-dir --upgrade -r requirements.txt -r requirements-dev.txt
+   # extras for the browser tests are in requirements-full-tests.txt
+   # or install them via: pip install -e '.[full-tests]'
    pip install -e .  # importa pacotes da pasta src
    pip install opentelemetry-instrumentation-fastapi opentelemetry-instrumentation-logging
    pre-commit install
@@ -158,10 +160,12 @@ Execute toda a suíte de testes com cobertura:
 make test
 ```
 
-Before running the tests, **install the dependencies from both** `requirements.txt` **and** `requirements-dev.txt`, then install the project in editable mode so imports resolve correctly:
+Before running the tests, **install the dependencies from** `requirements.txt` and the base development lockfile `requirements-dev.txt`. Packages for the full end-to-end suite are available in `requirements-full-tests.txt` or via `pip install -e '.[full-tests]'`. Install the project in editable mode so imports resolve correctly:
 
 ```bash
 pip install -r requirements.txt -r requirements-dev.txt
+# optional: pip install -r requirements-full-tests.txt
+# or: pip install -e '.[full-tests]'
 pip install -e .
 pip install aiohttp  # required for glpi_session tests
 ```

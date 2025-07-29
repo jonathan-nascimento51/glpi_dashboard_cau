@@ -1,24 +1,27 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Install packages listed under [project.optional-dependencies]
-# Usage: ./scripts/install_dev_extras.sh [group]
-# Defaults to "dev" if no group is provided.
-GROUP="${1:-dev}"
-
-python - "$GROUP" <<'PY'
+# Install packages from [project.optional-dependencies]
+python - "$@" <<'PY'
 import subprocess, sys, tomllib
 from pathlib import Path
 
-group = sys.argv[1]
-with Path('pyproject.toml').open('rb') as f:
+groups = sys.argv[1:] or ["dev"]
+
+with Path("pyproject.toml").open("rb") as f:
     data = tomllib.load(f)
 
-pkgs = data.get('project', {}).get('optional-dependencies', {}).get(group, [])
+optional = data.get("project", {}).get("optional-dependencies", {})
+pkgs = []
+for g in groups:
+    if g not in optional:
+        print(f"Warning: group '{g}' not found in optional dependencies")
+    pkgs.extend(optional.get(g, []))
+
 if not pkgs:
-    print(f'No {group} optional dependencies found.')
+    print("No optional dependencies found for", ", ".join(groups))
     raise SystemExit(0)
 
-print(f'Installing optional {group} packages:', ' '.join(pkgs))
-subprocess.check_call([sys.executable, '-m', 'pip', 'install', *pkgs])
+print("Installing optional packages from", ", ".join(groups) + ":", " ".join(pkgs))
+subprocess.check_call([sys.executable, "-m", "pip", "install", *pkgs])
 PY

@@ -61,6 +61,8 @@ pre-commit>=3.7
 Gere setup.sh:
 - apt-get update && install build-essential
 - pip install -r requirements.txt -r requirements-dev.txt
+ - pip install -r requirements-full-tests.txt  # optional, for full suite
+ # or: pip install -e '.[full-tests]'
 - pre-commit install
 ```
 

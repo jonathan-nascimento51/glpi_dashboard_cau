@@ -18,7 +18,7 @@ The script accepts optional variables:
 
 ## 2. Update packages over time
 
-When tests fail due to missing libraries, update `requirements.txt` and `requirements-dev.txt` accordingly, then regenerate the wheels if you maintain an offline cache:
+When tests fail due to missing libraries, update `requirements.txt` and `requirements-dev.txt` (or `requirements-full-tests.txt` when running the entire suite) accordingly, then regenerate the wheels if you maintain an offline cache:
 
 ```bash
 ./scripts/download_wheels.sh
@@ -28,7 +28,7 @@ After adjusting the lists rerun `bash scripts/setup/setup_env.sh` to refresh the
 
 ## 3. Troubleshooting
 
-- Use `make test` to verify the installation. If imports fail, ensure that `pip install -r requirements-dev.txt` completed successfully.
+- Use `make test` to verify the installation. If imports fail, ensure that `pip install -r requirements-dev.txt` (and `requirements-full-tests.txt` when needed) completed successfully.
 - Review `/tmp/pytest.log` for failing modules and add the missing packages to the requirements files.
 
 This document will evolve as new limitations are discovered.
