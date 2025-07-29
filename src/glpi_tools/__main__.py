@@ -78,5 +78,46 @@ def list_fields(itemtype: str, csv_path: Path | None) -> None:
         Console().print(f"Saved CSV to {csv_path}")
 
 
+@cli.command("count-by-level")
+@click.argument("levels", nargs=-1)
+def count_by_level(levels: tuple[str]) -> None:
+    """Show ticket status counts for one or more ``LEVELS``."""
+
+    if not levels:
+        raise SystemExit("Specify at least one level")
+
+    load_dotenv()
+
+    async def _run() -> dict[str, dict[str, int]]:
+        creds = Credentials(
+            app_token=settings.GLPI_APP_TOKEN,
+            user_token=settings.GLPI_USER_TOKEN,
+        )
+        async with GLPISession(settings.GLPI_BASE_URL, creds) as session:
+            from backend.application.glpi_api_client import GlpiApiClient
+
+            client = GlpiApiClient(session=session)
+            return await client.get_status_counts_by_levels(list(levels))
+
+    data = asyncio.run(_run())
+
+    table = Table(title="Status counts by level")
+    table.add_column("Level", style="cyan")
+    table.add_column("New", justify="right")
+    table.add_column("Pending", justify="right")
+    table.add_column("Solved", justify="right")
+
+    for lvl in levels:
+        counts = data.get(lvl, {})
+        table.add_row(
+            lvl,
+            str(counts.get("new", 0)),
+            str(counts.get("pending", 0)),
+            str(counts.get("solved", 0)),
+        )
+
+    Console().print(table)
+
+
 if __name__ == "__main__":  # pragma: no cover
     cli()

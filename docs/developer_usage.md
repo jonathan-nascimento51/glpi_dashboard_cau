@@ -85,6 +85,12 @@ Endpoints relevantes:
 - `/graphql/` – versão GraphQL
 - `/cache/stats` – estatísticas de cache
 
+Utilize o CLI para consultar esses números diretamente pela API:
+
+```bash
+python -m glpi_tools count-by-level N1 N2
+```
+
 O comando `load_tickets()` executado na inicialização preenche os
 redis-keys `metrics_aggregated`, `metrics_levels` e `metrics:overview`
 para que esses endpoints respondam rapidamente já no primeiro acesso.

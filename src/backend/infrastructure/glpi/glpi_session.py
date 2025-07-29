@@ -892,6 +892,41 @@ class GLPISession:
         }
         return await self.get("getFullSession", headers=headers)
 
+    async def get_ticket_counts_by_level(self, level: str) -> Dict[str, int]:
+        """Return counts of ``new``, ``pending`` and ``solved`` tickets for ``level``.
+
+        The GLPI REST API ``search`` endpoint is queried with ``count=1`` for
+        each status. The ``totalcount`` field in the response indicates how many
+        tickets match the criteria.
+        """
+
+        STATUS_CODES = {"new": 1, "pending": 4, "solved": 5}
+
+        async def _query(status_id: int) -> int:
+            params = {
+                "criteria": [
+                    {
+                        "field": "groups_id_assign",
+                        "searchtype": "equals",
+                        "value": level,
+                    },
+                    {"link": "AND"},
+                    {"field": "status", "searchtype": "equals", "value": status_id},
+                ],
+                "count": 1,
+            }
+            data = await self.get("search/Ticket", params=params)
+            totalcount = data.get("totalcount") or data.get("count")
+            try:
+                return int(totalcount)
+            except Exception:
+                return 0
+
+        results = {}
+        for label, sid in STATUS_CODES.items():
+            results[label] = await _query(sid)
+        return results
+
 
 async def open_session_tool(params: SessionParams) -> str:
     """Validate credentials by opening and closing a session.
@@ -928,6 +963,7 @@ async def index_all_paginated(
 # Expose the ``get_full_session`` method at module level for convenience.
 get_full_session = GLPISession.get_full_session
 get_multiple_items = GLPISession.get_multiple_items
+get_ticket_counts_by_level = GLPISession.get_ticket_counts_by_level
 
 
 __all__ = [
@@ -942,6 +978,7 @@ __all__ = [
     "GLPITooManyRequestsError",
     "GLPIInternalServerError",
     "get_full_session",
+    "get_ticket_counts_by_level",
     "index_all_paginated",
     "get_multiple_items",
 ]

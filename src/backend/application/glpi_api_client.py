@@ -200,6 +200,20 @@ class GlpiApiClient:
                 logger.error("failed to translate ticket %s: %s", item.get("id"), exc)
         return translated
 
+    async def get_status_counts_by_levels(
+        self, levels: List[str]
+    ) -> Dict[str, Dict[str, int]]:
+        """Return status counts for each level in ``levels``."""
+
+        results: Dict[str, Dict[str, int]] = {}
+        for level in levels:
+            try:
+                results[level] = await self._session.get_ticket_counts_by_level(level)
+            except Exception as exc:  # pragma: no cover - network failures
+                logger.error("failed to fetch counts for level %s: %s", level, exc)
+                results[level] = {"new": 0, "pending": 0, "solved": 0}
+        return results
+
 
 def create_glpi_api_client() -> Optional[GlpiApiClient]:
     try:

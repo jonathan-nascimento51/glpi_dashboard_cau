@@ -96,3 +96,24 @@ async def test_get_all_paginated_maps_fields(monkeypatch):
         {"id": 2, "name": "b"},
         {"id": 3, "name": "c"},
     ]
+
+
+@pytest.mark.asyncio
+async def test_get_status_counts_by_levels(monkeypatch):
+    session = MagicMock()
+    session.get_ticket_counts_by_level = AsyncMock(
+        side_effect=lambda lvl: {"new": 1, "pending": 0, "solved": 2}
+    )
+    monkeypatch.setattr(
+        "backend.application.glpi_api_client.MappingService",
+        lambda *a, **k: MagicMock(),
+    )
+    client = GlpiApiClient(session=session)
+
+    counts = await client.get_status_counts_by_levels(["N1", "N2"])
+
+    assert counts == {
+        "N1": {"new": 1, "pending": 0, "solved": 2},
+        "N2": {"new": 1, "pending": 0, "solved": 2},
+    }
+    assert session.get_ticket_counts_by_level.await_count == 2

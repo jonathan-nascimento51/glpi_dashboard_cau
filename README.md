@@ -262,6 +262,12 @@ Query a list of fields for a GLPI item:
 python -m glpi_tools list-fields Ticket
 ```
 
+Count ticket statuses for multiple levels:
+
+```bash
+python -m glpi_tools count-by-level N1 N2
+```
+
 ### Generating components and modules
 
 Use [Plop](https://plopjs.com) to scaffold new React components or Dash modules.
