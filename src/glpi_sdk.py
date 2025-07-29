@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
+from typing import Dict
 
 from py_glpi.connection import GLPISession
 from py_glpi.resources.tickets import Tickets
 
-#: Mapping of ticket status names to their corresponding numeric codes in the GLPI
-#: system.
-STATUS_CODES: dict[str, int] = {"new": 1, "pending": 4, "solved": 5}
+#: Mapping of ticket status names to the numeric codes returned by GLPI.
+STATUS_CODES: Dict[str, int] = {"new": 1, "pending": 4, "solved": 5}
 
 
 def count_by_levels(
