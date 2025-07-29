@@ -45,7 +45,9 @@ const LevelsPanelComponent: FC = () => {
         {levels?.map((level) => (
           <button
             key={level.name}
-            className={`level-card ${level.name.toLowerCase()}`}
+            className={`level-card ${level.name
+              .toLowerCase()
+              .replace(/\s+/g, '-')}`}
             onClick={() => showDetails(level)}
             role="button"
             aria-label={`View details for ${level.name}`}
