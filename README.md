@@ -343,7 +343,7 @@ More setup tips—including offline usage with mock data—are documented in
 [docs/dev_performance_guide.md](docs/dev_performance_guide.md) for
 strategies to pre-build Docker images and cache Python wheels.
 
-### SSL inspection and `pact-python`
+### SSL Certificate Issues with pact-python Installation
 
 Corporate proxies that inspect TLS traffic may cause `pip install pact-python`
 to fail with `CERTIFICATE_VERIFY_FAILED`. Provide the company's root certificate
