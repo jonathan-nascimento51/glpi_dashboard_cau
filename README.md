@@ -272,6 +272,22 @@ Count ticket statuses for multiple levels:
 python -m glpi_tools count-by-level N1 N2
 ```
 
+Alternatively use the `GLPISDK` class directly:
+
+```python
+from backend.infrastructure.glpi.glpi_sdk import GLPISDK
+
+sdk = GLPISDK(
+    api_url="https://glpi.example.com/apirest.php",
+    app_token="APP_TOKEN",
+    user_token="USER_TOKEN",
+)
+levels = {"N1": 1}
+counts = sdk.get_ticket_counts_by_level("groups_id_assign", levels)
+print(counts["N1"])
+```
+
+`get_ticket_counts_by_level` retrieves all tickets for the given levels and then counts them by status.
 ### Generating components and modules
 
 Use [Plop](https://plopjs.com) to scaffold new React components or Dash modules.
@@ -343,6 +359,18 @@ More setup tips—including offline usage with mock data—are documented in
 [docs/dev_performance_guide.md](docs/dev_performance_guide.md) for
 strategies to pre-build Docker images and cache Python wheels.
 
+### SSL Certificate Issues with pact-python Installation
+
+Corporate proxies that inspect TLS traffic may cause `pip install pact-python`
+to fail with `CERTIFICATE_VERIFY_FAILED`. Provide the company's root certificate
+export REQUESTS_CA_BUNDLE=/path/to/company-ca.pem
+export SSL_CERT_FILE=$REQUESTS_CA_BUNDLE
+pip install pact-python
+
+Refer back to the
+[Installing Dependencies Behind a Proxy or Offline](#installing-dependencies-behind-a-proxy-or-offline)
+section for more proxy configuration tips.
+
 ## Instalação em rede restrita
 
 Caso o ambiente tenha acesso limitado à internet ou exija proxy corporativo,
@@ -383,6 +411,20 @@ Essas variáveis garantem que as ferramentas Python e Node validem os servidores
 HTTPS com a mesma autoridade certificadora. Para entender por que desativar a
 verificação TLS com `NODE_TLS_REJECT_UNAUTHORIZED=0` não é seguro, consulte a
 [seção 11.2 de docs/solucoes_problemas.md](docs/solucoes_problemas.md#112-node-tls-reject-unauthorized-0).
+### SSL inspection and `pact-python`
+
+Corporate proxies that inspect TLS traffic may cause `pip install pact-python`
+to fail with `CERTIFICATE_VERIFY_FAILED`. Provide the company's root certificate
+and reuse it for Node scripts that invoke Pact:
+
+```bash
+export REQUESTS_CA_BUNDLE=/path/to/company-ca.pem
+export NODE_EXTRA_CA_CERTS=$REQUESTS_CA_BUNDLE
+pip install pact-python
+```
+
+See the [Installing dependencies offline](#installing-dependencies-offline)
+section above for proxy variables.
 
 ## GitHub access
 
