@@ -1,12 +1,12 @@
 #!/bin/bash
 set -euo pipefail
 
-# Se você tiver um arquivo com os certificados corporativos:
-export REQUESTS_CA_BUNDLE=$(python -m certifi)
-export NODE_EXTRA_CA_CERTS=$(python -m certifi)
-export PIP_TRUSTED_HOST=github.com
-export PIP_CERT=$(python -m certifi)
-export PYTHONHTTPSVERIFY=0
+# 1) Opção global (menos segura)
+export PIP_CERT=""                 # força pip a não validar
+export GIT_SSL_NO_VERIFY=1
+pip install pact-python --no-binary :all:  # <‑‑ ainda tentará baixar o tar, mas sem verificar
+# 2) Opção pontual usando env var da própria lib
+export PACT_DO_NOT_VERIFY_SSL=1     # suportada pelo hatch_build do pact-python
 
 if [ "$(id -u)" -eq 0 ] && [ -n "${SUDO_USER-}" ]; then
     echo -e "\033[0;31mERROR: Este script não deve ser executado com 'sudo'. Ele solicitará a senha quando necessário.\033[0m" >&2
