@@ -8,6 +8,9 @@ if [ "$(id -u)" -eq 0 ] && [ -n "${SUDO_USER-}" ]; then
 fi
 
 # --- Configuração e Funções Auxiliares ---
+export REQUESTS_CA_BUNDLE=$HOME/certs/corp-ca.pem
+export NODE_EXTRA_CA_CERTS=$HOME/certs/corp-ca.pem
+export SSL_CERT_FILE=$HOME/certs/corp-ca.pem
 
 # Cores para logs
 readonly C_RESET='\033[0m'
