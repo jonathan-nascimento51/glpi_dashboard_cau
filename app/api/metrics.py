@@ -162,15 +162,20 @@ async def compute_level_metrics(
     open_mask = ~level_df["status"].isin(CLOSED_STATUSES)
     open_count = int(level_df[open_mask].shape[0])
 
-    if not pd.api.types.is_datetime64tz_dtype(level_df["date_resolved"]):
-        level_df["date_resolved"] = level_df["date_resolved"].dt.tz_localize("UTC")
+    if (
+        not pd.api.types.is_datetime64_any_dtype(level_df["date_resolved"])
+        or level_df["date_resolved"].dt.tz is None
+    ):
+        level_df["date_resolved"] = pd.to_datetime(
+            level_df["date_resolved"], errors="coerce"
+        ).dt.tz_localize("UTC")
     else:
         level_df["date_resolved"] = level_df["date_resolved"].dt.tz_convert("UTC")
     closed_mask = level_df["status"].isin(CLOSED_STATUSES)
     resolved_count = int(level_df[closed_mask].shape[0])
 
     status_counts: dict[str, int] = cast(
-        dict[Any, int], level_df["status"].value_counts().astype(int).to_dict()
+        dict[str, int], level_df["status"].value_counts().astype(int).to_dict()
     )
 
     result = LevelMetrics(
