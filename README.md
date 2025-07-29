@@ -40,6 +40,8 @@ manual steps in [docs/run_local.md](docs/run_local.md).
 ```bash
 bash scripts/setup/setup_env.sh
 ```
+Run `mise trust` once after cloning to silence warnings about the `.mise.toml`
+configuration.
 
 If a `wheels/` directory is available run the script with `OFFLINE_INSTALL=true`
 to avoid contacting PyPI:
@@ -139,7 +141,8 @@ This starts PostgreSQL, Redis, the FastAPI worker and the Dash app. Access the d
 - Node.js >=20.19.0 is required to run the React frontend locally. The required
   version is stored in the `.nvmrc` file at the repository root. This version is
   picked up automatically by [mise](https://github.com/jdx/mise) thanks to the
-  `.mise.toml` configuration, so no manual settings are needed. Install the same
+  `.mise.toml` configuration, so no manual settings are needed. Run `mise trust`
+  after cloning to silence the untrusted file warning, then install the same
   version with [nvm](https://github.com/nvm-sh/nvm) if you prefer:
 
   ```bash
