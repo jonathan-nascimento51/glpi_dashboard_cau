@@ -919,7 +919,7 @@ class GLPISession:
             totalcount = data.get("totalcount", data.get("count", 0))
             try:
                 return int(totalcount)
-            except Exception:
+            except (ValueError, TypeError):
                 return 0
 
         results = {}
