@@ -5,6 +5,7 @@ import dash_bootstrap_components as dbc
 import pandas as pd
 import pytest
 from dash import Dash
+
 from frontend.layout.layout import build_layout
 
 _chromedriver = shutil.which("chromedriver")

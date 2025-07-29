@@ -9,8 +9,6 @@ import pandas as pd
 from dash import Dash
 from flask import Flask
 from flask_caching import Cache
-from frontend.callbacks.callbacks import register_callbacks
-from frontend.layout.layout import build_layout
 
 from backend.core.settings import (
     DASH_PORT,
@@ -25,6 +23,8 @@ from backend.domain.exceptions import GLPIAPIError
 from backend.infrastructure.glpi import glpi_client_logging
 from backend.infrastructure.glpi.glpi_session import Credentials, GLPISession
 from backend.utils import process_raw
+from frontend.callbacks.callbacks import register_callbacks
+from frontend.layout.layout import build_layout
 
 __all__ = ["create_app", "main"]
 
