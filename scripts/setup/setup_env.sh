@@ -172,7 +172,7 @@ setup_python_env() {
             pip_args=("--no-index" "${pip_args[@]}")
         fi
     elif [ "$OFFLINE_INSTALL" = "true" ]; then
-        error "OFFLINE_INSTALL=true, mas $wheel_dir não existe."
+        error "OFFLINE_INSTALL=true, mas o diretório de wheels não existe: $(realpath "$wheel_dir")"
         exit 1
     fi
     pip install "${pip_args[@]}"
