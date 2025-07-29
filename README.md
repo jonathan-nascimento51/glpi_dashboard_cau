@@ -288,12 +288,13 @@ under `src/frontend/modules/` for Dash.
 
 **Important:** Install packages from **both** `requirements.txt` and
 `requirements-dev.txt` before running `pytest` or invoking `make test`.
-The `requirements-dev.txt` file contains extras such as `dash[testing]`,
-`playwright`, `fakeredis`, `testcontainers` and `pact-python` which are needed
-for the full suite. Install them with:
+Heavy extras like `playwright` and `pact-python` live in
+`requirements-full-tests.txt`. Install this file only when you need to run the
+entire end-to-end suite:
 
 ```bash
-pip install -r requirements-dev.txt --break-system-packages
+pip install -r requirements-dev.txt -r requirements-full-tests.txt \
+    --break-system-packages
 ```
 
 **Note:** The `--break-system-packages` flag is used here to bypass Python's external package management protection. This is necessary in some environments where system-level packages need to be updated directly. However, this approach can interfere with system packages and is not recommended for general use. To avoid potential issues, consider using a virtual environment as described below.

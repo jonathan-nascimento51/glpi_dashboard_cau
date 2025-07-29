@@ -64,17 +64,13 @@ dev = [
     "pytest-asyncio==1.0.0",
     "flake8==4.0.1",
     "mypy==0.910",
-    "black==21.12b0",
+    "black==25.1.0",
     "isort",
     "ruff",
-    "testcontainers",
-    "playwright",
-    "dash[testing]",
     "pytest-mock==3.14.1",
     "types-requests",
     "types-redis",
     "pytest-httpx==0.30.0",
-    "pact-python",
     "pydantic-to-typescript",
     "opentelemetry-instrumentation-fastapi",
     "opentelemetry-instrumentation-logging",
@@ -87,8 +83,15 @@ dev = [
     "plotly>=5.0",
     "libcst",
     "rope",
-    "tomli>=0.2.6,<2.0.0",
-    "urllib3~=1.26",
+    "tomli>=0.2.6,<3.0.0",
+]
+
+full-tests = [
+    "testcontainers",
+    "playwright",
+    "dash[testing]",
+    "pact-python",
+    "fakeredis",
 ]
 
 [project.scripts]

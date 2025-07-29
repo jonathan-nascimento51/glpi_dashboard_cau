@@ -1,9 +1,9 @@
 # Testing Guide
 
-The test suite relies on several optional libraries (such as **Playwright**) and expects coverage to be enabled by default. Install **all** runtime and development dependencies before invoking pytest:
+The test suite relies on several optional libraries (such as **Playwright**) and expects coverage to be enabled by default. Install **all** runtime and development dependencies before invoking pytest. Packages specific to the end-to-end tests reside in `requirements-full-tests.txt`:
 
 ```bash
-pip install -r requirements.txt -r requirements-dev.txt  # generated via pip-compile
+pip install -r requirements.txt -r requirements-dev.txt -r requirements-full-tests.txt  # generated via pip-compile
 pip install -e .
 ```
 
