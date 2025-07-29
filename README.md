@@ -272,6 +272,22 @@ Count ticket statuses for multiple levels:
 python -m glpi_tools count-by-level N1 N2
 ```
 
+Alternatively use the `GLPISDK` class directly:
+
+```python
+from backend.infrastructure.glpi.glpi_sdk import GLPISDK
+
+sdk = GLPISDK(
+    api_url="https://glpi.example.com/apirest.php",
+    app_token="APP_TOKEN",
+    user_token="USER_TOKEN",
+)
+levels = {"N1": 1}
+counts = sdk.get_ticket_counts_by_level("groups_id_assign", levels)
+print(counts["N1"])
+```
+
+`get_ticket_counts_by_level` retrieves all tickets for the given levels and then counts them by status.
 ### Generating components and modules
 
 Use [Plop](https://plopjs.com) to scaffold new React components or Dash modules.
@@ -383,6 +399,21 @@ pip install --no-index --find-links=wheels/ -r requirements.txt
 
 O front-end já executa `npm ci --prefer-offline`, reutilizando o cache de
 dependências sempre que possível.
+
+### SSL inspection and `pact-python`
+
+Corporate proxies that inspect TLS traffic may cause `pip install pact-python`
+to fail with `CERTIFICATE_VERIFY_FAILED`. Provide the company's root certificate
+and reuse it for Node scripts that invoke Pact:
+
+```bash
+export REQUESTS_CA_BUNDLE=/path/to/company-ca.pem
+export NODE_EXTRA_CA_CERTS=$REQUESTS_CA_BUNDLE
+pip install pact-python
+```
+
+See the [Installing dependencies offline](#installing-dependencies-offline)
+section above for proxy variables.
 
 ## GitHub access
 
