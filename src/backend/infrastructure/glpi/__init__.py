@@ -8,6 +8,7 @@ from .glpi_client import (
     SearchCriteriaBuilder,
     get_secret,
 )
+from .glpi_sdk import GLPISDK
 
 __all__ = [
     "GLPISessionManager",
@@ -18,4 +19,5 @@ __all__ = [
     "GLPIClientServerError",
     "SearchCriteriaBuilder",
     "get_secret",
+    "GLPISDK",
 ]

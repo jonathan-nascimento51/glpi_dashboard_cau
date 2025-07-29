@@ -54,6 +54,7 @@ dependencies = [
     "prometheus-client",
     "prometheus-fastapi-instrumentator>=6.0",
     "plotly>=5.0",                 # Adicionado para plotly
+    "py-glpi",
 ]
 
 [project.optional-dependencies]
@@ -63,7 +64,7 @@ dev = [
     "pytest-asyncio==1.0.0",
     "flake8==4.0.1",
     "mypy==0.910",
-    "black==21.12b0",
+    "black==25.1.0",
     "isort",
     "ruff",
     "testcontainers",
