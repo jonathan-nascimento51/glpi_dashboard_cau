@@ -1,8 +1,15 @@
 #!/bin/bash
 set -euo pipefail
 
+#!/bin/bash
+set -euo pipefail
+
+# Se você tiver um arquivo com os certificados corporativos:
+export REQUESTS_CA_BUNDLE="/caminho/para/corporate-ca.pem"
+export NODE_EXTRA_CA_CERTS="/caminho/para/corporate-ca.pem"
+
+# Caso necessário, você pode desabilitar temporariamente a verificação de certificados (não recomendado para produção)
 export PYTHONHTTPSVERIFY=0
-export REQUESTS_CA_BUNDLE=$(python -m certifi)
 
 if [ "$(id -u)" -eq 0 ] && [ -n "${SUDO_USER-}" ]; then
     echo -e "\033[0;31mERROR: Este script não deve ser executado com 'sudo'. Ele solicitará a senha quando necessário.\033[0m" >&2
