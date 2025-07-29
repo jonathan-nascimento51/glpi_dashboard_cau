@@ -1,6 +1,8 @@
 import logging
 from typing import Any, Dict, List, Optional, Type
 
+import aiohttp  # certifique-se de que aiohttp esteja instalado e importado
+
 from backend.adapters.factory import create_glpi_session
 from backend.adapters.mapping_service import MappingService
 from backend.infrastructure.glpi.glpi_session import GLPISession
@@ -67,7 +69,7 @@ class GlpiApiClient:
             ]:
                 self._forced_fields[:] = ids
                 return
-        except Exception as exc:  # pragma: no cover - defensive
+        except aiohttp.ClientError as exc:  # captura erros específicos de rede/HTTP
             logger.error("failed to load ticket field IDs: %s", exc)
         # Fallback to legacy defaults if lookup fails
         if not self._forced_fields:
@@ -114,7 +116,7 @@ class GlpiApiClient:
         """Discover essential Ticket field IDs dynamically."""
         try:
             options = await self._mapper.get_search_options("Ticket")
-        except Exception as exc:  # pragma: no cover - network failures
+        except aiohttp.ClientError as exc:  # captura erros específicos de rede/HTTP
             logger.error("failed to fetch ticket search options: %s", exc)
             self._forced_fields = FORCED_DISPLAY_FIELDS.copy()
             return
@@ -133,7 +135,6 @@ class GlpiApiClient:
         if None in (id_field, name_field, date_field, priority_field, assign_field):
             self._forced_fields = FORCED_DISPLAY_FIELDS.copy()
         else:
-            # Only assign non-None integer values to _forced_fields.
             self._forced_fields = [
                 field
                 for field in [
