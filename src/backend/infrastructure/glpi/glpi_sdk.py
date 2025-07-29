@@ -15,6 +15,8 @@ STATUS_MAP: Dict[str, int] = {
     "new": _STATUS_INV.get("new", 1),
     # The GLPI API uses "processing (assigned)" to represent tickets in the "processing" state.
     "processing": _STATUS_INV.get("processing (assigned)", 2),
+    # The GLPI API uses "processing (planned)" to represent tickets in a "waiting" state.
+    # This mapping ensures consistency between our internal status labels and the GLPI API.
     "waiting": _STATUS_INV.get("processing (planned)", 3),
     "solved": _STATUS_INV.get("solved", 5),
     "closed": _STATUS_INV.get("closed", 6),
