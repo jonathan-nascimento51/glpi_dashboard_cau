@@ -1,5 +1,8 @@
-@import './styles/template.css';
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  @import "./styles/template.css";
+  @import "./styles/compatibility.css";
+}

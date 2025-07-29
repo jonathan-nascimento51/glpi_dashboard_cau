@@ -1374,17 +1374,24 @@
         box-shadow: none !important;
         border: 1px solid #000 !important;
       }
+
+      /* Ticket table styling */
+      .ticket-table {
+        width: 100%;
+        font-size: 0.875rem;
+        text-align: left;
+      }
+
+      .ticket-row {
+        display: grid;
+        align-items: center;
+        font-size: 0.875rem;
+      }
+
     }
 
-/* Ticket table styling */
-.ticket-table {
-    width: 100%;
-    font-size: 0.875rem; /* text-sm */
-    text-align: left;
-}
-
-.ticket-row {
-    display: grid;
-    align-items: center;
-    font-size: 0.875rem; /* text-sm */
-}
+    .gradient-text {
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }

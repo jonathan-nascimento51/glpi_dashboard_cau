@@ -19,10 +19,10 @@
  * As propriedades com prefixo de fornecedor devem vir ANTES da propriedade padrão.
  */
 .no-select {
-  -webkit-user-select: none; /* For Safari */
-  -moz-user-select: none; /* For Firefox */
-  -ms-user-select: none; /* For Internet Explorer/Edge */
-  user-select: none; /* Standard syntax */
+  -webkit-user-select: none; /* Safari 3+ */
+  -moz-user-select: none;    /* Firefox */
+  -ms-user-select: none;     /* IE/Edge */
+  user-select: none;
 }
 
 /*
@@ -48,4 +48,10 @@
  */
 .text-input-that-grows-example {
   field-sizing: content;
+}
+
+/* Exemplo de uso corrigido */
+.some-element {
+  box-sizing: border-box;
+  /* Remova ou evite usar "field-sizing" */
 }
