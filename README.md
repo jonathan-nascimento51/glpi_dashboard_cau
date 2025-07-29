@@ -272,6 +272,22 @@ Count ticket statuses for multiple levels:
 python -m glpi_tools count-by-level N1 N2
 ```
 
+Alternatively use the `GLPISDK` class directly:
+
+```python
+from backend.infrastructure.glpi.glpi_sdk import GLPISDK
+
+sdk = GLPISDK(
+    api_url="https://glpi.example.com/apirest.php",
+    app_token="APP_TOKEN",
+    user_token="USER_TOKEN",
+)
+levels = {"N1": 1}
+counts = sdk.get_ticket_counts_by_level("groups_id_assign", levels)
+print(counts["N1"])
+```
+
+`get_ticket_counts_by_level` retrieves all tickets for the given levels and then counts them by status.
 ### Generating components and modules
 
 Use [Plop](https://plopjs.com) to scaffold new React components or Dash modules.
@@ -288,12 +304,13 @@ under `src/frontend/modules/` for Dash.
 
 **Important:** Install packages from **both** `requirements.txt` and
 `requirements-dev.txt` before running `pytest` or invoking `make test`.
-The `requirements-dev.txt` file contains extras such as `dash[testing]`,
-`playwright`, `fakeredis`, `testcontainers` and `pact-python` which are needed
-for the full suite. Install them with:
+Heavy extras like `playwright` and `pact-python` live in
+`requirements-full-tests.txt`. Install this file only when you need to run the
+entire end-to-end suite:
 
 ```bash
-pip install -r requirements-dev.txt --break-system-packages
+pip install -r requirements-dev.txt -r requirements-full-tests.txt \
+    --break-system-packages
 ```
 
 **Note:** The `--break-system-packages` flag is used here to bypass Python's external package management protection. This is necessary in some environments where system-level packages need to be updated directly. However, this approach can interfere with system packages and is not recommended for general use. To avoid potential issues, consider using a virtual environment as described below.
