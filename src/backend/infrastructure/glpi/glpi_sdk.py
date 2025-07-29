@@ -13,6 +13,7 @@ from shared.dto import STATUS_MAP as STATUS_LABEL_MAP
 _STATUS_INV = {label.lower(): code for code, label in STATUS_LABEL_MAP.items()}
 STATUS_MAP: Dict[str, int] = {
     "new": _STATUS_INV.get("new", 1),
+    # The GLPI API uses "processing (assigned)" to represent tickets in the "processing" state.
     "processing": _STATUS_INV.get("processing (assigned)", 2),
     "waiting": _STATUS_INV.get("processing (planned)", 3),
     "solved": _STATUS_INV.get("solved", 5),
