@@ -13,6 +13,7 @@ from backend.core.settings import (
     USE_MOCK_DATA,
     VERIFY_SSL,
 )
+from backend.infrastructure.glpi.glpi_sdk import GLPISDK
 from backend.infrastructure.glpi.glpi_session import Credentials, GLPISession
 from shared.dto import TicketTranslator
 
@@ -39,6 +40,22 @@ def create_glpi_session() -> Optional[GLPISession]:
         )
     except Exception as exc:  # pragma: no cover - init failures
         logger.exception("GLPI session init failed: %s", exc)
+        return None
+
+
+def create_glpi_sdk() -> Optional[GLPISDK]:
+    """Instantiate :class:`GLPISDK` using settings."""
+
+    try:
+        return GLPISDK(
+            GLPI_BASE_URL,
+            GLPI_APP_TOKEN,
+            user_token=GLPI_USER_TOKEN,
+            username=GLPI_USERNAME,
+            password=GLPI_PASSWORD,
+        )
+    except Exception as exc:  # pragma: no cover - init failures
+        logger.exception("GLPI SDK init failed: %s", exc)
         return None
 
 

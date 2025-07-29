@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+import logging
 from typing import Any, Dict
 
 from arq import run_worker
 from arq.connections import RedisSettings
 
+from backend.adapters.factory import create_glpi_sdk
 from backend.application.aggregated_metrics import (
     cache_aggregated_metrics,
     compute_aggregated,
@@ -49,7 +51,22 @@ async def update_metrics(ctx: Dict[str, Any], ticket: Dict[str, Any]) -> None:
     df = process_raw(tickets)
     metrics = compute_aggregated(df)
     await cache_aggregated_metrics(cache, "metrics_aggregated", metrics)
-    await cache.set("metrics_levels", status_by_group(df))
+
+    sdk = create_glpi_sdk()
+    if sdk is not None:
+        try:
+            groups = df.get("group")
+            level_values = []
+            if groups is not None:
+                level_values = [str(v) for v in groups.dropna().unique() if v]
+            levels = {lvl: lvl for lvl in level_values}
+            counts = sdk.get_ticket_counts_by_level("groups_id_assign", levels)
+            await cache.set("metrics_levels", counts)
+        except Exception as exc:  # pragma: no cover - network failures
+            logging.error("failed to fetch counts via SDK: %s", exc)
+            await cache.set("metrics_levels", status_by_group(df))
+    else:
+        await cache.set("metrics_levels", status_by_group(df))
     await cache.set(
         "chamados_por_data", tickets_by_date(df).to_dict(orient="records")
     )  # Key for /chamados/por-data
