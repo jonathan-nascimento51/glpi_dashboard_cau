@@ -3,7 +3,8 @@ set -euo pipefail
 
 # Se você tiver um arquivo com os certificados corporativos:
 export REQUESTS_CA_BUNDLE=$(python -m certifi)
-export NODE_EXTRA_CA_CERTS=$(python -m certifi)export PIP_TRUSTED_HOST=github.com
+export NODE_EXTRA_CA_CERTS=$(python -m certifi)
+export PIP_TRUSTED_HOST=github.com
 export PIP_CERT=$(python -m certifi)
 export PYTHONHTTPSVERIFY=0
 
