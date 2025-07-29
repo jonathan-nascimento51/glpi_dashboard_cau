@@ -3,7 +3,10 @@ set -euo pipefail
 
 # Se você tiver um arquivo com os certificados corporativos:
 export REQUESTS_CA_BUNDLE=$(python -m certifi)
-export NODE_EXTRA_CA_CERTS=$(python -m certifi)
+export NODE_EXTRA_CA_CERTS=$(python -m certifi)export PIP_TRUSTED_HOST=github.com
+export PIP_CERT=$(python -m certifi)
+export PYTHONHTTPSVERIFY=0
+
 
 # Caso necessário, você pode desabilitar temporariamente a verificação de certificados (não recomendado para produção)
 export PYTHONHTTPSVERIFY=0
@@ -162,7 +165,7 @@ setup_python_env() {
         wheel_dir=${WHEELS_DIR:-./wheels}
         pip install --no-index --find-links="$wheel_dir" -r requirements.txt -r requirements-dev.txt
     else
-        pip install --trusted-host github.com -r requirements.txt -r requirements-dev.txt
+        pip install --trusted-host github.com --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt
         pip install -e .[dev]
     fi
     unset PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD
