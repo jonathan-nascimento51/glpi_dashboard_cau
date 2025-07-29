@@ -1,6 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
+export REQUESTS_CA_BUNDLE=$(python -m certifi)
+
 if [ "$(id -u)" -eq 0 ] && [ -n "${SUDO_USER-}" ]; then
     echo -e "\033[0;31mERROR: Este script não deve ser executado com 'sudo'. Ele solicitará a senha quando necessário.\033[0m" >&2
     echo -e "\033[0;31mPor favor, execute como o seu usuário normal: ./scripts/setup/setup_env.sh\033[0m" >&2
@@ -155,7 +157,7 @@ setup_python_env() {
         wheel_dir=${WHEELS_DIR:-./wheels}
         pip install --no-index --find-links="$wheel_dir" -r requirements.txt -r requirements-dev.txt
     else
-        pip install -r requirements.txt
+        pip install --trusted-host github.com -r requirements.txt -r requirements-dev.txt
         pip install -e .[dev]
     fi
     unset PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD
