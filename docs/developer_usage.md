@@ -119,6 +119,24 @@ python -m cli.tickets_groups --since 2025-06-01 --until 2025-06-30 --outfile gru
 ```
 
 Consulte `src/backend/utils/pipeline.py` para transformar os dados em DataFrame.
+## Consultando contagens com GLPISDK
+
+A biblioteca `GLPISDK` em `src/backend/infrastructure/glpi/glpi_sdk.py` simplifica consultas diretas pelo pacote `py_glpi`. Use o método `get_ticket_counts_by_level` para obter apenas as contagens de status sem transferir todos os tickets.
+
+```python
+from backend.infrastructure.glpi.glpi_sdk import GLPISDK
+
+sdk = GLPISDK(
+    api_url="https://glpi.example.com/apirest.php",
+    app_token="APP_TOKEN",
+    user_token="USER_TOKEN",
+)
+levels = {"N1": 1, "N2": 2}
+counts = sdk.get_ticket_counts_by_level("groups_id_assign", levels)
+print(counts["N1"])
+```
+
+Esse processo consulta somente os totais e evita transferências pesadas de dados.
 
 ## Atualizando a Knowledge Base
 

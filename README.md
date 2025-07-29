@@ -272,6 +272,22 @@ Count ticket statuses for multiple levels:
 python -m glpi_tools count-by-level N1 N2
 ```
 
+Alternatively use the `GLPISDK` class directly:
+
+```python
+from backend.infrastructure.glpi.glpi_sdk import GLPISDK
+
+sdk = GLPISDK(
+    api_url="https://glpi.example.com/apirest.php",
+    app_token="APP_TOKEN",
+    user_token="USER_TOKEN",
+)
+levels = {"N1": 1}
+counts = sdk.get_ticket_counts_by_level("groups_id_assign", levels)
+print(counts["N1"])
+```
+
+`get_ticket_counts_by_level` retrieves only count values, keeping data transfers to a minimum.
 ### Generating components and modules
 
 Use [Plop](https://plopjs.com) to scaffold new React components or Dash modules.
