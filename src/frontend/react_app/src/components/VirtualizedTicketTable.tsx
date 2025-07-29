@@ -159,13 +159,19 @@ export function VirtualizedTicketTable({
   );
 
 // Fix the FixedSizeList mock so that props.children is called as a function if it is one, otherwise render it directly.
-const FixedSizeList = (props: any) => (
+interface FixedSizeListProps {
+  itemCount: number;
+  itemData?: any; // Replace `any` with a more specific type if possible
+  children: ((props: { index: number; style: React.CSSProperties; data?: any }) => ReactNode) | ReactNode;
+}
+
+const FixedSizeList = ({ itemCount, itemData, children }: FixedSizeListProps) => (
   <div>
-    {Array.from({ length: props.itemCount }).map((_, idx) => (
+    {Array.from({ length: itemCount }).map((_, idx) => (
       <div key={idx} role="row" tabIndex={0}>
-        {typeof props.children === "function"
-          ? props.children({ index: idx, style: {}, data: props.itemData })
-          : props.children}
+        {typeof children === "function"
+          ? children({ index: idx, style: {}, data: itemData })
+          : children}
       </div>
     ))}
   </div>
