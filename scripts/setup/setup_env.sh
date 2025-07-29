@@ -68,17 +68,19 @@ setup_system_dependencies() {
     mkdir -p "$PLAYWRIGHT_CACHE_DIR"
 
     info "(1/7) Verificando acesso à internet..."
-    # Verifica e informa sobre o uso de certificados CA customizados
+    # Verifica e informa sobre o uso de certificados CA customizados.
+    # Para ambientes corporativos com SSL Inspection, configure estas variáveis
+    # no seu ~/.bashrc ou ~/.zshrc:
+    # export REQUESTS_CA_BUNDLE=/path/to/your/corp-ca.pem
+    # export NODE_EXTRA_CA_CERTS=/path/to/your/corp-ca.pem
     if [ -n "${REQUESTS_CA_BUNDLE:-}" ]; then
         info "Usando CA bundle customizado para Python/pip: ${REQUESTS_CA_BUNDLE}"
         info "Configurando git para usar o mesmo CA bundle..."
         git config --global http.sslCAInfo "${REQUESTS_CA_BUNDLE}"
     fi
-
     if [ -n "${NODE_EXTRA_CA_CERTS:-}" ]; then
         info "Usando CA bundle customizado para Node/npm: ${NODE_EXTRA_CA_CERTS}"
     fi
-
     if curl -Is https://pypi.org/simple --max-time 5 >/dev/null 2>&1; then
         success "Conexão com a internet detectada"
     else
@@ -165,9 +167,6 @@ setup_python_env() {
         wheel_dir=${WHEELS_DIR:-./wheels}
         pip install --no-index --find-links="$wheel_dir" -r requirements.txt -r requirements-dev.txt
     else
-        export REQUESTS_CA_BUNDLE=/path/to/company-ca.pem
-        export NODE_EXTRA_CA_CERTS=$REQUESTS_CA_BUNDLE
-        pip install pact-python
         pip install -r requirements.txt -r requirements-dev.txt
     fi
     unset PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD
