@@ -59,12 +59,12 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "pytest==8.4.1",                      # Para testes
+    "pytest==8.4.1",
     "pytest-cov==6.2.1",
     "pytest-asyncio==1.0.0",
     "flake8==4.0.1",
     "mypy==0.910",
-    "black==25.1.0",
+    "black==21.12b0",
     "isort",
     "ruff",
     "testcontainers",
@@ -73,7 +73,7 @@ dev = [
     "pytest-mock==3.14.1",
     "types-requests",
     "types-redis",
-    "pytest-httpx==0.30.0",
+    "pytest-httpx==0.30.0",  # Exige httpx==0.27.*
     "pact-python",
     "pydantic-to-typescript",
     "opentelemetry-instrumentation-fastapi",
@@ -83,11 +83,14 @@ dev = [
     "opentelemetry-instrumentation-aiohttp-client",
     "pre-commit",
     "requests-mock",
-    # Já estão no seu requirements-dev.txt:
     "dash-bootstrap-components>=1.3.1",
     "plotly>=5.0",
     "libcst",
-    "rope"
+    "rope",
+    # Forcing versions to resolve conflicts:
+    "tomli>=0.2.6,<2.0.0",      # para o black
+    "urllib3~=1.26",            # para o selenium
+    "httpx==0.27.*"             # para o pytest-httpx
 ]
 
 [project.scripts]
