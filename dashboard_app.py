@@ -119,7 +119,7 @@ def create_app(df: pd.DataFrame | None) -> Dash:
     """Create Dash application."""
     server = Flask(__name__)
     cache.init_app(server)
-    server.add_url_rule("/ping", "ping", ping)
+    server.add_url_rule("/ping", "ping_endpoint", ping)
 
     app = Dash(__name__, server=server, external_stylesheets=[dbc.themes.BOOTSTRAP])
     app.layout = build_layout(df)
