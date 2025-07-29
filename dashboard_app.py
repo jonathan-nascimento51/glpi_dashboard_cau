@@ -110,15 +110,16 @@ def load_data(ticket_range: str = "0-99", **filters: str) -> pd.DataFrame | None
         return None
 
 
+def ping() -> tuple[str, int]:
+    """Simple health check endpoint."""
+    return "OK", 200
+
+
 def create_app(df: pd.DataFrame | None) -> Dash:
     """Create Dash application."""
     server = Flask(__name__)
     cache.init_app(server)
-
-    @server.route("/ping")
-    def ping() -> tuple[str, int]:
-        """Simple health check endpoint."""
-        return "OK", 200
+    server.add_url_rule("/ping", "ping", ping)
 
     app = Dash(__name__, server=server, external_stylesheets=[dbc.themes.BOOTSTRAP])
     app.layout = build_layout(df)
