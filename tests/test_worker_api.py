@@ -140,8 +140,9 @@ def test_metrics_router_endpoints(
     monkeypatch: pytest.MonkeyPatch,
     dummy_cache: DummyCache,
 ) -> None:
+from app.api.metrics import LevelMetrics, MetricsOverview
+
     """Ensure metrics overview and level endpoints are accessible via create_app."""
-    from app.api.metrics import LevelMetrics, MetricsOverview
 
     overview = MetricsOverview(
         open_tickets={"N1": 1},
