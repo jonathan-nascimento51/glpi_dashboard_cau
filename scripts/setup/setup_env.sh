@@ -162,13 +162,20 @@ setup_python_env() {
     info "Atualizando pip e instalando dependências Python..."
     export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
     pip install --upgrade pip
-    if [ "$OFFLINE_INSTALL" = "true" ]; then
-        local wheel_dir
-        wheel_dir=${WHEELS_DIR:-./wheels}
-        pip install --no-index --find-links="$wheel_dir" -r requirements.txt -r requirements-dev.txt
-    else
-        pip install -r requirements.txt -r requirements-dev.txt
+    local wheel_dir
+    wheel_dir=${WHEELS_DIR:-./wheels}
+    local pip_args=("-r" "requirements.txt" "-r" "requirements-dev.txt")
+    if [ -d "$wheel_dir" ]; then
+        info "Usando cache de wheels em $wheel_dir"
+        pip_args=("--find-links" "$wheel_dir" "${pip_args[@]}")
+        if [ "$OFFLINE_INSTALL" = "true" ]; then
+            pip_args=("--no-index" "${pip_args[@]}")
+        fi
+    elif [ "$OFFLINE_INSTALL" = "true" ]; then
+        error "OFFLINE_INSTALL=true, mas o diretório de wheels não existe: $(realpath "$wheel_dir")"
+        exit 1
     fi
+    pip install "${pip_args[@]}"
     unset PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD
 
     # Corrige permissões do venv e egg-info se foram criados com sudo

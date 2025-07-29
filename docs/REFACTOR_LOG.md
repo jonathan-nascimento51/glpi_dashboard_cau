@@ -45,7 +45,7 @@ Nota: `scripts/auto_mover.py` foi removido após a migração porque o mapeament
 
 - Executado `bash scripts/refactor/init_refactor.sh` para listar a nova estrutura de arquivos.
 - Verificado que persistem pastas extras como `glpi_dashboard` e `etl`.
-- Dependencias instaladas via `requirements.txt` e `requirements-dev.txt`.
+- Dependencias instaladas via `requirements.txt` e `requirements-dev.txt` (extras da suíte completa em `requirements-full-tests.txt`).
 - Testes executados com `pytest` mas falharam por erros de importacao.
 - Necessario revisar modulos faltantes antes de prosseguir com a migracao.
 

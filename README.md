@@ -26,12 +26,13 @@ See [docs/DEV_SETUP.md](docs/DEV_SETUP.md#stabilizing-react-hook-dependencies)
 for tips on stabilizing React hook dependencies with `useMemo` and `useCallback`.
 
 Run `scripts/setup/setup_env.sh` (or `make setup`) to create the `.venv` directory,
-install packages from `requirements.txt` and the development set defined in
-`pyproject.toml` (compiled into `requirements-dev.txt`) and enable `pre-commit`
-hooks automatically. Optional extras can be added later with
-`./scripts/install_dev_extras.sh`. These packages include browsers and
-instrumentation required for the full test suite. If you prefer to install
-packages manually, remember to run `pre-commit install` afterward.
+install packages from `requirements.txt` and the base development set compiled
+into `requirements-dev.txt`, then enable `pre-commit` hooks automatically.
+Extras required only for the full test suite (such as Playwright and
+pact-python) live in `requirements-full-tests.txt` and can be installed with
+`./scripts/install_dev_extras.sh full-tests` or `pip install -e '.[full-tests]'`.
+If you prefer to install packages manually, remember to run `pre-commit install`
+afterward.
 
 **Note:** `setup_env.sh` only supports Linux. The script checks your OS at start
 and exits with status 1 when run on macOS or Windows, directing you to the
@@ -302,20 +303,21 @@ under `src/frontend/modules/` for Dash.
 
 ### Running tests
 
-**Important:** Install packages from **both** `requirements.txt` and
-`requirements-dev.txt` before running `pytest` or invoking `make test`.
-Heavy extras like `playwright` and `pact-python` live in
-`requirements-full-tests.txt`. Install this file only when you need to run the
-entire end-to-end suite:
+**Important:** Install packages from **both** `requirements.txt` and the base
+development lockfile `requirements-dev.txt` before running `pytest` or invoking
+`make test`. Additional libraries used by the browser tests reside in
+`requirements-full-tests.txt` and are only needed when executing the entire test
+suite:
 
 ```bash
-pip install -r requirements-dev.txt -r requirements-full-tests.txt \
-    --break-system-packages
+pip install -r requirements-dev.txt -r requirements-full-tests.txt
+# or
+pip install -e '.[full-tests]'
 ```
 
-**Note:** The `--break-system-packages` flag is used here to bypass Python's external package management protection. This is necessary in some environments where system-level packages need to be updated directly. However, this approach can interfere with system packages and is not recommended for general use. To avoid potential issues, consider using a virtual environment as described below.
-
-Alternatively use `pip install -e '.[dev]'` to install all development extras.
+**Note:** The `--break-system-packages` flag may be required on some
+distributions when installing system-wide. Using a virtual environment avoids
+potential conflicts and is recommended.
 
 ### Using a Virtual Environment
 
@@ -359,6 +361,18 @@ More setup tips—including offline usage with mock data—are documented in
 [docs/dev_performance_guide.md](docs/dev_performance_guide.md) for
 strategies to pre-build Docker images and cache Python wheels.
 
+### SSL Certificate Issues with pact-python Installation
+
+Corporate proxies that inspect TLS traffic may cause `pip install pact-python`
+to fail with `CERTIFICATE_VERIFY_FAILED`. Provide the company's root certificate
+export REQUESTS_CA_BUNDLE=/path/to/company-ca.pem
+export SSL_CERT_FILE=$REQUESTS_CA_BUNDLE
+pip install pact-python
+
+Refer back to the
+[Installing Dependencies Behind a Proxy or Offline](#installing-dependencies-behind-a-proxy-or-offline)
+section for more proxy configuration tips.
+
 ## Instalação em rede restrita
 
 Caso o ambiente tenha acesso limitado à internet ou exija proxy corporativo,
@@ -384,6 +398,21 @@ pip install --no-index --find-links=wheels/ -r requirements.txt
 O front-end já executa `npm ci --prefer-offline`, reutilizando o cache de
 dependências sempre que possível.
 
+### Confiar no certificado corporativo
+
+Se a rede utiliza inspeção TLS, tanto o `pip` quanto o `npm` precisam confiar no
+mesmo certificado raiz da empresa. Defina `REQUESTS_CA_BUNDLE` apontando para o
+arquivo `.pem` e reutilize esse caminho em `NODE_EXTRA_CA_CERTS`:
+
+```bash
+export REQUESTS_CA_BUNDLE=/path/to/corp-ca.pem
+export NODE_EXTRA_CA_CERTS=$REQUESTS_CA_BUNDLE
+```
+
+Essas variáveis garantem que as ferramentas Python e Node validem os servidores
+HTTPS com a mesma autoridade certificadora. Para entender por que desativar a
+verificação TLS com `NODE_TLS_REJECT_UNAUTHORIZED=0` não é seguro, consulte a
+[seção 11.2 de docs/solucoes_problemas.md](docs/solucoes_problemas.md#112-node-tls-reject-unauthorized-0).
 ### SSL inspection and `pact-python`
 
 Corporate proxies that inspect TLS traffic may cause `pip install pact-python`
@@ -928,14 +957,22 @@ missing:
 cp .env.example .env
 ```
 
-You may also install only the optional development extras with:
+You may also install optional extras separately. The command below installs the
+base `dev` group:
 
 ```bash
 ./scripts/install_dev_extras.sh
 ```
 
-This reads the `[project.optional-dependencies].dev` list from `pyproject.toml`
-and installs each package via `pip`.
+To install the heavier packages used by the end-to-end tests, pass `full-tests`
+as an argument:
+
+```bash
+./scripts/install_dev_extras.sh full-tests
+```
+
+The script reads the requested groups from `[project.optional-dependencies]` in
+`pyproject.toml` and installs each package via `pip`.
 
 Browser-based tests such as `test_dashboard_flows` rely on Chrome and
 Chromedriver. If these are unavailable you can skip them with:

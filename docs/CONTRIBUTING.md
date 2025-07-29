@@ -10,10 +10,12 @@ Use `scripts/setup/setup_env.sh` to create a virtual environment, install Python
 bash scripts/setup/setup_env.sh
 ```
 
-If the script fails or you prefer the manual steps, install dependencies from `requirements.txt` and `requirements-dev.txt`, then run `pre-commit install`.
+If the script fails or you prefer the manual steps, install dependencies from `requirements.txt` and the base development lockfile `requirements-dev.txt`. Extras for the full test suite live in `requirements-full-tests.txt` and can be installed with `pip install -e '.[full-tests]'`. Finally run `pre-commit install`.
 
 ```bash
 python -m pip install -r requirements.txt -r requirements-dev.txt
+# optional: pip install -r requirements-full-tests.txt
+# or pip install -e '.[full-tests]'
 pip install -e .
 pre-commit install
 ```

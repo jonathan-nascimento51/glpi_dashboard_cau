@@ -24,6 +24,7 @@ Transfer the directory to the offline environment and install using:
 
 ```bash
 pip install --no-index --find-links=/tmp/wheels -r requirements.txt -r requirements-dev.txt
+# extras for the full suite live in requirements-full-tests.txt
 ```
 
 ## 3. Save Docker Images
