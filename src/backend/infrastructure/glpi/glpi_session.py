@@ -916,7 +916,7 @@ class GLPISession:
                 "count": 1,
             }
             data = await self.get("search/Ticket", params=params)
-            totalcount = data.get("totalcount") or data.get("count")
+            totalcount = data.get("totalcount", data.get("count", 0))
             try:
                 return int(totalcount)
             except Exception:
