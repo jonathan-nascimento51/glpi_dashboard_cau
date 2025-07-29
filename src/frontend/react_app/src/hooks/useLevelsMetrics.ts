@@ -27,5 +27,6 @@ export function useLevelsMetrics() {
     levels,
     isLoading: query.isLoading,
     isError: query.isError,
+    error: query.error,
   }
 }
