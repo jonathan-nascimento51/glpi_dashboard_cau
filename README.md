@@ -363,13 +363,9 @@ strategies to pre-build Docker images and cache Python wheels.
 
 Corporate proxies that inspect TLS traffic may cause `pip install pact-python`
 to fail with `CERTIFICATE_VERIFY_FAILED`. Provide the company's root certificate
-bundle and reuse it for Node scripts that invoke Pact:
-
-```bash
 export REQUESTS_CA_BUNDLE=/path/to/company-ca.pem
-export NODE_EXTRA_CA_CERTS=$REQUESTS_CA_BUNDLE
+export SSL_CERT_FILE=$REQUESTS_CA_BUNDLE
 pip install pact-python
-```
 
 Refer back to the
 [Installing Dependencies Behind a Proxy or Offline](#installing-dependencies-behind-a-proxy-or-offline)
