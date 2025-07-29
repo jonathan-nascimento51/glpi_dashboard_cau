@@ -141,9 +141,10 @@ This starts PostgreSQL, Redis, the FastAPI worker and the Dash app. Access the d
 - Node.js >=20.19.0 is required to run the React frontend locally. The required
   version is stored in the `.nvmrc` file at the repository root. This version is
   picked up automatically by [mise](https://github.com/jdx/mise) thanks to the
-  `.mise.toml` configuration, so no manual settings are needed. Run `mise trust`
-  after cloning to silence the untrusted file warning, then install the same
-  version with [nvm](https://github.com/nvm-sh/nvm) if you prefer:
+This version is picked up automatically by [mise](https://github.com/jdx/mise) thanks to the
+  `.mise.toml` configuration. If you use `mise`, run `mise trust` once after cloning to trust the project's configuration.
+
+Alternatively, if you prefer to use [nvm](https://github.com/nvm-sh/nvm), you can install the version with:
 
   ```bash
   nvm install
