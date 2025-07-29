@@ -116,9 +116,10 @@ def create_app(df: pd.DataFrame | None) -> Dash:
     cache.init_app(server)
 
     @server.route("/ping")
-    def ping() -> tuple[str, int]:
+    def ping() -> tuple[dict[str, str], int]:
         """Simple health check endpoint."""
-        return ("OK", 200)
+        return {"status": "OK"}, 200
+
     app = Dash(__name__, server=server, external_stylesheets=[dbc.themes.BOOTSTRAP])
     app.layout = build_layout(df)
     if df is not None:
