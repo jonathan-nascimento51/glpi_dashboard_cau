@@ -17,7 +17,7 @@ Este documento reúne estratégias para lidar com falhas de inicialização, inc
 
 ## 3. Configurações de Saúde do Serviço Dash
 
-- Adicione um endpoint simples de health check via `@app.server.route("/ping")`.
+- Para monitoramento, o serviço Dash expõe um endpoint de saúde em `/ping` que retorna `OK` quando está operacional.
 - Desative o reloader em produção (`app.run_server(use_reloader=False)`).
 - Utilize monitoramento externo (Docker `HEALTHCHECK` ou probes do Kubernetes).
 
