@@ -86,6 +86,10 @@ exceptiongroup==1.2.2
     # via py-glpi
 fakeredis==2.30.2
     # via glpi-dashboard-cau (pyproject.toml)
+libcst==1.8.2
+    # via glpi-dashboard-cau (pyproject.toml)
+pytest-asyncio==1.0.0
+    # via glpi-dashboard-cau (pyproject.toml)
 fastapi==0.116.1
     # via
     #   glpi-dashboard-cau (pyproject.toml)
