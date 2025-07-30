@@ -90,6 +90,8 @@ full-tests = [
     "dash[testing]",
     "pact-python",
     "fakeredis",
+    "libcst",
+    "pytest-asyncio",
 ]
 
 
