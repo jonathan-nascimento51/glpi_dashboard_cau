@@ -68,22 +68,22 @@ def process_raw(data: TicketData) -> pd.DataFrame:
             errors="coerce",
             downcast="integer",
         )
-        .fillna(0)
-        .astype("Int64")
-    )  # type: ignore
+        .fillna(0)  # type: ignore
+        .astype("Int64")  # type: ignore
+    )
 
     df["name"] = (
         df.get("name", pd.Series([""] * len(df), index=idx))
         .fillna("")  # type: ignore
-        .astype(str)
+        .astype(str)  # type: ignore
     )
 
     df["status"] = (
         df.get("status", pd.Series([""] * len(df), index=idx))
         .fillna("")  # type: ignore
-        .astype(str)
+        .astype(str)  # type: ignore
         .str.lower()
-        .astype("category")
+        .astype("category")  # type: ignore
     )
     df["priority"] = pd.to_numeric(
         df.get("priority", pd.Series(pd.NA, index=idx)),
@@ -93,19 +93,19 @@ def process_raw(data: TicketData) -> pd.DataFrame:
     df["group"] = (
         df.get("group", pd.Series([""] * len(df), index=idx))
         .fillna("")  # type: ignore
-        .astype(str)
-    ).astype("category")
+        .astype(str)  # type: ignore
+    ).astype("category")  # type: ignore
     df["date_creation"] = pd.to_datetime(
         df.get("date_creation", pd.Series([pd.NaT] * len(df), index=idx))
     )
     assigned_to = _normalize_assigned_field(df, "assigned_to", idx)
     df["assigned_to"] = (
-        assigned_to.replace({"<NA>": "", "nan": "", "None": ""})
+        assigned_to.replace({"<NA>": "", "nan": "", "None": ""})  # type: ignore
         .fillna(
-            "",
+            "",  # type: ignore
         )
-        .astype(str)
-    )  # type: ignore
+        .astype(str)  # type: ignore
+    )
 
     requester = _normalize_assigned_field(df, "requester", idx)
     df["requester"] = requester.replace({"<NA>": "", "nan": "", "None": ""}).fillna("")  # type: ignore

@@ -10,10 +10,20 @@ interface MetricCardProps {
 
 function MetricCard({ level, data }: MetricCardProps) {
   return (
-    <div className="border rounded p-4 shadow flex-1 min-w-[200px]" data-testid={`card-${level}`}>
-      <h3 className="text-lg font-semibold mb-2">Nível {level}</h3>
-      <p>Abertos: {data.open}</p>
-      <p>Fechados: {data.closed}</p>
+    <div
+      className="metric-card flex flex-col items-start justify-between cursor-pointer transition-all"
+      data-testid={`card-${level}`}
+    >
+      <div className="metric-header flex items-center gap-2 mb-2">
+        <span className="metric-icon new">
+          <i className="fas fa-layer-group" />
+        </span>
+        <h3 className="metric-label text-lg font-semibold">{level}</h3>
+      </div>
+      <div className="metric-value text-3xl font-bold mb-1">{data.open}</div>
+      <div className="metric-change positive">
+        <i className="fas fa-arrow-up" /> {data.closed} fechados
+      </div>
     </div>
   )
 }

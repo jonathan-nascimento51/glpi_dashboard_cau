@@ -77,31 +77,26 @@ export function GlpiTicketsTable() {
   // Exibe apenas os 3 últimos chamados
   const lastTickets = sortedTickets.slice(0, 3)
 
-  const gridTemplateColumns = 'grid grid-cols-[80px_1fr_120px_100px_160px]';
-
   return (
     <div className="rounded-lg bg-white p-6 shadow-lg dark:bg-gray-800 max-w-3xl mx-auto">
       <h2 className="mb-6 text-2xl font-bold text-gray-800 dark:text-gray-100 text-center tracking-tight">
         Últimos Chamados
       </h2>
-      <div className="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
-        {/* Cabeçalho da Tabela */}
-        <div className={`${gridTemplateColumns} gap-4 bg-gradient-to-r from-blue-50 to-blue-100 px-6 py-3 text-left text-base font-semibold text-blue-900 dark:bg-gray-700 dark:text-blue-200`}>
+      <div className="overflow-hidden rounded-lg border border-border">
+        <div className="grid grid-cols-[80px_1fr_120px_100px_160px] gap-4 bg-surface-tertiary px-6 py-3 text-left text-base font-semibold text-primary">
           <div>ID</div>
           <div>Título</div>
           <div>Status</div>
           <div>Prioridade</div>
           <div>Criado em</div>
         </div>
-
-        {/* Corpo da Tabela - com altura máxima e scroll */}
-        <div className="divide-y divide-gray-200 dark:divide-gray-700">
+        <div className="divide-y divide-border">
           {lastTickets.map(ticket => (
             <div
               key={ticket.id}
-              className={`${gridTemplateColumns} gap-4 px-6 py-4 text-base text-gray-700 hover:bg-blue-50 dark:text-gray-200 dark:hover:bg-gray-600 transition-colors`}
+              className="grid grid-cols-[80px_1fr_120px_100px_160px] gap-4 px-6 py-4 text-base text-primary hover:bg-surface-hover transition-colors"
             >
-              <div className="font-semibold text-blue-900 dark:text-white">{ticket.id}</div>
+              <div className="font-semibold">{ticket.id}</div>
               <div className="truncate" title={ticket.name}>{ticket.name}</div>
               <div>
                 <span className="inline-block rounded px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100">

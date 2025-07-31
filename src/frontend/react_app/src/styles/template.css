@@ -762,6 +762,49 @@
       border-bottom: 1px solid var(--border-light);
     }
 
+    .level-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .level-badge {
+      display: inline-block;
+      padding: 6px 16px;
+      border-radius: 999px;
+      background: var(--primary);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: var(--shadow-xs);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .level-metrics {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .level-metrics > div {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+    }
+
+    .level-metrics .text-muted {
+      color: var(--text-muted);
+    }
+
+    .level-metrics .font-bold {
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
     .levels-title {
       font-size: 18px;
       font-weight: 600;
@@ -1394,4 +1437,77 @@
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
+    }
+
+    .bg-surface {
+      background: var(--surface);
+    }
+    .border-border {
+      border-color: var(--border);
+    }
+    .rounded-2xl {
+      border-radius: 16px;
+    }
+    .text-primary {
+      color: var(--text-primary);
+    }
+    .text-muted {
+      color: var(--text-muted);
+    }
+    .shadow-lg {
+      box-shadow: var(--shadow-lg);
+    }
+
+    /* Heatmap color scale for react-calendar-heatmap */
+    .react-calendar-heatmap .color-empty {
+      fill: #f1f5f9; /* neutro, claro */
+    }
+    .react-calendar-heatmap .color-scale-1 {
+      fill: #dbeafe; /* azul claro */
+    }
+    .react-calendar-heatmap .color-scale-2 {
+      fill: #60a5fa; /* azul médio */
+    }
+    .react-calendar-heatmap .color-scale-3 {
+      fill: #2563eb; /* azul escuro */
+    }
+    .react-calendar-heatmap .color-scale-4 {
+      fill: #0f172a; /* azul mais escuro */
+    }
+
+    /* Dark theme support */
+    [data-theme="dark"] .react-calendar-heatmap .color-empty {
+      fill: #334155;
+    }
+    [data-theme="dark"] .react-calendar-heatmap .color-scale-1 {
+      fill: #1e293b;
+    }
+    [data-theme="dark"] .react-calendar-heatmap .color-scale-2 {
+      fill: #2563eb;
+    }
+    [data-theme="dark"] .react-calendar-heatmap .color-scale-3 {
+      fill: #60a5fa;
+    }
+    [data-theme="dark"] .react-calendar-heatmap .color-scale-4 {
+      fill: #f1f5f9;
+    }
+
+    /* Células arredondadas */
+    .react-calendar-heatmap rect {
+      rx: 8px;
+      ry: 8px;
+      stroke: #e2e8f0;
+      stroke-width: 1;
+    }
+
+    /* Tooltip customizado (opcional) */
+    .react-calendar-heatmap .react-calendar-heatmap-tooltip {
+      background: var(--surface, #fff);
+      color: var(--text-primary, #0f172a);
+      border: 1px solid var(--border, #e2e8f0);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 13px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      z-index: 100;
     }

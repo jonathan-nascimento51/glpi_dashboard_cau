@@ -5,13 +5,14 @@ from __future__ import annotations
 import argparse
 import datetime
 import logging
+import os
 from contextlib import asynccontextmanager
 from typing import Any, Dict, List, Optional, cast
 
 import pandas as pd
 import strawberry
 import uvicorn
-from fastapi import APIRouter, Depends, FastAPI, HTTPException, Request, Response
+from fastapi import Depends, FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import (
     PlainTextResponse,
@@ -24,7 +25,9 @@ from strawberry.fastapi import GraphQLRouter
 from strawberry.types import Info
 
 from backend.api.request_id_middleware import RequestIdMiddleware
-from backend.api.routers.metrics import create_metrics_router
+from backend.application.aggregated_metrics import (
+    get_cached_aggregated,
+)
 from backend.application.glpi_api_client import (
     GlpiApiClient,
     create_glpi_api_client,
@@ -36,13 +39,7 @@ from backend.application.ticket_loader import (
     load_tickets,
     stream_tickets,
 )
-from backend.core.settings import (
-    KNOWLEDGE_BASE_FILE,
-    cors_methods_from_env,
-    cors_origins_from_env,
-    get_app_env,
-    get_env,
-)
+from backend.core.settings import KNOWLEDGE_BASE_FILE
 from backend.services.document_service import read_file
 from backend.services.metrics_service import calculate_dataframe_metrics
 from shared.dto import CleanTicketDTO  # imported from shared DTOs
@@ -148,23 +145,31 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
         yield
         # On shutdown (if needed)
 
-    deps = [Depends(verify_api_key)] if get_env("DASHBOARD_API_TOKEN") else []
+    deps = [Depends(verify_api_key)] if os.getenv("DASHBOARD_API_TOKEN") else []
     app = FastAPI(
         title="GLPI Worker API",
         default_response_class=UTF8JSONResponse,
         lifespan=lifespan,
         dependencies=deps,
     )
-    router = APIRouter()
     app.add_middleware(RequestIdMiddleware)
     FastAPIInstrumentor().instrument_app(app)
     Instrumentator().instrument(app).expose(app)
-    app.include_router(create_metrics_router(client, cache))
 
-    env = get_app_env()
+    env = os.getenv("APP_ENV", "development").lower()
     if env == "production":
-        allowed_origins = cors_origins_from_env()
-        allowed_methods = cors_methods_from_env()
+        allowed_origins = [
+            origin.strip()
+            for origin in os.getenv("API_CORS_ALLOW_ORIGINS", "").split(",")
+            if origin.strip()
+        ]
+        allowed_methods = [
+            method.strip().upper()
+            for method in os.getenv("API_CORS_ALLOW_METHODS", "GET,HEAD,OPTIONS").split(
+                ","
+            )
+            if method.strip()
+        ]
         app.add_middleware(
             CORSMiddleware,
             allow_origins=allowed_origins,
@@ -181,13 +186,13 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
             allow_credentials=True,
         )
 
-    @router.get("/tickets", response_model=list[CleanTicketDTO])
+    @app.get("/tickets", response_model=list[CleanTicketDTO])
     async def tickets(response: Response) -> list[CleanTicketDTO]:  # noqa: F401
         return await load_and_translate_tickets(
             client=client, cache=cache, response=response
         )
 
-    @router.get("/tickets/stream")
+    @app.get("/tickets/stream")
     async def tickets_stream(response: Response) -> StreamingResponse:  # noqa: F401
         return StreamingResponse(
             stream_tickets(client, cache=cache, response=response),
@@ -195,12 +200,12 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
             headers=response.headers,
         )
 
-    @router.get("/metrics/summary")
+    @app.get("/metrics/summary")
     async def metrics_summary(response: Response) -> dict:  # noqa: F401
         df = await load_tickets(client=client, cache=cache, response=response)
         return calculate_dataframe_metrics(df)
 
-    @router.get("/breaker")
+    @app.get("/breaker")
     async def breaker_metrics() -> Response:  # noqa: F401
         """Expose Prometheus metrics for the circuit breaker."""
         from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
@@ -208,14 +213,14 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
         data = generate_latest()
         return Response(content=data, media_type=CONTENT_TYPE_LATEST)
 
-    @router.get("/metrics/aggregated")
+    @app.get("/metrics/aggregated")
     async def metrics_aggregated() -> dict:  # noqa: F401
         metrics = await get_cached_aggregated(cache, "metrics_aggregated")
         if metrics is None:
             raise HTTPException(status_code=503, detail="metrics not available")
         return metrics
 
-    @router.get("/metrics/levels")
+    @app.get("/metrics/levels")
     async def metrics_levels() -> Dict[str, Dict[str, int]]:  # noqa: F401
         """Return status counts grouped by ticket level (group)."""
         data = await cache.get("metrics_levels")
@@ -223,7 +228,7 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
             raise HTTPException(status_code=503, detail="metrics not available")
         return cast(Dict[str, Dict[str, int]], data)
 
-    @router.get(
+    @app.get(
         "/chamados/por-data",
         response_model=List[ChamadoPorData],
     )
@@ -234,7 +239,7 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
         # avisa ao type checker que raw é List[Dict[str, Any]]
         return cast(List[Dict[str, Any]], raw)
 
-    @router.get(
+    @app.get(
         "/chamados/por-dia",
         response_model=List[ChamadosPorDia],
     )
@@ -244,7 +249,7 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
             raise HTTPException(status_code=503, detail="metrics not available")
         return cast(List[Dict[str, Any]], raw)
 
-    @router.get("/read-model/tickets", response_model=list[TicketSummaryOut])
+    @app.get("/read-model/tickets", response_model=list[TicketSummaryOut])
     async def read_model_tickets(
         limit: int = 100, offset: int = 0
     ) -> list[TicketSummaryOut]:
@@ -258,12 +263,12 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
                 status_code=503, detail="Read model is currently unavailable."
             ) from exc
 
-    @router.get("/cache/stats")
+    @app.get("/cache/stats")
     async def cache_stats() -> dict:  # noqa: F401
         """Return basic hit/miss statistics for the cache."""
         return cache.get_cache_metrics()
 
-    @router.get("/knowledge-base", response_class=PlainTextResponse)
+    @app.get("/knowledge-base", response_class=PlainTextResponse)
     async def knowledge_base() -> PlainTextResponse:  # noqa: F401
         """Return the contents of the configured knowledge base file."""
         try:
@@ -282,7 +287,7 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
                 detail=f"Could not read knowledge base file: {str(e)}",
             )
 
-    @router.get("/health")
+    @app.get("/health")
     async def health_glpi() -> UTF8JSONResponse:  # noqa: F401
         """Check GLPI connectivity and return a JSON body."""
         status = await check_glpi_connection()
@@ -304,7 +309,7 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
             headers={"Cache-Control": "no-cache"},
         )
 
-    @router.head("/health")
+    @app.head("/health")
     async def health_glpi_head() -> Response:  # noqa: F401
         """Same as ``health_glpi`` but returns headers only."""
         status = await check_glpi_connection()
@@ -320,8 +325,7 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
         path="/",
         context_getter=get_context,
     )
-    router.include_router(graphql, prefix="/graphql")
-    app.include_router(router, prefix="/v1")
+    app.include_router(graphql, prefix="/graphql")
     return app
 
 

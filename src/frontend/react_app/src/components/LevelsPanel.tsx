@@ -29,12 +29,10 @@ const LevelsPanelComponent: FC = () => {
   )
 
   return (
-    <div className="levels-section">
+    <section className="levels-section">
       <div className="levels-header">
-        <div>
-          <div className="levels-title">Distribuição por Níveis</div>
-          <div className="levels-subtitle">Visão detalhada por categoria</div>
-        </div>
+        <div className="levels-title">Distribuição por Níveis</div>
+        <div className="levels-subtitle">Visão detalhada por categoria</div>
       </div>
       <div className="levels-grid">
         {isLoading && <span>Carregando...</span>}
@@ -45,44 +43,38 @@ const LevelsPanelComponent: FC = () => {
         {levels?.map((level) => (
           <button
             key={level.name}
-            className={`level-card ${level.name.toLowerCase()}`}
+            className="level-card"
             onClick={() => showDetails(level)}
             role="button"
             aria-label={`View details for ${level.name}`}
             type="button"
           >
             <div className="level-header">
-              <div className="level-badge">{level.name}</div>
+              <span className="level-badge">{level.name}</span>
             </div>
             <div className="level-metrics">
-              <div className="level-metric">
-                <span className="level-metric-label">Novos</span>
-                <span className="level-metric-value">{level.metrics.new}</span>
+              <div>
+                <span className="text-muted">Novos</span>
+                <span className="font-bold">{level.metrics.new}</span>
               </div>
-              <div className="level-metric">
-                <span className="level-metric-label">Progresso</span>
-                <span className="level-metric-value">
-                  {level.metrics.progress}
-                </span>
+              <div>
+                <span className="text-muted">Progresso</span>
+                <span className="font-bold">{level.metrics.progress}</span>
               </div>
-              <div className="level-metric">
-                <span className="level-metric-label">Pendente</span>
-                <span className="level-metric-value">
-                  {level.metrics.pending}
-                </span>
+              <div>
+                <span className="text-muted">Pendente</span>
+                <span className="font-bold">{level.metrics.pending}</span>
               </div>
-              <div className="level-metric">
-                <span className="level-metric-label">Resolvido</span>
-                <span className="level-metric-value">
-                  {level.metrics.resolved}
-                </span>
+              <div>
+                <span className="text-muted">Resolvido</span>
+                <span className="font-bold">{level.metrics.resolved}</span>
               </div>
             </div>
           </button>
         ))}
       </div>
       {modalElement}
-    </div>
+    </section>
   )
 }
 
