@@ -275,6 +275,8 @@ def test_tickets_stream(monkeypatch: pytest.MonkeyPatch, dummy_cache: DummyCache
 def test_graphql_metrics(dummy_cache: DummyCache):
     app = create_app(client=FakeClient(), cache=dummy_cache)
     paths = [getattr(r, "path", None) for r in app.router.routes if hasattr(r, "path")]
+    assert "/v1/graphql" in paths
+    assert "/v1/graphql/" in paths
     assert "/v1/graphql/" in paths
 
 
