@@ -66,3 +66,6 @@ Descrição: Script auxilia na movimentação de módulos Python utilizando a bi
 - Adicionado `new_project/Dockerfile` (167 bytes) e `new_project/docker-compose.yml` (107 bytes) para um setup simplificado.
 - Copias de `.env.example` adicionadas em `new_project/.env.example` (2623 bytes) e `new_project/frontend/.env.example` (184 bytes).
 - `new_project/backend/main.py` (109 bytes) contem worker FastAPI minimo.
+
+## \ud83d\udcc6 Atualizacao 2025-07-31 (metrics)
+- `new_project/backend/main.py` (4683 bytes) passou a incluir rotas `metrics/overview` e `metrics/level`. As fun\u00e7\u00f5es derivam de `app/api/metrics.py`.

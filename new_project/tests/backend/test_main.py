@@ -87,3 +87,23 @@ def test_metrics_endpoint(client: TestClient) -> None:
     resp = client.get("/metrics")
     assert resp.status_code == 200
     assert resp.json() == {"total": 2, "opened": 1, "closed": 1}
+
+
+def test_metrics_overview_endpoint(client: TestClient) -> None:
+    resp = client.get("/metrics/overview")
+    assert resp.status_code == 200
+    assert resp.json() == {
+        "open_tickets": {"N1": 1},
+        "tickets_closed_this_month": {"N1": 1},
+        "status_distribution": {"new": 1, "closed": 1},
+    }
+
+
+def test_metrics_level_endpoint(client: TestClient) -> None:
+    resp = client.get("/metrics/level/N1")
+    assert resp.status_code == 200
+    assert resp.json() == {
+        "open_tickets": 1,
+        "resolved_this_month": 1,
+        "status_distribution": {"new": 1, "closed": 1},
+    }
