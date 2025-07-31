@@ -156,11 +156,11 @@ def test_metrics_router_endpoints(
     monkeypatch.setattr("app.api.metrics.compute_level_metrics", fake_level_metrics)
 
     client = TestClient(create_app(client=FakeClient(), cache=dummy_cache))
-    resp = client.get("/metrics/overview")
+    resp = client.get("/metrics/aggregated")
     assert resp.status_code == 200
     assert resp.json() == overview.model_dump()
 
-    resp = client.get("/metrics/level/N1")
+    resp = client.get("/metrics/levels/N1")
     assert resp.status_code == 200
     assert resp.json() == level.model_dump()
 
