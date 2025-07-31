@@ -18,6 +18,8 @@ services:
       timeout: 5s
       start_period: 60s
       retries: 3
+    stop_signal: SIGINT
+    stop_grace_period: 60s
     ports:
       # Map API for host access
       - "8000:8000"
