@@ -75,7 +75,7 @@ Endpoints relevantes:
 
 - `/v1/tickets` – lista completa de chamados
  - A resposta inclui os campos `priority` e `requester` em formato textual.
-- `/v1/metrics` – contagem de abertos/fechados
+- `/v1/metrics/summary` – contagem de abertos/fechados
 - `/v1/metrics/aggregated` – retorna `open_tickets`,
   `tickets_closed_this_month` e `status_distribution`.
 - `/v1/metrics/levels/{nivel}` – mesmos campos do endpoint acima mas
