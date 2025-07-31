@@ -392,5 +392,4 @@ zipp==3.23.0
 zstandard==0.23.0
     # via langsmith
 
-# The following packages are considered to be unsafe in a requirements file:
-# setuptools
+-r requirements-dev.txt

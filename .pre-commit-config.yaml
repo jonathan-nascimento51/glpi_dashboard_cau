@@ -1,28 +1,42 @@
+default_language_version:
+  python: python3
 repos:
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    # A versão foi atualizada para uma mais recente e estável.
-    rev: v0.5.0
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
     hooks:
-      - id: ruff
-        # O --fix corrige automaticamente o que for possível, incluindo a
-        # ordenação de imports (substituindo o isort).
-        args: [--fix, --exit-non-zero-on-fix]
-      - id: ruff-format
-        # Este hook substitui o black para formatação de código.
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    # A versão foi atualizada para a mais recente e estável.
-    rev: v1.10.1
-    hooks:
-      - id: mypy
-        additional_dependencies: ["types-requests", "types-redis"]
-        # Garante que o ambiente do pre-commit use a mesma versão do Python
-        # que a configurada no pyproject.toml.
-        language_version: python3.12
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: 582b9c66e0791980685c8b80bb11e6a3df1a06ef
-    hooks:
-      - id: trailing-whitespace
-      - id: end-of-file-fixer
-      - id: check-yaml
-      - id: check-added-large-files
+      - id: check-ast
+      - id: check-builtin-literals
       - id: check-merge-conflict
+      - id: check-yaml
+      - id: check-toml
+
+-   repo: https://github.com/nbQA-dev/nbQA
+    rev: 1.8.7
+    hooks:
+    -   id: nbqa-isort
+
+-   repo: https://github.com/PyCQA/isort
+    rev: 5.13.2
+    hooks:
+    -   id: isort
+
+-   repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.6.2
+    hooks:
+    -   id: ruff-format
+        types_or: [python, pyi, jupyter]
+
+-   repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: 'v0.6.2'
+    hooks:
+    -   id: ruff
+        types_or: [python, pyi, jupyter]
+        args: [ --fix, --exit-non-zero-on-fix ]
+
+-   repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.11.1
+    hooks:
+    -   id: mypy
+        language: system
+        pass_filenames: false
+        args: ['.']
