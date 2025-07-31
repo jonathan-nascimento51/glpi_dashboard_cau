@@ -12,7 +12,7 @@ from typing import Any, Dict, List, Optional, cast
 import pandas as pd
 import strawberry
 import uvicorn
-from fastapi import Depends, FastAPI, HTTPException, Request, Response
+from fastapi import APIRouter, Depends, FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import (
     PlainTextResponse,
@@ -152,6 +152,7 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
         lifespan=lifespan,
         dependencies=deps,
     )
+    router = APIRouter()
     app.add_middleware(RequestIdMiddleware)
     FastAPIInstrumentor().instrument_app(app)
     Instrumentator().instrument(app).expose(app)
@@ -186,13 +187,13 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
             allow_credentials=True,
         )
 
-    @app.get("/tickets", response_model=list[CleanTicketDTO])
+    @router.get("/tickets", response_model=list[CleanTicketDTO])
     async def tickets(response: Response) -> list[CleanTicketDTO]:  # noqa: F401
         return await load_and_translate_tickets(
             client=client, cache=cache, response=response
         )
 
-    @app.get("/tickets/stream")
+    @router.get("/tickets/stream")
     async def tickets_stream(response: Response) -> StreamingResponse:  # noqa: F401
         return StreamingResponse(
             stream_tickets(client, cache=cache, response=response),
@@ -200,12 +201,12 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
             headers=response.headers,
         )
 
-    @app.get("/metrics/summary")
+    @router.get("/metrics/summary")
     async def metrics_summary(response: Response) -> dict:  # noqa: F401
         df = await load_tickets(client=client, cache=cache, response=response)
         return calculate_dataframe_metrics(df)
 
-    @app.get("/breaker")
+    @router.get("/breaker")
     async def breaker_metrics() -> Response:  # noqa: F401
         """Expose Prometheus metrics for the circuit breaker."""
         from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
@@ -213,14 +214,14 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
         data = generate_latest()
         return Response(content=data, media_type=CONTENT_TYPE_LATEST)
 
-    @app.get("/metrics/aggregated")
+    @router.get("/metrics/aggregated")
     async def metrics_aggregated() -> dict:  # noqa: F401
         metrics = await get_cached_aggregated(cache, "metrics_aggregated")
         if metrics is None:
             raise HTTPException(status_code=503, detail="metrics not available")
         return metrics
 
-    @app.get("/metrics/levels")
+    @router.get("/metrics/levels")
     async def metrics_levels() -> Dict[str, Dict[str, int]]:  # noqa: F401
         """Return status counts grouped by ticket level (group)."""
         data = await cache.get("metrics_levels")
@@ -228,7 +229,7 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
             raise HTTPException(status_code=503, detail="metrics not available")
         return cast(Dict[str, Dict[str, int]], data)
 
-    @app.get(
+    @router.get(
         "/chamados/por-data",
         response_model=List[ChamadoPorData],
     )
@@ -239,7 +240,7 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
         # avisa ao type checker que raw é List[Dict[str, Any]]
         return cast(List[Dict[str, Any]], raw)
 
-    @app.get(
+    @router.get(
         "/chamados/por-dia",
         response_model=List[ChamadosPorDia],
     )
@@ -249,7 +250,7 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
             raise HTTPException(status_code=503, detail="metrics not available")
         return cast(List[Dict[str, Any]], raw)
 
-    @app.get("/read-model/tickets", response_model=list[TicketSummaryOut])
+    @router.get("/read-model/tickets", response_model=list[TicketSummaryOut])
     async def read_model_tickets(
         limit: int = 100, offset: int = 0
     ) -> list[TicketSummaryOut]:
@@ -263,12 +264,12 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
                 status_code=503, detail="Read model is currently unavailable."
             ) from exc
 
-    @app.get("/cache/stats")
+    @router.get("/cache/stats")
     async def cache_stats() -> dict:  # noqa: F401
         """Return basic hit/miss statistics for the cache."""
         return cache.get_cache_metrics()
 
-    @app.get("/knowledge-base", response_class=PlainTextResponse)
+    @router.get("/knowledge-base", response_class=PlainTextResponse)
     async def knowledge_base() -> PlainTextResponse:  # noqa: F401
         """Return the contents of the configured knowledge base file."""
         try:
@@ -287,7 +288,7 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
                 detail=f"Could not read knowledge base file: {str(e)}",
             )
 
-    @app.get("/health")
+    @router.get("/health")
     async def health_glpi() -> UTF8JSONResponse:  # noqa: F401
         """Check GLPI connectivity and return a JSON body."""
         status = await check_glpi_connection()
@@ -309,7 +310,7 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
             headers={"Cache-Control": "no-cache"},
         )
 
-    @app.head("/health")
+    @router.head("/health")
     async def health_glpi_head() -> Response:  # noqa: F401
         """Same as ``health_glpi`` but returns headers only."""
         status = await check_glpi_connection()
@@ -325,7 +326,8 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
         path="/",
         context_getter=get_context,
     )
-    app.include_router(graphql, prefix="/graphql")
+    app.include_router(router, prefix="/v1")
+    app.include_router(graphql, prefix="/v1/graphql")
     return app
 
 
