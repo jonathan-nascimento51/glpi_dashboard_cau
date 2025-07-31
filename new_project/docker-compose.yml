@@ -1,0 +1,20 @@
+version: "3.9"
+services:
+  backend:
+    build:
+      context: ..
+      dockerfile: new_project/docker/backend/Dockerfile
+    environment:
+      PYTHONPATH: /app:/src
+    volumes:
+      - ./new_project/backend:/app
+      - ./src:/src
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
