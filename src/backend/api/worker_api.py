@@ -1,4 +1,9 @@
-"""FastAPI service exposing GLPI tickets via REST and GraphQL."""
+"""FastAPI service exposing GLPI tickets via REST and GraphQL.
+
+All REST endpoints require the ``/v1`` prefix while GraphQL is served at
+``/v1/graphql``. This convention allows future versions to coexist without
+breaking existing clients.
+"""
 
 from __future__ import annotations
 
