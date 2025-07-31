@@ -2,10 +2,13 @@ version: "3.9"
 services:
   backend:
     build:
-      context: ./glpi_dashboard_novo
-      dockerfile: docker/backend/Dockerfile
+      context: .
+      dockerfile: glpi_dashboard_novo/docker/backend/Dockerfile
+    environment:
+      PYTHONPATH: /app:/src
     volumes:
       - ./glpi_dashboard_novo/src/backend:/app
+      - ./src:/src
     command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
     ports:
       - "8000:8000"
