@@ -23,10 +23,6 @@ def test_sensitive_filter_masks_token(caplog):
 def test_api_token_required(monkeypatch, dummy_cache):
     monkeypatch.setenv("DASHBOARD_API_TOKEN", "secret" * 8)
 
-    async def ok():
-        return 200
-
-    monkeypatch.setattr("backend.application.ticket_loader.check_glpi_connection", ok)
     app = create_app(cache=dummy_cache)
     client = TestClient(app)
 

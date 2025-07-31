@@ -9,7 +9,6 @@ import pandas as pd
 from fastapi import HTTPException
 from fastapi.responses import Response
 
-from backend.adapters.factory import create_glpi_session
 from backend.application.aggregated_metrics import (
     cache_aggregated_metrics,
     compute_aggregated,
@@ -175,21 +174,3 @@ async def stream_tickets(
     yield b"processing...\n"
     data = df.astype(object).where(pd.notna(df), None).to_dict(orient="records")
     yield json.dumps(data).encode()
-
-
-async def check_glpi_connection() -> int:
-    """Return HTTP status based on GLPI connectivity."""
-
-    if USE_MOCK_DATA:
-        return 200
-
-    session = create_glpi_session()
-    if session is None:
-        return 500
-
-    try:
-        async with session:
-            pass
-    except Exception:
-        return 500
-    return 200

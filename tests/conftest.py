@@ -34,17 +34,3 @@ def valid_tokens_env(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("GLPI_APP_TOKEN", "a" * 40)
     monkeypatch.setenv("GLPI_USER_TOKEN", "b" * 40)
     yield
-
-
-@pytest.fixture()
-def glpi_unavailable(monkeypatch: pytest.MonkeyPatch):
-    """Simulate an unreachable GLPI API for health checks."""
-
-    async def _fail() -> int:
-        return 500
-
-    monkeypatch.setattr(
-        "backend.application.ticket_loader.check_glpi_connection",
-        _fail,
-    )
-    yield
