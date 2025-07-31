@@ -100,17 +100,17 @@ Imports reference `@/` as a shortcut to the `src/` folder. Both Vite and TypeScr
 
 ### API Integration
 
-Start the worker with `python worker.py` (it listens on port `8000` by default) and point the front-end to it using the `NEXT_PUBLIC_API_BASE_URL` variable. The `/tickets` endpoint now returns the `priority` label and the `requester` name. Example fetching ticket metrics:
+Start the worker with `python worker.py` (it listens on port `8000` by default) and point the front-end to it using the `NEXT_PUBLIC_API_BASE_URL` variable. The `/v1/tickets` endpoint now returns the `priority` label and the `requester` name. Example fetching ticket metrics:
 
 ```ts
-const resp = await fetch(`${import.meta.env.NEXT_PUBLIC_API_BASE_URL}/tickets/metrics`);
+const resp = await fetch(`${import.meta.env.NEXT_PUBLIC_API_BASE_URL}/v1/metrics`);
 const data = await resp.json();
 ```
 
-The worker also streams progress using `/tickets/stream`:
+The worker also streams progress using `/v1/tickets/stream`:
 
 ```ts
-const url = `${import.meta.env.NEXT_PUBLIC_API_BASE_URL}/tickets/stream`;
+const url = `${import.meta.env.NEXT_PUBLIC_API_BASE_URL}/v1/tickets/stream`;
 const es = new EventSource(url);
 es.onmessage = (ev) => console.log('chunk', ev.data);
 ```

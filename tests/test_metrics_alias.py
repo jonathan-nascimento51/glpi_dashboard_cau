@@ -22,5 +22,5 @@ def test_overview_endpoint_alias(monkeypatch):
     )
     app = create_app()
     client = TestClient(app)
-    resp = client.get("/metrics/aggregated")
+    resp = client.get("/v1/metrics/aggregated")
     assert resp.status_code == 200

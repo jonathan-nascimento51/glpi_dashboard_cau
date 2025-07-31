@@ -16,7 +16,7 @@ export interface LevelEntry {
 const LEVELS_QUERY_KEY = ['levels-metrics'] as const
 
 export function useLevelsMetrics() {
-  const query = useApiQuery<Record<string, LevelMetrics>>(LEVELS_QUERY_KEY, '/metrics/levels')
+  const query = useApiQuery<Record<string, LevelMetrics>>(LEVELS_QUERY_KEY, '/v1/metrics/levels')
 
   const levels = useMemo<LevelEntry[]>(() => {
     if (!query.data) return []

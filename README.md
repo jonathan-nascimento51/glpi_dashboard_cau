@@ -489,22 +489,22 @@ endpoints are responsive immediately.
 
 - The service exposes several endpoints:
 
- - `/tickets` – full list of tickets in JSON format. The payload includes the
-   ticket `priority` label and the `requester` name when available.
-- `/tickets/stream` – Server‑Sent Events (SSE) stream of progress followed by the JSON payload.
-- `/metrics` – summary with `total`, `opened` and `closed` counts.
- - `/metrics/aggregated` – dictionary with `open_tickets`,
+- `/v1/tickets` – full list of tickets in JSON format. The payload includes the
+  ticket `priority` label and the `requester` name when available.
+- `/v1/tickets/stream` – Server‑Sent Events (SSE) stream of progress followed by the JSON payload.
+- `/v1/metrics` – summary with `total`, `opened` and `closed` counts.
+- `/v1/metrics/aggregated` – dictionary with `open_tickets`,
   `tickets_closed_this_month` and `status_distribution`. Values are pre-computed
   by the worker.
- - `/metrics/levels/{level}` – same fields as `/metrics/aggregated` but scoped
+- `/v1/metrics/levels/{level}` – same fields as `/v1/metrics/aggregated` but scoped
   to a single support level.
-- `/metrics/levels` – mapping of levels to status counts stored in the
+- `/v1/metrics/levels` – mapping of levels to status counts stored in the
   `metrics_levels` cache.
-- `/chamados/por-data` – tickets per creation date, refreshed every 10 minutes.
-- `/chamados/por-dia` – totals for calendar heatmaps, refreshed every 10 minutes.
+- `/v1/chamados/por-data` – tickets per creation date, refreshed every 10 minutes.
+- `/v1/chamados/por-dia` – totals for calendar heatmaps, refreshed every 10 minutes.
 - `/graphql/` – GraphQL API providing the same information.
-- `/cache/stats` – returns cache hit/miss metrics.
-- `/health` – quick check that the worker can reach the GLPI API.
+- `/v1/cache/stats` – returns cache hit/miss metrics.
+- `/v1/health` – quick check that the worker can reach the GLPI API.
 
 Example `/metrics/aggregated` payload:
 

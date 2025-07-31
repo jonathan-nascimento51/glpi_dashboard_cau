@@ -4,7 +4,7 @@
 
 set -euo pipefail
 
-WEBAPP_URL="${WEBAPP_URL:-http://localhost:8000/health}"
+WEBAPP_URL="${WEBAPP_URL:-http://localhost:8000/v1/health}"
 
 curl --fail --head "$WEBAPP_URL" > /dev/null
 

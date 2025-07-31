@@ -73,17 +73,17 @@ python worker.py
 
 Endpoints relevantes:
 
-- `/tickets` – lista completa de chamados
+- `/v1/tickets` – lista completa de chamados
  - A resposta inclui os campos `priority` e `requester` em formato textual.
-- `/metrics` – contagem de abertos/fechados
-- `/metrics/aggregated` – retorna `open_tickets`,
+- `/v1/metrics` – contagem de abertos/fechados
+- `/v1/metrics/aggregated` – retorna `open_tickets`,
   `tickets_closed_this_month` e `status_distribution`.
- - `/metrics/levels/{nivel}` – mesmos campos do endpoint acima mas
+- `/v1/metrics/levels/{nivel}` – mesmos campos do endpoint acima mas
   restritos ao nível informado.
-- `/metrics/levels` – dicionário com contagem de status por nível
+- `/v1/metrics/levels` – dicionário com contagem de status por nível
   armazenado em `metrics_levels`.
 - `/graphql/` – versão GraphQL
-- `/cache/stats` – estatísticas de cache
+- `/v1/cache/stats` – estatísticas de cache
 
 Utilize o CLI para consultar esses números diretamente pela API:
 
@@ -221,7 +221,7 @@ O helper `useApiQuery` padroniza chamadas ao worker API. Ele recebe uma
 `queryKey`, o `endpoint` e, opcionalmente, um objeto de opções do React Query:
 
 ```ts
-const { data, isLoading } = useApiQuery(['tickets'], '/tickets')
+const { data, isLoading } = useApiQuery(['tickets'], '/v1/tickets')
 ```
 
 Se precisar passar opções criadas inline, serializá-las ou extraia-as para uma
