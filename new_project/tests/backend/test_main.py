@@ -8,6 +8,7 @@ from fastapi.testclient import TestClient
 
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / "src"))
+sys.path.insert(0, str(ROOT))
 
 # Load glpi_session module without executing package __init__ that depends on
 # optional py_glpi.
