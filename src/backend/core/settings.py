@@ -172,8 +172,7 @@ def cors_methods_from_env() -> list[str]:
     ]
     if not methods:
         raise ValueError("API_CORS_ALLOW_METHODS cannot be empty")
-    invalid = [m for m in methods if m not in VALID_HTTP_METHODS]
-    if invalid:
+    if invalid := [m for m in methods if m not in VALID_HTTP_METHODS]:
         raise ValueError(f"Invalid HTTP methods: {', '.join(invalid)}")
     return methods
 
