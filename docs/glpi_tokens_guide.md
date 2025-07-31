@@ -132,12 +132,10 @@ Cobertura mínima de 85 % garantida no CI (GitHub Actions).
 ## 10 ▪️ Monitoramento de produção
 
 O contêiner **worker** possui `HEALTHCHECK` interno que executa `curl -I` no␊
-endpoint `/health` (método **HEAD**). Esse endpoint **não** verifica a
-conectividade com o GLPI: ele apenas informa se a API está pronta para receber
-requisições. Por isso, ele retorna **503** enquanto `app.state.ready` for
-`False` e **200** quando estiver pronto. A rota `GET` continua disponível para
-verificações manuais. Monitore a conectividade do GLPI separadamente, via
-métricas ou endpoint dedicado. Use:
+endpoint `/health` (método **HEAD**). O endpoint responde com **503** durante o
+carregamento assíncrono dos tickets (`app.state.ready = False`) e muda para
+**200** quando o preload termina. A rota `GET` continua disponível para
+verificações manuais. Use:
 
 ```bash
 docker events --filter 'event=health_status' --since 30m

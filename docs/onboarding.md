@@ -21,10 +21,9 @@ The dashboard aggregates GLPI service desk metrics using a FastAPI backend and a
    ```
 
    The command prints `✅ Conexão com GLPI bem-sucedida!` when the API accepts
-   the tokens. The worker's `/health` endpoint only signals when the API is
-   ready to serve requests. It returns **503** while `app.state.ready` remains
-   `False`. Monitor GLPI connectivity separately using metrics or a dedicated
-   endpoint.
+   the tokens. Ticket data loads asynchronously at startup, so the worker's
+   `/health` endpoint returns **503** until that preload finishes and
+   `app.state.ready` becomes `True`.
 
    Example snippet:
 
