@@ -1,3 +1,5 @@
+"""Public interface for GLPI infrastructure helpers."""
+
 from .glpi_client import (
     GLPIClientAuthError,
     GLPIClientError,
@@ -8,9 +10,11 @@ from .glpi_client import (
     SearchCriteriaBuilder,
     get_secret,
 )
+from .glpi_session import GLPISession
 
 __all__ = [
     "GLPISessionManager",
+    "GLPISession",
     "GLPIClientError",
     "GLPIClientAuthError",
     "GLPIClientNotFound",
