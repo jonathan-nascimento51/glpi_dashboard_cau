@@ -482,7 +482,7 @@ When the FastAPI service starts it primes the Redis cache by calling
  - `/v1/tickets` – full list of tickets in JSON format. The payload includes the
    ticket `priority` label and the `requester` name when available.
  - `/v1/tickets/stream` – Server‑Sent Events (SSE) stream of progress followed by the JSON payload.
- - `/v1/metrics` – summary with `total`, `opened` and `closed` counts.
+ - `/v1/metrics/summary` – summary with `total`, `opened` and `closed` counts.
  - `/v1/metrics/aggregated` – counts grouped by status and technician, pre-computed by the worker.
  - `/v1/chamados/por-data` – tickets per creation date, refreshed every 10 minutes.
  - `/v1/chamados/por-dia` – totals for calendar heatmaps, refreshed every 10 minutes.
