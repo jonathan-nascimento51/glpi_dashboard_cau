@@ -46,7 +46,7 @@ def calculate_metrics(df: pd.DataFrame) -> dict[str, int]:
     if "status" in df.columns:
         closed = df["status"].astype(str).str.lower().isin(["closed", "solved"]).sum()
     opened = total - int(closed)
-    return {"total": int(total), "opened": int(opened), "closed": int(closed)}
+    return {"total": total, "opened": int(opened), "closed": int(closed)}
 
 
 class MetricsOverview(BaseModel):
