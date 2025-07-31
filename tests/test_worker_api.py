@@ -1,6 +1,7 @@
 import sys
 import types
 
+import pandas as pd
 import pytest
 import pytest_asyncio
 import redis
@@ -10,7 +11,6 @@ from prometheus_client import CONTENT_TYPE_LATEST
 from backend.api.worker_api import get_glpi_client
 from backend.application import ticket_loader
 from backend.application.glpi_api_client import GlpiApiClient
-from backend.domain.exceptions import GLPIUnauthorizedError
 from shared.dto import CleanTicketDTO
 from worker import create_app
 
@@ -382,22 +382,28 @@ def test_cache_middleware(dummy_cache: DummyCache):
     assert data["misses"] == 2
 
 
-def test_health_glpi(dummy_cache: DummyCache):
-    app = create_app(client=FakeClient(), cache=dummy_cache)
-    app.state.ready = True
-    client = TestClient(app)
-    resp = client.get("/health")
-    assert resp.status_code == 200
-    assert resp.json()["status"] == "ready"
+def test_health_glpi(monkeypatch: pytest.MonkeyPatch, dummy_cache: DummyCache) -> None:
+    async def fake_load(*args: object, **kwargs: object) -> pd.DataFrame:
+        return pd.DataFrame()
+
+    monkeypatch.setattr(ticket_loader, "load_tickets", fake_load)
+    with TestClient(create_app(client=FakeClient(), cache=dummy_cache)) as client:
+        resp = client.get("/health")
+        assert resp.status_code == 200
+        assert resp.json()["status"] == "ready"
 
 
-def test_health_glpi_head_success(dummy_cache: DummyCache) -> None:
-    app = create_app(client=FakeClient(), cache=dummy_cache)
-    app.state.ready = True
-    client = TestClient(app)
-    resp = client.head("/health")
-    assert resp.status_code == 200
-    assert resp.text == ""
+def test_health_glpi_head_success(
+    monkeypatch: pytest.MonkeyPatch, dummy_cache: DummyCache
+) -> None:
+    async def fake_load(*args: object, **kwargs: object) -> pd.DataFrame:
+        return pd.DataFrame()
+
+    monkeypatch.setattr(ticket_loader, "load_tickets", fake_load)
+    with TestClient(create_app(client=FakeClient(), cache=dummy_cache)) as client:
+        resp = client.head("/health")
+        assert resp.status_code == 200
+        assert resp.text == ""
 
 
 def test_redis_connection_error(
@@ -416,26 +422,16 @@ def test_redis_connection_error(
     assert "Internal Server Error" in resp.text
 
 
-def test_health_glpi_auth_failure(
+def test_health_preload_failure(
     monkeypatch: pytest.MonkeyPatch, dummy_cache: DummyCache
-):
-    async def raise_auth(self):
-        raise GLPIUnauthorizedError(401, "unauthorized")
+) -> None:
+    async def raise_error(*args: object, **kwargs: object) -> pd.DataFrame:
+        raise RuntimeError("fail")
 
-    monkeypatch.setattr(
-        "backend.application.glpi_api_client.GlpiApiClient.__aenter__",
-        raise_auth,
-    )
-    app = create_app(client=FakeClient(), cache=dummy_cache)
-    app.state.ready = True
-    client = TestClient(
-        app,
-        raise_server_exceptions=False,
-    )
-    resp = client.get("/health")
-    assert resp.status_code == 200
-    data = resp.json()
-    assert data["status"] == "ready"
+    monkeypatch.setattr(ticket_loader, "load_tickets", raise_error)
+    with TestClient(create_app(client=FakeClient(), cache=dummy_cache)) as client:
+        resp = client.get("/health")
+        assert resp.status_code == 503
 
 
 def test_session_init_failure_fallback(
