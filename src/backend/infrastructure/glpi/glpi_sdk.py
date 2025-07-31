@@ -5,16 +5,12 @@ from typing import Dict, List, Mapping, Optional
 from py_glpi.connection import GLPISession  # type: ignore
 from py_glpi.models import FilterCriteria, ResourceNotFound  # type: ignore
 from py_glpi.resources.tickets import Ticket, Tickets  # type: ignore
+from py_glpi.resources.users import Users  # type: ignore
 
-try:
-    from py_glpi.resources.users import Users  # type: ignore
-except ModuleNotFoundError:  # pragma: no cover - older py-glpi uses auth module
-    from py_glpi.resources.auth import Users  # type: ignore
-
-from shared.dto import STATUS_MAP as STATUS_LABEL_MAP
+from shared.dto import STATUS_MAP as STATUS_LABELS
 
 # Map ticket status names to their numeric codes used by the GLPI API.
-_STATUS_INV = {label.lower(): code for code, label in STATUS_LABEL_MAP.items()}
+_STATUS_INV = {label.lower(): code for code, label in STATUS_LABELS.items()}
 STATUS_MAP: Dict[str, int] = {
     "new": _STATUS_INV.get("new", 1),
     # The GLPI API uses "processing (assigned)" to represent tickets in the
