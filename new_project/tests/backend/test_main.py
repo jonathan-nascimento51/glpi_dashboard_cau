@@ -34,8 +34,7 @@ sys.modules["backend.infrastructure.glpi"] = package
 sys.modules["backend.infrastructure.glpi.glpi_session"] = glpi_session
 sys.modules["backend.infrastructure.glpi.normalization"] = normalization
 
-sys.path.insert(0, str(ROOT / "new_project" / "backend"))
-import main as backend_main  # noqa: E402
+from new_project.backend import main as backend_main  # noqa: E402
 
 
 class DummySession:
