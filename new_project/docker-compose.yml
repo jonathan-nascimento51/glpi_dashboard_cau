@@ -4,6 +4,8 @@ services:
     build:
       context: ..
       dockerfile: new_project/docker/backend/Dockerfile
+    env_file:
+      - ../.env
     environment:
       PYTHONPATH: /app:/src
     volumes:
@@ -16,5 +18,7 @@ services:
       - redis
   redis:
     image: redis:7-alpine
+    env_file:
+      - ../.env
     ports:
       - "6379:6379"

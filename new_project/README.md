@@ -46,3 +46,9 @@ docker compose -f new_project/docker-compose.yml up --build -d
    ```
 
 All endpoints above return JSON responses when the stack is running.
+
+## Environment
+
+The Docker Compose file looks for a `.env` file in the project root using
+`env_file: ../.env`. Copy `../.env.example` to `../.env` and fill in the
+required settings before starting the containers.

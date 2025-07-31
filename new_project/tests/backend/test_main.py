@@ -71,6 +71,28 @@ class DummySession:
 @pytest.fixture
 def client(monkeypatch: pytest.MonkeyPatch) -> TestClient:
     monkeypatch.setattr(backend_main, "create_session", lambda: DummySession())
+
+    async def fake_overview(
+        *args: object, **kwargs: object
+    ) -> backend_main.MetricsOverview:
+        return backend_main.MetricsOverview(
+            open_tickets={"N1": 1},
+            tickets_closed_this_month={"N1": 1},
+            status_distribution={"new": 1, "closed": 1},
+        )
+
+    async def fake_level_metrics(
+        *args: object, **kwargs: object
+    ) -> backend_main.LevelMetrics:
+        return backend_main.LevelMetrics(
+            open_tickets=1,
+            resolved_this_month=1,
+            status_distribution={"new": 1, "closed": 1},
+        )
+
+    monkeypatch.setattr(backend_main, "compute_overview", fake_overview)
+    monkeypatch.setattr(backend_main, "compute_level_metrics", fake_level_metrics)
+
     return TestClient(backend_main.app)
 
 
