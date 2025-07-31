@@ -494,9 +494,9 @@ endpoints are responsive immediately.
 - `/tickets/stream` – Server‑Sent Events (SSE) stream of progress followed by the JSON payload.
 - `/metrics` – summary with `total`, `opened` and `closed` counts.
 - `/metrics/aggregated` – counts grouped by status and technician, pre-computed by the worker.
-- `/metrics/overview` – dictionary with `open_tickets`,
+- `/metrics/aggregated` – dictionary with `open_tickets`,
   `tickets_closed_this_month` and `status_distribution`.
-- `/metrics/level/<level>` – same fields as `/metrics/overview` but scoped
+- `/metrics/levels/<level>` – same fields as `/metrics/aggregated` but scoped
   to a single support level.
 - `/metrics/levels` – mapping of levels to status counts stored in the
   `metrics_levels` cache.
@@ -506,7 +506,7 @@ endpoints are responsive immediately.
 - `/cache/stats` – returns cache hit/miss metrics.
 - `/health` – quick check that the worker can reach the GLPI API.
 
-Example `/metrics/overview` payload:
+Example `/metrics/aggregated` payload:
 
 ```json
 {
@@ -516,7 +516,7 @@ Example `/metrics/overview` payload:
 }
 ```
 
-The `/metrics/level/N1` endpoint yields the same fields scoped to the
+The `/metrics/levels/N1` endpoint yields the same fields scoped to the
 requested level. `/metrics/levels` returns a dictionary of levels mapped
 to status counts.
 

@@ -76,9 +76,9 @@ Endpoints relevantes:
 - `/tickets` – lista completa de chamados
  - A resposta inclui os campos `priority` e `requester` em formato textual.
 - `/metrics` – contagem de abertos/fechados
-- `/metrics/overview` – retorna `open_tickets`,
+- `/metrics/aggregated` – retorna `open_tickets`,
   `tickets_closed_this_month` e `status_distribution`.
-- `/metrics/level/<nivel>` – mesmos campos do endpoint acima mas
+- `/metrics/levels/<nivel>` – mesmos campos do endpoint acima mas
   restritos ao nível informado.
 - `/metrics/levels` – dicionário com contagem de status por nível
   armazenado em `metrics_levels`.
