@@ -1,41 +1,23 @@
+import importlib
 import importlib.util
 import sys
-import types
 from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
 
 ROOT = Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(ROOT / "src"))
-sys.path.insert(0, str(ROOT))
-
-# Load glpi_session module without executing package __init__ that depends on
-# optional py_glpi.
-GLPI_PATH = ROOT / "src" / "backend" / "infrastructure" / "glpi" / "glpi_session.py"
-spec = importlib.util.spec_from_file_location(
-    "backend.infrastructure.glpi.glpi_session", GLPI_PATH
+PKG_SPEC = importlib.util.spec_from_file_location(
+    "new_project", ROOT / "new_project" / "__init__.py"
 )
-assert spec and spec.loader
-glpi_session = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(glpi_session)
-package = types.ModuleType("backend.infrastructure.glpi")
-package.glpi_session = glpi_session  # type: ignore[attr-defined]
+assert PKG_SPEC and PKG_SPEC.loader
+new_project_pkg = importlib.util.module_from_spec(PKG_SPEC)
+PKG_SPEC.loader.exec_module(new_project_pkg)
+new_project_pkg.__path__ = [str(ROOT / "new_project")]
+sys.modules["new_project"] = new_project_pkg
 
-NORM_PATH = ROOT / "src" / "backend" / "infrastructure" / "glpi" / "normalization.py"
-norm_spec = importlib.util.spec_from_file_location(
-    "backend.infrastructure.glpi.normalization", NORM_PATH
-)
-assert norm_spec and norm_spec.loader
-normalization = importlib.util.module_from_spec(norm_spec)
-norm_spec.loader.exec_module(normalization)
-package.normalization = normalization  # type: ignore[attr-defined]
-
-sys.modules["backend.infrastructure.glpi"] = package
-sys.modules["backend.infrastructure.glpi.glpi_session"] = glpi_session
-sys.modules["backend.infrastructure.glpi.normalization"] = normalization
-
-from new_project.backend import main as backend_main  # noqa: E402
+backend_main = importlib.import_module("new_project.backend.main")
+from new_project.backend.metrics import LevelMetrics, MetricsOverview  # noqa: E402
 
 
 class DummySession:
@@ -72,19 +54,15 @@ class DummySession:
 def client(monkeypatch: pytest.MonkeyPatch) -> TestClient:
     monkeypatch.setattr(backend_main, "create_session", lambda: DummySession())
 
-    async def fake_overview(
-        *args: object, **kwargs: object
-    ) -> backend_main.MetricsOverview:
-        return backend_main.MetricsOverview(
+    def fake_overview(*args: object, **kwargs: object) -> MetricsOverview:
+        return MetricsOverview(
             open_tickets={"N1": 1},
             tickets_closed_this_month={"N1": 1},
             status_distribution={"new": 1, "closed": 1},
         )
 
-    async def fake_level_metrics(
-        *args: object, **kwargs: object
-    ) -> backend_main.LevelMetrics:
-        return backend_main.LevelMetrics(
+    def fake_level_metrics(*args: object, **kwargs: object) -> LevelMetrics:
+        return LevelMetrics(
             open_tickets=1,
             resolved_this_month=1,
             status_distribution={"new": 1, "closed": 1},
