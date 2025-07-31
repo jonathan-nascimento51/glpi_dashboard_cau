@@ -178,7 +178,7 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
     )
     app.add_middleware(RequestIdMiddleware)
     FastAPIInstrumentor().instrument_app(app)
-    Instrumentator().instrument(app).expose(app)
+    Instrumentator().instrument(app).expose(router)
     router.include_router(api_router)
 
     env = os.getenv("APP_ENV", "development").lower()
