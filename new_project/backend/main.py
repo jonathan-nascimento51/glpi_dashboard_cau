@@ -76,8 +76,8 @@ async def metrics() -> dict[str, int]:
     return calculate_metrics(df)
 
 
-@app.get("/metrics/overview", response_model=MetricsOverview)
-async def metrics_overview() -> MetricsOverview:
+@app.get("/metrics/aggregated", response_model=MetricsOverview)
+async def metrics_aggregated() -> MetricsOverview:
     """Return aggregated ticket metrics using shared helpers."""
     async with create_session() as session:
         records = await session.get_all_paginated("Ticket")
@@ -85,7 +85,7 @@ async def metrics_overview() -> MetricsOverview:
     return compute_overview(df)
 
 
-@app.get("/metrics/level/{level}", response_model=LevelMetrics)
+@app.get("/metrics/levels/{level}", response_model=LevelMetrics)
 async def metrics_level(level: str) -> LevelMetrics:
     """Return metrics for a specific support level using shared helpers."""
     normalized = level.upper()
