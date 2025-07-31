@@ -19,6 +19,13 @@ from backend.infrastructure.glpi.normalization import process_raw
 app = FastAPI()
 
 
+@app.get("/health")
+async def health() -> dict[str, str]:
+    """Simple health check used for smoke tests."""
+
+    return {"status": "ok"}
+
+
 def create_session() -> GLPISession:
     """Instantiate ``GLPISession`` using settings from ``backend.core``."""
 
