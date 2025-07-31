@@ -25,9 +25,7 @@ from strawberry.fastapi import GraphQLRouter
 from strawberry.types import Info
 
 from backend.api.request_id_middleware import RequestIdMiddleware
-from backend.application.aggregated_metrics import (
-    get_cached_aggregated,
-)
+from backend.api.routers.metrics import create_metrics_router
 from backend.application.glpi_api_client import (
     GlpiApiClient,
     create_glpi_api_client,
@@ -156,6 +154,7 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
     app.add_middleware(RequestIdMiddleware)
     FastAPIInstrumentor().instrument_app(app)
     Instrumentator().instrument(app).expose(app)
+    app.include_router(create_metrics_router(client, cache))
 
     env = os.getenv("APP_ENV", "development").lower()
     if env == "production":
