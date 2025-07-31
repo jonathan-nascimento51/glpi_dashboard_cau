@@ -29,7 +29,6 @@ Crie backend/utils/pipeline.py com:
 - process_raw(data: List[dict]) -> pandas.DataFrame
 - Campos obrigatórios: id, status, group, date_creation, assigned_to, requester
 - Converta datas para datetime, preencha NaN com None
-- Função save_json(df, path="mock/sample_data.json")
 ```
 
 ### 3️⃣ Gerar **dashboard/layout.py**
