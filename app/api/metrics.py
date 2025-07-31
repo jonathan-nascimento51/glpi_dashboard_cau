@@ -8,7 +8,7 @@ to keep the responses fast even when the dataset is large.
 from __future__ import annotations
 
 import logging
-from typing import Any, Awaitable, Callable, Dict, Optional, cast
+from typing import Any, Awaitable, Callable, Optional
 
 import pandas as pd
 from fastapi import HTTPException
@@ -38,14 +38,6 @@ class MetricsOverview(BaseModel):
     open_tickets: dict[str, int] = Field(default_factory=dict)
     tickets_closed_this_month: dict[str, int] = Field(default_factory=dict)
     status_distribution: dict[str, int] = Field(default_factory=dict)
-
-
-class LevelMetrics(BaseModel):
-    """Metrics for a specific support level."""
-
-    open_tickets: int = 0
-    resolved_this_month: int = 0
-    status_distribution: Dict[str, int] = Field(default_factory=dict)
 
 
 async def _fetch_dataframe(client: Optional[GlpiApiClient]) -> pd.DataFrame:
@@ -135,54 +127,6 @@ async def compute_overview(
     # Ensure the result is a MetricsOverview instance
     if not isinstance(result, MetricsOverview):
         raise RuntimeError("Cached value is not a MetricsOverview instance")
-    return result
-
-
-async def compute_level_metrics(
-    level: str,
-    client: Optional[GlpiApiClient] = None,
-    cache: Optional[RedisClient] = None,
-    ttl_seconds: int = 300,
-) -> LevelMetrics:
-    """Compute metrics for a single support level and cache the result."""
-    cache = cache or redis_client
-    cache_key = f"metrics:level:{level}"
-
-    cached = await cache.get(cache_key)
-    if cached:
-        try:
-            return LevelMetrics.model_validate(cached)
-        except Exception as exc:  # pragma: no cover - bad cache content
-            logger.warning("Ignoring invalid cache entry for %s: %s", level, exc)
-
-    df = await _fetch_dataframe(client)
-    df["status"] = df["status"].astype(str).str.lower()
-    level_df = df[df["group"] == level]
-
-    open_mask = ~level_df["status"].isin(CLOSED_STATUSES)
-    open_count = int(level_df[open_mask].shape[0])
-
-    if not pd.api.types.is_datetime64tz_dtype(level_df["date_resolved"]):
-        level_df["date_resolved"] = level_df["date_resolved"].dt.tz_localize("UTC")
-    else:
-        level_df["date_resolved"] = level_df["date_resolved"].dt.tz_convert("UTC")
-    closed_mask = level_df["status"].isin(CLOSED_STATUSES)
-    resolved_count = int(level_df[closed_mask].shape[0])
-
-    status_counts: dict[str, int] = cast(
-        dict[Any, int], level_df["status"].value_counts().astype(int).to_dict()
-    )
-
-    result = LevelMetrics(
-        open_tickets=open_count,
-        resolved_this_month=resolved_count,
-        status_distribution=status_counts,
-    )
-
-    try:
-        await cache.set(cache_key, result.model_dump_json(), ttl_seconds=ttl_seconds)
-    except Exception as exc:  # pragma: no cover - cache failures
-        logger.warning("Failed to store level metrics in cache: %s", exc)
     return result
 
 

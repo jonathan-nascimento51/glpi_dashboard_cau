@@ -139,20 +139,6 @@ def test_overview_endpoint(test_client, monkeypatch):
     assert api_client.calls == 1
 
 
-def test_level_endpoint(test_client, monkeypatch):
-    client, api_client, cache, metrics_module = test_client
-    monkeypatch.setattr(
-        pd.Timestamp,
-        "utcnow",
-        lambda: pd.Timestamp("2024-06-15", tz="UTC"),
-    )
-    resp = client.get("/metrics/level/N1")
-    assert resp.status_code == 200
-    data = resp.json()
-    assert data["open_tickets"] == 1
-    assert data["resolved_this_month"] == 1
-
-
 def test_error_handling(monkeypatch, test_client):
     client, api_client, cache, metrics_module = test_client
 
