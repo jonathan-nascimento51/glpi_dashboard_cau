@@ -29,7 +29,7 @@ dependencies = [
     "aiohttp",
     "aiohttp_retry",
     "APScheduler",
-    "SQLAlchemy=2.0.25",
+    "SQLAlchemy==2.0.25",
     "asyncpg",
     "redis",
     "Flask-Caching>=2.1",
