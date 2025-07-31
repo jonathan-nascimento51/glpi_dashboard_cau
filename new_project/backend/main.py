@@ -34,7 +34,7 @@ async def health() -> dict[str, str]:
 
 
 def create_session() -> GLPISession:
-    """Instantiate ``GLPISession`` using settings from ``backend.core``."""
+    """Instantiate ``GLPISession`` using settings from this package."""
 
     creds = Credentials(
         app_token=GLPI_APP_TOKEN,
