@@ -6,8 +6,8 @@ This guide describes how to display GLPI ticket trends and heatmaps using SWR an
 
 Two REST routes provide the aggregated data used by the charts and leverage the worker's Redis cache:
 
-- `/chamados/por-data` — returns a list of `{ "date": "YYYY-MM-DD", "total": n }` grouped by ticket creation date. The response is cached for **one hour**.
-- `/chamados/por-dia` — returns the same structure for calendar heatmap totals and is cached for **24 hours**.
+- `/v1/chamados/por-data` — returns a list of `{ "date": "YYYY-MM-DD", "total": n }` grouped by ticket creation date. The response is cached for **one hour**.
+- `/v1/chamados/por-dia` — returns the same structure for calendar heatmap totals and is cached for **24 hours**.
 
 Both endpoints perform the aggregation server-side so the front-end only consumes summarized values.
 
@@ -19,7 +19,7 @@ requests in the examples below use this variable.
 
 ### `useChamadosPorData`
 
-Fetches aggregated ticket counts per day from `/chamados/por-data`.
+Fetches aggregated ticket counts per day from `/v1/chamados/por-data`.
 
 ```ts
 import useSWR from 'swr'
@@ -32,7 +32,7 @@ export interface ChamadoPorData {
 
 export function useChamadosPorData() {
   const { data, error, isLoading } = useSWR<ChamadoPorData[]>(
-    '/chamados/por-data',
+    '/v1/chamados/por-data',
     fetcher,
     { refreshInterval: 60000, revalidateOnFocus: false },
   )
@@ -41,13 +41,13 @@ export function useChamadosPorData() {
 }
 
 // The fetcher prefixes `NEXT_PUBLIC_API_BASE_URL` automatically,
-// so `/chamados/por-data` resolves to
-// `${import.meta.env.NEXT_PUBLIC_API_BASE_URL}/chamados/por-data`.
+// so `/v1/chamados/por-data` resolves to
+// `${import.meta.env.NEXT_PUBLIC_API_BASE_URL}/v1/chamados/por-data`.
 ```
 
 ### `useChamadosPorDia`
 
-Same pattern but pointing to `/chamados/por-dia` for daily totals.
+Same pattern but pointing to `/v1/chamados/por-dia` for daily totals.
 
 ## Components
 

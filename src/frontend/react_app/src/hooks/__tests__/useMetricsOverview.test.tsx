@@ -16,7 +16,7 @@ test('calls aggregated metrics endpoint', () => {
   renderHook(() => useMetricsOverview(), { wrapper })
   expect(useApiQuery).toHaveBeenCalledWith(
     ['metrics-overview'],
-    '/metrics/aggregated',
+    '/v1/metrics/aggregated',
     expect.any(Object),
   )
 })

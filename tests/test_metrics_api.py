@@ -127,14 +127,14 @@ def test_overview_endpoint(test_client, monkeypatch):
         "utcnow",
         lambda: pd.Timestamp("2024-06-15", tz="UTC"),
     )
-    resp = client.get("/metrics/aggregated")
+    resp = client.get("/v1/metrics/aggregated")
     assert resp.status_code == 200
     data = resp.json()
     assert data["open_tickets"] == {"N1": 1, "N2": 1}
     assert data["tickets_closed_this_month"] == {"N1": 1, "N2": 1}
     assert data["status_distribution"] == {"new": 1, "closed": 2, "pending": 1}
     # call again should hit cache
-    resp = client.get("/metrics/aggregated")
+    resp = client.get("/v1/metrics/aggregated")
     assert resp.status_code == 200
     assert api_client.calls == 1
 
@@ -146,7 +146,7 @@ def test_level_endpoint(test_client, monkeypatch):
         "utcnow",
         lambda: pd.Timestamp("2024-06-15", tz="UTC"),
     )
-    resp = client.get("/metrics/levels/N1")
+    resp = client.get("/v1/metrics/levels/N1")
     assert resp.status_code == 200
     data = resp.json()
     assert data["open_tickets"] == 1
@@ -160,5 +160,5 @@ def test_error_handling(monkeypatch, test_client):
         raise RuntimeError("boom")
 
     monkeypatch.setattr(metrics_module, "_fetch_dataframe", fail)
-    resp = client.get("/metrics/aggregated")
+    resp = client.get("/v1/metrics/aggregated")
     assert resp.status_code == 500

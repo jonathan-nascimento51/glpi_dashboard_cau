@@ -30,10 +30,10 @@ def test_api_token_required(monkeypatch, dummy_cache):
     app = create_app(cache=dummy_cache)
     client = TestClient(app)
 
-    resp = client.get("/health")
+    resp = client.get("/v1/health")
     assert resp.status_code == 401
 
-    resp = client.get("/health", headers={"X-API-Token": "secret" * 8})
+    resp = client.get("/v1/health", headers={"X-API-Token": "secret" * 8})
     assert resp.status_code == 200
 
 

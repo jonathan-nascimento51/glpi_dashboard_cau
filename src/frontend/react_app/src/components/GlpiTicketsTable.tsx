@@ -32,7 +32,7 @@ export function GlpiTicketsTable() {
     error,
     isSuccess,
     refetch,
-  } = useApiQuery<Ticket[]>(['tickets'], '/tickets')
+  } = useApiQuery<Ticket[]>(['tickets'], '/v1/tickets')
 
   const sortedTickets = useMemo(() => {
     if (!tickets) return []

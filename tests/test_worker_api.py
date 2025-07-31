@@ -105,14 +105,14 @@ async def test_app(dummy_cache: DummyCache):
 
 
 def test_rest_endpoints(test_app: TestClient):
-    resp = test_app.get("/tickets")
+    resp = test_app.get("/v1/tickets")
     assert resp.status_code == 200
     tickets = resp.json()
     assert isinstance(tickets, list)
     assert tickets and "id" in tickets[0]
     assert tickets[0]["requester"] == "Alice"
 
-    resp = test_app.get("/metrics/summary")
+    resp = test_app.get("/v1/metrics/summary")
     assert resp.status_code == 200
     metrics = resp.json()
     assert metrics == {"total": 2, "opened": 0, "closed": 2}
@@ -121,7 +121,7 @@ def test_rest_endpoints(test_app: TestClient):
 def test_aggregated_metrics(dummy_cache: DummyCache):
     dummy_cache.data["metrics_aggregated"] = {"status": {}, "per_user": {}}
     client = TestClient(create_app(client=FakeClient(), cache=dummy_cache))
-    resp = client.get("/metrics/aggregated")
+    resp = client.get("/v1/metrics/aggregated")
     assert resp.status_code == 200
     data = resp.json()
     assert "status" in data
@@ -156,11 +156,11 @@ def test_metrics_router_endpoints(
     monkeypatch.setattr("app.api.metrics.compute_level_metrics", fake_level_metrics)
 
     client = TestClient(create_app(client=FakeClient(), cache=dummy_cache))
-    resp = client.get("/metrics/aggregated")
+    resp = client.get("/v1/metrics/aggregated")
     assert resp.status_code == 200
     assert resp.json() == overview.model_dump()
 
-    resp = client.get("/metrics/levels/N1")
+    resp = client.get("/v1/metrics/levels/N1")
     assert resp.status_code == 200
     assert resp.json() == level.model_dump()
 
@@ -171,7 +171,7 @@ def test_chamados_por_data(dummy_cache: DummyCache):
         {"date": "2024-06-02", "total": 1},
     ]
     client = TestClient(create_app(client=FakeClient(), cache=dummy_cache))
-    resp = client.get("/chamados/por-data")
+    resp = client.get("/v1/chamados/por-data")
     assert resp.status_code == 200
     data = resp.json()
     assert data == [
@@ -186,7 +186,7 @@ def test_chamados_por_dia(dummy_cache: DummyCache):
         {"date": "2024-06-02", "total": 1},
     ]
     client = TestClient(create_app(client=FakeClient(), cache=dummy_cache))
-    resp = client.get("/chamados/por-dia")
+    resp = client.get("/v1/chamados/por-dia")
     assert resp.status_code == 200
     data = resp.json()
     assert data == [
@@ -198,7 +198,7 @@ def test_chamados_por_dia(dummy_cache: DummyCache):
 def test_chamados_por_data_cache(dummy_cache: DummyCache):
     session = FakeClient()
     client = TestClient(create_app(client=session, cache=dummy_cache))
-    first = client.get("/chamados/por-data").json()
+    first = client.get("/v1/chamados/por-data").json()
 
     def later_data(*args: object, **kwargs: object) -> list[CleanTicketDTO]:
         raw: list[dict[str, object]] = [
@@ -224,9 +224,9 @@ def test_chamados_por_data_cache(dummy_cache: DummyCache):
         return [CleanTicketDTO.model_validate(r) for r in raw]
 
     session.fetch_tickets = later_data  # type: ignore[assignment]
-    second = client.get("/chamados/por-data").json()
+    second = client.get("/v1/chamados/por-data").json()
     assert first == second
-    stats = client.get("/cache/stats").json()
+    stats = client.get("/v1/cache/stats").json()
     assert stats["hits"] == 1
     assert stats["misses"] == 2
 
@@ -234,7 +234,7 @@ def test_chamados_por_data_cache(dummy_cache: DummyCache):
 def test_chamados_por_dia_cache(dummy_cache: DummyCache):
     session = FakeClient()
     client = TestClient(create_app(client=session, cache=dummy_cache))
-    first = client.get("/chamados/por-dia").json()
+    first = client.get("/v1/chamados/por-dia").json()
 
     def later_data(*args: object, **kwargs: object) -> list[CleanTicketDTO]:
         raw: list[dict[str, object]] = [
@@ -260,9 +260,9 @@ def test_chamados_por_dia_cache(dummy_cache: DummyCache):
         return [CleanTicketDTO.model_validate(r) for r in raw]
 
     session.fetch_tickets = later_data  # type: ignore[assignment]
-    second = client.get("/chamados/por-dia").json()
+    second = client.get("/v1/chamados/por-dia").json()
     assert first == second
-    stats = client.get("/cache/stats").json()
+    stats = client.get("/v1/cache/stats").json()
     assert stats["hits"] == 1
     assert stats["misses"] == 2
 
@@ -277,11 +277,11 @@ async def test_loader_primes_cache(dummy_cache: DummyCache) -> None:
 
     client = TestClient(create_app(client=FakeClient(), cache=dummy_cache))
 
-    resp = client.get("/chamados/por-data")
+    resp = client.get("/v1/chamados/por-data")
     assert resp.status_code == 200
     assert resp.json() == dummy_cache.data["chamados_por_data"]
 
-    resp = client.get("/chamados/por-dia")
+    resp = client.get("/v1/chamados/por-dia")
     assert resp.status_code == 200
     assert resp.json() == dummy_cache.data["chamados_por_dia"]
 
@@ -289,11 +289,11 @@ async def test_loader_primes_cache(dummy_cache: DummyCache) -> None:
 def test_openapi_schema_models(dummy_cache: DummyCache):
     app = create_app(client=FakeClient(), cache=dummy_cache)
     schema = app.openapi()
-    por_data = schema["paths"]["/chamados/por-data"]["get"]["responses"]["200"][
+    por_data = schema["paths"]["/v1/chamados/por-data"]["get"]["responses"]["200"][
         "content"
     ]["application/json"]["schema"]
     assert por_data["items"]["$ref"].endswith("ChamadoPorData")
-    por_dia = schema["paths"]["/chamados/por-dia"]["get"]["responses"]["200"][
+    por_dia = schema["paths"]["/v1/chamados/por-dia"]["get"]["responses"]["200"][
         "content"
     ]["application/json"]["schema"]
     assert por_dia["items"]["$ref"].endswith("ChamadosPorDia")
@@ -316,7 +316,7 @@ def test_tickets_stream(monkeypatch: pytest.MonkeyPatch, dummy_cache: DummyCache
     )
 
     client = TestClient(create_app(client=FakeClient(), cache=dummy_cache))
-    resp = client.get("/tickets/stream")
+    resp = client.get("/v1/tickets/stream")
     assert resp.status_code == 200
     assert resp.text.splitlines() == ["fetching...", "done"]
 
@@ -355,8 +355,8 @@ def test_client_reused(monkeypatch: pytest.MonkeyPatch, dummy_cache: DummyCache)
 
     # Create the app without passing a client, so it uses the patched factory
     client = TestClient(create_app(cache=dummy_cache))
-    client.get("/tickets")
-    client.get("/metrics/summary")
+    client.get("/v1/tickets")
+    client.get("/v1/metrics/summary")
 
     # Only one client instance should have been created for the app's lifespan
     assert len(instances) == 1
@@ -364,8 +364,8 @@ def test_client_reused(monkeypatch: pytest.MonkeyPatch, dummy_cache: DummyCache)
 
 def test_cache_stats_endpoint(dummy_cache: DummyCache):
     client = TestClient(create_app(client=FakeClient(), cache=dummy_cache))
-    client.get("/tickets")
-    resp = client.get("/cache/stats")
+    client.get("/v1/tickets")
+    resp = client.get("/v1/cache/stats")
     assert resp.status_code == 200
     data = resp.json()
     assert data["misses"] == 2
@@ -374,9 +374,9 @@ def test_cache_stats_endpoint(dummy_cache: DummyCache):
 
 def test_cache_middleware(dummy_cache: DummyCache):
     client = TestClient(create_app(client=FakeClient(), cache=dummy_cache))
-    client.get("/tickets")
-    client.get("/tickets")
-    resp = client.get("/cache/stats")
+    client.get("/v1/tickets")
+    client.get("/v1/tickets")
+    resp = client.get("/v1/cache/stats")
     data = resp.json()
     assert data["hits"] == 1
     assert data["misses"] == 2
@@ -384,14 +384,14 @@ def test_cache_middleware(dummy_cache: DummyCache):
 
 def test_health_glpi(dummy_cache: DummyCache):
     client = TestClient(create_app(client=FakeClient(), cache=dummy_cache))
-    resp = client.get("/health")
+    resp = client.get("/v1/health")
     assert resp.status_code == 200
     assert resp.json()["status"] == "success"
 
 
 def test_health_glpi_head_success(dummy_cache: DummyCache) -> None:
     client = TestClient(create_app(client=FakeClient(), cache=dummy_cache))
-    resp = client.head("/health")
+    resp = client.head("/v1/health")
     assert resp.status_code == 200
     assert resp.text == ""
 
@@ -407,7 +407,7 @@ def test_redis_connection_error(
         create_app(client=FakeClient(), cache=dummy_cache),
         raise_server_exceptions=False,
     )
-    resp = client.get("/tickets")
+    resp = client.get("/v1/tickets")
     assert resp.status_code == 500
     assert "Internal Server Error" in resp.text
 
@@ -426,7 +426,7 @@ def test_health_glpi_auth_failure(
         create_app(client=FakeClient(), cache=dummy_cache),
         raise_server_exceptions=False,
     )
-    resp = client.get("/health")
+    resp = client.get("/v1/health")
     assert resp.status_code == 500
     data = resp.json()
     assert data["status"] == "error"
@@ -448,7 +448,7 @@ def test_session_init_failure_fallback(
     app.dependency_overrides[get_glpi_client] = lambda: None
     client = TestClient(app)
 
-    resp = client.get("/tickets")
+    resp = client.get("/v1/tickets")
     assert resp.status_code == 200
     assert resp.headers.get("X-Warning") == "using mock data"
     tickets = resp.json()
@@ -457,16 +457,16 @@ def test_session_init_failure_fallback(
 
 def test_breaker_content_type(dummy_cache: DummyCache):
     client = TestClient(create_app(client=FakeClient(), cache=dummy_cache))
-    resp = client.get("/breaker")
+    resp = client.get("/v1/breaker")
     assert resp.status_code == 200
     assert resp.headers["content-type"] == CONTENT_TYPE_LATEST
 
 
 def test_cache_metrics_legacy(dummy_cache: DummyCache):
     client = TestClient(create_app(client=FakeClient(), cache=dummy_cache))
-    client.get("/tickets")
-    legacy = client.get("/cache-metrics")
-    stats = client.get("/cache/stats")
+    client.get("/v1/tickets")
+    legacy = client.get("/v1/cache-metrics")
+    stats = client.get("/v1/cache/stats")
     assert legacy.status_code == 200
     assert legacy.json() == stats.json()
 
@@ -479,7 +479,7 @@ def test_read_model_db_error(monkeypatch: pytest.MonkeyPatch, dummy_cache: Dummy
 
     monkeypatch.setattr("backend.api.worker_api.query_ticket_summary", raise_db_error)
     client = TestClient(create_app(client=FakeClient(), cache=dummy_cache))
-    resp = client.get("/read-model/tickets")
+    resp = client.get("/v1/read-model/tickets")
     assert resp.status_code == 503
     assert "Read model is currently unavailable" in resp.json()["detail"]
 
@@ -488,7 +488,7 @@ def test_metrics_aggregated_cache(dummy_cache: DummyCache):
     dummy_cache.data["metrics_aggregated"] = {"status": {}, "per_user": {}}
     session = FakeClient()
     client = TestClient(create_app(client=session, cache=dummy_cache))
-    first = client.get("/metrics/aggregated").json()
+    first = client.get("/v1/metrics/aggregated").json()
 
     def later_data(*args: object, **kwargs: object) -> list[CleanTicketDTO]:
         raw: list[dict[str, object]] = [
@@ -505,10 +505,10 @@ def test_metrics_aggregated_cache(dummy_cache: DummyCache):
         return [CleanTicketDTO.model_validate(r) for r in raw]
 
     session.fetch_tickets = later_data  # type: ignore[assignment]
-    second = client.get("/metrics/aggregated").json()
+    second = client.get("/v1/metrics/aggregated").json()
 
     assert first == second
-    stats = client.get("/cache/stats").json()
+    stats = client.get("/v1/cache/stats").json()
     assert stats["hits"] >= 1
 
 
@@ -531,7 +531,7 @@ def test_metrics_levels_endpoint(
     """Return cached status counts grouped by ticket level."""
     dummy_cache.data = cache_data
     client = TestClient(create_app(client=FakeClient(), cache=dummy_cache))
-    resp = client.get("/metrics/levels")
+    resp = client.get("/v1/metrics/levels")
     assert resp.status_code == expected_status
     assert resp.json() == expected_response
 
@@ -540,6 +540,6 @@ def test_metrics_levels(dummy_cache: DummyCache) -> None:
     """Return cached status counts grouped by ticket level."""
     dummy_cache.data["metrics_levels"] = {"N1": {"new": 1, "pending": 2, "solved": 0}}
     client = TestClient(create_app(client=FakeClient(), cache=dummy_cache))
-    resp = client.get("/metrics/levels")
+    resp = client.get("/v1/metrics/levels")
     assert resp.status_code == 200
     assert resp.json() == {"N1": {"new": 1, "pending": 2, "solved": 0}}

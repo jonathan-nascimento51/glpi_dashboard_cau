@@ -18,12 +18,12 @@ def test_head_health_ok(
 
     monkeypatch.setattr("src.backend.api.worker_api.check_glpi_connection", ok)
     client = TestClient(create_app(cache=dummy_cache))
-    resp = client.head("/health")
+    resp = client.head("/v1/health")
     assert resp.status_code == 200
     assert resp.text == ""
 
 
 def test_health_unavailable(glpi_unavailable, dummy_cache: DummyCache) -> None:
     client = TestClient(create_app(cache=dummy_cache))
-    resp = client.get("/health")
+    resp = client.get("/v1/health")
     assert resp.status_code == 500

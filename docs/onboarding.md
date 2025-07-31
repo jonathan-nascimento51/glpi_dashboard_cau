@@ -22,7 +22,7 @@ The dashboard aggregates GLPI service desk metrics using a FastAPI backend and a
 
    The command prints `✅ Conexão com GLPI bem-sucedida!` when the API accepts
    the tokens. If the variables are missing or invalid the worker's␊
-   `/health` endpoint will return **HTTP 500**.
+   `/v1/health` endpoint will return **HTTP 500**.
 
    Example snippet:
 
