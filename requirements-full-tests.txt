@@ -405,7 +405,7 @@ sortedcontainers==2.4.0
     # via fakeredis
 soupsieve==2.7
     # via beautifulsoup4
-sqlalchemy==2.0.30
+sqlalchemy==2.0.25
     # via glpi-dashboard-cau (pyproject.toml)
 starlette==0.47.2
     # via
