@@ -468,6 +468,7 @@ def test_invalid_cors_methods(
 def test_empty_cors_methods(
     monkeypatch: pytest.MonkeyPatch, dummy_cache: DummyCache
 ) -> None:
+    """Ensure an empty list of CORS methods raises an error."""
     monkeypatch.setenv("APP_ENV", "production")
     monkeypatch.setenv("API_CORS_ALLOW_METHODS", "")
     with pytest.raises(ValueError):
