@@ -19,6 +19,8 @@ Este documento reúne estratégias para lidar com falhas de inicialização, inc
 
 - Adicione um endpoint simples de health check via `@app.server.route("/ping")`.
 - O caminho retorna `"OK", 200` e serve para validar que o serviço está ativo.
+- Você pode testar com `curl http://localhost:8050/ping` para confirmar que o
+  dashboard está rodando.
 - Desative o reloader em produção (`app.run_server(use_reloader=False)`).
 - Utilize monitoramento externo (Docker `HEALTHCHECK` ou probes do Kubernetes).
 

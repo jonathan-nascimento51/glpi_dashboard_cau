@@ -28,7 +28,7 @@ from backend.utils import process_raw
 
 __all__ = ["create_app", "main"]
 
-flask_app = Flask(__name__)
+server = Flask(__name__)
 cache_type = os.getenv("CACHE_TYPE", "redis").lower()
 cache_config: dict[str, object]
 if cache_type == "simple":
@@ -44,13 +44,13 @@ else:
             f"{os.getenv('REDIS_PORT', 6379)}/{os.getenv('REDIS_DB', 0)}"
         ),
     }
-cache = Cache(flask_app, config=cache_config)
+cache = Cache(server, config=cache_config)
 if cache_type != "simple":
     try:  # pragma: no cover - optional
         cache.cache.get("test_key")
     except Exception as exc:  # pragma: no cover - Redis missing
         logging.warning("Redis unavailable, falling back to SimpleCache: %s", exc)
-        cache = Cache(flask_app, config={"CACHE_TYPE": "SimpleCache"})
+        cache = Cache(server, config={"CACHE_TYPE": "SimpleCache"})
 
 log_level_name = os.getenv("LOG_LEVEL", "INFO")
 log_level = getattr(logging, log_level_name.upper(), logging.INFO)
@@ -110,6 +110,7 @@ def load_data(ticket_range: str = "0-99", **filters: str) -> pd.DataFrame | None
         return None
 
 
+@server.route("/ping")
 def ping() -> tuple[str, int]:
     """Simple health check endpoint."""
     return "OK", 200
@@ -117,9 +118,7 @@ def ping() -> tuple[str, int]:
 
 def create_app(df: pd.DataFrame | None) -> Dash:
     """Create Dash application."""
-    server = Flask(__name__)
     cache.init_app(server)
-    server.add_url_rule("/ping", "ping_endpoint", ping)
 
     app = Dash(__name__, server=server, external_stylesheets=[dbc.themes.BOOTSTRAP])
     app.layout = build_layout(df)
