@@ -13,7 +13,7 @@ src/backend/adapters/dto.py — define DTOs utilizados na integração com o GLP
 src/backend/adapters/mapping_service.py — serviço de mapeamento de IDs para nomes, usado como adaptador.
 src/backend/adapters/normalization.py — normaliza dados vindos da API GLPI, parte do adaptador.
 src/backend/models/ticket_models.py — modelos de domínio para tickets.
-src/backend/utils/cache.py — configuração de cache Redis, utilidade compartilhada.
+REMOVIDO: `src/backend/utils/cache.py` (substituído por `src/backend/utils/redis_client.py`).
 src/backend/core/tickets_groups.py — comando CLI para acionar o ETL, mantido no núcleo do backend.
 src/backend/core/settings.py — centraliza as configurações da aplicação.
 src/frontend/callbacks/callbacks.py — callbacks do Dash, parte do frontend.
@@ -62,6 +62,6 @@ Descrição: Script auxilia na movimentação de módulos Python utilizando a bi
 
 ## 📄 Atualizacao 2025-07-31
 
-- Removido `src/backend/utils/cache.py` e o teste correspondente `tests/test_cache_initialization.py`.
+- Removido `src/backend/utils/cache.py` (substituído por `src/backend/utils/redis_client.py`) e o teste correspondente `tests/test_cache_initialization.py`.
 - Removido `src/shared/utils/resilience/example_api.py` por se tratar de exemplo obsoleto.
 -
