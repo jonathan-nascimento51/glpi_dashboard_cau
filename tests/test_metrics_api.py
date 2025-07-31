@@ -148,3 +148,28 @@ def test_error_handling(monkeypatch, test_client):
     monkeypatch.setattr(metrics_module, "_fetch_dataframe", fail)
     resp = client.get("/metrics/overview")
     assert resp.status_code == 500
+
+
+def test_level_endpoint(test_client):
+    client, *_ = test_client
+    resp = client.get("/metrics/level/N1")
+    assert resp.status_code == 200
+    assert resp.json() == {"open": 1, "closed": 1}
+
+
+def test_level_unknown(test_client):
+    client, *_ = test_client
+    resp = client.get("/metrics/level/N3")
+    assert resp.status_code == 200
+    assert resp.json() == {"open": 0, "closed": 0}
+
+
+def test_level_error(monkeypatch, test_client):
+    client, _, _, metrics_module = test_client
+
+    async def fail(*args, **kwargs):
+        raise RuntimeError("boom")
+
+    monkeypatch.setattr(metrics_module, "_fetch_dataframe", fail)
+    resp = client.get("/metrics/level/N1")
+    assert resp.status_code == 500

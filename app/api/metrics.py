@@ -140,3 +140,55 @@ async def metrics_overview() -> MetricsOverview:
         raise HTTPException(
             status_code=500, detail="Failed to compute metrics"
         ) from exc
+
+
+class LevelMetrics(BaseModel):
+    """Open and closed ticket counts for a single level."""
+
+    open: int = 0
+    closed: int = 0
+
+
+async def compute_level_metrics(
+    level: str,
+    *,
+    client: Optional[GlpiApiClient] = None,
+    cache: Optional[RedisClient] = None,
+    ttl_seconds: int = 300,
+) -> LevelMetrics:
+    """Compute metrics for ``level`` and cache the result."""
+
+    cache = cache or redis_client
+    cache_key = f"metrics:level:{level}"
+
+    async def compute() -> LevelMetrics:
+        df = await _fetch_dataframe(client)
+        df["status"] = df["status"].astype(str).str.lower()
+        level_df = df[df["group"] == level]
+        if level_df.empty:
+            return LevelMetrics()
+
+        open_mask = ~level_df["status"].isin(CLOSED_STATUSES)
+        open_count = int(open_mask.sum())
+        closed_count = int(level_df.shape[0] - open_count)
+        return LevelMetrics(open=open_count, closed=closed_count)
+
+    result = await get_or_set_cache(
+        cache, cache_key, LevelMetrics, compute, ttl_seconds
+    )
+    if not isinstance(result, LevelMetrics):
+        raise RuntimeError("Cached value is not a LevelMetrics instance")
+    return result
+
+
+@router.get("/metrics/level/{level}", response_model=LevelMetrics)
+async def metrics_level(level: str) -> LevelMetrics:
+    """Return metrics for a specific support level."""
+
+    try:
+        return await compute_level_metrics(level)
+    except Exception as exc:  # pragma: no cover - defensive
+        logger.exception("Error computing metrics for level %s", level)
+        raise HTTPException(
+            status_code=500, detail="Failed to compute metrics"
+        ) from exc
