@@ -92,7 +92,7 @@ python -m glpi_tools count-by-level N1 N2
 ```
 
 O comando `load_tickets()` executado na inicialização preenche os
-redis-keys `metrics_aggregated`, `metrics_levels` e `metrics:overview`
+redis-keys `metrics_aggregated`, `metrics_levels` e `metrics:aggregated`
 para que esses endpoints respondam rapidamente já no primeiro acesso.
 
 Exemplo de retorno:
