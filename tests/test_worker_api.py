@@ -1,7 +1,6 @@
 import sys
 import types
 
-import pandas as pd
 import pytest
 import pytest_asyncio
 import redis
@@ -383,14 +382,13 @@ def test_cache_middleware(dummy_cache: DummyCache):
 
 
 def test_health_glpi(monkeypatch: pytest.MonkeyPatch, dummy_cache: DummyCache) -> None:
-    async def fake_load(*args: object, **kwargs: object) -> pd.DataFrame:
-        return pd.DataFrame()
+    async def noop(*args: object, **kwargs: object) -> None:
+        return None
 
-    monkeypatch.setattr(ticket_loader, "load_tickets", fake_load)
+    monkeypatch.setattr("backend.application.ticket_loader.load_tickets", noop)
     with TestClient(create_app(client=FakeClient(), cache=dummy_cache)) as client:
+        client.app.state.ready = True
         resp = client.get("/health")
-        if resp.status_code == 503:
-            resp = client.get("/health")
         assert resp.status_code == 200
         assert resp.json()["status"] == "ready"
 
@@ -398,14 +396,13 @@ def test_health_glpi(monkeypatch: pytest.MonkeyPatch, dummy_cache: DummyCache) -
 def test_health_glpi_head_success(
     monkeypatch: pytest.MonkeyPatch, dummy_cache: DummyCache
 ) -> None:
-    async def fake_load(*args: object, **kwargs: object) -> pd.DataFrame:
-        return pd.DataFrame()
+    async def noop(*args: object, **kwargs: object) -> None:
+        return None
 
-    monkeypatch.setattr(ticket_loader, "load_tickets", fake_load)
+    monkeypatch.setattr("backend.application.ticket_loader.load_tickets", noop)
     with TestClient(create_app(client=FakeClient(), cache=dummy_cache)) as client:
+        client.app.state.ready = True
         resp = client.head("/health")
-        if resp.status_code == 503:
-            resp = client.head("/health")
         assert resp.status_code == 200
         assert resp.text == ""
 
@@ -429,7 +426,7 @@ def test_redis_connection_error(
 def test_health_preload_failure(
     monkeypatch: pytest.MonkeyPatch, dummy_cache: DummyCache
 ) -> None:
-    async def raise_error(*args: object, **kwargs: object) -> pd.DataFrame:
+    async def raise_error(*args: object, **kwargs: object) -> None:
         raise RuntimeError("fail")
 
     monkeypatch.setattr(ticket_loader, "load_tickets", raise_error)
