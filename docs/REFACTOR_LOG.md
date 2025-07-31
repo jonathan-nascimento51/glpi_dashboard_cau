@@ -13,7 +13,7 @@ src/backend/adapters/dto.py — define DTOs utilizados na integração com o GLP
 src/backend/adapters/mapping_service.py — serviço de mapeamento de IDs para nomes, usado como adaptador.
 src/backend/adapters/normalization.py — normaliza dados vindos da API GLPI, parte do adaptador.
 src/backend/models/ticket_models.py — modelos de domínio para tickets.
-src/backend/utils/cache.py — configuração de cache Redis, utilidade compartilhada.
+src/backend/utils/cache.py — (removido em 2025-07-31) configuração de cache Redis, utilidade compartilhada.
 src/backend/core/tickets_groups.py — comando CLI para acionar o ETL, mantido no núcleo do backend.
 src/backend/core/settings.py — centraliza as configurações da aplicação.
 src/frontend/callbacks/callbacks.py — callbacks do Dash, parte do frontend.
