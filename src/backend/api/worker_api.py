@@ -161,10 +161,11 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
         default_response_class=UTF8JSONResponse,
         dependencies=deps,
     )
-    app.state.ready = False
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
+        app.state.ready = False
+
         async def preload() -> None:
             try:
                 await load_tickets(client=client, cache=cache)
