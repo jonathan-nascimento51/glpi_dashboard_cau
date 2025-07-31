@@ -21,8 +21,7 @@ class Example:
 
 def test_no_match():
     src = "import some_other_module"
-    expected = "import some_other_module"
-    assert rewrite_imports(src, MAPPING).strip() == expected
+    assert rewrite_imports(src, MAPPING).strip() == src
 
 
 def test_partial_match():
