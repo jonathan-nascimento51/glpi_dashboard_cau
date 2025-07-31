@@ -74,6 +74,12 @@ def client(monkeypatch: pytest.MonkeyPatch) -> TestClient:
     return TestClient(backend_main.app)
 
 
+def test_health_endpoint(client: TestClient) -> None:
+    resp = client.get("/health")
+    assert resp.status_code == 200
+    assert resp.json() == {"status": "ok"}
+
+
 def test_tickets_endpoint(client: TestClient) -> None:
     resp = client.get("/tickets")
     assert resp.status_code == 200
