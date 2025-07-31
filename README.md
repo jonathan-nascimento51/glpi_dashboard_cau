@@ -137,7 +137,7 @@ This starts PostgreSQL, Redis, the FastAPI worker and the Dash app. Access the d
 
 The Compose files configure the backend service with `stop_signal: SIGINT` and a
 `stop_grace_period` of `60s`. When you stop the stack with `CTRL+C` or `docker
-compose down` the worker receives `SIGINT` and has one minute to shut down
+compose down` the worker receives `SIGINT` and has 60 seconds to shut down
 gracefully before the container is killed.
 
 ## Dependencies
