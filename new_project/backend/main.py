@@ -5,6 +5,8 @@ from __future__ import annotations
 import pandas as pd
 from fastapi import FastAPI
 
+from .glpi_session import Credentials, GLPISession
+
 # Import shared metric helpers from the main API module
 from .metrics import (
     LevelMetrics,
@@ -12,15 +14,14 @@ from .metrics import (
     compute_level_metrics,
     compute_overview,
 )
-from backend.core.settings import (
+from .normalization import process_raw
+from .settings import (
     GLPI_APP_TOKEN,
     GLPI_BASE_URL,
     GLPI_PASSWORD,
     GLPI_USER_TOKEN,
     GLPI_USERNAME,
 )
-from backend.infrastructure.glpi.glpi_session import Credentials, GLPISession
-from backend.infrastructure.glpi.normalization import process_raw
 
 app = FastAPI()
 
@@ -78,16 +79,20 @@ async def metrics() -> dict[str, int]:
 @app.get("/metrics/overview", response_model=MetricsOverview)
 async def metrics_overview() -> MetricsOverview:
     """Return aggregated ticket metrics using shared helpers."""
-
-    return await compute_overview()
+    async with create_session() as session:
+        records = await session.get_all_paginated("Ticket")
+    df = process_raw(records)
+    return compute_overview(df)
 
 
 @app.get("/metrics/level/{level}", response_model=LevelMetrics)
 async def metrics_level(level: str) -> LevelMetrics:
     """Return metrics for a specific support level using shared helpers."""
-
     normalized = level.upper()
-    return await compute_level_metrics(normalized)
+    async with create_session() as session:
+        records = await session.get_all_paginated("Ticket")
+    df = process_raw(records)
+    return compute_level_metrics(df, normalized)
 
 
 if __name__ == "__main__":  # pragma: no cover - manual run
