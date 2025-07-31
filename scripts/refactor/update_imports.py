@@ -10,10 +10,10 @@ logging.basicConfig(level=logging.DEBUG)
 
 
 def rewrite_imports(src: str, mapping: dict[str, str]) -> str:
-    return next(
-        (src.replace(old, new) for old, new in mapping.items() if old in src),
-        src,
-    )
+    """Rewrite import statements according to a mapping."""
+    module = cst.parse_module(src)
+    transformed = module.visit(_ImportTransformer(mapping))
+    return transformed.code
 
 
 class _ImportTransformer(cst.CSTTransformer):
