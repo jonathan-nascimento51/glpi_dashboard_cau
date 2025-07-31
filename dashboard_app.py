@@ -24,7 +24,7 @@ from backend.core.settings import (
 from backend.domain.exceptions import GLPIAPIError
 from backend.infrastructure.glpi import glpi_client_logging
 from backend.infrastructure.glpi.glpi_session import Credentials, GLPISession
-from backend.utils import process_raw
+from backend.infrastructure.glpi.normalization import process_raw
 
 __all__ = ["create_app", "main"]
 
