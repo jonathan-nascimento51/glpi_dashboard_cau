@@ -25,9 +25,7 @@ from strawberry.fastapi import GraphQLRouter
 from strawberry.types import Info
 
 from backend.api.request_id_middleware import RequestIdMiddleware
-from backend.application.aggregated_metrics import (
-    get_cached_aggregated,
-)
+from backend.api.routers.metrics import create_metrics_router
 from backend.application.glpi_api_client import (
     GlpiApiClient,
     create_glpi_api_client,
@@ -155,6 +153,7 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
     app.add_middleware(RequestIdMiddleware)
     FastAPIInstrumentor().instrument_app(app)
     Instrumentator().instrument(app).expose(app)
+    app.include_router(create_metrics_router(client, cache))
 
     env = os.getenv("APP_ENV", "development").lower()
     if env == "production":
@@ -199,34 +198,6 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
             media_type="text/plain",
             headers=response.headers,
         )
-
-    @app.get("/metrics/summary")
-    async def metrics_summary(response: Response) -> dict:  # noqa: F401
-        df = await load_tickets(client=client, cache=cache, response=response)
-        return calculate_dataframe_metrics(df)
-
-    @app.get("/breaker")
-    async def breaker_metrics() -> Response:  # noqa: F401
-        """Expose Prometheus metrics for the circuit breaker."""
-        from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
-
-        data = generate_latest()
-        return Response(content=data, media_type=CONTENT_TYPE_LATEST)
-
-    @app.get("/metrics/aggregated")
-    async def metrics_aggregated() -> dict:  # noqa: F401
-        metrics = await get_cached_aggregated(cache, "metrics_aggregated")
-        if metrics is None:
-            raise HTTPException(status_code=503, detail="metrics not available")
-        return metrics
-
-    @app.get("/metrics/levels")
-    async def metrics_levels() -> Dict[str, Dict[str, int]]:  # noqa: F401
-        """Return status counts grouped by ticket level (group)."""
-        data = await cache.get("metrics_levels")
-        if data is None:
-            raise HTTPException(status_code=503, detail="metrics not available")
-        return cast(Dict[str, Dict[str, int]], data)
 
     @app.get(
         "/chamados/por-data",
