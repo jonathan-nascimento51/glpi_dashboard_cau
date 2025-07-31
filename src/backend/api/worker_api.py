@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import argparse
+import asyncio
+import contextlib
 import datetime
 import logging
 import os
@@ -153,22 +155,30 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
     if client is None:
         client = create_glpi_api_client()
 
-    @asynccontextmanager
-    async def lifespan(app: FastAPI):
-        # On startup
-        await load_tickets(client=client, cache=cache)
-        app.state.ready = True
-        yield
-        # On shutdown (if needed)
-
     deps = [Depends(verify_api_key)] if os.getenv("DASHBOARD_API_TOKEN") else []
     app = FastAPI(
         title="GLPI Worker API",
         default_response_class=UTF8JSONResponse,
-        lifespan=lifespan,
         dependencies=deps,
     )
     app.state.ready = False
+
+    @asynccontextmanager
+    async def lifespan(app: FastAPI):
+        async def preload() -> None:
+            try:
+                await load_tickets(client=client, cache=cache)
+                app.state.ready = True
+            except Exception:
+                logger.exception("Ticket preload failed")
+
+        task = asyncio.create_task(preload())
+        yield
+        task.cancel()
+        with contextlib.suppress(asyncio.CancelledError):
+            await task
+
+    app.router.lifespan_context = lifespan
     app.add_middleware(RequestIdMiddleware)
     FastAPIInstrumentor().instrument_app(app)
     Instrumentator().instrument(app).expose(app)
