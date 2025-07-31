@@ -32,10 +32,15 @@ function ChamadosHeatmapComponent() {
 
   return (
     <div className="bg-surface dark:bg-gray-900 border border-border rounded-2xl shadow-lg p-6 flex flex-col gap-4">
-      <h2 className="text-lg font-semibold text-primary mb-4">
-        Chamados no Ano (Heatmap Diário)
-      </h2>
-      <div className="overflow-x-auto pb-2 mb-4">
+      {/* Header alinhado e padronizado */}
+      <div className="levels-header flex flex-col gap-1 pb-3">
+        <div className="flex flex-row items-center justify-between px-2">
+          <div className="levels-title">Chamados no Ano</div>
+          <div className="levels-subtitle">Heatmap Diário</div>
+        </div>
+        <div className="border-b border-border/60 mx-2" />
+      </div>
+      <div className="overflow-x-auto pb-2 mb-4 mt-2">
         <ReactCalendarHeatmap
           startDate={startDate}
           endDate={endDate}
