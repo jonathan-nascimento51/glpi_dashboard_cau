@@ -188,6 +188,8 @@ class GLPISessionManager:
                     else:
                         error_text = str(payload)
                 except ValueError:
+                    # If the response claims to be JSON but can't be decoded,
+                    # we fall back to using the raw response text.
                     pass
             raise exc_cls(f"HTTP {resp.status_code}: {error_text}")
         if raise_for_status:
