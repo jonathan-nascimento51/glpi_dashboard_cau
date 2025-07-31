@@ -493,10 +493,10 @@ endpoints are responsive immediately.
    ticket `priority` label and the `requester` name when available.
 - `/tickets/stream` – Server‑Sent Events (SSE) stream of progress followed by the JSON payload.
 - `/metrics` – summary with `total`, `opened` and `closed` counts.
-- `/metrics/aggregated` – counts grouped by status and technician, pre-computed by the worker.
-- `/metrics/aggregated` – dictionary with `open_tickets`,
-  `tickets_closed_this_month` and `status_distribution`.
-- `/metrics/levels/<level>` – same fields as `/metrics/aggregated` but scoped
+ - `/metrics/aggregated` – dictionary with `open_tickets`,
+  `tickets_closed_this_month` and `status_distribution`. Values are pre-computed
+  by the worker.
+ - `/metrics/levels/{level}` – same fields as `/metrics/aggregated` but scoped
   to a single support level.
 - `/metrics/levels` – mapping of levels to status counts stored in the
   `metrics_levels` cache.
@@ -519,6 +519,16 @@ Example `/metrics/aggregated` payload:
 The `/metrics/levels/N1` endpoint yields the same fields scoped to the
 requested level. `/metrics/levels` returns a dictionary of levels mapped
 to status counts.
+
+Example `/metrics/levels/N1` payload:
+
+```json
+{
+  "open_tickets": 5,
+  "tickets_closed_this_month": 2,
+  "status_distribution": {"new": 3, "closed": 2}
+}
+```
 
 Example ticket payload:
 

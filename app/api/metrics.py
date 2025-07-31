@@ -191,8 +191,8 @@ async def compute_level_metrics(
     return result
 
 
-@router.get("/metrics/overview", response_model=MetricsOverview)
-async def metrics_overview() -> MetricsOverview:
+@router.get("/metrics/aggregated", response_model=MetricsOverview)
+async def metrics_aggregated() -> MetricsOverview:
     """Return aggregated ticket metrics for the dashboard."""
     try:
         return await compute_overview()
@@ -203,7 +203,7 @@ async def metrics_overview() -> MetricsOverview:
         ) from exc
 
 
-@router.get("/metrics/level/{level}", response_model=LevelMetrics)
+@router.get("/metrics/levels/{level}", response_model=LevelMetrics)
 async def metrics_level(level: str) -> LevelMetrics:
     """Return metrics for a single support level (e.g. N1, N2)."""
     try:
