@@ -116,7 +116,7 @@ def test_client(monkeypatch):
 
     api_pkg = importlib.import_module("app.api")
     app = FastAPI()
-    app.include_router(api_pkg.router)
+    app.include_router(api_pkg.router, prefix="/v1")
     return TestClient(app), client, cache, metrics_module
 
 
@@ -127,14 +127,14 @@ def test_overview_endpoint(test_client, monkeypatch):
         "utcnow",
         lambda: pd.Timestamp("2024-06-15", tz="UTC"),
     )
-    resp = client.get("/metrics/overview")
+    resp = client.get("/v1/metrics/overview")
     assert resp.status_code == 200
     data = resp.json()
     assert data["open_tickets"] == {"N1": 1, "N2": 1}
     assert data["created_and_resolved_this_month"] == {"N1": 1, "N2": 1}
     assert data["status_distribution"] == {"new": 1, "closed": 2, "pending": 1}
     # call again should hit cache
-    resp = client.get("/metrics/overview")
+    resp = client.get("/v1/metrics/overview")
     assert resp.status_code == 200
     assert api_client.calls == 1
 
@@ -146,20 +146,20 @@ def test_error_handling(monkeypatch, test_client):
         raise RuntimeError("boom")
 
     monkeypatch.setattr(metrics_module, "_fetch_dataframe", fail)
-    resp = client.get("/metrics/overview")
+    resp = client.get("/v1/metrics/overview")
     assert resp.status_code == 500
 
 
 def test_level_endpoint(test_client):
     client, *_ = test_client
-    resp = client.get("/metrics/level/N1")
+    resp = client.get("/v1/metrics/level/N1")
     assert resp.status_code == 200
     assert resp.json() == {"open": 1, "closed": 1}
 
 
 def test_level_unknown(test_client):
     client, *_ = test_client
-    resp = client.get("/metrics/level/N3")
+    resp = client.get("/v1/metrics/level/N3")
     assert resp.status_code == 200
     assert resp.json() == {"open": 0, "closed": 0}
 
@@ -171,5 +171,5 @@ def test_level_error(monkeypatch, test_client):
         raise RuntimeError("boom")
 
     monkeypatch.setattr(metrics_module, "_fetch_dataframe", fail)
-    resp = client.get("/metrics/level/N1")
+    resp = client.get("/v1/metrics/level/N1")
     assert resp.status_code == 500
