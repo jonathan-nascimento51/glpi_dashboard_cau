@@ -132,8 +132,9 @@ Cobertura mínima de 85 % garantida no CI (GitHub Actions).
 ## 10 ▪️ Monitoramento de produção
 
 O contêiner **worker** possui `HEALTHCHECK` interno que executa `curl -I` no␊
-endpoint `/health` (método **HEAD**). A rota `GET` continua disponível para
-verificações manuais. Use:
+endpoint `/health` (método **HEAD**). O endpoint retorna **503** enquanto
+`app.state.ready` for `False` e **200** quando estiver pronto. A rota `GET`
+continua disponível para verificações manuais. Use:
 
 ```bash
 docker events --filter 'event=health_status' --since 30m

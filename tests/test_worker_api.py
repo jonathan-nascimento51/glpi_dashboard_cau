@@ -383,14 +383,18 @@ def test_cache_middleware(dummy_cache: DummyCache):
 
 
 def test_health_glpi(dummy_cache: DummyCache):
-    client = TestClient(create_app(client=FakeClient(), cache=dummy_cache))
+    app = create_app(client=FakeClient(), cache=dummy_cache)
+    app.state.ready = True
+    client = TestClient(app)
     resp = client.get("/health")
     assert resp.status_code == 200
-    assert resp.json()["status"] == "success"
+    assert resp.json()["status"] == "ready"
 
 
 def test_health_glpi_head_success(dummy_cache: DummyCache) -> None:
-    client = TestClient(create_app(client=FakeClient(), cache=dummy_cache))
+    app = create_app(client=FakeClient(), cache=dummy_cache)
+    app.state.ready = True
+    client = TestClient(app)
     resp = client.head("/health")
     assert resp.status_code == 200
     assert resp.text == ""
@@ -422,16 +426,16 @@ def test_health_glpi_auth_failure(
         "backend.application.glpi_api_client.GlpiApiClient.__aenter__",
         raise_auth,
     )
+    app = create_app(client=FakeClient(), cache=dummy_cache)
+    app.state.ready = True
     client = TestClient(
-        create_app(client=FakeClient(), cache=dummy_cache),
+        app,
         raise_server_exceptions=False,
     )
     resp = client.get("/health")
-    assert resp.status_code == 500
+    assert resp.status_code == 200
     data = resp.json()
-    assert data["status"] == "error"
-    assert data["message"] == "GLPI connection failed"
-    assert "unauthorized" in data["details"]
+    assert data["status"] == "ready"
 
 
 def test_session_init_failure_fallback(
