@@ -135,6 +135,11 @@ docker compose up
 
 This starts PostgreSQL, Redis, the FastAPI worker and the Dash app. Access the dashboard at `http://localhost:5174` when the build finishes.
 
+The Compose files configure the backend service with `stop_signal: SIGINT` and a
+`stop_grace_period` of `60s`. When you stop the stack with `CTRL+C` or `docker
+compose down` the worker receives `SIGINT` and has 60 seconds to shut down
+gracefully before the container is killed.
+
 ## Dependencies
 
 - Python 3.10\u20133.12

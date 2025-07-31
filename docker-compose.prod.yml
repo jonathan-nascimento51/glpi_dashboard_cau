@@ -24,6 +24,8 @@ services:
       - db_password
     depends_on:
       - db
+    stop_signal: SIGINT
+    stop_grace_period: 60s
 
   frontend:
     build:
