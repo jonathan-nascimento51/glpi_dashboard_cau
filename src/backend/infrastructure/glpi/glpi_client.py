@@ -63,7 +63,11 @@ def get_secret(name: str) -> str:
 
 
 class GLPISessionManager:
-    """Synchronous session manager for the GLPI REST API."""
+    """Synchronous session manager for the GLPI REST API.
+
+    .. deprecated:: 0.1.0
+       Use :class:`GLPISession` from ``glpi_session.py`` for new code.
+    """
 
     def __init__(
         self,

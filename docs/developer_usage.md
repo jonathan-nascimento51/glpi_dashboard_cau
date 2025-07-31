@@ -17,6 +17,10 @@ Principais módulos do projeto:
 | `shared/config/settings.py` | Carrega variáveis de ambiente (GLPI, DB, Redis) |
 | `src/frontend/react_app/` | Projeto Next.js que consome o worker API |
 
+O módulo `glpi_client.py` ainda oferece `GLPISessionManager`, uma versão
+síncrona baseada em `requests` mantida apenas para scripts simples ou testes.
+Todo código novo deve preferir `GLPISession` do arquivo `glpi_session.py`.
+
 Os módulos da Anti-Corruption Layer residem em `src/backend/adapters`. Importe-os diretamente desse pacote. O antigo `glpi_adapter.py` foi removido durante a refatoração.
 
 Scripts utilitários residem em `scripts/` organizados por categoria, como `setup/init_db.py`, `fetch/fetch_tickets.py` e `etl/filters.py`.
