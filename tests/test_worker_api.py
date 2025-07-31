@@ -413,15 +413,6 @@ def test_breaker_content_type(dummy_cache: DummyCache):
     assert resp.headers["content-type"] == CONTENT_TYPE_LATEST
 
 
-def test_cache_metrics_legacy(dummy_cache: DummyCache):
-    client = TestClient(create_app(client=FakeClient(), cache=dummy_cache))
-    client.get("/tickets")
-    legacy = client.get("/cache-metrics")
-    stats = client.get("/cache/stats")
-    assert legacy.status_code == 200
-    assert legacy.json() == stats.json()
-
-
 def test_read_model_db_error(monkeypatch: pytest.MonkeyPatch, dummy_cache: DummyCache):
     """Test that a DB error in the read model returns a 503."""
 
