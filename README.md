@@ -570,7 +570,8 @@ endpoints are responsive immediately.
 - `/chamados/por-dia` – totals for calendar heatmaps, refreshed every 10 minutes.
 - `/graphql/` – GraphQL API providing the same information.
 - `/cache/stats` – returns cache hit/miss metrics.
-- `/health` – quick check that the worker can reach the GLPI API.
+- `/health` – indicates only that the worker API is ready. Monitor GLPI
+  connectivity separately using metrics or a dedicated endpoint.
 
 Example `/metrics/overview` payload:
 
