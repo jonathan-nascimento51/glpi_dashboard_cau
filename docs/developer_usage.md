@@ -78,7 +78,7 @@ Endpoints relevantes:
 - `/metrics` – contagem de abertos/fechados
 - `/metrics/aggregated` – retorna `open_tickets`,
   `tickets_closed_this_month` e `status_distribution`.
-- `/metrics/levels/<nivel>` – mesmos campos do endpoint acima mas
+ - `/metrics/levels/{nivel}` – mesmos campos do endpoint acima mas
   restritos ao nível informado.
 - `/metrics/levels` – dicionário com contagem de status por nível
   armazenado em `metrics_levels`.
@@ -95,18 +95,14 @@ O comando `load_tickets()` executado na inicialização preenche os
 redis-keys `metrics_aggregated`, `metrics_levels` e `metrics:aggregated`
 para que esses endpoints respondam rapidamente já no primeiro acesso.
 
-Exemplo de retorno:
+Exemplo de retorno de `/metrics/aggregated`:
 
 ```json
-[
-  {
-    "id": 7,
-    "title": "Falha no proxy",
-    "status": "Closed",
-    "priority": "Medium",
-    "requester": "Alice"
-  }
-]
+{
+  "open_tickets": {"N1": 5},
+  "tickets_closed_this_month": {"N1": 2},
+  "status_distribution": {"new": 3, "closed": 2}
+}
 ```
 
 ## Utilizando o ETL
