@@ -10,7 +10,7 @@ The main pipeline runs on pushes to `main` and on pull requests. It defines five
 2. **arch-docs** – generates `ARCHITECTURE.md` via `python scripts/generate_arch_docs.py` and fails if changes are detected.
 3. **test** – waits for `arch-docs`, sets up a matrix for Python 3.10–3.12 and runs both backend (`pytest`) and frontend tests.
 4. **snyk-code** – performs a Snyk code scan and uploads a SARIF report.
-5. **build** – runs only for tagged commits after successful tests. It logs in to GHCR and uses `docker/build-push-action` to build `docker/backend_service/Dockerfile` and push the resulting image tagged with the Git ref name.
+5. **build** – runs only for tagged commits after successful tests. It logs in to GHCR and uses `docker/build-push-action` to build `docker/backend/Dockerfile` and push the resulting image tagged with the Git ref name.
 
 Build artifacts created during this job are stored in the `build/` directory. The folder is cleaned after each run and is ignored by Git.
 

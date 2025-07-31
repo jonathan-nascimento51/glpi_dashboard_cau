@@ -4,10 +4,10 @@ This document summarizes strategies to reduce the initial setup time when prepar
 
 ## 1. Pre-built Base Image
 
-Use the provided `docker/backend_service/Dockerfile` with the `INSTALL_PLAYWRIGHT` build argument set to `true` to produce a base image that already contains system dependencies, Python packages and Playwright browsers. Store this image in a registry accessible to the development team.
+Use the provided `docker/backend/Dockerfile` with the `INSTALL_PLAYWRIGHT` build argument set to `true` to produce a base image that already contains system dependencies, Python packages and Playwright browsers. Store this image in a registry accessible to the development team.
 
 ```bash
-docker build --build-arg INSTALL_PLAYWRIGHT=true -t glpi-dashboard-base -f docker/backend_service/Dockerfile .
+docker build --build-arg INSTALL_PLAYWRIGHT=true -t glpi-dashboard-base -f docker/backend/Dockerfile .
 ```
 
 Publishing this base image allows subsequent `docker compose` runs to reuse the cached layers instead of repeating the installation process.
