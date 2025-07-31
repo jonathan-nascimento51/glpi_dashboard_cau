@@ -44,7 +44,7 @@ def glpi_unavailable(monkeypatch: pytest.MonkeyPatch):
         return 500
 
     monkeypatch.setattr(
-        "src.backend.api.worker_api.check_glpi_connection",
+        "backend.application.ticket_loader.check_glpi_connection",
         _fail,
     )
     yield

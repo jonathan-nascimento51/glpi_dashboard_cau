@@ -26,7 +26,7 @@ def test_api_token_required(monkeypatch, dummy_cache):
     async def ok():
         return 200
 
-    monkeypatch.setattr("src.backend.api.worker_api.check_glpi_connection", ok)
+    monkeypatch.setattr("backend.application.ticket_loader.check_glpi_connection", ok)
     app = create_app(cache=dummy_cache)
     client = TestClient(app)
 
