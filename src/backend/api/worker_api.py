@@ -5,7 +5,6 @@ from __future__ import annotations
 import argparse
 import datetime
 import logging
-import os
 from contextlib import asynccontextmanager
 from typing import Any, Dict, List, Optional, cast
 
@@ -37,7 +36,13 @@ from backend.application.ticket_loader import (
     load_tickets,
     stream_tickets,
 )
-from backend.core.settings import KNOWLEDGE_BASE_FILE
+from backend.core.settings import (
+    KNOWLEDGE_BASE_FILE,
+    cors_methods_from_env,
+    cors_origins_from_env,
+    get_app_env,
+    get_env,
+)
 from backend.services.document_service import read_file
 from backend.services.metrics_service import calculate_dataframe_metrics
 from shared.dto import CleanTicketDTO  # imported from shared DTOs
@@ -143,7 +148,7 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
         yield
         # On shutdown (if needed)
 
-    deps = [Depends(verify_api_key)] if os.getenv("DASHBOARD_API_TOKEN") else []
+    deps = [Depends(verify_api_key)] if get_env("DASHBOARD_API_TOKEN") else []
     app = FastAPI(
         title="GLPI Worker API",
         default_response_class=UTF8JSONResponse,
@@ -156,20 +161,10 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
     Instrumentator().instrument(app).expose(app)
     app.include_router(create_metrics_router(client, cache))
 
-    env = os.getenv("APP_ENV", "development").lower()
+    env = get_app_env()
     if env == "production":
-        allowed_origins = [
-            origin.strip()
-            for origin in os.getenv("API_CORS_ALLOW_ORIGINS", "").split(",")
-            if origin.strip()
-        ]
-        allowed_methods = [
-            method.strip().upper()
-            for method in os.getenv("API_CORS_ALLOW_METHODS", "GET,HEAD,OPTIONS").split(
-                ","
-            )
-            if method.strip()
-        ]
+        allowed_origins = cors_origins_from_env()
+        allowed_methods = cors_methods_from_env()
         app.add_middleware(
             CORSMiddleware,
             allow_origins=allowed_origins,

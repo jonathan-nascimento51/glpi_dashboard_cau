@@ -454,3 +454,24 @@ def test_metrics_aggregated_cache(dummy_cache: DummyCache):
     assert first == second
     stats = client.get("/v1/cache/stats").json()
     assert stats["hits"] >= 1
+
+
+def test_invalid_cors_methods(
+    monkeypatch: pytest.MonkeyPatch, dummy_cache: DummyCache
+) -> None:
+    """Ensure invalid HTTP methods in env vars raise an error."""
+
+    monkeypatch.setenv("APP_ENV", "production")
+    monkeypatch.setenv("API_CORS_ALLOW_METHODS", "GET,INVALID")
+    with pytest.raises(ValueError):
+        create_app(client=FakeClient(), cache=dummy_cache)
+
+
+def test_empty_cors_methods(
+    monkeypatch: pytest.MonkeyPatch, dummy_cache: DummyCache
+) -> None:
+    """Ensure an empty list of CORS methods raises an error."""
+    monkeypatch.setenv("APP_ENV", "production")
+    monkeypatch.setenv("API_CORS_ALLOW_METHODS", "")
+    with pytest.raises(ValueError):
+        create_app(client=FakeClient(), cache=dummy_cache)
