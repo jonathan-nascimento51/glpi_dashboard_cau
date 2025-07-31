@@ -174,7 +174,22 @@ class GLPISessionManager:
     ) -> None:
         if resp.status_code >= 400:
             exc_cls = HTTP_ERROR_MAP.get(resp.status_code, GLPIClientServerError)
-            raise exc_cls(f"HTTP {resp.status_code}: {resp.text}")
+            error_text = resp.text
+            content_type = resp.headers.get("Content-Type", "").lower()
+            if content_type.startswith("application/json"):
+                try:
+                    payload = resp.json()
+                    if isinstance(payload, dict):
+                        error_text = (
+                            payload.get("message")
+                            or payload.get("error")
+                            or str(payload)
+                        )
+                    else:
+                        error_text = str(payload)
+                except ValueError:
+                    pass
+            raise exc_cls(f"HTTP {resp.status_code}: {error_text}")
         if raise_for_status:
             resp.raise_for_status()
 

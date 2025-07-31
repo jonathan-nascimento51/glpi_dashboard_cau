@@ -6,7 +6,9 @@ import pytest
 import requests
 
 from backend.infrastructure.glpi.glpi_client import (
+    GLPIClientError,
     GLPIClientNotFound,
+    GLPIClientServerError,
     GLPISessionManager,
     SearchCriteriaBuilder,
     get_secret,
@@ -87,7 +89,10 @@ def test_error_mapping(monkeypatch):
     init_resp = DummyResponse(200, {"session_token": "tok"})
     err_resp = DummyResponse(404, {"error": "no"})
     session = make_session(
-        {"get": [init_resp, DummyResponse(200, {})], "request": [err_resp]}
+        {
+            "get": [init_resp, DummyResponse(200, {})],
+            "request": [err_resp],
+        }
     )
     mgr = GLPISessionManager(
         "http://example.com/apirest.php",
@@ -124,3 +129,42 @@ def test_search_by_date_range(monkeypatch):
     assert args[0] == "GET" and args[1].endswith("search/Ticket")
     assert "criteria[0][field]" in kwargs["params"]
     assert kwargs["headers"]["Session-Token"] == "tok"
+
+
+def test_json_error_message_included(monkeypatch):
+    init_resp = DummyResponse(200, {"session_token": "tok"})
+    err_resp = DummyResponse(400, {"message": "bad data"})
+    session = make_session(
+        {
+            "get": [init_resp, DummyResponse(200, {})],
+            "request": [err_resp],
+        }
+    )
+    mgr = GLPISessionManager(
+        "http://example.com/apirest.php",
+        "APP",
+        user_token="USER",
+        session=session,
+    )
+    with mgr:
+        with pytest.raises(GLPIClientError) as excinfo:
+            mgr.get_item("Ticket", 3)
+        assert "bad data" in str(excinfo.value)
+
+
+def test_json_error_field(monkeypatch):
+    init_resp = DummyResponse(200, {"session_token": "tok"})
+    err_resp = DummyResponse(500, {"error": "boom"})
+    session = make_session(
+        {"get": [init_resp, DummyResponse(200, {})], "request": [err_resp]}
+    )
+    mgr = GLPISessionManager(
+        "http://example.com/apirest.php",
+        "APP",
+        user_token="USER",
+        session=session,
+    )
+    with mgr:
+        with pytest.raises(GLPIClientServerError) as excinfo:
+            mgr.get_item("Ticket", 4)
+        assert "boom" in str(excinfo.value)
