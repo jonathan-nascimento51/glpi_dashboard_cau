@@ -77,23 +77,17 @@ async def metrics() -> dict[str, int]:
 
 @app.get("/metrics/overview", response_model=MetricsOverview)
 async def metrics_overview() -> MetricsOverview:
-    """Return aggregated ticket metrics."""
+    """Return aggregated ticket metrics using shared helpers."""
 
-    async with create_session() as session:
-        records = await session.get_all_paginated("Ticket")
-    df = process_raw(records)
-    return compute_overview(df)
+    return await compute_overview()
 
 
 @app.get("/metrics/level/{level}", response_model=LevelMetrics)
 async def metrics_level(level: str) -> LevelMetrics:
-    """Return metrics for a specific support level."""
+    """Return metrics for a specific support level using shared helpers."""
 
-    async with create_session() as session:
-        records = await session.get_all_paginated("Ticket")
-    df = process_raw(records)
     normalized = level.upper()
-    return compute_level_metrics(df, normalized)
+    return await compute_level_metrics(normalized)
 
 
 if __name__ == "__main__":  # pragma: no cover - manual run
