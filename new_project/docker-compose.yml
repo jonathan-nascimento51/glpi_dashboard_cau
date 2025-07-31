@@ -1,8 +1,20 @@
-version: "3.9"
+version: '3.9'
 services:
   backend:
-    build: .
-    env_file:
-      - .env
+    build:
+      context: ..
+      dockerfile: docker/backend/Dockerfile
+    environment:
+      PYTHONPATH: /app/src
     ports:
-      - "8000:8000"
+      - '8000:8000'
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: http://backend:8000
+    depends_on:
+      - backend
+    ports:
+      - '5174:5173'
