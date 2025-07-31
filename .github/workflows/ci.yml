@@ -76,6 +76,10 @@ jobs:
         env:
           USE_MOCK_DATA: "false"
         run: pytest --cov=./ --cov-report=xml --cov-report=term --cov-fail-under=85
+      - name: Run Pytest for new_project
+        env:
+          USE_MOCK_DATA: "false"
+        run: pytest new_project/tests
       - name: Upload backend coverage
         uses: actions/upload-artifact@v4
         with:
