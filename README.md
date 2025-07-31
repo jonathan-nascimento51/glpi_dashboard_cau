@@ -477,7 +477,7 @@ When the FastAPI service starts it primes the Redis cache by calling
 `load_tickets()`. This fills the `chamados_por_data` and
 `metrics_aggregated` keys so endpoints are responsive immediately.
 
-- The service exposes several endpoints:
+- The service exposes several endpoints (all prefixed with `/v1`):
 
  - `/v1/tickets` – full list of tickets in JSON format. The payload includes the
    ticket `priority` label and the `requester` name when available.
