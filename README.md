@@ -492,7 +492,7 @@ endpoints are responsive immediately.
 - `/v1/tickets` – full list of tickets in JSON format. The payload includes the
   ticket `priority` label and the `requester` name when available.
 - `/v1/tickets/stream` – Server‑Sent Events (SSE) stream of progress followed by the JSON payload.
-- `/v1/metrics` – summary with `total`, `opened` and `closed` counts.
+- `/v1/metrics/summary` – summary with `total`, `opened` and `closed` counts.
 - `/v1/metrics/aggregated` – dictionary with `open_tickets`,
   `tickets_closed_this_month` and `status_distribution`. Values are pre-computed
   by the worker.
