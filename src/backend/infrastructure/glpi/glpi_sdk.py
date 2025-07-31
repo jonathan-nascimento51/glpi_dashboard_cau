@@ -5,7 +5,11 @@ from typing import Dict, List, Mapping, Optional
 from py_glpi.connection import GLPISession  # type: ignore
 from py_glpi.models import FilterCriteria, ResourceNotFound  # type: ignore
 from py_glpi.resources.tickets import Ticket, Tickets  # type: ignore
-from py_glpi.resources.users import Users  # type: ignore
+
+try:  # RESOLVIDO: handle py_glpi versions without users resource
+    from py_glpi.resources.users import Users  # type: ignore
+except Exception:  # pragma: no cover - optional dependency
+    Users = None  # type: ignore[misc,assignment]
 
 
 class GLPISDK:
@@ -72,7 +76,7 @@ class GLPISDK:
         priority = getattr(ticket, "priority_string", None)
         requester = None
         user_id = getattr(ticket, "users_id_recipient", None)
-        if user_id:
+        if user_id and Users is not None:
             try:
                 user = Users(self._client).get(user_id)
                 requester = getattr(user, "name", None)
