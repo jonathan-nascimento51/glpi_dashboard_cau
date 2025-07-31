@@ -5,9 +5,16 @@ import pytest
 from backend.services.glpi_enrichment import GLPIEnrichmentService
 
 
+@pytest.fixture()
+def fake_session():
+    """Return a simple async session mock."""
+
+    return AsyncMock()
+
+
 @pytest.mark.asyncio
-async def test_enrich_ticket_cache_hit(mocker):
-    svc = GLPIEnrichmentService()
+async def test_enrich_ticket_cache_hit(mocker, fake_session):
+    svc = GLPIEnrichmentService(session=fake_session)
     svc._status_map = {2: "Em andamento"}
     svc._user_cache = {7: "Fulano"}
     svc._group_cache = {4: "N2"}
@@ -31,8 +38,8 @@ async def test_enrich_ticket_cache_hit(mocker):
 
 
 @pytest.mark.asyncio
-async def test_enrich_ticket_missing_user(mocker):
-    svc = GLPIEnrichmentService()
+async def test_enrich_ticket_missing_user(mocker, fake_session):
+    svc = GLPIEnrichmentService(session=fake_session)
     svc._status_map = {2: "Em andamento"}
     fetch = mocker.patch.object(
         svc, "_fetch_user_name", new=AsyncMock(return_value="Fulano")
@@ -47,8 +54,8 @@ async def test_enrich_ticket_missing_user(mocker):
 
 
 @pytest.mark.asyncio
-async def test_enrich_tickets_deduplicates_calls(mocker):
-    svc = GLPIEnrichmentService()
+async def test_enrich_tickets_deduplicates_calls(mocker, fake_session):
+    svc = GLPIEnrichmentService(session=fake_session)
     svc._status_map = {2: "OK"}
     fetch_user = mocker.patch.object(
         svc, "_fetch_user_name", new=AsyncMock(return_value="User")
@@ -70,8 +77,8 @@ async def test_enrich_tickets_deduplicates_calls(mocker):
 
 
 @pytest.mark.asyncio
-async def test_skip_when_already_expanded(mocker):
-    svc = GLPIEnrichmentService()
+async def test_skip_when_already_expanded(mocker, fake_session):
+    svc = GLPIEnrichmentService(session=fake_session)
     get_status = mocker.patch.object(
         svc, "_get_status_name", side_effect=AssertionError("should not be called")
     )

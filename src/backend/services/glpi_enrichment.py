@@ -1,10 +1,8 @@
 import asyncio
 from typing import Any, Dict, List, Optional, Set, TypedDict
 
-import aiohttp
-
-from backend.core.settings import GLPI_APP_TOKEN, GLPI_BASE_URL
-from backend.infrastructure.glpi.glpi_auth import GLPIAuthClient
+from backend.adapters.factory import create_glpi_session
+from backend.infrastructure.glpi.glpi_session import GLPISession
 from shared.utils.logging import get_logger
 
 logger = get_logger(__name__)
@@ -25,37 +23,29 @@ class GLPIEnrichmentService:
 
     DEFAULT_UNKNOWN_VALUE = "Unknown"
 
-    def __init__(
-        self,
-        base_url: str = GLPI_BASE_URL,
-        app_token: str = GLPI_APP_TOKEN,
-        auth_client: Optional[GLPIAuthClient] = None,
-        session: Optional[aiohttp.ClientSession] = None,
-    ) -> None:
-        self.base_url = base_url.rstrip("/")
-        self.app_token = app_token
-        self.auth_client = auth_client or GLPIAuthClient(base_url, app_token)
-        self._owns_session = session is None
-        self.session = session or aiohttp.ClientSession()
+    def __init__(self, session: Optional[GLPISession] = None) -> None:
+        """Create service using an existing :class:`GLPISession` if provided."""
+
+        provided = session is not None
+        if session is None:
+            session = create_glpi_session()
+        if session is None:
+            raise RuntimeError("could not create GLPI session")
+
+        self._session = session
+        self._owns_session = not provided
         self._status_map: Dict[int, str] = {}
         self._user_cache: Dict[int, str] = {}
         self._group_cache: Dict[int, str] = {}
 
     async def close(self) -> None:
-        if self._owns_session and not self.session.closed:
-            await self.session.close()
+        if self._owns_session:
+            await self._session.close()
 
     async def _request(self, endpoint: str) -> Dict[str, Any]:
-        token = await self.auth_client.get_session_token()
-        headers = {
-            "App-Token": self.app_token,
-            "Session-Token": token,
-            "Content-Type": "application/json",
-        }
-        url = f"{self.base_url}/{endpoint.lstrip('/')}"
-        async with self.session.get(url, headers=headers) as resp:
-            resp.raise_for_status()
-            return await resp.json()
+        """Proxy ``GET`` requests through the underlying ``GLPISession``."""
+
+        return await self._session.get(endpoint)
 
     async def _load_statuses(self) -> None:
         if self._status_map:
