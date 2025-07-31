@@ -81,7 +81,7 @@ def test_metrics_endpoint(client: TestClient) -> None:
 
 
 def test_metrics_overview_endpoint(client: TestClient) -> None:
-    resp = client.get("/metrics/overview")
+    resp = client.get("/metrics/aggregated")
     assert resp.status_code == 200
     assert resp.json() == {
         "open_tickets": {"N1": 1},
@@ -91,7 +91,7 @@ def test_metrics_overview_endpoint(client: TestClient) -> None:
 
 
 def test_metrics_level_endpoint(client: TestClient) -> None:
-    resp = client.get("/metrics/level/N1")
+    resp = client.get("/metrics/levels/N1")
     assert resp.status_code == 200
     assert resp.json() == {
         "open_tickets": 1,
