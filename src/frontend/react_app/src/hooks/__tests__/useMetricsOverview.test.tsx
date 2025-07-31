@@ -5,6 +5,22 @@ import { useApiQuery } from '../useApiQuery'
 
 jest.mock('../useApiQuery')
 
+test('calls aggregated metrics endpoint', () => {
+  ;(useApiQuery as jest.Mock).mockReturnValue({
+    data: { open_tickets: {}, tickets_closed_this_month: {} },
+    isLoading: false,
+    isError: false,
+    error: null,
+  })
+  const { wrapper } = createWrapper()
+  renderHook(() => useMetricsOverview(), { wrapper })
+  expect(useApiQuery).toHaveBeenCalledWith(
+    ['metrics-overview'],
+    '/metrics/aggregated',
+    expect.any(Object),
+  )
+})
+
 const createWrapper = () => {
   const queryClient = new QueryClient()
   return {
