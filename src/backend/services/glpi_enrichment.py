@@ -29,8 +29,8 @@ class GLPIEnrichmentService:
         provided = session is not None
         if session is None:
             session = create_glpi_session()
-            if session is None:
-                raise RuntimeError("could not create GLPI session")
+        if session is None:
+            raise RuntimeError("could not create GLPI session")
 
         self._session = session
         self._owns_session = not provided
