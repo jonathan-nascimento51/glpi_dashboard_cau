@@ -29,7 +29,7 @@ Follow these steps to spin up the experimental stack locally:
 2. Build and start the containers:
 
    ```bash
-   docker compose -f new_project/docker-compose.yml up --build
+docker compose -f new_project/docker-compose.yml up --build -d
    ```
 
    The API will be available on <http://localhost:8000>. You should be
