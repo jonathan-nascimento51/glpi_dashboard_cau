@@ -326,8 +326,8 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
         path="/",
         context_getter=get_context,
     )
+    router.include_router(graphql, prefix="/graphql")
     app.include_router(router, prefix="/v1")
-    app.include_router(graphql, prefix="/v1/graphql")
     return app
 
 
