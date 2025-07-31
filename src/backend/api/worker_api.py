@@ -12,7 +12,7 @@ from typing import Any, Dict, List, Optional, cast
 import pandas as pd
 import strawberry
 import uvicorn
-from fastapi import APIRouter, Depends, FastAPI, HTTPException, Request, Response
+from fastapi import Depends, FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import (
     PlainTextResponse,
@@ -132,11 +132,7 @@ class Query:
 
 
 def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
-    """Create FastAPI app exposing versioned REST and GraphQL endpoints.
-
-    All REST endpoints are registered under the ``/v1`` prefix to allow
-    future versions to coexist. GraphQL is available at ``/v1/graphql``.
-    """
+    """Create FastAPI app with REST and GraphQL routes."""
     cache = cache or redis_client
 
     if client is None:
@@ -190,16 +186,13 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
             allow_credentials=True,
         )
 
-    # Router grouping all REST endpoints under /v1
-    router = APIRouter()
-
-    @router.get("/tickets", response_model=list[CleanTicketDTO])
+    @app.get("/tickets", response_model=list[CleanTicketDTO])
     async def tickets(response: Response) -> list[CleanTicketDTO]:  # noqa: F401
         return await load_and_translate_tickets(
             client=client, cache=cache, response=response
         )
 
-    @router.get("/tickets/stream")
+    @app.get("/tickets/stream")
     async def tickets_stream(response: Response) -> StreamingResponse:  # noqa: F401
         return StreamingResponse(
             stream_tickets(client, cache=cache, response=response),
@@ -207,12 +200,12 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
             headers=response.headers,
         )
 
-    @router.get("/metrics/summary")
+    @app.get("/metrics/summary")
     async def metrics_summary(response: Response) -> dict:  # noqa: F401
         df = await load_tickets(client=client, cache=cache, response=response)
         return calculate_dataframe_metrics(df)
 
-    @router.get("/breaker")
+    @app.get("/breaker")
     async def breaker_metrics() -> Response:  # noqa: F401
         """Expose Prometheus metrics for the circuit breaker."""
         from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
@@ -220,14 +213,14 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
         data = generate_latest()
         return Response(content=data, media_type=CONTENT_TYPE_LATEST)
 
-    @router.get("/metrics/aggregated")
+    @app.get("/metrics/aggregated")
     async def metrics_aggregated() -> dict:  # noqa: F401
         metrics = await get_cached_aggregated(cache, "metrics_aggregated")
         if metrics is None:
             raise HTTPException(status_code=503, detail="metrics not available")
         return metrics
 
-    @router.get("/metrics/levels")
+    @app.get("/metrics/levels")
     async def metrics_levels() -> Dict[str, Dict[str, int]]:  # noqa: F401
         """Return status counts grouped by ticket level (group)."""
         data = await cache.get("metrics_levels")
@@ -235,7 +228,7 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
             raise HTTPException(status_code=503, detail="metrics not available")
         return cast(Dict[str, Dict[str, int]], data)
 
-    @router.get(
+    @app.get(
         "/chamados/por-data",
         response_model=List[ChamadoPorData],
     )
@@ -246,7 +239,7 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
         # avisa ao type checker que raw é List[Dict[str, Any]]
         return cast(List[Dict[str, Any]], raw)
 
-    @router.get(
+    @app.get(
         "/chamados/por-dia",
         response_model=List[ChamadosPorDia],
     )
@@ -256,7 +249,7 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
             raise HTTPException(status_code=503, detail="metrics not available")
         return cast(List[Dict[str, Any]], raw)
 
-    @router.get("/read-model/tickets", response_model=list[TicketSummaryOut])
+    @app.get("/read-model/tickets", response_model=list[TicketSummaryOut])
     async def read_model_tickets(
         limit: int = 100, offset: int = 0
     ) -> list[TicketSummaryOut]:
@@ -270,12 +263,12 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
                 status_code=503, detail="Read model is currently unavailable."
             ) from exc
 
-    @router.get("/cache/stats")
+    @app.get("/cache/stats")
     async def cache_stats() -> dict:  # noqa: F401
         """Return basic hit/miss statistics for the cache."""
         return cache.get_cache_metrics()
 
-    @router.get("/knowledge-base", response_class=PlainTextResponse)
+    @app.get("/knowledge-base", response_class=PlainTextResponse)
     async def knowledge_base() -> PlainTextResponse:  # noqa: F401
         """Return the contents of the configured knowledge base file."""
         try:
@@ -294,7 +287,7 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
                 detail=f"Could not read knowledge base file: {str(e)}",
             )
 
-    @router.get("/health")
+    @app.get("/health")
     async def health_glpi() -> UTF8JSONResponse:  # noqa: F401
         """Check GLPI connectivity and return a JSON body."""
         status = await check_glpi_connection()
@@ -316,7 +309,7 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
             headers={"Cache-Control": "no-cache"},
         )
 
-    @router.head("/health")
+    @app.head("/health")
     async def health_glpi_head() -> Response:  # noqa: F401
         """Same as ``health_glpi`` but returns headers only."""
         status = await check_glpi_connection()
@@ -332,9 +325,7 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
         path="/",
         context_getter=get_context,
     )
-    # Register REST routes under /v1 and GraphQL under /v1/graphql
-    app.include_router(router, prefix="/v1")
-    app.include_router(graphql, prefix="/v1/graphql")
+    app.include_router(graphql, prefix="/graphql")
     return app
 
 
