@@ -280,10 +280,7 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
 
     @app.get("/cache/stats")
     async def cache_stats() -> dict:  # noqa: F401
-        return cache.get_cache_metrics()
-
-    @app.get("/cache-metrics")  # legacy name
-    async def cache_metrics() -> dict:  # noqa: F401
+        """Return basic hit/miss statistics for the cache."""
         return cache.get_cache_metrics()
 
     @app.get("/knowledge-base", response_class=PlainTextResponse)
