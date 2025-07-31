@@ -11,3 +11,9 @@ This folder contains a minimal setup for experiments separate from the main GLPI
 - `shared/` – utilities shared between backend and frontend.
 
 The directory includes basic Docker files to start the backend quickly.
+
+## Environment
+
+The Docker Compose file looks for a `.env` file in the project root using
+`env_file: ../.env`. Copy `../.env.example` to `../.env` and fill in the
+required settings before starting the containers.
