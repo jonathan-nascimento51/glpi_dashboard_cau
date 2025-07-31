@@ -59,4 +59,9 @@ Descrição: Script auxilia na movimentação de módulos Python utilizando a bi
 
 - README ampliado com instruções de uso do `scripts/run_py_codemod.sh`.
 - Reforçada a dependência da biblioteca Rope para realizar a refatoração.
+
+## 📄 Atualizacao 2025-07-31
+
+- Removido `src/backend/utils/cache.py` e o teste correspondente `tests/test_cache_initialization.py`.
+- Removido `src/shared/utils/resilience/example_api.py` por se tratar de exemplo obsoleto.
 -
