@@ -180,7 +180,7 @@ def cors_methods_from_env() -> list[str]:
 def get_app_env() -> str:
     """Return the current application environment."""
 
-    env = (get_env("APP_ENV", "development") or "development").lower()
+    env = (get_env("APP_ENV") or "development").lower()
     if env not in {"development", "production"}:
         raise ValueError(f"Invalid APP_ENV: {env}")
     return env
