@@ -10,20 +10,18 @@ def dummy_cache() -> DummyCache:
     return DummyCache()
 
 
-def test_head_health_ok(
-    monkeypatch: pytest.MonkeyPatch, dummy_cache: DummyCache
-) -> None:
-    async def ok() -> int:
-        return 200
-
-    monkeypatch.setattr("src.backend.api.worker_api.check_glpi_connection", ok)
-    client = TestClient(create_app(cache=dummy_cache))
+def test_head_health_ok(dummy_cache: DummyCache) -> None:
+    app = create_app(cache=dummy_cache)
+    app.state.ready = True
+    client = TestClient(app)
     resp = client.head("/health")
     assert resp.status_code == 200
     assert resp.text == ""
 
 
-def test_health_unavailable(glpi_unavailable, dummy_cache: DummyCache) -> None:
-    client = TestClient(create_app(cache=dummy_cache))
+def test_health_unavailable(dummy_cache: DummyCache) -> None:
+    app = create_app(cache=dummy_cache)
+    app.state.ready = False
+    client = TestClient(app)
     resp = client.get("/health")
-    assert resp.status_code == 500
+    assert resp.status_code == 503

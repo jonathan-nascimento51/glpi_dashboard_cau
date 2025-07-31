@@ -35,7 +35,6 @@ from backend.application.glpi_api_client import (
 )
 from backend.application.read_model import query_ticket_summary
 from backend.application.ticket_loader import (
-    check_glpi_connection,
     load_and_translate_tickets,
     load_tickets,
     stream_tickets,
@@ -158,6 +157,7 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
     async def lifespan(app: FastAPI):
         # On startup
         await load_tickets(client=client, cache=cache)
+        app.state.ready = True
         yield
         # On shutdown (if needed)
 
@@ -168,6 +168,7 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
         lifespan=lifespan,
         dependencies=deps,
     )
+    app.state.ready = False
     app.add_middleware(RequestIdMiddleware)
     FastAPIInstrumentor().instrument_app(app)
     Instrumentator().instrument(app).expose(app)
@@ -309,30 +310,22 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
 
     @app.get("/health")
     async def health_glpi() -> UTF8JSONResponse:  # noqa: F401
-        """Check GLPI connectivity and return a JSON body."""
-        status = await check_glpi_connection()
-        if status != 200:
-            return UTF8JSONResponse(
-                status_code=status,
-                content={
-                    "status": "error",
-                    "message": "GLPI connection failed",
-                },
-                headers={"Cache-Control": "no-cache"},
-            )
+        """Return 200 when the app is ready."""
+        status = 200 if app.state.ready else 503
+        body = {
+            "status": "ready" if app.state.ready else "starting",
+            "message": "application ready" if app.state.ready else "initializing",
+        }
         return UTF8JSONResponse(
-            status_code=200,
-            content={
-                "status": "success",
-                "message": "GLPI connection successful.",
-            },
+            status_code=status,
+            content=body,
             headers={"Cache-Control": "no-cache"},
         )
 
     @app.head("/health")
     async def health_glpi_head() -> Response:  # noqa: F401
         """Same as ``health_glpi`` but returns headers only."""
-        status = await check_glpi_connection()
+        status = 200 if app.state.ready else 503
         return Response(status_code=status, headers={"Cache-Control": "no-cache"})
 
     schema = strawberry.Schema(Query)
