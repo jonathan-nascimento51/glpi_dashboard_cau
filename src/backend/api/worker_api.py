@@ -1,8 +1,8 @@
 """FastAPI service exposing GLPI tickets via REST and GraphQL.
 
-All REST endpoints must be accessed with the ``/v1`` prefix. GraphQL is
-available at ``/v1/graphql``. This convention allows new versions to
-coexist without breaking existing clients.
+All REST endpoints require the ``/v1`` prefix while GraphQL is served at
+``/v1/graphql``. This convention allows future versions to coexist without
+breaking existing clients.
 """
 
 from __future__ import annotations
