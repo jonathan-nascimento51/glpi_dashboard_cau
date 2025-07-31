@@ -60,3 +60,9 @@ Descrição: Script auxilia na movimentação de módulos Python utilizando a bi
 - README ampliado com instruções de uso do `scripts/run_py_codemod.sh`.
 - Reforçada a dependência da biblioteca Rope para realizar a refatoração.
 -
+
+## \ud83d\udcc6 Atualizacao 2025-07-31
+- Criada pasta `new_project/` com subpastas `backend/`, `frontend/` e `shared/`.
+- Adicionado `new_project/Dockerfile` (167 bytes) e `new_project/docker-compose.yml` (107 bytes) para um setup simplificado.
+- Copias de `.env.example` adicionadas em `new_project/.env.example` (2623 bytes) e `new_project/frontend/.env.example` (184 bytes).
+- `new_project/backend/main.py` (109 bytes) contem worker FastAPI minimo.
