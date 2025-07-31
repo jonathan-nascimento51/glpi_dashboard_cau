@@ -39,9 +39,9 @@ from backend.application.ticket_loader import (
     load_tickets,
     stream_tickets,
 )
-from backend.core.settings import (
-    KNOWLEDGE_BASE_FILE,
-)
+from backend.core.settings import KNOWLEDGE_BASE_FILE
+from backend.services.document_service import read_file
+from backend.services.metrics_service import calculate_dataframe_metrics
 from shared.dto import CleanTicketDTO  # imported from shared DTOs
 from shared.utils.api_auth import verify_api_key
 from shared.utils.json import UTF8JSONResponse
@@ -77,21 +77,6 @@ class Metrics:
     total: int
     opened: int
     closed: int
-
-
-def calculate_dataframe_metrics(df: pd.DataFrame) -> Dict[str, int]:
-    """Calculates summary metrics from a tickets DataFrame."""
-    if df.empty:
-        return {"total": 0, "opened": 0, "closed": 0}
-
-    total = len(df)
-    closed = 0
-    if "status" in df.columns:
-        status_series = df["status"].astype(str).str.lower()
-        closed = df[status_series.isin(["closed", "solved"])].shape[0]
-
-    opened = total - closed
-    return {"total": total, "opened": opened, "closed": closed}
 
 
 class ChamadoPorData(BaseModel):
@@ -287,8 +272,8 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
     async def knowledge_base() -> PlainTextResponse:  # noqa: F401
         """Return the contents of the configured knowledge base file."""
         try:
-            with open(KNOWLEDGE_BASE_FILE, "r", encoding="utf-8") as fh:
-                return PlainTextResponse(fh.read())
+            content = read_file(KNOWLEDGE_BASE_FILE)
+            return PlainTextResponse(content)
         except FileNotFoundError:
             raise HTTPException(status_code=404, detail="knowledge base not found")
         except PermissionError as e:
