@@ -129,3 +129,59 @@ EVENT_BROKER_URL = settings.EVENT_BROKER_URL
 VERIFY_SSL = settings.VERIFY_SSL
 CLIENT_TIMEOUT_SECONDS = settings.CLIENT_TIMEOUT_SECONDS
 DASH_PORT = settings.DASH_PORT
+
+# ---------------------------------------------------------------------------
+# Helper functions for parsing environment variables
+# ---------------------------------------------------------------------------
+
+VALID_HTTP_METHODS: set[str] = {
+    "GET",
+    "POST",
+    "PUT",
+    "PATCH",
+    "DELETE",
+    "OPTIONS",
+    "HEAD",
+}
+
+
+def get_env(key: str, default: str | None = None) -> str | None:
+    """Wrapper around :func:`os.getenv` for easier mocking."""
+
+    return os.getenv(key, default)
+
+
+def _split_list(value: str | None) -> list[str]:
+    """Split a comma-separated string into a cleaned list."""
+
+    return [item.strip() for item in (value or "").split(",") if item.strip()]
+
+
+def cors_origins_from_env() -> list[str]:
+    """Return allowed origins parsed from ``API_CORS_ALLOW_ORIGINS``."""
+
+    return _split_list(get_env("API_CORS_ALLOW_ORIGINS", ""))
+
+
+def cors_methods_from_env() -> list[str]:
+    """Return allowed HTTP methods parsed and validated from the environment."""
+
+    methods = [
+        m.upper()
+        for m in _split_list(get_env("API_CORS_ALLOW_METHODS", "GET,HEAD,OPTIONS"))
+    ]
+    if not methods:
+        raise ValueError("API_CORS_ALLOW_METHODS cannot be empty")
+    invalid = [m for m in methods if m not in VALID_HTTP_METHODS]
+    if invalid:
+        raise ValueError(f"Invalid HTTP methods: {', '.join(invalid)}")
+    return methods
+
+
+def get_app_env() -> str:
+    """Return the current application environment."""
+
+    env = (get_env("APP_ENV", "development") or "development").lower()
+    if env not in {"development", "production"}:
+        raise ValueError(f"Invalid APP_ENV: {env}")
+    return env
