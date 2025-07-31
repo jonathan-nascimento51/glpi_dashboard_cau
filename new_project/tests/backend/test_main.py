@@ -1,23 +1,8 @@
-import importlib
-import importlib.util
-import sys
-from pathlib import Path
-
 import pytest
 from fastapi.testclient import TestClient
 
-ROOT = Path(__file__).resolve().parents[3]
-PKG_SPEC = importlib.util.spec_from_file_location(
-    "new_project", ROOT / "new_project" / "__init__.py"
-)
-assert PKG_SPEC and PKG_SPEC.loader
-new_project_pkg = importlib.util.module_from_spec(PKG_SPEC)
-PKG_SPEC.loader.exec_module(new_project_pkg)
-new_project_pkg.__path__ = [str(ROOT / "new_project")]
-sys.modules["new_project"] = new_project_pkg
-
-backend_main = importlib.import_module("new_project.backend.main")
-from new_project.backend.metrics import LevelMetrics, MetricsOverview  # noqa: E402
+from new_project.backend import main as backend_main
+from new_project.backend.metrics import LevelMetrics, MetricsOverview
 
 
 class DummySession:
