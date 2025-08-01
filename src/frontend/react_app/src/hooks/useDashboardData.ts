@@ -26,7 +26,7 @@ export function useDashboardData(filters?: FiltersState) {
   const serialized = stableStringify(filters)
   const query = useApiQuery<Aggregated>(
     ['metrics-aggregated', serialized],
-    `/metrics/aggregated${qs}`,
+    `/v1/metrics/aggregated${qs}`,
     {
       // Automatically refetch metrics every 30 seconds
       refetchInterval: 30000,

@@ -18,7 +18,7 @@ export function useMetricsOverview() {
   const queryClient = useQueryClient()
   const query = useApiQuery<Record<string, ApiMetricsEntry>>(
     METRICS_QUERY_KEY,
-    '/metrics/overview',
+    '/v1/metrics/overview',
     {
       refetchInterval: POLLING_INTERVAL_MS,
     },

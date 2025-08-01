@@ -1,6 +1,6 @@
 # Observability
 
-The development compose file includes Prometheus and Grafana services. Prometheus scrapes metrics from the FastAPI backend at `/metrics` and the circuit breaker endpoint `/breaker`.
+The development compose file includes Prometheus and Grafana services. Prometheus scrapes metrics from the FastAPI backend at `/v1/metrics` and the circuit breaker endpoint `/v1/breaker`.
 
 ## FastAPI instrumentation
 
@@ -16,7 +16,7 @@ Instrumentator().instrument(app).expose(app)
 ```
 
 The library [`prometheus-fastapi-instrumentator`](https://github.com/trallnag/prometheus-fastapi-instrumentator)
-collects default metrics and exposes them at the `/metrics` endpoint.
+collects default metrics and exposes them at the `/v1/metrics` endpoint.
 
 `resources/prometheus.yml` (development compose file) configures Prometheus to scrape the metrics endpoint:
 
@@ -25,15 +25,15 @@ scrape_configs:
   - job_name: 'fastapi'
     static_configs:
       - targets: ['localhost:8000']
-    metrics_path: /metrics
+    metrics_path: /v1/metrics
   - job_name: 'circuitbreaker'
     static_configs:
       - targets: ['localhost:8000']
-    metrics_path: /breaker
+    metrics_path: /v1/breaker
 ```
 
-Prometheus scrapes both the default `/metrics` endpoint instrumented by the
-FastAPI application and the circuit breaker metrics at `/breaker`.
+Prometheus scrapes both the default `/v1/metrics` endpoint instrumented by the
+FastAPI application and the circuit breaker metrics at `/v1/breaker`.
 
 Grafana loads dashboards from JSON. An example (`resources/grafana_dashboard.json`):
 

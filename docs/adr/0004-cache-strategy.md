@@ -15,7 +15,7 @@ expiration times was not documented.
 ## Decision
 
 Store all aggregated ticket data in Redis with explicit TTLs.  Endpoints such as
-`/metrics/aggregated` expire after one hour, while daily summaries keep data for
+`/v1/metrics/aggregated` expire after one hour, while daily summaries keep data for
 24 hours.  The worker updates Redis after fetching from GLPI and persists the
 results to PostgreSQL for long‑term storage.
 

@@ -74,11 +74,11 @@ python worker.py
 
 Endpoints relevantes:
 
-- `/tickets` – lista completa de chamados
+- `/v1/tickets` – lista completa de chamados
  - A resposta inclui os campos `priority` e `requester` em formato textual.
-- `/metrics` – contagem de abertos/fechados
-- `/graphql/` – versão GraphQL
-- `/cache/stats` – estatísticas de cache
+- `/v1/metrics/summary` – contagem de abertos/fechados
+- `/v1/graphql/` – versão GraphQL
+- `/v1/cache/stats` – estatísticas de cache
 
 Exemplo de retorno:
 
@@ -115,7 +115,7 @@ conhecidos. Por padrão o caminho é `docs/knowledge_base_errors.md`.
    `.env.example`.
 3. Reinicie o `worker.py` para que o conteúdo seja recarregado.
 
-É possível consultar o material via endpoint `GET /knowledge-base`.
+É possível consultar o material via endpoint `GET /v1/knowledge-base`.
 
 ## Testes e Lint
 
@@ -210,7 +210,7 @@ O helper `useApiQuery` padroniza chamadas ao worker API. Ele recebe uma
 `queryKey`, o `endpoint` e, opcionalmente, um objeto de opções do React Query:
 
 ```ts
-const { data, isLoading } = useApiQuery(['tickets'], '/tickets')
+const { data, isLoading } = useApiQuery(['tickets'], '/v1/tickets')
 ```
 
 Se precisar passar opções criadas inline, serializá-las ou extraia-as para uma

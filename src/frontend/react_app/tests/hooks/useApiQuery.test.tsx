@@ -23,7 +23,7 @@ describe('useApiQuery', () => {
   })
 
   it('deve iniciar em estado de carregamento', () => {
-    const { result } = renderHook(() => useApiQuery(['tickets'], '/tickets'), {
+    const { result } = renderHook(() => useApiQuery(['tickets'], '/v1/tickets'), {
       wrapper,
     })
     expect(result.current.isLoading).toBe(true)
@@ -38,7 +38,7 @@ describe('useApiQuery', () => {
       json: async () => mockData,
     } as Response)
 
-    const { result } = renderHook(() => useApiQuery(['tickets'], '/tickets'), {
+    const { result } = renderHook(() => useApiQuery(['tickets'], '/v1/tickets'), {
       wrapper,
     })
 
@@ -46,14 +46,14 @@ describe('useApiQuery', () => {
 
     expect(result.current.data).toEqual(mockData)
     expect(result.current.error).toBeNull()
-    expect(fetchMock).toHaveBeenCalledWith(`${MOCK_API_URL}/tickets`, expect.any(Object))
+    expect(fetchMock).toHaveBeenCalledWith(`${MOCK_API_URL}/v1/tickets`, expect.any(Object))
   })
 
   it('deve tratar erros de busca e atualizar o estado', async () => {
     const errorMessage = 'Network Error'
     fetchMock.mockRejectedValue(new Error(errorMessage))
 
-    const { result } = renderHook(() => useApiQuery(['tickets'], '/tickets'), {
+    const { result } = renderHook(() => useApiQuery(['tickets'], '/v1/tickets'), {
       wrapper,
     })
 
@@ -67,7 +67,7 @@ describe('useApiQuery', () => {
   it('deve tratar erro de URL base não configurada', async () => {
     delete process.env.NEXT_PUBLIC_API_BASE_URL
 
-    const { result } = renderHook(() => useApiQuery(['tickets'], '/tickets'), {
+    const { result } = renderHook(() => useApiQuery(['tickets'], '/v1/tickets'), {
       wrapper,
     })
 

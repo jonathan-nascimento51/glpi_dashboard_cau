@@ -26,7 +26,7 @@ export function useTickets(filters?: FiltersState) {
   const serialized = stableStringify(filters as Record<string, unknown> | undefined)
   const query = useApiQuery<CleanTicketDTO[]>(
     ['tickets', serialized],
-    `/tickets${qs}`,
+    `/v1/tickets${qs}`,
   )
   const tickets = useMemo(() => query.data?.map(toTicket), [query.data])
 
