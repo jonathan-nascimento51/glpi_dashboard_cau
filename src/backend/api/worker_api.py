@@ -25,7 +25,6 @@ from fastapi.responses import (
 )
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from prometheus_fastapi_instrumentator import Instrumentator
-from pydantic import BaseModel, Field
 from strawberry.fastapi import GraphQLRouter
 from strawberry.types import Info
 
@@ -45,6 +44,7 @@ from backend.application.ticket_loader import (
     stream_tickets,
 )
 from backend.core.settings import KNOWLEDGE_BASE_FILE
+from backend.schemas.ticket import ChamadoPorData, ChamadosPorDia, TicketSummaryOut
 from backend.services.document_service import read_file
 from backend.services.metrics_service import calculate_dataframe_metrics
 from shared.dto import CleanTicketDTO  # imported from shared DTOs
@@ -82,30 +82,6 @@ class Metrics:
     total: int
     opened: int
     closed: int
-
-
-class ChamadoPorData(BaseModel):
-    """Aggregated tickets per creation date."""
-
-    date: str = Field(..., examples=["2024-06-01"])
-    total: int = Field(..., examples=[5])
-
-
-class ChamadosPorDia(BaseModel):
-    """Daily ticket totals used for heatmaps."""
-
-    date: str = Field(..., examples=["2024-06-01"])
-    total: int = Field(..., examples=[5])
-
-
-class TicketSummaryOut(BaseModel):
-    """Row from the materialized view used as read model."""
-
-    ticket_id: int
-    status: str
-    priority: str
-    group_name: str
-    opened_at: str
 
 
 async def _load_and_cache_df(info: Info) -> pd.DataFrame:

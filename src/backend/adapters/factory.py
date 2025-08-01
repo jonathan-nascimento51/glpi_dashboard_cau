@@ -13,7 +13,8 @@ from backend.core.settings import (
     USE_MOCK_DATA,
     VERIFY_SSL,
 )
-from backend.infrastructure.glpi.glpi_session import Credentials, GLPISession
+from backend.infrastructure.glpi.glpi_session import GLPISession
+from backend.schemas.auth import Credentials
 from shared.dto import TicketTranslator
 
 from .mapping_service import MappingService

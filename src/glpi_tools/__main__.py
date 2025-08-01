@@ -12,7 +12,8 @@ from rich.console import Console
 from rich.table import Table
 
 from backend.core.settings import settings
-from backend.infrastructure.glpi.glpi_session import Credentials, GLPISession
+from backend.infrastructure.glpi.glpi_session import GLPISession
+from backend.schemas.auth import Credentials
 
 
 @click.group()
