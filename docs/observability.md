@@ -8,8 +8,8 @@ Tracing is enabled via OpenTelemetry. After the FastAPI app is created in
 `worker_api.py` the following call instruments all routes:
 
 > **Note**: Integration with LangSmith for request tracing is not yet
-> implemented. The environment variables documented in the README remain
-> placeholders for future support.
+> implemented. The corresponding environment variables in `.env.example`
+> are placeholders for future support.
 
 ```python
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
