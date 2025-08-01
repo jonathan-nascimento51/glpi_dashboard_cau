@@ -6,8 +6,8 @@ import logging
 
 import httpx
 
-from .circuit_breaker import breaker, call_with_breaker
-from .retry_decorator import retry_api_call
+from shared.utils.resilience.circuit_breaker import breaker, call_with_breaker
+from shared.utils.resilience.retry_decorator import retry_api_call
 
 logger = logging.getLogger(__name__)
 

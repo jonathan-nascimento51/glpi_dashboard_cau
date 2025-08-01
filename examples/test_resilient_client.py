@@ -4,7 +4,8 @@ import httpx
 import pybreaker
 import pytest
 
-from shared.utils.resilience import ResilientClient, breaker
+from examples.resilient_client import ResilientClient
+from shared.utils.resilience import breaker
 
 pytest.importorskip("httpx")
 pytest.importorskip("pybreaker")
