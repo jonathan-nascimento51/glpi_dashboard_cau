@@ -12,7 +12,7 @@
     "build": "npm run check-env && tsc -p tsconfig.app.json && vite build",
     "lint": "eslint .",
     "preview": "npm run check-env && vite preview",
-    "test": "npm run check-env && jest",
+    "test": "jest",
     "test:e2e": "playwright test",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
@@ -20,16 +20,15 @@
   },
   "dependencies": {
     "@grafana/faro-react": "^1.19.0",
-    "@grafana/faro-web-tracing": "^1.19.0",
     "@sentry/react": "^9.40.0",
     "@tanstack/react-query": "^5.81.5",
     "chart.js": "^4.5.0",
-    "dotenv": "^17.1.0",
     "react": "^19.1.0",
     "react-calendar-heatmap": "^1.10.0",
     "react-dom": "^19.1.0",
     "react-window": "^1.8.11",
-    "recharts": "^2.6.2"
+    "recharts": "^2.6.2",
+    "swr": "^2.2.0"
   },
   "optionalDependencies": {
     "@esbuild/linux-x64": "0.25.5",
