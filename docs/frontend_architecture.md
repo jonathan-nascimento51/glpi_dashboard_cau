@@ -82,9 +82,9 @@ Create a `.env` file in the `src/frontend/react_app` directory to configure the 
 NEXT_PUBLIC_API_BASE_URL=http://127.0.0.1:8000
 ```
 
-If this variable is missing the application will fail to start. The fetcher
-responsible for API calls verifies that `NEXT_PUBLIC_API_BASE_URL` is defined
- and throws an error otherwise. `npm run dev`, `npm test`, `npm run build` and
+If this variable is missing the application will fail to start. The API client
+verifies that `NEXT_PUBLIC_API_BASE_URL` is defined and throws an error
+otherwise. `npm run dev`, `npm test`, `npm run build` and
  `npm run preview` automatically execute `npm run check-env` to validate the
  configuration. This script imports the shared logic from `scripts/check-env.js`
  at the project root, so you can also run `npm run check-env` manually before

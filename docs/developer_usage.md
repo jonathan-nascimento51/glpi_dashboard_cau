@@ -216,7 +216,8 @@ const { data, isLoading } = useApiQuery(['tickets'], '/v1/tickets')
 Se precisar passar opções criadas inline, serializá-las ou extraia-as para uma
 constante para evitar re-renderizações extras.
 
-Internamente a função utiliza o `fetcher` definido em `src/lib/swrClient.ts`.
+Internamente a função usa o `fetch` nativo e monta a URL com
+`NEXT_PUBLIC_API_BASE_URL`.
 
 ### Exemplos de novos hooks
 
