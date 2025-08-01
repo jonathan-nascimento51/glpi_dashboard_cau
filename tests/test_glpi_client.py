@@ -4,7 +4,6 @@ import aiohttp
 import pytest
 from aiohttp import BasicAuth
 
-from backend.infrastructure.glpi import glpi_client_logging
 from backend.infrastructure.glpi.glpi_session import Credentials, GLPISession
 
 pytest.importorskip("aiohttp")
@@ -133,16 +132,3 @@ async def test_query_graphql_payload(mocker):
     assert args[0] == "POST" and args[1].endswith("graphql")
     assert kwargs["json"] == {"query": "query { ping }", "variables": {"x": 1}}
     assert result == {"ok": True}
-
-
-def test_setup_logger_initializes_logging():
-    import importlib
-
-    mod = importlib.reload(glpi_client_logging)
-    assert not mod.is_logging_configured()
-
-    mod.get_logger("t").info("no config")
-    assert not mod.is_logging_configured()
-
-    mod.setup_logger("t")
-    assert mod.is_logging_configured()

@@ -22,9 +22,9 @@ from backend.core.settings import (
     USE_MOCK_DATA,
 )
 from backend.domain.exceptions import GLPIAPIError
-from backend.infrastructure.glpi import glpi_client_logging
 from backend.infrastructure.glpi.glpi_session import Credentials, GLPISession
 from backend.infrastructure.glpi.normalization import process_raw
+from shared.utils.logging import init_logging
 
 __all__ = ["create_app", "main"]
 
@@ -54,7 +54,7 @@ if cache_type != "simple":
 
 log_level_name = os.getenv("LOG_LEVEL", "INFO")
 log_level = getattr(logging, log_level_name.upper(), logging.INFO)
-glpi_client_logging.init_logging(log_level)
+init_logging(log_level)
 
 
 @cache.memoize(timeout=300)

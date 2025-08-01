@@ -6,13 +6,8 @@ from typing import Any, Dict, Optional
 
 import requests
 
+from shared.utils.logging import get_logger
 from shared.utils.resilience import call_with_breaker, retry_api_call
-
-from .glpi_client_logging import (
-    bind_request,
-    clear_request,
-    get_logger,
-)
 
 logger = get_logger(__name__)
 
@@ -157,7 +152,6 @@ class GLPISessionManager:
         url = f"{self.base_url}/{endpoint.lstrip('/')}"
 
         request_id = uuid.uuid4().hex
-        bind_request(request_id=request_id, method=method, url=url)
         log = logger.bind(request_id=request_id, method=method, url=url)
 
         try:
@@ -171,7 +165,7 @@ class GLPISessionManager:
                 return resp.json()
             return resp.text
         finally:
-            clear_request()
+            pass
 
     def _handle_response(
         self, resp: requests.Response, *, raise_for_status: bool = True
