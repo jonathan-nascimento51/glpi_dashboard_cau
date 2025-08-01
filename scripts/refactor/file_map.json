@@ -119,7 +119,7 @@
   "src/glpi_dashboard/dashboard/components.py": "src/frontend/components/components.py",
   "src/glpi_dashboard/dashboard/layout.py": "src/frontend/layout/layout.py",
   "src/glpi_dashboard/data/database.py": "src/backend/db/database.py",
-  "src/glpi_dashboard/data/pipeline.py": "src/backend/utils/pipeline.py",
+  "src/glpi_dashboard/data/pipeline.py": "src/backend/infrastructure/glpi/normalization.py",
   "src/glpi_dashboard/data/transform.py": "src/backend/utils/transform.py",
   "src/glpi_dashboard/events/consumer.py": "src/backend/services/events_consumer.py",
   "src/glpi_dashboard/glpi_adapter.py": "src/backend/adapters/glpi_adapter.py",

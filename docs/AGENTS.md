@@ -42,7 +42,7 @@ Você é um especialista em engenharia de prompts que cria fluxos multi-agente.
 ## Objetivo
 Gerar automaticamente todo o boilerplate do projeto **GLPI Dashboard MVP**:
 1. `glpi_session.py` – cliente REST oficial
-2. `backend/utils/pipeline.py` – normalização DataFrame
+2. `backend/infrastructure/glpi/normalization.py` – normalização DataFrame
 3. `dashboard_app.py` – layout Dash
 4. `tests/` – pytest + requests-mock
 5. `.github/workflows/ci.yml` – CI Python 3.10/3.12

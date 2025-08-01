@@ -23,7 +23,7 @@ glpi_dashboard/
 ├── .env.example
 ├── requirements.txt
 ├── glpi_session.py
-├── backend/utils/pipeline.py
+├── backend/infrastructure/glpi/normalization.py
 ├── dashboard/layout.py
 ├── dashboard_app.py
 ├── scripts/
@@ -49,7 +49,7 @@ glpi_dashboard/
 
 | Fase                   | Ambiente | Entregáveis-chave                                                |
 |------------------------|----------|-----------------------------------------------------------------|
-| **1. Backend (API)**   | Intra    | `glpi_session.py`, `backend/utils/pipeline.py`, `hash_data.py`   |
+| **1. Backend (API)**   | Intra    | `glpi_session.py`, `backend/infrastructure/glpi/normalization.py`, `hash_data.py`   |
 | **2. Frontend Offline**| Externo  | `dashboard/layout.py`, `dashboard_app.py`, `mock/*.json`         |
 | **3. Refino & Deploy** | Ambos    | Testes, refresh automático, `ci_mock.yml`                        |
 
