@@ -27,10 +27,12 @@ def tickets_summary_per_level() -> TicketsSummaryPerLevel:
     """
     try:
         return get_ticket_summary_by_group()
-    except Exception as exc:
+    except Exception:
+        logger.exception("Failed to compute ticket summary due to an unexpected error.")
+
         # Convert unexpected errors into a generic 500 response so the
         # underlying exception details are not leaked to the client.
         raise HTTPException(
             status_code=500,
             detail="Failed to compute ticket summary. See server logs for details.",
-        ) from exc
+        )
