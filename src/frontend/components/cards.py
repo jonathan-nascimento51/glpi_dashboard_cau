@@ -30,10 +30,7 @@ def TicketStatusCard(title: str, status_data: dict[str, int]) -> dbc.Card:
     """
     # Create a list of paragraphs: one per status. Capitalise the status
     # names to make them more user friendly and include a colon separator.
-    status_items = []
-    for status, count in status_data.items():
-        label = status.replace("_", " ").title()
-        status_items.append(html.P(f"{label}: {count}", className="card-text"))
+    status_items = [html.P(f"{status.replace('_', ' ').title()}: {count}", className="card-text") for status, count in status_data.items()]
 
     card_body = dbc.CardBody(
         [
