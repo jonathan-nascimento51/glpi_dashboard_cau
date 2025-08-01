@@ -658,9 +658,6 @@ container also executes on first startup.
 - `APP_ENV` – set to `production` for JSON logs without backtraces
 - `API_CORS_ALLOW_ORIGINS` – comma-separated list of trusted origins when `APP_ENV=production`
 - `API_CORS_ALLOW_METHODS` – comma-separated HTTP methods allowed in production (default `GET,HEAD,OPTIONS`)
-- `LANGCHAIN_TRACING_V2` – set to `true` to enable LangSmith tracing
-- `LANGCHAIN_API_KEY` – API key used by LangSmith when tracing
-- `LANGCHAIN_PROJECT` – optional project name for tracing sessions
 - `HTTP_PROXY` – outbound proxy URL for HTTP requests (optional)
 - `HTTPS_PROXY` – outbound proxy URL for HTTPS requests (optional)
 - *Note*: IP filtering is not built into the worker API. Use your
@@ -668,9 +665,8 @@ container also executes on first startup.
   restricted. If your company enforces outbound proxies, define
   `HTTP_PROXY` and `HTTPS_PROXY` as shown in `.env.example`.
 
-When these variables are present the package will automatically
-initialize LangSmith and record traces for your runs. The project name
-defaults to `default` if `LANGCHAIN_PROJECT` is unset.
+<!-- LangSmith tracing is currently not implemented. The variables are
+     reserved for future support and thus commented out. -->
 
 ### Database roles
 
@@ -683,19 +679,6 @@ least-privilege setup:
   `DB_USER` so the application can read and write normally.
 - `app_readonly` – read-only access for future analytics or reporting tasks.
 
-### Activating LangSmith tracing
-
-Add the following variables to `.env` to record traces in your LangSmith
-dashboard:
-
-```bash
-LANGCHAIN_TRACING_V2=true
-LANGCHAIN_API_KEY=<your_langsmith_key>
-LANGCHAIN_PROJECT=glpi-dashboard
-```
-
-With these set, the application will automatically initialize LangSmith when
-importing `backend`.
 
 Before running Docker make sure this `.env` file exists and that `DB_NAME`,
 `DB_USER`, `DB_PASSWORD` and all GLPI credentials have non-empty values. The
