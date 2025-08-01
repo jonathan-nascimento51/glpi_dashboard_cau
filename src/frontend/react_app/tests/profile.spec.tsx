@@ -1,19 +1,6 @@
 import React, { Profiler } from 'react'
 import TestRenderer, { act } from 'react-test-renderer'
 
-// Mock data hooks to avoid network requests and heavy chart imports
-jest.mock('../src/hooks/useDashboardData', () => ({
-  useDashboardData: () => ({
-    metrics: { new: 1, pending: 1, progress: 1, resolved: 1 },
-    sparkRefs: {
-      new: { current: null },
-      pending: { current: null },
-      progress: { current: null },
-      resolved: { current: null },
-    },
-  }),
-}))
-
 jest.mock('../src/hooks/useChamadosPorData', () => ({
   useChamadosPorData: () => ({
     data: [],

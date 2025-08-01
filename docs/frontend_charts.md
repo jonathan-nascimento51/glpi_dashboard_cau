@@ -1,6 +1,6 @@
-# Dynamic Charts with SWR
+# Dynamic Charts with React Query
 
-This guide describes how to display GLPI ticket trends and heatmaps using SWR and React components.
+This guide describes how to display GLPI ticket trends and heatmaps using React Query and React components.
 
 ## API Endpoints
 
@@ -22,8 +22,7 @@ requests in the examples below use this variable.
 Fetches aggregated ticket counts per day from `/v1/chamados/por-data`.
 
 ```ts
-import useSWR from 'swr'
-import { fetcher } from '../lib/swrClient'
+import { useApiQuery } from '../hooks/useApiQuery'
 
 export interface ChamadoPorData {
   date: string
@@ -31,18 +30,19 @@ export interface ChamadoPorData {
 }
 
 export function useChamadosPorData() {
-  const { data, error, isLoading } = useSWR<ChamadoPorData[]>(
+  const { data, isLoading, error } = useApiQuery<ChamadoPorData[]>(
+    ['chamados-por-data'],
     '/v1/chamados/por-data',
-    fetcher,
-    { refreshInterval: 60000, revalidateOnFocus: false },
+    {
+      refetchInterval: 60000,
+      staleTime: 59000,
+    },
   )
 
-  return { dados: data || [], loading: isLoading, erro: error }
+  return { dados: data, loading: isLoading, erro: error }
 }
 
-// The fetcher prefixes `NEXT_PUBLIC_API_BASE_URL` automatically,
-// so `/v1/chamados/por-data` resolves to
-// `${import.meta.env.NEXT_PUBLIC_API_BASE_URL}/v1/chamados/por-data`.
+// `useApiQuery` resolves the full URL using `NEXT_PUBLIC_API_BASE_URL`.
 ```
 
 ### `useChamadosPorDia`

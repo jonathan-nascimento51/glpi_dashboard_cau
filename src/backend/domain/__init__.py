@@ -1,12 +1,6 @@
 """Domain layer package."""
 
-from backend.schemas.ticket_models import (
-    CleanTicketDTO,
-    RawTicketDTO,
-    TicketType,
-    convert_ticket,
-)
-
+# Importações locais para evitar circular import
 from .exceptions import (
     HTTP_STATUS_ERROR_MAP,
     GLPIAPIError,
@@ -21,6 +15,12 @@ from .exceptions import (
 )
 from .ticket_status import Impact, Priority, TicketStatus, Urgency
 from .tool_error import ToolError
+
+# Importações de ticket_models movidas para dentro de funções quando necessário
+# Exemplo:
+# def get_clean_ticket_dto():
+#     from backend.schemas.ticket_models import CleanTicketDTO
+#     return CleanTicketDTO
 
 __all__ = [
     "TicketStatus",
