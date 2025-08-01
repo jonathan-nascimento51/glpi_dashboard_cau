@@ -663,6 +663,8 @@ container also executes on first startup.
 - `LANGCHAIN_PROJECT` – optional project name for tracing sessions
 - `HTTP_PROXY` – outbound proxy URL for HTTP requests (optional)
 - `HTTPS_PROXY` – outbound proxy URL for HTTPS requests (optional)
+- Proxy examples are commented in `.env.example` so you can uncomment and
+  adjust them if your network requires outbound traffic through a proxy.
 - *Note*: IP filtering is not built into the worker API. Use your
   network configuration or a reverse proxy if access needs to be
   restricted. If your company enforces outbound proxies, define
