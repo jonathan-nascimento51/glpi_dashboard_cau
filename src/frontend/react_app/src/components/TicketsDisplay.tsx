@@ -5,8 +5,6 @@ import { VirtualizedTicketTable } from "./VirtualizedTicketTable";
 export default function TicketsDisplay() {
   const { tickets, isLoading, error } = useTickets();
 
-  console.log("tickets recebidos:", tickets);
-
   // Filtra somente os tickets com status "novo" (insensível a maiúsculas/minúsculas)
   const filteredTickets = useMemo(() => {
     if (!tickets) return [];
@@ -23,13 +21,33 @@ export default function TicketsDisplay() {
     );
   }, [filteredTickets]);
 
-  console.log("tickets filtrados e ordenados:", sortedTickets);
-
-  if (isLoading) return <div>Carregando tickets...</div>;
-  if (error) return <div>Erro ao carregar tickets.</div>;
+  if (isLoading)
+    return (
+      <div className="flex items-center justify-center p-6 bg-surface dark:bg-gray-900 border border-border rounded-2xl shadow-lg min-h-[180px]">
+        <span className="text-base text-muted">Carregando tickets...</span>
+      </div>
+    );
+  if (error)
+    return (
+      <div className="flex items-center justify-center p-6 bg-surface dark:bg-gray-900 border border-border rounded-2xl shadow-lg min-h-[180px]">
+        <span className="text-base text-red-500">Erro ao carregar tickets.</span>
+      </div>
+    );
   if (sortedTickets.length === 0) {
-    return <div>Nenhum ticket novo encontrado.</div>;
+    return (
+      <div className="flex items-center justify-center p-6 bg-surface dark:bg-gray-900 border border-border rounded-2xl shadow-lg min-h-[180px]">
+        <span className="text-base text-muted">Nenhum ticket novo encontrado.</span>
+      </div>
+    );
   }
 
-  return <VirtualizedTicketTable rows={sortedTickets} />;
+  return (
+    <div className="bg-surface dark:bg-gray-900 border border-border rounded-2xl shadow-lg p-6 flex flex-col gap-4">
+      <div className="flex flex-row items-center justify-between px-2 pb-3 border-b border-border/60 min-h-[48px]">
+        <div className="levels-title">Tickets Novos</div>
+        <div className="levels-subtitle">Entradas Recentes</div>
+      </div>
+      <VirtualizedTicketTable rows={sortedTickets} />
+    </div>
+  );
 }
