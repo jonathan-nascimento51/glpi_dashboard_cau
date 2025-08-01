@@ -661,6 +661,8 @@ container also executes on first startup.
 - `LANGCHAIN_TRACING_V2` – set to `true` to enable LangSmith tracing
 - `LANGCHAIN_API_KEY` – API key used by LangSmith when tracing
 - `LANGCHAIN_PROJECT` – optional project name for tracing sessions
+- `HTTP_PROXY` – outbound proxy URL for HTTP requests (optional)
+- `HTTPS_PROXY` – outbound proxy URL for HTTPS requests (optional)
 - *Note*: IP filtering is not built into the worker API. Use your
   network configuration or a reverse proxy if access needs to be
   restricted. If your company enforces outbound proxies, define
