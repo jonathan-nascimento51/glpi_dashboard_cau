@@ -24,7 +24,6 @@
     "@sentry/react": "^9.40.0",
     "@tanstack/react-query": "^5.81.5",
     "axios": "^1.10.0",
-    "chart.js": "^4.5.0",
     "dotenv": "^17.1.0",
     "nvm": "^0.0.4",
     "react": "^19.1.0",
