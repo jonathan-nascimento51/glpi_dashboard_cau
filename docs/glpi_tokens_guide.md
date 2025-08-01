@@ -92,7 +92,7 @@ Todos os serviços devem aparecer como **running / healthy**.
 
 ## 7 ▪️ Acessar o dashboard
 
-- **API worker:** <http://localhost:8000/metrics>
+- **API worker:** <http://localhost:8000/v1/metrics/summary>
 - **Dashboard (Dash/Plotly):** <http://localhost:8080>
 
 Caso a API esteja indisponível ou tokens inválidos, o front‑end exibe um alerta amigável:
@@ -128,7 +128,7 @@ Cobertura mínima de 85 % garantida no CI (GitHub Actions).
 ## 10 ▪️ Monitoramento de produção
 
 O contêiner **worker** possui `HEALTHCHECK` interno que executa `curl -I` no␊
-endpoint `/health` (método **HEAD**). A rota `GET` continua disponível para
+endpoint `/v1/health` (método **HEAD**). A rota `GET` continua disponível para
 verificações manuais. Use:
 
 ```bash

@@ -14,8 +14,8 @@ Grafana but observability decisions were not yet captured in an ADR.
 
 ## Decision
 
-Expose Prometheus metrics from the FastAPI worker at `/metrics` and circuit
-breaker stats at `/breaker`.  Ship default Grafana dashboards and logging in
+Expose Prometheus metrics from the FastAPI worker at `/v1/metrics` and circuit
+breaker stats at `/v1/breaker`.  Ship default Grafana dashboards and logging in
 structured JSON.  These tools run as optional containers in Docker Compose and
 are enabled in staging and production environments.
 
