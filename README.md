@@ -645,7 +645,6 @@ container also executes on first startup.
   conhecidos utilizado pelo worker (padrão `docs/knowledge_base_errors.md`)
 - `DB_HOST` – PostgreSQL host
 - `DB_PORT` – PostgreSQL port
-- `HOST_DB_PORT` – host port bound to the PostgreSQL container (default `5432`)
 - `DB_NAME` – database name
 - `DB_USER` – database username
 - `DB_PASSWORD` – database password
@@ -653,18 +652,29 @@ container also executes on first startup.
 - `REDIS_PORT` – Redis port
 - `REDIS_DB` – Redis database number
 - `REDIS_TTL_SECONDS` – TTL for cached responses in seconds
+- `EVENT_BROKER_URL` – Kafka bootstrap servers
+- `FETCH_PAGE_SIZE` – pagination size when calling the GLPI API
+- `MV_REFRESH_INTERVAL_MINUTES` – refresh interval for materialized views
 - `CACHE_TYPE` – choose `redis` (default) or `simple` for in-memory caching
 - `LOG_LEVEL` – logging verbosity for backend and worker services (default `INFO`)
+- `LOG_FORMAT` – `json` (default) or `text`
+- `LOG_DEBUG` – set to `true` for verbose diagnostics
 - `APP_ENV` – set to `production` for JSON logs without backtraces
 - `API_CORS_ALLOW_ORIGINS` – comma-separated list of trusted origins when `APP_ENV=production`
 - `API_CORS_ALLOW_METHODS` – comma-separated HTTP methods allowed in production (default `GET,HEAD,OPTIONS`)
+- `DASH_PORT` – port used by the Dash dashboard
 - `LANGCHAIN_TRACING_V2` – set to `true` to enable LangSmith tracing
 - `LANGCHAIN_API_KEY` – API key used by LangSmith when tracing
 - `LANGCHAIN_PROJECT` – optional project name for tracing sessions
+- `OTEL_EXPORTER_OTLP_ENDPOINT` – OpenTelemetry collector URL
+- `OTEL_EXPORTER_OTLP_HEADERS` – headers sent to the collector
+- `OTEL_SERVICE_NAME` – service name reported to OpenTelemetry
+- `USE_MOCK_DATA` – serve cached ticket data instead of calling the API
+- `MOCK_TICKETS_FILE` – path to the local JSON with sample tickets
 - `HTTP_PROXY` – outbound proxy URL for HTTP requests (optional)
 - `HTTPS_PROXY` – outbound proxy URL for HTTPS requests (optional)
-- Proxy examples are commented in `.env.example` so you can uncomment and
-  adjust them if your network requires outbound traffic through a proxy.
+- `DISALLOWED_PROXIES` – comma-separated proxies ignored during credential checks
+- `DISABLE_RETRY_BACKOFF` – disable exponential backoff when running tests
 - *Note*: IP filtering is not built into the worker API. Use your
   network configuration or a reverse proxy if access needs to be
   restricted. If your company enforces outbound proxies, define
@@ -685,19 +695,6 @@ least-privilege setup:
   `DB_USER` so the application can read and write normally.
 - `app_readonly` – read-only access for future analytics or reporting tasks.
 
-### Activating LangSmith tracing
-
-Add the following variables to `.env` to record traces in your LangSmith
-dashboard:
-
-```bash
-LANGCHAIN_TRACING_V2=true
-LANGCHAIN_API_KEY=<your_langsmith_key>
-LANGCHAIN_PROJECT=glpi-dashboard
-```
-
-With these set, the application will automatically initialize LangSmith when
-importing `backend`.
 
 Before running Docker make sure this `.env` file exists and that `DB_NAME`,
 `DB_USER`, `DB_PASSWORD` and all GLPI credentials have non-empty values. The
@@ -782,9 +779,8 @@ cp .env.example .env
 
 Docker Compose loads `.env` automatically when it exists.
 
-PostgreSQL binds to port `${HOST_DB_PORT:-5432}` on the host. Change
-`HOST_DB_PORT` in `.env` if this port is already taken or if you prefer a
-different mapping.
+PostgreSQL binds to port `5432` on the host by default. Adjust the
+Compose file if this port is already taken.
 
 If the file is missing the backend falls back to `REDIS_HOST=redis` so the
 services can communicate with the bundled `redis` container.
