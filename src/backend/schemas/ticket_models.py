@@ -12,14 +12,20 @@ from pydantic import (
     model_validator,
 )
 
-from backend.domain.ticket_status import (
-    Impact,
-    TicketStatus,
-    Urgency,
-)
-from backend.domain.ticket_status import (
-    _BaseIntEnum as _BaseIntEnumLocal,
-)
+
+# Importações do domínio feitas localmente para evitar circular import
+def get_domain_enums():
+    from backend.domain.ticket_status import (
+        Impact,
+        TicketStatus,
+        Urgency,
+    )
+    from backend.domain.ticket_status import (
+        _BaseIntEnum as _BaseIntEnumLocal,
+    )
+
+    return Impact, TicketStatus, Urgency, _BaseIntEnumLocal
+
 
 # Set up logger
 logger = logging.getLogger(__name__)
@@ -35,7 +41,7 @@ PRIORITY_LABELS = {
 }
 
 
-class TicketType(_BaseIntEnumLocal):
+class TicketType:
     """Category of ticket."""
 
     UNKNOWN = 0
@@ -60,7 +66,6 @@ class RawTicketDTO(BaseModel):
     model_config = ConfigDict(extra="allow")
 
 
-# --- CleanTicketDTO and helpers ------------------------------------------------
 STATUS_MAP = {
     1: "New",
     2: "Processing (assigned)",
@@ -135,7 +140,7 @@ class CleanTicketDTO(BaseModel):
         return "Unknown"
 
 
-E = TypeVar("E", bound="_BaseIntEnumLocal")
+E = TypeVar("E")
 
 
 def _parse_int(value: Any, field: str, ticket_id: Any) -> int:
@@ -149,12 +154,14 @@ def _parse_int(value: Any, field: str, ticket_id: Any) -> int:
 def _parse_enum(value: Any, enum: Type[E], field: str, ticket_id: Any) -> E:
     if value is None:
         logger.warning("Missing %s for ticket %r", field, ticket_id)
-        return enum.from_int(-1)
+        # Garante que retorna um valor do tipo E (enum.UNKNOWN)
+        return enum.UNKNOWN  # type: ignore
     try:
-        return enum.from_int(int(value))
+        # Garante que enum é chamado corretamente
+        return enum(int(value))  # type: ignore
     except (TypeError, ValueError):
         logger.warning("Invalid %s=%r for ticket %r", field, value, ticket_id)
-        return enum.from_int(-1)
+        return enum.UNKNOWN  # type: ignore
 
 
 def _parse_date(value: Any, field: str, ticket_id: Any) -> datetime | None:
@@ -183,6 +190,7 @@ def _map_priority(value: Any, field: str, ticket_id: Any) -> str:
 
 
 def convert_ticket(raw: RawTicketDTO) -> CleanTicketDTO:
+    Impact, TicketStatus, Urgency, _BaseIntEnumLocal = get_domain_enums()
     ticket_id = raw.id
     id_int = _parse_int(ticket_id, "id", ticket_id)
 
