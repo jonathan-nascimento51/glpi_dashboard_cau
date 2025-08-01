@@ -665,8 +665,8 @@ container also executes on first startup.
   restricted. If your company enforces outbound proxies, define
   `HTTP_PROXY` and `HTTPS_PROXY` as shown in `.env.example`.
 
-<!-- LangSmith tracing is currently not implemented. The variables are
-     reserved for future support and thus commented out. -->
+> **Note**: LangSmith tracing is not yet implemented. The variables are
+> reserved for future support and have been commented out in `.env.example`.
 
 ### Database roles
 
