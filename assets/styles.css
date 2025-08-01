@@ -1,9 +1,33 @@
-/* Custom styles for Dash DataTable */
+/*
+ * Estilos personalizados para a tabela de chamados (Dash DataTable)
+ *
+ * Esta versão utiliza as variáveis de design definidas em template.css
+ * para que as cores se ajustem automaticamente ao tema ativo (light/dark etc.).
+ * As propriedades de padding foram expandidas para melhorar o espaçamento e
+ * um delineador sutil foi adicionado para dividir as linhas.
+ */
+
 #ticket-table .dash-header {
-    background-color: #f8f9fa;
-    font-weight: bold;
+  /* Fundo e cor do texto usam tokens globais */
+  background-color: var(--surface-tertiary);
+  color: var(--text-primary);
+  font-weight: 600;
+  padding: 12px;
+  text-transform: capitalize;
+  border-bottom: 1px solid var(--border);
 }
+
 #ticket-table .dash-cell {
-    padding: 8px;
-    font-size: 14px;
+  padding: 8px 12px;
+  font-size: 0.875rem; /* 14px em unidades relativas */
+  border-bottom: 1px solid var(--border-light);
+}
+
+/* Estado de foco visível para melhorar a acessibilidade
+ * Aplica um contorno ao navegar com teclado ou leitor de tela.
+ */
+#ticket-table .dash-cell:focus-visible,
+#ticket-table .dash-header:focus-visible {
+  outline: 2px solid var(--primary-light);
+  outline-offset: 2px;
 }

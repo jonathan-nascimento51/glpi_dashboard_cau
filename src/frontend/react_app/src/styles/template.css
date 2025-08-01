@@ -130,6 +130,29 @@
       animation: skeleton-loading 1.5s infinite;
     }
 
+    /* ========================================================================
+    * Utilitários adicionais
+    */
+
+    /* Botões e cartões recebem sombra consistente */
+    .card {
+      background: var(--surface);
+      border-radius: 1rem;
+      box-shadow: var(--shadow-sm);
+      padding: 1.5rem;
+      transition: background-color var(--transition-normal), box-shadow var(--transition-normal);
+    }
+    .card:hover {
+      box-shadow: var(--shadow-md);
+    }
+
+    /* Estados de foco geral para elementos interativos */
+    a:focus-visible,
+    button:focus-visible,
+    [role="button"]:focus-visible {
+      outline: 2px solid var(--primary-light);
+      outline-offset: 2px;
+    }
     /* Sidebar Toggle */
     .sidebar-toggle {
       display: none;

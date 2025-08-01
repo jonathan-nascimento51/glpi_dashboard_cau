@@ -49,7 +49,7 @@ export function useMetricsLevels() {
           resolved:
             metrics.resolved ?? metrics.solved ?? metrics.closed ?? 0,
         },
-      }))
+      }));
   }, [query.data])
 
   return {

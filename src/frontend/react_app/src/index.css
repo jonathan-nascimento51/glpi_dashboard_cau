@@ -2,7 +2,34 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * O arquivo index.css é o ponto de entrada para estilos globais da aplicação React.
+ * Ele importa as camadas do Tailwind e, em seguida, importa arquivos internos
+ * como template.css e compatibility.css. Nesta versão adicionamos classes
+ * utilitárias para o heatmap do calendário e um estado de foco acessível.
+ */
+
 @layer base {
   @import "./styles/template.css";
   @import "./styles/compatibility.css";
+}
+
+/*
+ * Classes de cores para o heatmap diário
+ * As cores são derivadas das variáveis --heatmap-*, definidas em template.css.
+ * Dessa forma os gráficos de calor se adaptam automaticamente ao tema ativo.
+ */
+.color-empty { fill: var(--heatmap-empty); }
+.color-scale-1 { fill: var(--heatmap-scale-1); }
+.color-scale-2 { fill: var(--heatmap-scale-2); }
+.color-scale-3 { fill: var(--heatmap-scale-3); }
+.color-scale-4 { fill: var(--heatmap-scale-4); }
+
+/*
+ * Estado de foco acessível
+ * Aplica um contorno claro aos elementos focáveis quando navegados por teclado.
+ */
+:focus-visible {
+  outline: 2px solid var(--primary-light);
+  outline-offset: 2px;
 }

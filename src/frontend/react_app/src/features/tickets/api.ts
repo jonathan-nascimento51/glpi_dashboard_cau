@@ -3,7 +3,7 @@ import type { TicketMetrics } from '../../types/dashboard'
 
 export function useTicketMetrics() {
   return useApiQuery<TicketMetrics>(
-    ['ticket-metrics'], 
+    ['ticket-metrics'],
     '/v1/metrics/summary',
     {
       transformResponse: (data: unknown): TicketMetrics => {

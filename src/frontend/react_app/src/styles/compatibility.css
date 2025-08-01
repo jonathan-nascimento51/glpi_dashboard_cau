@@ -1,8 +1,8 @@
 /*
  * Este arquivo fornece correções e exemplos para avisos comuns de compatibilidade de CSS.
+ *
  * Os avisos que você está vendo provavelmente se originam de CSS gerado por
  * bibliotecas de terceiros (como kits de componentes de UI ou ferramentas de desenvolvedor) em tempo de execução.
- *
  * Ferramentas de build como o Autoprefixer (que você tem instalado) lidam com prefixos
  * de fornecedores para o seu próprio código, mas não podem modificar estilos injetados por scripts externos.
  *
