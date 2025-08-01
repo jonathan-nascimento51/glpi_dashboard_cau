@@ -22,8 +22,9 @@ from backend.core.settings import (
     USE_MOCK_DATA,
 )
 from backend.domain.exceptions import GLPIAPIError
-from backend.infrastructure.glpi.glpi_session import Credentials, GLPISession
+from backend.infrastructure.glpi.glpi_session import GLPISession
 from backend.infrastructure.glpi.normalization import process_raw
+from backend.schemas.auth import Credentials
 from shared.utils.logging import init_logging
 
 __all__ = ["create_app", "main"]

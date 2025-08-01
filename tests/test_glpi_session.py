@@ -12,7 +12,6 @@ from aiohttp import BasicAuth
 
 from backend.infrastructure.glpi import glpi_session
 from backend.infrastructure.glpi.glpi_session import (
-    Credentials,
     GLPIAPIError,
     GLPIBadRequestError,
     GLPIForbiddenError,
@@ -22,6 +21,7 @@ from backend.infrastructure.glpi.glpi_session import (
     GLPITooManyRequestsError,
     GLPIUnauthorizedError,
 )
+from backend.schemas.auth import Credentials, SessionParams
 from shared.utils.logging import init_logging
 from tests.helpers import make_cm, make_mock_response
 
@@ -809,8 +809,8 @@ async def test_open_session_tool_error(monkeypatch):
             return False
 
     monkeypatch.setattr(glpi_session, "GLPISession", lambda *a, **k: BadSession())
-    creds = glpi_session.Credentials(app_token="a", user_token="u")
-    params = glpi_session.SessionParams(base_url="http://x", credentials=creds)
+    creds = Credentials(app_token="a", user_token="u")
+    params = SessionParams(base_url="http://x", credentials=creds)
     out = await glpi_session.open_session_tool(params)
     data = json.loads(out)
     assert data["error"]["details"] == "boom"

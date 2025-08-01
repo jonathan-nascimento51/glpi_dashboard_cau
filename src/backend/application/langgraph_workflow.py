@@ -6,7 +6,6 @@ from __future__ import annotations
 
 import ast
 import tempfile
-from enum import Enum
 from pathlib import Path
 from typing import List, Optional, TypedDict
 
@@ -17,7 +16,7 @@ from langchain_core.prompts import PromptTemplate
 from langchain_core.runnables import Runnable
 from langgraph.checkpoint.sqlite import SqliteSaver
 from langgraph.graph import END, StateGraph
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 from backend.core.settings import (
     GLPI_APP_TOKEN,
@@ -26,8 +25,10 @@ from backend.core.settings import (
     GLPI_USER_TOKEN,
     GLPI_USERNAME,
 )
-from backend.infrastructure.glpi.glpi_session import Credentials, GLPISession
+from backend.infrastructure.glpi.glpi_session import GLPISession
 from backend.infrastructure.glpi.normalization import process_raw
+from backend.schemas.auth import Credentials
+from backend.schemas.workflow import FetcherArgs, Metrics, NextAgent
 from shared.utils.messages import sanitize_message
 
 
@@ -47,40 +48,6 @@ class AgentState(TypedDict):
     iteration_count: int
     data: Optional[pd.DataFrame]
     error: Optional[str]
-
-
-class NextAgent(BaseModel):
-    """Structured output deciding the next node."""
-
-    next_agent: str = Field(..., description="Name of the next agent to execute")
-
-
-class TicketStatus(str, Enum):
-    """Allowed GLPI ticket statuses."""
-
-    NEW = "new"
-    ASSIGNED = "assigned"
-    PLANNED = "planned"
-    WAITING = "waiting"
-    SOLVED = "solved"
-    CLOSED = "closed"
-
-
-class FetcherArgs(BaseModel):
-    """Input parameters for the fetcher node."""
-
-    status: TicketStatus | None = Field(
-        default=None, description="Optional status filter for tickets"
-    )
-    limit: int = Field(..., description="Maximum number of tickets to fetch")
-
-
-class Metrics(BaseModel):
-    """Validated metrics produced by the analyzer."""
-
-    total: int
-    opened: int
-    closed: int
 
 
 AVAILABLE_AGENTS = ["fetcher", "analyzer", "fallback"]
@@ -277,6 +244,5 @@ __all__ = [
     "recovery_node",
     "build_workflow",
     "GLPISession",
-    "TicketStatus",
     "AVAILABLE_AGENTS",
 ]

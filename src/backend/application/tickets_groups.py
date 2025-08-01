@@ -19,7 +19,8 @@ from backend.core.settings import (
     GLPI_USER_TOKEN,
     GLPI_USERNAME,
 )
-from backend.infrastructure.glpi.glpi_session import Credentials, GLPISession
+from backend.infrastructure.glpi.glpi_session import GLPISession
+from backend.schemas.auth import Credentials
 
 log = logging.getLogger(__name__)
 

@@ -63,5 +63,8 @@ Descrição: Script auxilia na movimentação de módulos Python utilizando a bi
 ## 📄 Atualizacao 2025-07-31
 
 - Removido `src/backend/utils/cache.py` (substituído por `src/backend/utils/redis_client.py`) e o teste correspondente `tests/test_cache_initialization.py`.
-- Removido `src/shared/utils/resilience/example_api.py` por se tratar de exemplo obsoleto.
--
+ - Removido `src/shared/utils/resilience/example_api.py` por se tratar de exemplo obsoleto.
+
+## 📄 Atualizacao 2025-08-01
+
+- Movidos modelos para `src/backend/schemas/` e ajustados imports em todo o projeto.

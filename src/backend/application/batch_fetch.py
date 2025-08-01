@@ -5,8 +5,6 @@ from __future__ import annotations
 import json
 from typing import List
 
-from pydantic import BaseModel, Field
-
 from backend.application.glpi_api_client import GlpiApiClient
 from backend.core.settings import (
     GLPI_APP_TOKEN,
@@ -18,13 +16,9 @@ from backend.core.settings import (
 
 # Import custom error raised by the GLPI client
 from backend.domain.tool_error import ToolError
-from backend.infrastructure.glpi.glpi_session import Credentials, GLPISession
-
-
-class BatchFetchParams(BaseModel):
-    """Input IDs for :func:`fetch_all_tickets`."""
-
-    ids: List[int] = Field(..., description="Ticket IDs to fetch")
+from backend.infrastructure.glpi.glpi_session import GLPISession
+from backend.schemas.auth import Credentials
+from backend.schemas.batch import BatchFetchParams
 
 
 async def fetch_all_tickets(ids: List[int]) -> List[dict]:

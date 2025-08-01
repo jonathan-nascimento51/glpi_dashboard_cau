@@ -25,7 +25,8 @@ invalid, making troubleshooting straightforward during deployment.
 2. Create a ``GLPISession`` using ``async with`` to ensure proper cleanup:
 
    ```python
-   from backend.infrastructure.glpi.glpi_session import Credentials, GLPISession
+   from backend.schemas.auth import Credentials
+   from backend.infrastructure.glpi.glpi_session import GLPISession
 
    creds = Credentials(app_token="APP", user_token="USER")
    async with GLPISession("https://glpi/api", creds) as session:
