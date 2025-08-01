@@ -226,7 +226,7 @@ If a script still depends on `require()`, rename it with the `.cjs` extension or
 
 - **`src/backend/infrastructure/glpi/glpi_session.py`** – asynchronous client for the GLPI REST API used by the worker and ETL modules. This file replaces the former `glpi_api.py` referenced in early docs.
 - **`src/backend/application/glpi_api_client.py`** – high-level interface built on `GLPISession` that resolves field IDs and returns translated tickets.
-- **`src/backend/utils/pipeline.py`** – normalizes raw ticket data into a `pandas.DataFrame` and exports JSON.
+- **`src/backend/infrastructure/glpi/normalization.py`** – normalizes raw ticket data into a `pandas.DataFrame` and exports JSON.
 - **`src/frontend/layout/layout.py`** – defines tables and charts for the Dash UI.
 - **`glpi_tools/__main__.py`** – exposes the CLI commands such as `list-fields`.
 - **`src/backend/adapters/mapping_service.py`** – obtém e cacheia IDs de campos

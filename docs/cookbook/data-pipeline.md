@@ -7,7 +7,7 @@ technician to keep metrics consistent. It runs asynchronously to retrieve
 pages in parallel and keep up with large backlogs.
 
 ## Decision
-Implement the pipeline in `backend/utils/pipeline.py` using async functions.
+Implement the pipeline in `backend/infrastructure/glpi/normalization.py` using async functions.
 It pulls pages from the GLPI API through `glpi_session`, converts them to
 DataFrame rows and writes the final result to SQLite. A scheduler or cron job
 should invoke the pipeline regularly to refresh metrics.

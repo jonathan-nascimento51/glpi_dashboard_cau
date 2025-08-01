@@ -12,7 +12,7 @@ Principais módulos do projeto:
 | ------- | ------ |
 | `src/backend/infrastructure/glpi/glpi_session.py` | Cliente assíncrono para autenticação e chamadas à API GLPI |
 | `src/backend/application/glpi_api_client.py` | Interface de alto nível que usa `GLPISession` para obter tickets completos |
-| `src/backend/utils/pipeline.py` | Normaliza tickets em `pandas.DataFrame` e gera JSON |
+| `src/backend/infrastructure/glpi/normalization.py` | Normaliza tickets em `pandas.DataFrame` e gera JSON |
 | `src/frontend/layout/layout.py` | Layout e callbacks do dashboard em Dash |
 | `src/backend/services/worker_api.py` | Lógica de cache e métricas usadas pelo `worker.py` |
 | `shared/config/settings.py` | Carrega variáveis de ambiente (GLPI, DB, Redis) |
@@ -103,7 +103,7 @@ python scripts/fetch/fetch_tickets.py --output data/tickets.json
 python -m cli.tickets_groups --since 2025-06-01 --until 2025-06-30 --outfile grupos.parquet
 ```
 
-Consulte `src/backend/utils/pipeline.py` para transformar os dados em DataFrame.
+Consulte `src/backend/infrastructure/glpi/normalization.py` para transformar os dados em DataFrame.
 
 ## Atualizando a Knowledge Base
 
