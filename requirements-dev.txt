@@ -425,6 +425,7 @@ zipp==3.23.0
     # via importlib-metadata
 zstandard==0.23.0
     # via langsmith
+fakeredis>=2.19.0
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
