@@ -83,8 +83,6 @@
   "frontend/src/widgets/HelloWidget/HelloWidget.tsx": "src/frontend/react_app/src/widgets/HelloWidget/HelloWidget.tsx",
   "frontend/src/widgets/HelloWidget/index.ts": "src/frontend/react_app/src/widgets/HelloWidget/index.ts",
   "frontend/src/widgets/index.ts": "src/frontend/react_app/src/widgets/index.ts",
-  "frontend/src/widgets/stats/StatsCard.tsx": "src/frontend/react_app/src/widgets/stats/StatsCard.tsx",
-  "frontend/src/widgets/stats/__tests__/StatsCard.test.tsx": "src/frontend/react_app/src/widgets/stats/__tests__/StatsCard.test.tsx",
   "frontend/tailwind.config.js": "src/frontend/react_app/tailwind.config.js",
   "frontend/tests/basic.spec.ts": "src/frontend/react_app/tests/basic.spec.ts",
   "frontend/tests/components/ChamadosCharts.test.tsx": "src/frontend/react_app/tests/components/ChamadosCharts.test.tsx",
