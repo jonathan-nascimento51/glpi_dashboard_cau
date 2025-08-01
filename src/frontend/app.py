@@ -35,7 +35,7 @@ def fetch_summary(base_url: str) -> Dict[str, Dict[str, int]]:
     try:
         response = requests.get(endpoint, timeout=30)
         response.raise_for_status()
-        return json.loads(response.text)
+        return response.json()
     except Exception:
         logger.exception("Failed to fetch ticket summary from %s", endpoint)
         return {}
