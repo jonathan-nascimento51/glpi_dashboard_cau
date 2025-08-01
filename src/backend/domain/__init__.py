@@ -1,5 +1,7 @@
 """Domain layer package."""
 
+from shared.dto import CleanTicketDTO
+
 from .exceptions import (
     HTTP_STATUS_ERROR_MAP,
     GLPIAPIError,
@@ -13,7 +15,6 @@ from .exceptions import (
     parse_error,
 )
 from .ticket_models import (
-    CleanTicketDTO,
     RawTicketDTO,
     TicketType,
     convert_ticket,

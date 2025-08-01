@@ -6,7 +6,9 @@ import logging
 from datetime import datetime
 from typing import Any, Type, TypeVar
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field
+
+from shared.dto import CleanTicketDTO
 
 from .ticket_status import Impact, Priority, TicketStatus, Urgency
 from .ticket_status import _BaseIntEnum as _BaseIntEnumLocal
@@ -47,40 +49,6 @@ class RawTicketDTO(BaseModel):
     users_id_requester: int | None = Field(None, description="Requester user ID")
 
     model_config = ConfigDict(extra="allow")
-
-
-class CleanTicketDTO(BaseModel):
-    """Validated domain ticket object."""
-
-    id: int = Field(..., description="Ticket identifier")
-    title: str | None = Field(
-        None,
-        alias="name",
-        description="Short summary",
-    )
-    content: str | None = Field(None, description="Detailed description")
-    status: TicketStatus = Field(TicketStatus.UNKNOWN, description="Status")
-    priority: str = Field(
-        "Unknown",
-        description="Prioridade do ticket",
-    )
-    urgency: Urgency = Field(Urgency.UNKNOWN, description="Urgency")
-    impact: Impact = Field(Impact.UNKNOWN, description="Impact")
-    type: TicketType = Field(TicketType.UNKNOWN, description="Ticket type")
-    creation_date: datetime | None = Field(
-        None, alias="date_creation", description="Creation timestamp"
-    )
-    requester: str | None = Field(None, description="Requester user name")
-
-    model_config = ConfigDict(extra="forbid", populate_by_name=True)
-
-    @model_validator(mode="before")
-    @classmethod
-    def _set_title(cls, data: dict[str, Any]) -> dict[str, Any]:
-        title = data.get("title") or data.get("name")
-        data["title"] = "[Título não informado]" if title in (None, "") else str(title)
-        data.pop("name", None)
-        return data
 
 
 E = TypeVar("E", bound="_BaseIntEnumLocal")
@@ -187,7 +155,6 @@ def convert_ticket(raw: RawTicketDTO) -> CleanTicketDTO:
 
 __all__ = [
     "RawTicketDTO",
-    "CleanTicketDTO",
     "TicketStatus",
     "Priority",
     "Urgency",
