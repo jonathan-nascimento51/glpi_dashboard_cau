@@ -7,7 +7,7 @@ export function useSearch(term: string) {
   const query = term.trim()
   return useApiQuery<SearchResult[]>(
     ['search', query],
-    `/tickets/search?query=${encodeURIComponent(query)}`,
+    `v1/tickets/search?query=${encodeURIComponent(query)}`,
     {
       enabled: query.length > 0,
     },

@@ -14,7 +14,7 @@ case "$TARGET" in
     pg_isready -U "${POSTGRES_USER:-postgres}" >/dev/null
     ;;
   backend)
-    curl -f http://localhost:8000/health >/dev/null
+    curl -f http://localhost:8000/v1/health >/dev/null
     ;;
   *)
     echo "Unknown HC_TARGET: $TARGET" >&2
