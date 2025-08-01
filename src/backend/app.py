@@ -29,6 +29,7 @@ def create_app() -> FastAPI:
 app = create_app()
 
 if __name__ == "__main__":  # pragma: no cover
+    import os
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host=os.getenv("HOST", "0.0.0.0"), port=int(os.getenv("PORT", "8000")))
