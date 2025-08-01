@@ -58,7 +58,7 @@ function measure(Component: React.ComponentType) {
 }
 
 type Results = {
-  dashboard: number
+  table: number
   tendencia: number
   heatmap: number
 }
@@ -68,9 +68,9 @@ async function profileComponents(useMemo: boolean): Promise<Results> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   React.memo = useMemo ? origMemo : ((c: any) => c)
   jest.resetModules()
-  const DashMod = await import('../src/features/tickets/TicketStatsPage')
+  const TableMod = await import('../src/components/GlpiTicketsTable')
   // Use 'as any' to safely access .default for compatibility with both CJS and ESM
-  const Dashboard = (DashMod as any).default ?? (DashMod as any).Dashboard ?? DashMod
+  const TicketsTable = TableMod.GlpiTicketsTable
   const TendMod = await import('../src/components/ChamadosTendencia')
   const ChamadosTendencia =
     (TendMod as any).ChamadosTendencia ?? TendMod.default ?? TendMod
@@ -78,7 +78,7 @@ async function profileComponents(useMemo: boolean): Promise<Results> {
   const ChamadosHeatmap =
     (HeatMod as any).ChamadosHeatmap ?? HeatMod.default ?? HeatMod
   const res: Results = {
-    dashboard: measure(Dashboard),
+    table: measure(TicketsTable),
     tendencia: measure(ChamadosTendencia),
     heatmap: measure(ChamadosHeatmap),
   }
@@ -92,7 +92,7 @@ describe.skip('profiling with and without memoization', () => {
     const after = await profileComponents(true)
     console.log('Before:', before)
     console.log('After:', after)
-    expect(before.dashboard).toBeGreaterThanOrEqual(0)
-    expect(after.dashboard).toBeGreaterThanOrEqual(0)
+    expect(before.table).toBeGreaterThanOrEqual(0)
+    expect(after.table).toBeGreaterThanOrEqual(0)
   })
 })
