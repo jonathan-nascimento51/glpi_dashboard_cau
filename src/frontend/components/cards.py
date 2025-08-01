@@ -9,13 +9,13 @@ composed easily within an existing layout.
 
 from __future__ import annotations
 
-from typing import Dict
+
 
 import dash_bootstrap_components as dbc
 from dash import html
 
 
-def TicketStatusCard(title: str, status_data: Dict[str, int]) -> dbc.Card:
+def TicketStatusCard(title: str, status_data: dict[str, int]) -> dbc.Card:
     """Render a card summarising ticket statuses for a given service level.
 
     Args:
