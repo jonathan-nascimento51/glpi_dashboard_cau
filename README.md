@@ -395,9 +395,10 @@ python dashboard_app.py
 The entry point initializes structured logging via:
 
 ```python
-from backend.utils.logging import init_logging
+from shared.utils.logging import init_logging
 init_logging()
 ```
+Loguru is used for structured output and integrates with OpenTelemetry when available.
 
 Set `APP_ENV=production` to force JSON logs and disable traceback diagnostics.
 Use any other value for colorful developer output.
@@ -452,13 +453,14 @@ Call `init_logging()` early in the main function to capture logs:
 
 ```python
 from fastapi import FastAPI
-from backend.utils.logging import init_logging
+from shared.utils.logging import init_logging
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 
 init_logging()
 app = FastAPI(...)
 FastAPIInstrumentor().instrument_app(app)
 ```
+The Loguru-based logging setup ensures JSON output in production and colorful logs during development.
 
 The API uses **ORJSONResponse** for fast serialization. Heavy aggregations are
 pre-computed by an ARQ worker. Start it separately with:

@@ -46,7 +46,6 @@ dependencies = [
     "tenacity>=8.2",
     "purgatory>=3.0",
     "loguru>=0.7",
-    "structlog>=24.1",
     "orjson>=3.10",
     "arq>=0.26",
     "pybreaker>=0.20",
