@@ -68,3 +68,9 @@ Descrição: Script auxilia na movimentação de módulos Python utilizando a bi
 ## 📄 Atualizacao 2025-08-01
 
 - Movidos modelos para `src/backend/schemas/` e ajustados imports em todo o projeto.
+
+## 📄 Atualizacao 2025-08-01
+
+- Movido `src/shared/utils/resilience/resilient_client.py` (990 bytes) para `examples/resilient_client.py`.
+- Movido `tests/test_resilient_client.py` (1612 bytes) para `examples/test_resilient_client.py`.
+- Movido `scripts/demo_resilient_client.py` (353 bytes) para `examples/demo_resilient_client.py`.

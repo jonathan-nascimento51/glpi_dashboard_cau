@@ -1,6 +1,5 @@
 from shared.utils.logging import init_logging, set_correlation_id
 from shared.utils.resilience import (
-    ResilientClient,
     breaker,
     call_with_breaker,
     retry_api_call,
@@ -33,5 +32,4 @@ __all__ = [
     "breaker",
     "call_with_breaker",
     "retry_api_call",
-    "ResilientClient",
 ]
