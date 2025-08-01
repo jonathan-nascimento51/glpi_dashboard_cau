@@ -45,7 +45,6 @@ class Settings(BaseSettings):
     EVENT_BROKER_URL: str = os.getenv("EVENT_BROKER_URL", "localhost:9092")
 
     FETCH_PAGE_SIZE: int = 50
-    MV_REFRESH_INTERVAL_MINUTES: int = 5
 
     USE_MOCK_DATA: bool = False
 
@@ -105,7 +104,6 @@ REDIS_DB = settings.REDIS_DB
 REDIS_TTL_SECONDS = settings.REDIS_TTL_SECONDS
 
 FETCH_PAGE_SIZE = settings.FETCH_PAGE_SIZE
-MV_REFRESH_INTERVAL_MINUTES = settings.MV_REFRESH_INTERVAL_MINUTES
 
 USE_MOCK_DATA = settings.USE_MOCK_DATA
 
