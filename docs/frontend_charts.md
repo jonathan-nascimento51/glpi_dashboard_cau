@@ -30,7 +30,7 @@ export interface ChamadoPorData {
 }
 
 export function useChamadosPorData() {
-  const { data = [], isLoading, error } = useApiQuery<ChamadoPorData[]>(
+  const { data, isLoading, error } = useApiQuery<ChamadoPorData[]>(
     ['chamados-por-data'],
     '/v1/chamados/por-data',
     {
