@@ -695,19 +695,6 @@ least-privilege setup:
   `DB_USER` so the application can read and write normally.
 - `app_readonly` – read-only access for future analytics or reporting tasks.
 
-### Activating LangSmith tracing
-
-Add the following variables to `.env` to record traces in your LangSmith
-dashboard:
-
-```bash
-LANGCHAIN_TRACING_V2=true
-LANGCHAIN_API_KEY=<your_langsmith_key>
-LANGCHAIN_PROJECT=glpi-dashboard
-```
-
-With these set, the application will automatically initialize LangSmith when
-importing `backend`.
 
 Before running Docker make sure this `.env` file exists and that `DB_NAME`,
 `DB_USER`, `DB_PASSWORD` and all GLPI credentials have non-empty values. The
