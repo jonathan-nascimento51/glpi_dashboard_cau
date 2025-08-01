@@ -5,7 +5,7 @@ from __future__ import annotations
 import contextlib
 import os
 from functools import lru_cache
-from typing import Literal, cast
+from typing import cast
 
 from dotenv import load_dotenv
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -22,8 +22,6 @@ def _env_or_file(key: str, default: str | None = None) -> str | None:
 
 class Settings(BaseSettings):
     """Central configuration validated by Pydantic."""
-
-    ENVIRONMENT: Literal["dev", "work", "prod"] = "dev"
 
     GLPI_BASE_URL: str = os.getenv("GLPI_BASE_URL", "")
     GLPI_APP_TOKEN: str = cast(str, _env_or_file("GLPI_APP_TOKEN", "your_app_token"))
@@ -45,7 +43,6 @@ class Settings(BaseSettings):
     EVENT_BROKER_URL: str = os.getenv("EVENT_BROKER_URL", "localhost:9092")
 
     FETCH_PAGE_SIZE: int = 50
-    MV_REFRESH_INTERVAL_MINUTES: int = 5
 
     USE_MOCK_DATA: bool = False
 
@@ -59,10 +56,6 @@ class Settings(BaseSettings):
     mock_tickets_file: str = os.getenv(
         "MOCK_TICKETS_FILE", "tests/resources/mock_tickets.json"
     )
-
-    OTEL_EXPORTER_OTLP_ENDPOINT: str | None = os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT")
-    OTEL_EXPORTER_OTLP_HEADERS: str | None = os.getenv("OTEL_EXPORTER_OTLP_HEADERS")
-    OTEL_SERVICE_NAME: str = os.getenv("OTEL_SERVICE_NAME", "glpi_dashboard_cau")
 
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -105,16 +98,12 @@ REDIS_DB = settings.REDIS_DB
 REDIS_TTL_SECONDS = settings.REDIS_TTL_SECONDS
 
 FETCH_PAGE_SIZE = settings.FETCH_PAGE_SIZE
-MV_REFRESH_INTERVAL_MINUTES = settings.MV_REFRESH_INTERVAL_MINUTES
 
 USE_MOCK_DATA = settings.USE_MOCK_DATA
 
 KNOWLEDGE_BASE_FILE = settings.knowledge_base_file
 MOCK_TICKETS_FILE = settings.mock_tickets_file
 
-OTEL_EXPORTER_OTLP_ENDPOINT = settings.OTEL_EXPORTER_OTLP_ENDPOINT
-OTEL_EXPORTER_OTLP_HEADERS = settings.OTEL_EXPORTER_OTLP_HEADERS
-OTEL_SERVICE_NAME = settings.OTEL_SERVICE_NAME
 
 EVENT_BROKER_URL = settings.EVENT_BROKER_URL
 
