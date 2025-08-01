@@ -70,7 +70,7 @@ async function profileComponents(useMemo: boolean): Promise<Results> {
   jest.resetModules()
   const TableMod = await import('../src/components/GlpiTicketsTable')
   // Use 'as any' to safely access .default for compatibility with both CJS and ESM
-  const TicketsTable = (TableMod as any).GlpiTicketsTable ?? TableMod.default ?? TableMod
+  const TicketsTable = TableMod.GlpiTicketsTable
   const TendMod = await import('../src/components/ChamadosTendencia')
   const ChamadosTendencia =
     (TendMod as any).ChamadosTendencia ?? TendMod.default ?? TendMod
