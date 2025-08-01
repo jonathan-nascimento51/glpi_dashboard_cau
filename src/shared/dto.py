@@ -5,7 +5,9 @@ from __future__ import annotations
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, Dict, Optional, Union
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field
+
+from backend.schemas.ticket_models import CleanTicketDTO
 
 if TYPE_CHECKING:  # Avoid runtime import cycle
     from backend.adapters.mapping_service import MappingService
@@ -60,63 +62,6 @@ class RawTicketFromAPI(BaseModel):
     users_id_requester: Optional[int] = Field(None, alias="users_id_requester")
 
     model_config = ConfigDict(populate_by_name=True)
-
-
-class CleanTicketDTO(BaseModel):
-    """Normalized ticket used internally by the application."""
-
-    id: int
-    title: Optional[str] = Field(
-        default=None,
-        alias="name",
-    )
-    status: str
-    priority: Optional[str] = Field(
-        None, description="Priority as a human-readable label"
-    )
-    created_at: Optional[datetime] = Field(default=None, alias="date_creation")
-    assigned_to: str = "Unassigned"
-    requester: Optional[str] = None
-
-    model_config = ConfigDict(populate_by_name=True)
-
-    @model_validator(mode="before")
-    @classmethod
-    def _sanitize_title(cls, data: Dict[str, Any]) -> Dict[str, Any]:
-        title = data.get("name")
-        if "name" not in data or title == "" or title is None:
-            data["name"] = DEFAULT_TITLE
-        else:
-            data["name"] = str(title)
-        return data
-
-    @field_validator("status", mode="before")
-    @classmethod
-    def _validate_status(cls, v: int | str) -> str:
-        """Normalize integer or textual status values to labels."""
-
-        if isinstance(v, str):
-            value = v.strip()
-            if value.isdigit():
-                v = int(value)
-            else:
-                return TEXT_STATUS_MAP.get(value.lower(), "Unknown")
-
-        return STATUS_MAP.get(int(v), "Unknown") if str(v).isdigit() else "Unknown"
-
-    @field_validator("priority", mode="before")
-    @classmethod
-    def _validate_priority(cls, v: int | str | None) -> Optional[str]:
-        if v is None:
-            return None
-        if isinstance(v, str) and not v.isdigit():
-            return v
-        if isinstance(v, int):
-            return PRIORITY_MAP_PT.get(v, PRIORITY_MAP.get(v, "Unknown"))
-        if str(v).isdigit():
-            num = int(v)
-            return PRIORITY_MAP_PT.get(num, PRIORITY_MAP.get(num, "Unknown"))
-        return "Unknown"
 
 
 class TicketTranslator:

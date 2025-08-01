@@ -6,8 +6,9 @@ from shared.utils.resilience import (
     retry_api_call,
 )
 
-from .dto import CleanTicketDTO, TicketTranslator
+from .dto import TicketTranslator
 from .models import (
+    CleanTicketDTO,
     Impact,
     Priority,
     RawTicketDTO,

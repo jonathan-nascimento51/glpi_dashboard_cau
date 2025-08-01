@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from enum import IntEnum
 
-from shared.dto import CleanTicketDTO
+from backend.schemas.ticket_models import CleanTicketDTO
 
 
 class TicketType(IntEnum):

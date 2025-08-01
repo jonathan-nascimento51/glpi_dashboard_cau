@@ -22,7 +22,7 @@ sys.modules.setdefault("httpx", httpx_mod)
 sys.modules.setdefault("redis.asyncio", ModuleType("redis.asyncio"))
 
 from backend.application import batch_fetch
-from shared.dto import CleanTicketDTO
+from backend.schemas.ticket_models import CleanTicketDTO
 
 
 class DummyClient:

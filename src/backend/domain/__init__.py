@@ -1,6 +1,11 @@
 """Domain layer package."""
 
-from shared.dto import CleanTicketDTO
+from backend.schemas.ticket_models import (
+    CleanTicketDTO,
+    RawTicketDTO,
+    TicketType,
+    convert_ticket,
+)
 
 from .exceptions import (
     HTTP_STATUS_ERROR_MAP,
@@ -13,11 +18,6 @@ from .exceptions import (
     GLPITooManyRequestsError,
     GLPIUnauthorizedError,
     parse_error,
-)
-from .ticket_models import (
-    RawTicketDTO,
-    TicketType,
-    convert_ticket,
 )
 from .ticket_status import Impact, Priority, TicketStatus, Urgency
 from .tool_error import ToolError

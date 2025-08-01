@@ -45,9 +45,9 @@ from backend.application.ticket_loader import (
 )
 from backend.core.settings import KNOWLEDGE_BASE_FILE
 from backend.schemas.ticket import ChamadoPorData, ChamadosPorDia, TicketSummaryOut
+from backend.schemas.ticket_models import CleanTicketDTO
 from backend.services.document_service import read_file
 from backend.services.metrics_service import calculate_dataframe_metrics
-from shared.dto import CleanTicketDTO  # imported from shared DTOs
 from shared.utils.api_auth import verify_api_key
 from shared.utils.json import UTF8JSONResponse
 from shared.utils.logging import init_logging

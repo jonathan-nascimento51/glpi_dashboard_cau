@@ -20,7 +20,7 @@ from backend.application.aggregated_metrics import (
 from backend.application.glpi_api_client import GlpiApiClient
 from backend.core.settings import MOCK_TICKETS_FILE, USE_MOCK_DATA
 from backend.infrastructure.glpi.normalization import process_raw
-from shared.dto import CleanTicketDTO
+from backend.schemas.ticket_models import CleanTicketDTO
 from shared.utils.redis_client import RedisClient, redis_client
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
