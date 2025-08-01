@@ -11,7 +11,7 @@ from backend.api.worker_api import get_glpi_client
 from backend.application import ticket_loader
 from backend.application.glpi_api_client import GlpiApiClient
 from backend.domain.exceptions import GLPIUnauthorizedError
-from shared.dto import CleanTicketDTO
+from backend.schemas.ticket_models import CleanTicketDTO
 from worker import create_app
 
 pytest.importorskip("prometheus_client")

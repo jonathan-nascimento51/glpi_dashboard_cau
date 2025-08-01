@@ -4,8 +4,9 @@ from typing import Any, Dict, List, Optional, Type
 from backend.adapters.factory import create_glpi_session
 from backend.adapters.mapping_service import MappingService
 from backend.infrastructure.glpi.glpi_session import GLPISession
+from backend.schemas.ticket_models import CleanTicketDTO
 from backend.utils import paginate_items
-from shared.dto import CleanTicketDTO, TicketTranslator
+from shared.dto import TicketTranslator
 
 # Field names we always include in ticket search results.
 BASE_TICKET_FIELDS = [

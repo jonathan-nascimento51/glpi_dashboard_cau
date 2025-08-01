@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock
 import pytest
 
 from backend.application import ticket_loader
-from shared.dto import CleanTicketDTO
+from backend.schemas.ticket_models import CleanTicketDTO
 
 
 @pytest.mark.asyncio
