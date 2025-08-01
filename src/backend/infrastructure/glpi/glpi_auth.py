@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import inspect
 import json
 import logging
 import os
@@ -79,7 +80,7 @@ class GLPIAuthClient:
         self.redis_key = redis_key
         self.ttl_seconds = ttl_seconds
         self.session = session
-        self.redis = redis_conn or redis.Redis(
+        self.redis_conn = redis_conn or redis.Redis(
             host=REDIS_HOST,
             port=REDIS_PORT,
             db=REDIS_DB,
@@ -150,7 +151,10 @@ class GLPIAuthClient:
 
         if not force_refresh:
             try:
-                token = self.redis.get(self.redis_key)
+                get_result = self.redis_conn.get("glpi:session_token")
+                token = (
+                    await get_result if inspect.isawaitable(get_result) else get_result
+                )
             except redis.RedisError as exc:  # pragma: no cover - defensive
                 logger.warning(json.dumps({"event": "cache_error", "error": str(exc)}))
                 token = None
@@ -161,7 +165,7 @@ class GLPIAuthClient:
 
         token = await self.init_session()
         try:
-            self.redis.setex(self.redis_key, self.ttl_seconds, token)
+            self.redis_conn.setex(self.redis_key, self.ttl_seconds, token)
             logger.info(json.dumps({"event": "cache_store", "ttl": self.ttl_seconds}))
         except redis.RedisError as exc:  # pragma: no cover - defensive
             logger.warning(
