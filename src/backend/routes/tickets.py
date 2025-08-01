@@ -12,12 +12,13 @@ from __future__ import annotations
 from fastapi import APIRouter, HTTPException
 
 from backend.services.glpi import get_ticket_summary_by_group
+from backend.models.ts_models import TicketsSummaryPerLevel
 
 router = APIRouter()
 
 
-@router.get("/api/tickets/summary-per-level", response_model=dict)
-def tickets_summary_per_level() -> dict:
+@router.get("/api/tickets/summary-per-level", response_model=TicketsSummaryPerLevel)
+def tickets_summary_per_level() -> TicketsSummaryPerLevel:
     """Return a summary of tickets grouped by status per service level.
 
     The returned object has a top-level key for each level (e.g. ``"N1"``),
