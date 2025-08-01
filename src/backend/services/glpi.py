@@ -142,11 +142,8 @@ def get_ticket_summary_by_group() -> Dict[str, Dict[str, int]]:
                     if "status" in item and not isinstance(item["status"], dict):
                         status_name = str(item.get("status")).lower()
                     # Sometimes GLPI includes a more descriptive field
-                    status_name = (
-                        status_name or str(item.get("status_name"))
-                        if item.get("status_name")
-                        else None
-                    )
+                    if not status_name and item.get("status_name"):
+                        status_name = str(item.get("status_name"))
                     # Nested dict case: status: { id: int, name: str }
                     if status_name is None and isinstance(item.get("status"), dict):
                         status_name = str(item["status"].get("name")).lower()
