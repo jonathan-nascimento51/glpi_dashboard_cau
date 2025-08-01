@@ -21,6 +21,7 @@ from backend.domain.ticket_status import (
     _BaseIntEnum as _BaseIntEnumLocal,
 )
 
+# Set up logger
 logger = logging.getLogger(__name__)
 
 # Map numeric priority levels to human readable labels.
