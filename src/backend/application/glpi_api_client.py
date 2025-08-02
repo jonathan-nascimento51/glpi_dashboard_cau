@@ -26,8 +26,9 @@ __all__ = [
 
 from backend.adapters.factory import create_glpi_session
 from backend.adapters.mapping_service import MappingService
+from backend.constants import GROUP_IDS
 from backend.infrastructure.glpi.glpi_session import GLPISession
-from backend.schemas.ticket_models import CleanTicketDTO
+from backend.schemas.ticket_models import TEXT_STATUS_MAP, CleanTicketDTO
 from backend.utils import paginate_items
 from shared.dto import TicketTranslator
 
@@ -224,9 +225,60 @@ class GlpiApiClient:
                 logger.error("failed to translate ticket %s: %s", item.get("id"), exc)
         return translated
 
+    async def get_ticket_summary_by_group(self) -> Dict[str, Dict[str, int]]:
+        """Aggregate ticket status counts for predefined support groups.
+
+        Uses :data:`backend.constants.GROUP_IDS` to query tickets for each
+        service level. The status keys are normalised to lowercase. If any
+        request fails, the corresponding group will contain zeros for every
+        known status defined in :data:`backend.schemas.ticket_models.TEXT_STATUS_MAP`.
+        """
+
+        expected_statuses = list(TEXT_STATUS_MAP.keys())
+        summary: Dict[str, Dict[str, int]] = {
+            level: {status: 0 for status in expected_statuses} for level in GROUP_IDS
+        }
+
+        for level, group_id in GROUP_IDS.items():
+            try:
+                tickets = await self.get_all_paginated(
+                    "Ticket",
+                    criteria=[
+                        {
+                            "field": "groups_id",
+                            "searchtype": "equals",
+                            "value": str(group_id),
+                        }
+                    ],
+                )
+                counts = summary[level]
+                for item in tickets:
+                    status_name: Optional[str] = None
+                    if isinstance(item, dict):
+                        status = item.get("status")
+                        if isinstance(status, dict):
+                            status_name = status.get("name")
+                        elif status is not None:
+                            status_name = str(status)
+                        elif item.get("status_name"):
+                            status_name = str(item["status_name"])
+                    if not status_name:
+                        continue
+                    key = status_name.lower()
+                    counts[key] = counts.get(key, 0) + 1
+            except Exception:  # pragma: no cover - best effort
+                logger.exception(
+                    "failed to fetch ticket summary for group %s", group_id
+                )
+                # counts already initialised with zeros
+                continue
+
+        return summary
+
 
 async def get_status_counts_by_levels(
     level_ids: Dict[str, int],
+    client: Optional[GlpiApiClient] = None,
 ) -> Dict[str, Dict[str, int]]:
     """Return status counts for each support level.
 
@@ -272,9 +324,7 @@ async def get_status_counts_by_levels(
                     counts[key] = counts.get(key, 0) + 1
                 summary[level] = counts
             except Exception:  # pragma: no cover - best effort
-                logger.exception(
-                    "failed to fetch status counts for level %s", level
-                )
+                logger.exception("failed to fetch status counts for level %s", level)
                 summary[level] = {}
     else:
         try:
@@ -291,9 +341,9 @@ async def get_status_counts_by_levels(
                                 }
                             ],
                         )
-                        counts: Dict[str, int] = {}
+                        counts = {}
                         for item in tickets:
-                            status_name: Optional[str] = None
+                            status_name = None
                             if isinstance(item, dict):
                                 status = item.get("status")
                                 if isinstance(status, dict):
