@@ -13,7 +13,6 @@ from frontend.callbacks.callbacks import register_callbacks
 from frontend.layout.layout import build_layout
 
 from backend.core.settings import DASH_PORT, USE_MOCK_DATA
-from backend.infrastructure.glpi.normalization import process_raw
 from shared.utils.logging import init_logging
 
 __all__ = ["create_app", "main"]
@@ -22,19 +21,6 @@ WORKER_BASE_URL = os.getenv("NEXT_PUBLIC_API_BASE_URL", "http://localhost:8000")
 log_level_name = os.getenv("LOG_LEVEL", "INFO")
 log_level = getattr(logging, log_level_name.upper(), logging.INFO)
 init_logging(log_level)
-
-
-def _fetch_api_data(ticket_range: str = "0-99", **filters: str) -> list[dict[str, Any]]:
-    """Fetch ticket data from the worker API."""
-
-    url = f"{WORKER_BASE_URL}/v1/tickets"
-    try:
-        resp = requests.get(url, timeout=30)
-        resp.raise_for_status()
-        return resp.json()
-    except requests.RequestException as exc:
-        logging.error("Failed to fetch tickets from %s: %s", url, exc)
-        raise
 
 
 def _fetch_aggregated_metrics() -> dict[str, Any]:
@@ -50,31 +36,27 @@ def _fetch_aggregated_metrics() -> dict[str, Any]:
         return {}
 
 
-def _transform_df(ticket_range: str = "0-99", **filters: str) -> pd.DataFrame:
-    """Transform raw ticket data into a normalized DataFrame."""
-
-    data = _fetch_api_data(ticket_range, **filters)
-    return process_raw(data)
-
-
-def load_data(ticket_range: str = "0-99", **filters: str) -> pd.DataFrame | None:
+def load_data(ticket_range: str = "0-99", **filters: str) -> list[dict[str, Any]]:
     """Load ticket data from the worker or a local mock file."""
+
     if USE_MOCK_DATA:
         logging.info("Loading ticket data from mock file")
         try:
-            return process_raw(pd.read_json("tests/resources/mock_tickets.json"))
+            with open("tests/resources/mock_tickets.json", "r", encoding="utf-8") as f:
+                return json.load(f)
         except Exception as exc:  # pragma: no cover - file errors
             logging.error("failed to load mock data: %s", exc)
-            return None
+            raise
 
-    logging.info("Fetching ticket data from worker API")
+    url = f"{WORKER_BASE_URL}/v1/tickets"
+    logging.info("Fetching ticket data from %s", url)
     try:
-        metrics = _fetch_aggregated_metrics()
-        logging.info("Aggregated metrics: %s", metrics)
-        return _transform_df(ticket_range, **filters)
-    except Exception as exc:
+        resp = requests.get(url, timeout=30)
+        resp.raise_for_status()
+        return resp.json()
+    except requests.RequestException as exc:
         logging.error("Error contacting worker API: %s", exc)
-        return None
+        raise
 
 
 def create_app(df: pd.DataFrame | None) -> Dash:
@@ -100,7 +82,12 @@ def profile_startup() -> None:
 
     profiler = cProfile.Profile()
     profiler.enable()
-    df = load_data()
+    try:
+        data = load_data()
+    except Exception as exc:
+        logging.error("Failed to load data for profiling: %s", exc)
+        data = []
+    df = pd.DataFrame(data) if data else None
     create_app(df)
     profiler.disable()
     Stats(profiler).sort_stats("cumulative").print_stats(10)
@@ -108,7 +95,12 @@ def profile_startup() -> None:
 
 def main() -> None:
     """Run the Dash server."""
-    df = load_data()
+    try:
+        data = load_data()
+    except Exception as exc:
+        logging.error("Failed to load initial data: %s", exc)
+        data = []
+    df = pd.DataFrame(data) if data else None
     app = create_app(df)
     app.run(
         host="0.0.0.0", port=DASH_PORT, debug=False, use_reloader=False, threaded=True
