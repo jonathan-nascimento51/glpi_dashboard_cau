@@ -8,6 +8,7 @@ to keep the responses fast even when the dataset is large.
 from __future__ import annotations
 
 import logging
+from enum import Enum
 from typing import Any, Awaitable, Callable, Dict, Optional
 
 import pandas as pd
@@ -18,7 +19,7 @@ from backend.application.glpi_api_client import (
     GlpiApiClient,
     create_glpi_api_client,
 )
-from backend.constants import GROUP_IDS, GROUP_LABELS_BY_ID
+from backend.constants import GROUP_LABELS_BY_ID
 from backend.infrastructure.glpi.normalization import process_raw
 from shared.utils.redis_client import RedisClient, redis_client
 
@@ -54,6 +55,12 @@ async def _fetch_dataframe(client: Optional[GlpiApiClient]) -> pd.DataFrame:
     df = process_raw(data)
     df["group"] = map_group_ids_to_labels(df["group"])
     return df
+
+
+def map_group_ids_to_labels(series: pd.Series) -> pd.Series:
+    """Map numerical group IDs to their human-readable labels."""
+
+    return series.map(GROUP_LABELS_BY_ID).fillna(series)
 
 
 async def get_or_set_cache(
@@ -209,7 +216,7 @@ async def compute_level_metrics(
         if "group" not in df.columns:
             raise HTTPException(
                 status_code=500,
-                detail="Data error: 'group' column missing from ticket data"
+                detail="Data error: 'group' column missing from ticket data",
             )
         df = df[df["group"] == level]
 
@@ -247,21 +254,24 @@ async def compute_level_metrics(
     return result
 
 
-KNOWN_LEVELS = set(GROUP_IDS.keys())
+class SupportLevel(str, Enum):
+    """Known support levels exposed by the API."""
+
+    N1 = "N1"
+    N2 = "N2"
+    N3 = "N3"
+    N4 = "N4"
 
 
 @router.get("/metrics/levels/{level}", response_model=MetricsOverview)
-async def metrics_level(level: str) -> MetricsOverview:
+async def metrics_level(level: SupportLevel) -> MetricsOverview:
     """Return ticket metrics for a specific support level."""
 
-    level_norm = level.upper()
-    if level_norm not in KNOWN_LEVELS:
-        raise HTTPException(status_code=400, detail="Unknown level")
-
+    level_value = level.value
     try:
-        return await compute_level_metrics(level_norm)
+        return await compute_level_metrics(level_value)
     except Exception as exc:  # pragma: no cover - defensive
-        logger.exception("Error computing metrics for level %s", level_norm)
+        logger.exception("Error computing metrics for level %s", level_value)
         raise HTTPException(
             status_code=500, detail="Failed to compute metrics"
         ) from exc
