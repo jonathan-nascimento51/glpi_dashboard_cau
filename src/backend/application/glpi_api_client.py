@@ -241,44 +241,80 @@ async def get_status_counts_by_levels(
     """
 
     summary: Dict[str, Dict[str, int]] = {}
-    try:
-        async with GlpiApiClient() as client:
-            for level, group_id in level_ids.items():
-                try:
-                    tickets = await client.get_all_paginated(
-                        "Ticket",
-                        criteria=[
-                            {
-                                "field": "groups_id",
-                                "searchtype": "equals",
-                                "value": str(group_id),
-                            }
-                        ],
-                    )
-                    counts: Dict[str, int] = {}
-                    for item in tickets:
-                        status_name: Optional[str] = None
-                        if isinstance(item, dict):
-                            status = item.get("status")
-                            if isinstance(status, dict):
-                                status_name = status.get("name")
-                            elif status is not None:
-                                status_name = str(status)
-                            elif item.get("status_name"):
-                                status_name = str(item["status_name"])
-                        if not status_name:
-                            continue
-                        key = status_name.lower()
-                        counts[key] = counts.get(key, 0) + 1
-                    summary[level] = counts
-                except Exception:  # pragma: no cover - best effort
-                    logger.exception(
-                        "failed to fetch status counts for level %s", level
-                    )
-                    summary[level] = {}
-    except Exception:  # pragma: no cover - best effort
-        logger.exception("failed to initialise GlpiApiClient")
-        return {level: {} for level in level_ids}
+    if client is not None:
+        # Use the provided client (assume it is already open/ready)
+        for level, group_id in level_ids.items():
+            try:
+                tickets = await client.get_all_paginated(
+                    "Ticket",
+                    criteria=[
+                        {
+                            "field": "groups_id",
+                            "searchtype": "equals",
+                            "value": str(group_id),
+                        }
+                    ],
+                )
+                counts: Dict[str, int] = {}
+                for item in tickets:
+                    status_name: Optional[str] = None
+                    if isinstance(item, dict):
+                        status = item.get("status")
+                        if isinstance(status, dict):
+                            status_name = status.get("name")
+                        elif status is not None:
+                            status_name = str(status)
+                        elif item.get("status_name"):
+                            status_name = str(item["status_name"])
+                    if not status_name:
+                        continue
+                    key = status_name.lower()
+                    counts[key] = counts.get(key, 0) + 1
+                summary[level] = counts
+            except Exception:  # pragma: no cover - best effort
+                logger.exception(
+                    "failed to fetch status counts for level %s", level
+                )
+                summary[level] = {}
+    else:
+        try:
+            async with GlpiApiClient() as new_client:
+                for level, group_id in level_ids.items():
+                    try:
+                        tickets = await new_client.get_all_paginated(
+                            "Ticket",
+                            criteria=[
+                                {
+                                    "field": "groups_id",
+                                    "searchtype": "equals",
+                                    "value": str(group_id),
+                                }
+                            ],
+                        )
+                        counts: Dict[str, int] = {}
+                        for item in tickets:
+                            status_name: Optional[str] = None
+                            if isinstance(item, dict):
+                                status = item.get("status")
+                                if isinstance(status, dict):
+                                    status_name = status.get("name")
+                                elif status is not None:
+                                    status_name = str(status)
+                                elif item.get("status_name"):
+                                    status_name = str(item["status_name"])
+                            if not status_name:
+                                continue
+                            key = status_name.lower()
+                            counts[key] = counts.get(key, 0) + 1
+                        summary[level] = counts
+                    except Exception:  # pragma: no cover - best effort
+                        logger.exception(
+                            "failed to fetch status counts for level %s", level
+                        )
+                        summary[level] = {}
+        except Exception:  # pragma: no cover - best effort
+            logger.exception("failed to initialise GlpiApiClient")
+            return {level: {} for level in level_ids}
     return summary
 
 
