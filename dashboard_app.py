@@ -42,7 +42,16 @@ def _fetch_aggregated_metrics() -> dict[str, Any]:
 
 
 def load_data(ticket_range: str = "0-99", **filters: str) -> list[dict[str, Any]]:
-    """Load ticket data from the worker or a local mock file."""
+    """Load ticket data from the worker or a local mock file.
+
+    Parameters
+    ----------
+    ticket_range:
+        Inclusive range of ticket IDs to fetch in the format ``"start-end"``.
+    **filters:
+        Additional filter parameters forwarded to the worker API, such as
+        ``status`` or ``technician``.
+    """
 
     if USE_MOCK_DATA:
         logging.info("Loading ticket data from mock file")
@@ -54,9 +63,11 @@ def load_data(ticket_range: str = "0-99", **filters: str) -> list[dict[str, Any]
             raise
 
     url = f"{WORKER_BASE_URL}/v1/tickets"
-    logging.info("Fetching ticket data from %s", url)
+    filtered_filters = {k: v for k, v in filters.items() if v is not None}
+    params = {"range": ticket_range, **filtered_filters}
+    logging.info("Fetching ticket data from %s with params %s", url, params)
     try:
-        resp = requests.get(url, timeout=30)
+        resp = requests.get(url, params=params, timeout=30)
         resp.raise_for_status()
         return resp.json()
     except requests.RequestException as exc:

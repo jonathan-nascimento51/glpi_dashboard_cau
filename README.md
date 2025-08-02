@@ -514,7 +514,7 @@ this behaviour. Responses include the header `X-Warning: using mock data` when
 the fallback is active.
 
 Make sure the service is running with `python worker.py` and that your
-front-end points to it via `NEXT_PUBLIC_API_BASE_URL` in
+front-end points to it via `VITE_API_BASE_URL` in
 `src/frontend/react_app/.env`.
 
 Docker Compose now mounts `src/frontend/react_app/.env.example` directly in the

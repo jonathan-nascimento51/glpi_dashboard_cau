@@ -14,6 +14,7 @@ def test_clean_ticket_dto_valid_creation():
         "date_creation": "2024-01-01T12:00:00",
         "assigned_to": "Alice",
         "requester": "Alice",
+        "group": "N1",
         "users_id_requester": 7,
     }
 
@@ -25,6 +26,7 @@ def test_clean_ticket_dto_valid_creation():
     assert ticket.priority == "Low"
     assert ticket.assigned_to == "Alice"
     assert ticket.requester == "Alice"
+    assert ticket.group == "N1"
 
 
 @pytest.mark.unit
@@ -83,6 +85,7 @@ def test_clean_ticket_dto_missing_optional_fields():
     assert ticket.priority is None
     assert ticket.created_at is None
     assert ticket.requester is None
+    assert ticket.group is None
 
 
 @pytest.mark.unit

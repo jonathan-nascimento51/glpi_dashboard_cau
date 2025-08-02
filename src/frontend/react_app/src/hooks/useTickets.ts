@@ -14,6 +14,7 @@ function toTicket(dto: CleanTicketDTO): Ticket {
     priority: dto.priority != null ? String(dto.priority) : undefined,
     name: dto.name ?? "",
     requester: dto.requester ?? undefined,
+    group: dto.group ?? undefined,
     // Prefer `undefined` over `null` when the API omits the field
     date_creation:
       dto.date_creation != null ? new Date(dto.date_creation) : undefined,
