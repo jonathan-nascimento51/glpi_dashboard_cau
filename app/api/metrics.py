@@ -18,6 +18,7 @@ from backend.application.glpi_api_client import (
     GlpiApiClient,
     create_glpi_api_client,
 )
+from backend.constants import GROUP_IDS, GROUP_LABELS_BY_ID
 from backend.infrastructure.glpi.normalization import process_raw
 from shared.utils.redis_client import RedisClient, redis_client
 
@@ -50,7 +51,9 @@ async def _fetch_dataframe(client: Optional[GlpiApiClient]) -> pd.DataFrame:
         tickets = await client.fetch_tickets()
 
     data = [t.model_dump() for t in tickets]
-    return process_raw(data)
+    df = process_raw(data)
+    df["group"] = map_group_ids_to_labels(df["group"])
+    return df
 
 
 async def get_or_set_cache(
@@ -244,7 +247,7 @@ async def compute_level_metrics(
     return result
 
 
-KNOWN_LEVELS = {"N1", "N2", "N3", "N4"}
+KNOWN_LEVELS = set(GROUP_IDS.keys())
 
 
 @router.get("/metrics/levels/{level}", response_model=MetricsOverview)
