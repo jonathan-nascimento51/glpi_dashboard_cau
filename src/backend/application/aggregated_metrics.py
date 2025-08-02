@@ -64,7 +64,7 @@ def status_by_group(df: pd.DataFrame) -> Dict[str, Dict[str, int]]:
     )
     filtered_df["status"] = filtered_df["status"].replace({"solved": "closed"})
     filtered_df = filtered_df[
-        filtered_df["status"].isin(["new", "pending", "solved", "closed"])
+        filtered_df["status"].isin(["new", "pending", "closed"])
     ]
 
     grouped = (
