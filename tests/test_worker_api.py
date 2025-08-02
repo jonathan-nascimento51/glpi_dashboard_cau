@@ -73,6 +73,7 @@ class FakeClient(GlpiApiClient):
                 "priority": 3,
                 "date_creation": "2024-06-01T00:00:00",
                 "assigned_to": "",
+                "group": "N1",
                 "requester": "Alice",
                 "users_id_requester": 10,
             },
@@ -83,6 +84,7 @@ class FakeClient(GlpiApiClient):
                 "priority": 2,
                 "date_creation": "2024-06-02T00:00:00",
                 "assigned_to": "",
+                "group": "N2",
                 "requester": "Bob",
                 "users_id_requester": 11,
             },
@@ -104,6 +106,7 @@ def test_rest_endpoints(test_app: TestClient):
     assert isinstance(tickets, list)
     assert tickets and "id" in tickets[0]
     assert tickets[0]["requester"] == "Alice"
+    assert tickets[0]["group"] == "N1"
 
     resp = test_app.get("/v1/metrics/summary")
     assert resp.status_code == 200
@@ -164,6 +167,7 @@ def test_chamados_por_data_cache(dummy_cache: DummyCache):
                 "status": 5,
                 "priority": 2,
                 "date_creation": "2024-06-03",
+                "group": "N1",
                 "requester": "Alice",
                 "users_id_requester": 10,
             },
@@ -173,6 +177,7 @@ def test_chamados_por_data_cache(dummy_cache: DummyCache):
                 "status": 6,
                 "priority": 3,
                 "date_creation": "2024-06-04",
+                "group": "N2",
                 "requester": "Bob",
                 "users_id_requester": 11,
             },
@@ -200,6 +205,7 @@ def test_chamados_por_dia_cache(dummy_cache: DummyCache):
                 "status": 5,
                 "priority": 2,
                 "date_creation": "2024-06-03",
+                "group": "N1",
                 "requester": "Alice",
                 "users_id_requester": 10,
             },
@@ -209,6 +215,7 @@ def test_chamados_por_dia_cache(dummy_cache: DummyCache):
                 "status": 6,
                 "priority": 3,
                 "date_creation": "2024-06-04",
+                "group": "N2",
                 "requester": "Bob",
                 "users_id_requester": 11,
             },
@@ -442,6 +449,7 @@ def test_metrics_aggregated_cache(dummy_cache: DummyCache):
                 "status": 5,
                 "priority": 2,
                 "date_creation": "2024-07-01",
+                "group": "N3",
                 "requester": "Carol",
                 "users_id_requester": 12,
             }
