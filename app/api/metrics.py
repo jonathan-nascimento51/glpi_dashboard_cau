@@ -151,7 +151,7 @@ async def compute_levels(
     """Compute ticket status counts grouped by level and cache the result."""
 
     cache = cache or redis_client
-    cache_key = "metrics:levels"
+    cache_key = "metrics:levels:all"
 
     cached = await cache.get(cache_key)
     if isinstance(cached, dict):
@@ -183,6 +183,77 @@ async def metrics_levels() -> Dict[str, Dict[str, int]]:
         return await compute_levels()
     except Exception as exc:  # pragma: no cover - defensive
         logger.exception("Error computing metrics by level")
+        raise HTTPException(
+            status_code=500, detail="Failed to compute metrics"
+        ) from exc
+
+
+async def compute_level_metrics(
+    level: str,
+    *,
+    client: Optional[GlpiApiClient] = None,
+    cache: Optional[RedisClient] = None,
+    ttl_seconds: int = 300,
+) -> MetricsOverview:
+    """Compute metrics for a single support level and cache the result."""
+
+    cache = cache or redis_client
+    cache_key = f"metrics:levels:{level}"
+
+    async def compute_metrics() -> MetricsOverview:
+        df = await _fetch_dataframe(client)
+        df["status"] = df["status"].astype(str).str.lower()
+        df = df[df["group"] == level]
+
+        open_mask = ~df["status"].isin(CLOSED_STATUSES)
+        open_count = int(open_mask.sum())
+
+        now = pd.Timestamp.utcnow().tz_localize("UTC")
+        month_start = pd.Timestamp(year=now.year, month=now.month, day=1, tz="UTC")
+
+        if not pd.api.types.is_datetime64_any_dtype(df["date_resolved"]):
+            df["date_resolved"] = pd.to_datetime(df["date_resolved"], errors="coerce")
+        if df["date_resolved"].dt.tz is None:
+            df["date_resolved"] = df["date_resolved"].dt.tz_localize("UTC")
+        else:
+            df["date_resolved"] = df["date_resolved"].dt.tz_convert("UTC")
+
+        closed_mask = df["status"].isin(CLOSED_STATUSES) & (
+            df["date_resolved"] >= month_start
+        )
+        closed_count = int(closed_mask.sum())
+
+        status_counts = df["status"].value_counts().astype(int).to_dict()
+
+        return MetricsOverview(
+            open_tickets={level: open_count},
+            tickets_closed_this_month={level: closed_count},
+            status_distribution=status_counts,
+        )
+
+    result = await get_or_set_cache(
+        cache, cache_key, MetricsOverview, compute_metrics, ttl_seconds
+    )
+    if not isinstance(result, MetricsOverview):
+        raise RuntimeError("Cached value is not a MetricsOverview instance")
+    return result
+
+
+KNOWN_LEVELS = {"N1", "N2", "N3", "N4"}
+
+
+@router.get("/metrics/levels/{level}", response_model=MetricsOverview)
+async def metrics_level(level: str) -> MetricsOverview:
+    """Return ticket metrics for a specific support level."""
+
+    level_norm = level.upper()
+    if level_norm not in KNOWN_LEVELS:
+        raise HTTPException(status_code=400, detail="Unknown level")
+
+    try:
+        return await compute_level_metrics(level_norm)
+    except Exception as exc:  # pragma: no cover - defensive
+        logger.exception("Error computing metrics for level %s", level_norm)
         raise HTTPException(
             status_code=500, detail="Failed to compute metrics"
         ) from exc
