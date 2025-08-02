@@ -1,8 +1,8 @@
 """Dash application for displaying GLPI ticket status summaries.
 
 This script defines a minimal Dash app that retrieves ticket metrics
-from a FastAPI backend using the ``/v1/metrics/aggregated`` endpoint and
-the worker API's ``/metrics/levels`` endpoint. The data is presented as a series of
+from a FastAPI backend using the ``/v1/metrics/aggregated`` and
+``/v1/metrics/levels`` endpoints. The data is presented as a series of
 cards. It is designed to be self-contained for demonstration purposes.
 In a full project this code would integrate into the existing Dash
 application infrastructure.
