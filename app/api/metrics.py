@@ -77,7 +77,7 @@ async def _fetch_dataframe(client: Optional[GlpiApiClient]) -> pd.DataFrame:
 def map_group_ids_to_labels(series: pd.Series) -> pd.Series:
     """Map numerical group IDs to their human-readable labels."""
 
-    return series.map(GROUP_LABELS_BY_ID).fillna(series)
+    return pd.to_numeric(series, errors="coerce").map(GROUP_LABELS_BY_ID).fillna(series)
 
 
 async def get_or_set_cache(
