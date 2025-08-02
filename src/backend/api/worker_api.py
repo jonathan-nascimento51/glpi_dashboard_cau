@@ -182,6 +182,12 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
 
     @router.get("/tickets/stream")
     async def tickets_stream(response: Response) -> StreamingResponse:  # noqa: F401
+        """Stream progress lines followed by the final ticket list.
+
+        Front-end clients can attach an ``EventSource`` to this endpoint to
+        display loading progress in real time. The stream emits plain-text
+        status updates and ends with a JSON array of tickets.
+        """
         return StreamingResponse(
             stream_tickets(client, cache=cache, response=response),
             media_type="text/plain",
@@ -190,6 +196,11 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
 
     @router.get("/metrics/summary")
     async def metrics_summary(response: Response) -> dict:  # noqa: F401
+        """Return total, opened and closed ticket counts.
+
+        Use this lightweight endpoint to populate KPI cards without fetching
+        the full ticket dataset.
+        """
         df = await load_tickets(client=client, cache=cache, response=response)
         return calculate_dataframe_metrics(df)
 

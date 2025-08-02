@@ -76,7 +76,8 @@ Endpoints relevantes:
 
 - `/v1/tickets` – lista completa de chamados
  - A resposta inclui os campos `priority` e `requester` em formato textual.
-- `/v1/metrics/summary` – contagem de abertos/fechados
+- `/v1/tickets/stream` – stream de progresso (SSE) seguido do JSON final
+- `/v1/metrics/summary` – contagem rápida de `total`, `abertos` e `fechados`
 - `/v1/graphql/` – versão GraphQL
 - `/v1/cache/stats` – estatísticas de cache
 
