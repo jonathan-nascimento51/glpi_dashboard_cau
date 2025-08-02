@@ -8,7 +8,7 @@ to keep the responses fast even when the dataset is large.
 from __future__ import annotations
 
 import logging
-from typing import Any, Awaitable, Callable, Dict, Optional
+from typing import Any, Awaitable, Callable, Dict, Literal, Optional
 
 import pandas as pd
 from fastapi import HTTPException
@@ -18,7 +18,7 @@ from backend.application.glpi_api_client import (
     GlpiApiClient,
     create_glpi_api_client,
 )
-from backend.constants import GROUP_IDS, GROUP_LABELS_BY_ID
+from backend.constants import GROUP_LABELS_BY_ID
 from backend.infrastructure.glpi.normalization import process_raw
 from shared.utils.redis_client import RedisClient, redis_client
 
@@ -71,6 +71,12 @@ async def _fetch_dataframe(client: Optional[GlpiApiClient]) -> pd.DataFrame:
     df = process_raw(data)
     df["group"] = map_group_ids_to_labels(df["group"])
     return df
+
+
+def map_group_ids_to_labels(series: pd.Series) -> pd.Series:
+    """Map numeric group IDs to their human-readable labels."""
+
+    return series.map(GROUP_LABELS_BY_ID).fillna(series)
 
 
 async def get_or_set_cache(
@@ -264,17 +270,14 @@ async def compute_level_metrics(
     return result
 
 
-KNOWN_LEVELS = set(GROUP_IDS.keys())
+LevelName = Literal["N1", "N2", "N3", "N4"]
 
 
-@router.get("/metrics/levels/{level}", response_model=LevelMetrics)
-async def metrics_level(level: str) -> LevelMetrics:
+@router.get("/metrics/levels/{level}", response_model=MetricsOverview)
+async def metrics_level(level: LevelName) -> MetricsOverview:
     """Return ticket metrics for a specific support level."""
 
     level_norm = level.upper()
-    if level_norm not in KNOWN_LEVELS:
-        raise HTTPException(status_code=400, detail="Unknown level")
-
     try:
         return await compute_level_metrics(level_norm)
     except Exception as exc:  # pragma: no cover - defensive
