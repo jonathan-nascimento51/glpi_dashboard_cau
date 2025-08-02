@@ -154,8 +154,8 @@ async def compute_levels(
     cache_key = "metrics:levels"
 
     cached = await cache.get(cache_key)
-    if cached:
-        return cached  # type: ignore[return-value]
+    if isinstance(cached, dict):
+        return cached
 
     df = await _fetch_dataframe(client)
     df["status"] = df["status"].astype(str).str.lower()
