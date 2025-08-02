@@ -1,3 +1,5 @@
+import json
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -67,8 +69,13 @@ def test_client(monkeypatch: pytest.MonkeyPatch):
     )
 
     async def fake_stream(_client, cache=None, response=None):
-        yield b"fetching...\n"
-        yield b"done\n"
+        tickets = [
+            {"id": 1, "name": "A"},
+            {"id": 2, "name": "B"},
+        ]
+        yield b"event: progress\ndata: fetching\n\n"
+        yield b"event: progress\ndata: processing\n\n"
+        yield f"event: tickets\ndata: {json.dumps(tickets)}\n\n".encode()
 
     monkeypatch.setattr(worker_module, "stream_tickets", fake_stream)
     cache = DummyCache()
@@ -86,5 +93,9 @@ def test_metrics_summary_endpoint(test_client: TestClient):
 def test_tickets_stream_endpoint(test_client: TestClient):
     resp = test_client.get("/v1/tickets/stream")
     assert resp.status_code == 200
-    lines = resp.text.splitlines()
-    assert lines == ["fetching...", "done"]
+    events = [e for e in resp.text.strip().split("\n\n") if e]
+    assert events[0] == "event: progress\ndata: fetching"
+    assert events[1] == "event: progress\ndata: processing"
+    data_line = events[2].splitlines()[1]
+    payload = json.loads(data_line.replace("data: ", ""))
+    assert payload == [{"id": 1, "name": "A"}, {"id": 2, "name": "B"}]

@@ -44,6 +44,7 @@ from backend.application.ticket_loader import (
     stream_tickets,
 )
 from backend.core.settings import KNOWLEDGE_BASE_FILE
+from backend.schemas.metrics import MetricsSummary
 from backend.schemas.ticket import ChamadoPorData, ChamadosPorDia, TicketSummaryOut
 from backend.schemas.ticket_models import CleanTicketDTO
 from backend.services.document_service import read_file
@@ -112,6 +113,20 @@ class Query:
         return Metrics(**metrics_data)  # type: ignore[call-arg]
 
 
+async def metrics_summary(request: Request, response: Response) -> MetricsSummary:
+    """Return total, opened and closed ticket counts.
+
+    This lightweight endpoint powers KPI cards without fetching the full
+    ticket dataset.
+    """
+
+    client: Optional[GlpiApiClient] = request.app.state.client
+    cache = request.app.state.cache
+    df = await load_tickets(client=client, cache=cache, response=response)
+    data = calculate_dataframe_metrics(df)
+    return MetricsSummary.model_validate(data)
+
+
 def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
     """Create FastAPI app exposing versioned REST and GraphQL endpoints.
 
@@ -137,6 +152,8 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
         lifespan=lifespan,
         dependencies=deps,
     )
+    app.state.client = client
+    app.state.cache = cache
     app.add_middleware(RequestIdMiddleware)
     FastAPIInstrumentor().instrument_app(app)
     Instrumentator().instrument(app).expose(app)
@@ -180,29 +197,25 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
             client=client, cache=cache, response=response
         )
 
-    @router.get("/tickets/stream")
+    @router.get(
+        "/tickets/stream",
+        response_model=list[CleanTicketDTO],
+    )
     async def tickets_stream(response: Response) -> StreamingResponse:  # noqa: F401
-        """Stream progress lines followed by the final ticket list.
+        """Stream Server‑Sent Events with progress and final ticket list."""
 
-        Front-end clients can attach an ``EventSource`` to this endpoint to
-        display loading progress in real time. The stream emits plain-text
-        status updates and ends with a JSON array of tickets.
-        """
         return StreamingResponse(
             stream_tickets(client, cache=cache, response=response),
-            media_type="text/plain",
+            media_type="text/event-stream",
             headers=response.headers,
         )
 
-    @router.get("/metrics/summary")
-    async def metrics_summary(response: Response) -> dict:  # noqa: F401
-        """Return total, opened and closed ticket counts.
-
-        Use this lightweight endpoint to populate KPI cards without fetching
-        the full ticket dataset.
-        """
-        df = await load_tickets(client=client, cache=cache, response=response)
-        return calculate_dataframe_metrics(df)
+    router.add_api_route(
+        "/metrics/summary",
+        metrics_summary,
+        methods=["GET"],
+        response_model=MetricsSummary,
+    )
 
     @router.get("/breaker")
     async def breaker_metrics() -> Response:  # noqa: F401
