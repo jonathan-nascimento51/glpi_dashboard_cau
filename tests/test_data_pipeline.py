@@ -15,7 +15,7 @@ def test_process_raw_sanitization():
     ]
     df = process_raw(raw)
 
-    assert df.shape == (3, 8)
+    assert df.shape == (3, 9)
     assert df.columns.tolist() == [
         "id",
         "name",
@@ -25,6 +25,7 @@ def test_process_raw_sanitization():
         "requester",
         "group",
         "date_creation",
+        "date_resolved",
     ]
 
     assert df["id"].tolist() == [1, 0, 0]
@@ -35,6 +36,7 @@ def test_process_raw_sanitization():
     assert df["group"].tolist() == ["", "", ""]
     assert df["priority"].isna().all()
     assert df["date_creation"].isna().all()
+    assert df["date_resolved"].isna().all()
 
 
 def test_process_raw_aliases():
@@ -48,6 +50,7 @@ def test_process_raw_aliases():
             "_users_id_requester": 9,
             "groups_name": "N1",
             "creation_date": "2024-05-01",
+            "solvedate": "2024-05-02",
         }
     ]
     df = process_raw(raw)
@@ -61,6 +64,7 @@ def test_process_raw_aliases():
         "requester",
         "group",
         "date_creation",
+        "date_resolved",
     }
     assert required_columns.issubset(df.columns)
     assert "priority" in df.columns
@@ -72,6 +76,8 @@ def test_process_raw_aliases():
     assert df.iloc[0]["group"] == "N1"
     assert df.iloc[0]["id"] == 1
     assert df.iloc[0]["date_creation"].strftime("%Y-%m-%d") == "2024-05-01"
+    assert df.iloc[0]["date_resolved"].strftime("%Y-%m-%d") == "2024-05-02"
+    assert str(df.dtypes["date_resolved"]) == "datetime64[ns, UTC]"
 
 
 def test_process_raw_to_dataframe_dtypes():
@@ -111,6 +117,9 @@ def test_process_raw_memory_usage_reduced():
     baseline_df = pd.DataFrame(raw)
     baseline_df["name"] = ""
     baseline_df["date_creation"] = pd.NaT
+    baseline_df["priority"] = pd.NA
+    baseline_df["requester"] = ""
+    baseline_df["date_resolved"] = pd.NaT
     baseline = baseline_df.memory_usage(deep=True).sum()
 
     optimized = process_raw(raw).memory_usage(deep=True).sum()

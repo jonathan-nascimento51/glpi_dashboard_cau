@@ -113,13 +113,22 @@ const resp = await fetch(`${import.meta.env.VITE_API_BASE_URL}/v1/metrics/summar
 const data = await resp.json();
 ```
 
+Use this endpoint to populate KPI cards such as total chamados or items
+abertos/fechados without downloading the full ticket list.
+
 The worker also streams progress using `/v1/tickets/stream`:
 
 ```ts
 const url = `${import.meta.env.VITE_API_BASE_URL}/v1/tickets/stream`;
 const es = new EventSource(url);
-es.onmessage = (ev) => console.log('chunk', ev.data);
+es.addEventListener('progress', (ev) => console.log('chunk', ev.data));
+es.addEventListener('tickets', (ev) => console.log(JSON.parse(ev.data)));
 ```
+
+Each message follows the SSE format (`event:`/`data:`). Progress notifications
+with the `progress` event precede the final `tickets` event containing the JSON
+array of tickets. A frontend can append these lines to a log or display a
+spinner until the final event is received.
 
 For aggregated statistics the worker offers `/v1/metrics/aggregated`. This endpoint
 returns cached counts grouped by status and technician, enabling dashboards to
