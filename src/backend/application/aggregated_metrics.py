@@ -57,12 +57,7 @@ def status_by_group(df: pd.DataFrame) -> Dict[str, Dict[str, int]]:
         return {}
 
     filtered_df = df[["group", "status"]].copy()
-    filtered_df["group"] = (
-        pd.to_numeric(filtered_df["group"], errors="coerce")
-        .map(GROUP_LABELS_BY_ID)
-        .fillna(filtered_df["group"].astype(str))
-        .fillna("UNKNOWN")
-    )
+    filtered_df["group"] = map_group_ids_to_labels(filtered_df["group"])
     # ``status`` may be a ``Categorical`` column. Converting to ``object``
     # ensures ``fillna`` does not fail when the placeholder value is not part
     # of the categories.
