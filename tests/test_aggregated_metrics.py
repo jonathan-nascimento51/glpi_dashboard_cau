@@ -75,13 +75,14 @@ def test_status_by_group_counts():
             {"group": "N1", "status": "pending"},
             {"group": "N1", "status": "pending"},
             {"group": "N2", "status": "solved"},
+            {"group": "N2", "status": "closed"},
         ]
     )
 
     result = status_by_group(df)
     assert result == {
-        "N1": {"new": 1, "pending": 2, "solved": 0},
-        "N2": {"new": 0, "pending": 0, "solved": 1},
+        "N1": {"new": 1, "pending": 2, "closed": 0},
+        "N2": {"new": 0, "pending": 0, "closed": 2},
     }
 
 
@@ -97,6 +98,6 @@ def test_status_by_group_with_categorical():
     df["status"] = df["status"].astype("category")
     result = status_by_group(df)
     assert result == {
-        "N1": {"new": 1, "pending": 0, "solved": 0},
-        "N2": {"new": 0, "pending": 1, "solved": 0},
+        "N1": {"new": 1, "pending": 0, "closed": 0},
+        "N2": {"new": 0, "pending": 1, "closed": 0},
     }
