@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { useLevelsMetrics } from '../useLevelsMetrics'
+import { useMetricsLevels } from '../useMetricsLevels'
 import { useApiQuery } from '../useApiQuery'
 
 jest.mock('../useApiQuery')
@@ -15,25 +15,29 @@ const createWrapper = () => {
   }
 }
 
-test('maps API record to levels array', () => {
+test('maps and sorts API record to levels array', () => {
   ;(useApiQuery as jest.Mock).mockReturnValue({
-    data: { N1: { new: 1, progress: 2, pending: 3, resolved: 4 } },
+    data: {
+      N2: { new: 2, progress: 1, pending: 0, resolved: 3 },
+      N1: { new: 1, progress: 2, pending: 3, resolved: 4 },
+    },
     isLoading: false,
     isError: false,
     error: null,
   })
   const { wrapper } = createWrapper()
-  const { result } = renderHook(() => useLevelsMetrics(), { wrapper })
+  const { result } = renderHook(() => useMetricsLevels(), { wrapper })
   expect(result.current.levels).toEqual([
     { name: 'N1', metrics: { new: 1, progress: 2, pending: 3, resolved: 4 } },
+    { name: 'N2', metrics: { new: 2, progress: 1, pending: 0, resolved: 3 } },
   ])
 })
 
-test('refreshLevels invalidates query', () => {
-  ;(useApiQuery as jest.Mock).mockReturnValue({ data: {}, isLoading: false })
-  const { queryClient, wrapper } = createWrapper()
-  const invalidate = jest.spyOn(queryClient, 'invalidateQueries')
-  const { result } = renderHook(() => useLevelsMetrics(), { wrapper })
-  result.current.refreshLevels()
-  expect(invalidate).toHaveBeenCalledWith({ queryKey: ['levels-metrics'] })
+test('refresh calls query.refetch', () => {
+  const refetch = jest.fn()
+  ;(useApiQuery as jest.Mock).mockReturnValue({ data: {}, isLoading: false, refetch })
+  const { wrapper } = createWrapper()
+  const { result } = renderHook(() => useMetricsLevels(), { wrapper })
+  result.current.refresh()
+  expect(refetch).toHaveBeenCalled()
 })
