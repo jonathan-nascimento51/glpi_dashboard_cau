@@ -39,7 +39,7 @@ def compute_aggregated(df: pd.DataFrame) -> Dict[str, Any]:
 
 
 def status_by_group(df: pd.DataFrame) -> Dict[str, Dict[str, int]]:
-    """Return counts of ``new``, ``pending`` and ``solved`` tickets per group.
+    """Return counts of ``new``, ``pending`` and ``closed`` tickets per group.
 
     Parameters
     ----------
@@ -62,7 +62,10 @@ def status_by_group(df: pd.DataFrame) -> Dict[str, Dict[str, int]]:
     filtered_df["status"] = (
         filtered_df["status"].astype("object").fillna("").astype(str).str.lower()
     )
-    filtered_df = filtered_df[filtered_df["status"].isin(["new", "pending", "solved"])]
+    filtered_df["status"] = filtered_df["status"].replace({"solved": "closed"})
+    filtered_df = filtered_df[
+        filtered_df["status"].isin(["new", "pending", "solved", "closed"])
+    ]
 
     grouped = (
         filtered_df.groupby(["group", "status"], observed=True)
@@ -70,11 +73,11 @@ def status_by_group(df: pd.DataFrame) -> Dict[str, Dict[str, int]]:
         .unstack(fill_value=0)
     )
 
-    for col in ["new", "pending", "solved"]:
+    for col in ["new", "pending", "closed"]:
         if col not in grouped.columns:
             grouped[col] = 0
 
-    grouped = grouped[["new", "pending", "solved"]]
+    grouped = grouped[["new", "pending", "closed"]]
     grouped = grouped.astype(int)
     return grouped.to_dict(orient="index")
 
