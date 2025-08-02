@@ -8,11 +8,6 @@ from dash import Dash, Input, Output, callback
 from frontend.components.components import _status_fig, compute_ticket_stats
 
 
-def _get_filtered(df: pd.DataFrame, status: str | None) -> pd.DataFrame:
-    """Return dataframe optionally filtered by status."""
-    return df[df["status"] == status.lower()] if status else df
-
-
 def register_callbacks(
     app: Dash,
     loader: Callable[..., List[Dict[str, Any]]],
@@ -59,20 +54,19 @@ def register_callbacks(
         store: Optional[Dict[str, Any]], status: Optional[str]
     ) -> tuple[List[Dict[str, Any]], Dict[str, Any]]:
         rng: str = store.get("ticket_range", ticket_range) if store else ticket_range
-        data = loader(rng, **filters)
+        data = loader(rng, status=status, **filters)
         df: pd.DataFrame = pd.DataFrame(data)
-        filtered: pd.DataFrame = _get_filtered(df, status)
         fig: Dict[str, Any] = {
             "data": [
                 {
                     "type": "scattergl",
                     "mode": "markers",
-                    "x": filtered["date_creation"],
-                    "y": filtered["id"],
+                    "x": df["date_creation"],
+                    "y": df["id"],
                 }
             ]
         }
-        return list(filtered.to_dict("records")), fig  # type: ignore
+        return list(df.to_dict("records")), fig  # type: ignore
 
     @callback(
         Output("notification-container", "children"),
