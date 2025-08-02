@@ -29,7 +29,7 @@ def _fetch_api_data(ticket_range: str = "0-99", **filters: str) -> list[dict[str
 
     url = f"{WORKER_BASE_URL}/v1/tickets"
     try:
-        resp = requests.get(url, timeout=30)
+        resp = requests.get(url, params={"range": ticket_range, **filters}, timeout=30)
         resp.raise_for_status()
         return resp.json()
     except requests.RequestException as exc:
