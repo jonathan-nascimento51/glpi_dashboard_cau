@@ -168,13 +168,20 @@ async def stream_tickets(
     cache: Optional[RedisClient] = None,
     response: Optional[Response] = None,
 ) -> AsyncGenerator[bytes, None]:
-    """Yield progress events followed by final ticket data."""
+    """Yield SSE events with progress updates and the final ticket list."""
 
-    yield b"fetching...\n"
+    # Initial progress notification
+    yield b"event: progress\ndata: fetching\n\n"
+
+    # Load tickets using existing helpers
     df = await load_tickets(client=client, cache=cache, response=response)
-    yield b"processing...\n"
+
+    # Notify clients that processing is underway
+    yield b"event: progress\ndata: processing\n\n"
+
+    # Emit the final ticket payload as JSON
     data = df.astype(object).where(pd.notna(df), None).to_dict(orient="records")
-    yield json.dumps(data).encode()
+    yield f"event: tickets\ndata: {json.dumps(data)}\n\n".encode()
 
 
 async def check_glpi_connection() -> int:
