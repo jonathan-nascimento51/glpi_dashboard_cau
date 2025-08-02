@@ -30,7 +30,9 @@ from strawberry.types import Info
 
 from backend.api.request_id_middleware import RequestIdMiddleware
 from backend.application.aggregated_metrics import (
+    compute_aggregated,
     get_cached_aggregated,
+    status_by_group,
 )
 from backend.application.glpi_api_client import (
     GlpiApiClient,
@@ -229,7 +231,9 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
     async def metrics_aggregated() -> dict:  # noqa: F401
         metrics = await get_cached_aggregated(cache, "metrics_aggregated")
         if metrics is None:
-            raise HTTPException(status_code=503, detail="metrics not available")
+            df = await load_tickets(client=client, cache=cache)
+            metrics = compute_aggregated(df)
+            await cache.set("metrics_aggregated", metrics)
         return metrics
 
     @router.get("/metrics/levels")
@@ -237,7 +241,9 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
         """Return status counts grouped by ticket level (group)."""
         data = await cache.get("metrics_levels")
         if data is None:
-            raise HTTPException(status_code=503, detail="metrics not available")
+            df = await load_tickets(client=client, cache=cache)
+            data = status_by_group(df)
+            await cache.set("metrics_levels", data)
         return cast(Dict[str, Dict[str, int]], data)
 
     @router.get(
