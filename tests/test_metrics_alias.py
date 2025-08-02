@@ -14,5 +14,6 @@ def test_overview_endpoint_alias(monkeypatch):
     monkeypatch.setattr(worker_api, "get_cached_aggregated", fake_get_cached_aggregated)
     app = create_app()
     client = TestClient(app)
-    resp = client.get("/v1/metrics/aggregated")
+    assert resp.status_code == 200
+    assert resp.json() == {"status": {"new": 1}}
     assert resp.status_code == 200
