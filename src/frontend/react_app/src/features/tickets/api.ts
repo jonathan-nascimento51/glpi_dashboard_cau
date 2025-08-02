@@ -6,18 +6,23 @@ export function useTicketMetrics() {
     ['ticket-metrics'],
     '/v1/metrics/aggregated',
     {
-      transformResponse: (data: unknown): MetricsOverview => {
+      select: (data: any): MetricsOverview => {
         if (
+          data &&
           typeof data === 'object' &&
-          data !== null &&
-          'metric1' in data &&
-          'metric2' in data
+          'status' in data &&
+          typeof data.status === 'object' &&
+          data.status !== null &&
+          Object.values(data.status).every((v) => typeof v === 'number') &&
+          'per_user' in data &&
+          typeof data.per_user === 'object' &&
+          data.per_user !== null &&
+          Object.values(data.per_user).every((v) => typeof v === 'number')
         ) {
           return data as MetricsOverview;
-        } else {
-          throw new Error('Invalid response structure for MetricsOverview');
         }
-      }
+        throw new Error('Invalid response structure for MetricsOverview');
+      },
     }
   );
 }
