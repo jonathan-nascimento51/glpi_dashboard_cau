@@ -29,7 +29,7 @@ def fetch_levels(base_url: str) -> Dict[str, Dict[str, int]]:
         response = requests.get(endpoint, timeout=30)
         response.raise_for_status()
         return response.json()
-    except Exception:  # pragma: no cover - network errors
+    except (requests.exceptions.RequestException, ValueError):  # pragma: no cover - network errors
         logger.exception("Failed to fetch level metrics from %s", endpoint)
         return {}
 
