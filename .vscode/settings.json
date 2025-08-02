@@ -43,5 +43,8 @@
   // ▼ Outros ------------------------------------------------------------------
   "docwriter.style": "Auto-detect",
   "makefile.makefilePath": "Makefile",
-  "wolf.disableHotModeWarning": true
+  "wolf.disableHotModeWarning": true,
+  "cursorpyright.analysis.extraPaths": [
+    "./src"
+  ]
 }
