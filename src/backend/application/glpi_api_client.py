@@ -1,5 +1,28 @@
+"""Async utilities for interacting with the GLPI API.
+
+This module exposes :class:`GlpiApiClient` for high level access to the
+GLPI REST API and the helper coroutine
+:func:`get_status_counts_by_levels` which aggregates ticket counts by
+status for a set of service levels::
+
+    >>> levels = {"N1": 89, "N2": 90}
+    >>> await get_status_counts_by_levels(levels)
+    {'N1': {'new': 5, 'solved': 2}, 'N2': {...}}
+
+The function returns a mapping of level names to status counts with the
+status keys normalised to lower case.
+"""
+
+from __future__ import annotations
+
 import logging
 from typing import Any, Dict, List, Optional, Type
+
+__all__ = [
+    "GlpiApiClient",
+    "create_glpi_api_client",
+    "get_status_counts_by_levels",
+]
 
 from backend.adapters.factory import create_glpi_session
 from backend.adapters.mapping_service import MappingService
@@ -200,6 +223,63 @@ class GlpiApiClient:
             except Exception as exc:  # pragma: no cover - best effort
                 logger.error("failed to translate ticket %s: %s", item.get("id"), exc)
         return translated
+
+
+async def get_status_counts_by_levels(
+    level_ids: Dict[str, int],
+) -> Dict[str, Dict[str, int]]:
+    """Return status counts for each support level.
+
+    Args:
+        level_ids: Mapping of level names to GLPI group IDs.
+
+    Returns:
+        A nested mapping where each level name maps to a dictionary of
+        status names (lowercased) and their respective counts. If an
+        error occurs while fetching data for a level, that level will
+        map to an empty dictionary.
+    """
+
+    summary: Dict[str, Dict[str, int]] = {}
+    try:
+        async with GlpiApiClient() as client:
+            for level, group_id in level_ids.items():
+                try:
+                    tickets = await client.get_all_paginated(
+                        "Ticket",
+                        criteria=[
+                            {
+                                "field": "groups_id",
+                                "searchtype": "equals",
+                                "value": str(group_id),
+                            }
+                        ],
+                    )
+                    counts: Dict[str, int] = {}
+                    for item in tickets:
+                        status_name: Optional[str] = None
+                        if isinstance(item, dict):
+                            status = item.get("status")
+                            if isinstance(status, dict):
+                                status_name = status.get("name")
+                            elif status is not None:
+                                status_name = str(status)
+                            elif item.get("status_name"):
+                                status_name = str(item["status_name"])
+                        if not status_name:
+                            continue
+                        key = status_name.lower()
+                        counts[key] = counts.get(key, 0) + 1
+                    summary[level] = counts
+                except Exception:  # pragma: no cover - best effort
+                    logger.exception(
+                        "failed to fetch status counts for level %s", level
+                    )
+                    summary[level] = {}
+    except Exception:  # pragma: no cover - best effort
+        logger.exception("failed to initialise GlpiApiClient")
+        return {level: {} for level in level_ids}
+    return summary
 
 
 def create_glpi_api_client() -> Optional[GlpiApiClient]:
