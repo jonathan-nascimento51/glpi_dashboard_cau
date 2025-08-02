@@ -36,8 +36,7 @@ function ChamadosHeatmapComponent() {
       <div className="flex flex-row items-center justify-between px-2 pb-3 border-b border-border/60 min-h-[48px]">
         <div className="levels-title">Chamados no Ano</div>
         <div className="levels-subtitle">Heatmap Diário</div>
-      <div/>
-    </div>
+      </div>
       <div className="overflow-x-auto pb-2 mb-4 mt-2">
         <ReactCalendarHeatmap
           startDate={startDate}
