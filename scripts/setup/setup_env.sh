@@ -151,12 +151,15 @@ setup_python_env() {
     export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
     pip install --upgrade pip
     if [ "$OFFLINE_INSTALL" = "true" ]; then
-        local wheel_dir
-        wheel_dir=${WHEELS_DIR:-./wheels}
-        pip install --no-index --find-links="$wheel_dir" -r requirements.txt -r requirements-dev.txt
+        info "Instalando dependências do modo offline a partir de ./wheels..."
+        # requirements-dev.txt já inclui as dependências de requirements.txt
+        pip install --no-index --find-links="${WHEELS_DIR:-./wheels}" -r requirements-dev.txt
     else
-        pip install -r requirements.txt
-        pip install -e .[dev]
+        info "Instalando dependências de desenvolvimento a partir de requirements-dev.txt..."
+        # Instala todas as dependências de desenvolvimento com versões fixadas para um ambiente consistente.
+        pip install -r requirements-dev.txt
+        info "Instalando o projeto em modo editável..."
+        pip install -e . --no-deps
     fi
     unset PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD
 

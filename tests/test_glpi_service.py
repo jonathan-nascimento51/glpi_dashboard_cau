@@ -10,6 +10,7 @@ from __future__ import annotations
 from typing import Any, Dict, List
 
 import pytest
+import requests
 
 import backend.services.glpi as glpi_service
 

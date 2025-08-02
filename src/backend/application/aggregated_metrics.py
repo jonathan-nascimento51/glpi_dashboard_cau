@@ -11,6 +11,29 @@ from backend.constants import GROUP_LABELS_BY_ID
 from shared.utils.redis_client import RedisClient, redis_client
 
 
+def map_group_ids_to_labels(series: pd.Series) -> pd.Series:
+    """
+    Map numeric group IDs in a pandas Series to human-readable labels using GROUP_LABELS_BY_ID.
+
+    Parameters
+    ----------
+    series : pd.Series
+        Series containing group IDs (typically numeric).
+
+    Returns
+    -------
+    pd.Series
+        Series with group IDs replaced by their corresponding human-readable labels
+        from GROUP_LABELS_BY_ID. If a group ID is not found in the mapping,
+        the original value is retained.
+
+    Notes
+    -----
+    The mapping source is the GROUP_LABELS_BY_ID constant imported from backend.constants.
+    """
+    return series.map(GROUP_LABELS_BY_ID).fillna(series)
+
+
 def tickets_by_date(df: pd.DataFrame) -> pd.DataFrame:
     """Return ticket counts grouped by ``date_creation``."""
     if "date_creation" not in df.columns:
@@ -65,9 +88,7 @@ def status_by_group(df: pd.DataFrame) -> Dict[str, Dict[str, int]]:
         filtered_df["status"].astype("object").fillna("").astype(str).str.lower()
     )
     filtered_df["status"] = filtered_df["status"].replace({"solved": "closed"})
-    filtered_df = filtered_df[
-        filtered_df["status"].isin(["new", "pending", "closed"])
-    ]
+    filtered_df = filtered_df[filtered_df["status"].isin(["new", "pending", "closed"])]
 
     grouped = (
         filtered_df.groupby(["group", "status"], observed=True)

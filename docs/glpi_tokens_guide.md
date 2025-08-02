@@ -92,7 +92,7 @@ Todos os serviços devem aparecer como **running / healthy**.
 
 ## 7 ▪️ Acessar o dashboard
 
-- **API worker:** <http://localhost:8000/v1/metrics/summary>
+- **API worker:** <http://localhost:8000/v1/metrics/aggregated>
 - **Dashboard (Dash/Plotly):** <http://localhost:8080>
 
 Caso a API esteja indisponível ou tokens inválidos, o front‑end exibe um alerta amigável:

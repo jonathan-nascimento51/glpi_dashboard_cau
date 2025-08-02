@@ -19,10 +19,7 @@ import strawberry
 import uvicorn
 from fastapi import APIRouter, Depends, FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import (
-    PlainTextResponse,
-    StreamingResponse,
-)
+from fastapi.responses import PlainTextResponse
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from prometheus_fastapi_instrumentator import Instrumentator
 from strawberry.fastapi import GraphQLRouter
@@ -30,7 +27,9 @@ from strawberry.types import Info
 
 from backend.api.request_id_middleware import RequestIdMiddleware
 from backend.application.aggregated_metrics import (
+    compute_aggregated,
     get_cached_aggregated,
+    status_by_group,
 )
 from backend.application.glpi_api_client import (
     GlpiApiClient,
@@ -41,7 +40,6 @@ from backend.application.ticket_loader import (
     check_glpi_connection,
     load_and_translate_tickets,
     load_tickets,
-    stream_tickets,
 )
 from backend.core.settings import KNOWLEDGE_BASE_FILE
 from backend.schemas.ticket import ChamadoPorData, ChamadosPorDia, TicketSummaryOut
@@ -137,6 +135,8 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
         lifespan=lifespan,
         dependencies=deps,
     )
+    app.state.client = client
+    app.state.cache = cache
     app.add_middleware(RequestIdMiddleware)
     FastAPIInstrumentor().instrument_app(app)
     Instrumentator().instrument(app).expose(app)
@@ -180,22 +180,16 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
             client=client, cache=cache, response=response
         )
 
-    @router.get("/tickets/stream")
-    async def tickets_stream(response: Response) -> StreamingResponse:  # noqa: F401
-        return StreamingResponse(
-            stream_tickets(client, cache=cache, response=response),
-            media_type="text/plain",
-            headers=response.headers,
-        )
-
-    @router.get("/metrics/summary")
-    async def metrics_summary(response: Response) -> dict:  # noqa: F401
-        df = await load_tickets(client=client, cache=cache, response=response)
-        return calculate_dataframe_metrics(df)
+    # `/tickets/stream` removed due to lack of consumers in the frontend. Re-add
+    # when a streaming UI is required.
 
     @router.get("/breaker")
     async def breaker_metrics() -> Response:  # noqa: F401
-        """Expose Prometheus metrics for the circuit breaker."""
+        """Expose circuit‑breaker metrics for observability tools.
+
+        Not consumed by the dashboard; intended for Prometheus or similar
+        monitoring stacks.
+        """
         from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 
         data = generate_latest()
@@ -205,7 +199,9 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
     async def metrics_aggregated() -> dict:  # noqa: F401
         metrics = await get_cached_aggregated(cache, "metrics_aggregated")
         if metrics is None:
-            raise HTTPException(status_code=503, detail="metrics not available")
+            df = await load_tickets(client=client, cache=cache)
+            metrics = compute_aggregated(df)
+            await cache.set("metrics_aggregated", metrics)
         return metrics
 
     @router.get("/metrics/levels")
@@ -213,7 +209,9 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
         """Return status counts grouped by ticket level (group)."""
         data = await cache.get("metrics_levels")
         if data is None:
-            raise HTTPException(status_code=503, detail="metrics not available")
+            df = await load_tickets(client=client, cache=cache)
+            data = status_by_group(df)
+            await cache.set("metrics_levels", data)
         return cast(Dict[str, Dict[str, int]], data)
 
     @router.get(
@@ -241,7 +239,11 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
     async def read_model_tickets(
         limit: int = 100, offset: int = 0
     ) -> list[TicketSummaryOut]:
-        """Return tickets from the local read model (materialized view)."""
+        """Return tickets from the local read model (materialized view).
+
+        Provided for analytics services or future dashboards that may query the
+        materialized view directly.
+        """
         try:
             rows = await query_ticket_summary(limit=limit, offset=offset)
             return [TicketSummaryOut.model_validate(r.__dict__) for r in rows]
@@ -253,12 +255,20 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
 
     @router.get("/cache/stats")
     async def cache_stats() -> dict:  # noqa: F401
-        """Return basic hit/miss statistics for the cache."""
+        """Return cache hit/miss statistics for troubleshooting.
+
+        Useful for ops when tuning Redis; the frontend does not consume this
+        endpoint.
+        """
         return cache.get_cache_metrics()
 
     @router.get("/knowledge-base", response_class=PlainTextResponse)
     async def knowledge_base() -> PlainTextResponse:  # noqa: F401
-        """Return the contents of the configured knowledge base file."""
+        """Serve the contents of the configured knowledge base file.
+
+        Potential consumer: LLM assistants needing context about ticket
+        handling. Currently unused by the React frontend.
+        """
         try:
             content = read_file(KNOWLEDGE_BASE_FILE)
             return PlainTextResponse(content)

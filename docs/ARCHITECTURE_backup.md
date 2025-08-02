@@ -15,7 +15,7 @@ This document provides a quick overview of how the repository is structured, the
 
 1. `glpi_session.py` authenticates against the GLPI REST API.
 2. Background workers normalise the responses into `pandas.DataFrame` objects and store them in Redis/PostgreSQL.
-3. The FastAPI layer (`src/backend/api/worker_api.py`) exposes `/v1/tickets` and `/v1/metrics/summary` endpoints that read from this cache. The `/v1/tickets` response now includes the `priority` label and the requester name.
+3. The FastAPI layer (`src/backend/api/worker_api.py`) exposes `/v1/tickets`, `/v1/metrics/aggregated` and `/v1/metrics/levels` endpoints that read from this cache. The `/v1/tickets` response now includes the `priority` label and the requester name.
 4. Dash components or the React front‑end request these endpoints to render tables and charts.
 
 ```text

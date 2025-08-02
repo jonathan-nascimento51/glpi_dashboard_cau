@@ -8,6 +8,7 @@ to keep the responses fast even when the dataset is large.
 from __future__ import annotations
 
 import logging
+from enum import Enum
 from typing import Any, Awaitable, Callable, Dict, Optional
 
 import pandas as pd
@@ -18,7 +19,7 @@ from backend.application.glpi_api_client import (
     GlpiApiClient,
     create_glpi_api_client,
 )
-from backend.constants import GROUP_IDS, GROUP_LABELS_BY_ID
+from backend.constants import GROUP_LABELS_BY_ID
 from backend.infrastructure.glpi.normalization import process_raw
 from shared.utils.redis_client import RedisClient, redis_client
 
@@ -41,6 +42,14 @@ class MetricsOverview(BaseModel):
     status_distribution: dict[str, int] = Field(default_factory=dict)
 
 
+class LevelMetrics(BaseModel):
+    """Metrics for a single support level."""
+
+    open_tickets: int = 0
+    tickets_closed_this_month: int = 0
+    status_distribution: dict[str, int] = Field(default_factory=dict)
+
+
 async def _fetch_dataframe(client: Optional[GlpiApiClient]) -> pd.DataFrame:
     """Return tickets as a normalized DataFrame."""
     client = client or create_glpi_api_client()
@@ -54,6 +63,12 @@ async def _fetch_dataframe(client: Optional[GlpiApiClient]) -> pd.DataFrame:
     df = process_raw(data)
     df["group"] = df["group"].map(GROUP_LABELS_BY_ID).fillna(df["group"])
     return df
+
+
+def map_group_ids_to_labels(series: pd.Series) -> pd.Series:
+    """Map numerical group IDs to their human-readable labels."""
+
+    return pd.to_numeric(series, errors="coerce").map(GROUP_LABELS_BY_ID).fillna(series)
 
 
 async def get_or_set_cache(
@@ -170,6 +185,11 @@ async def compute_levels(
     )
     result: Dict[str, Dict[str, int]] = grouped.to_dict(orient="index")
 
+    # Ensure all support levels are present even if missing from the data
+    all_statuses = {status: 0 for status in grouped.columns}
+    for level in ["N1", "N2", "N3", "N4"]:
+        result.setdefault(level, all_statuses.copy())
+
     try:
         await cache.set(cache_key, result, ttl_seconds=ttl_seconds)
     except Exception as exc:  # pragma: no cover - cache errors
@@ -197,13 +217,13 @@ async def compute_level_metrics(
     client: Optional[GlpiApiClient] = None,
     cache: Optional[RedisClient] = None,
     ttl_seconds: int = 300,
-) -> MetricsOverview:
+) -> LevelMetrics:
     """Compute metrics for a single support level and cache the result."""
 
     cache = cache or redis_client
     cache_key = f"metrics:levels:{level}"
 
-    async def compute_metrics() -> MetricsOverview:
+    async def compute_metrics() -> LevelMetrics:
         df = await _fetch_dataframe(client)
         df["status"] = df["status"].astype(str).str.lower()
         if "group" not in df.columns:
@@ -233,25 +253,31 @@ async def compute_level_metrics(
 
         status_counts = df["status"].value_counts().astype(int).to_dict()
 
-        return MetricsOverview(
-            open_tickets={level: open_count},
-            tickets_closed_this_month={level: closed_count},
+        return LevelMetrics(
+            open_tickets=open_count,
+            tickets_closed_this_month=closed_count,
             status_distribution=status_counts,
         )
 
     result = await get_or_set_cache(
-        cache, cache_key, MetricsOverview, compute_metrics, ttl_seconds
+        cache, cache_key, LevelMetrics, compute_metrics, ttl_seconds
     )
-    if not isinstance(result, MetricsOverview):
-        raise RuntimeError("Cached value is not a MetricsOverview instance")
+    if not isinstance(result, LevelMetrics):
+        raise RuntimeError("Cached value is not a LevelMetrics instance")
     return result
 
 
-KNOWN_LEVELS = set(GROUP_IDS.keys())
+class SupportLevel(str, Enum):
+    """Known support levels exposed by the API."""
+
+    N1 = "N1"
+    N2 = "N2"
+    N3 = "N3"
+    N4 = "N4"
 
 
 @router.get("/metrics/levels/{level}", response_model=MetricsOverview)
-async def metrics_level(level: str) -> MetricsOverview:
+async def metrics_level(level: SupportLevel) -> MetricsOverview:
     """Return ticket metrics for a specific support level."""
 
     level_norm = level.upper()
@@ -259,9 +285,9 @@ async def metrics_level(level: str) -> MetricsOverview:
         raise HTTPException(status_code=404, detail="Unknown level")
 
     try:
-        return await compute_level_metrics(level_norm)
+        return await compute_level_metrics(level_value)
     except Exception as exc:  # pragma: no cover - defensive
-        logger.exception("Error computing metrics for level %s", level_norm)
+        logger.exception("Error computing metrics for level %s", level_value)
         raise HTTPException(
             status_code=500, detail="Failed to compute metrics"
         ) from exc

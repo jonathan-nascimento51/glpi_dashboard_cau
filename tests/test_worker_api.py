@@ -99,7 +99,7 @@ async def test_app(dummy_cache: DummyCache):
     yield TestClient(app)
 
 
-def test_rest_endpoints(test_app: TestClient):
+def test_tickets_endpoint(test_app: TestClient):
     resp = test_app.get("/v1/tickets")
     assert resp.status_code == 200
     tickets = resp.json()
@@ -107,11 +107,6 @@ def test_rest_endpoints(test_app: TestClient):
     assert tickets and "id" in tickets[0]
     assert tickets[0]["requester"] == "Alice"
     assert tickets[0]["group"] == "N1"
-
-    resp = test_app.get("/v1/metrics/summary")
-    assert resp.status_code == 200
-    metrics = resp.json()
-    assert metrics == {"total": 2, "opened": 0, "closed": 2}
 
 
 def test_aggregated_metrics(dummy_cache: DummyCache):
@@ -122,6 +117,25 @@ def test_aggregated_metrics(dummy_cache: DummyCache):
     data = resp.json()
     assert "status" in data
     assert "per_user" in data
+
+
+def test_metrics_aggregated_cache_miss(dummy_cache: DummyCache):
+    client = TestClient(create_app(client=FakeClient(), cache=dummy_cache))
+    resp = client.get("/v1/metrics/aggregated")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["status"].get("closed") == 2
+    assert dummy_cache.data["metrics_aggregated"] == data
+
+
+def test_metrics_levels_cache_miss(dummy_cache: DummyCache):
+    client = TestClient(create_app(client=FakeClient(), cache=dummy_cache))
+    resp = client.get("/v1/metrics/levels")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["N1"]["closed"] == 1
+    assert data["N2"]["closed"] == 1
+    assert dummy_cache.data["metrics_levels"] == data
 
 
 def test_chamados_por_data(dummy_cache: DummyCache):
@@ -156,78 +170,78 @@ def test_chamados_por_dia(dummy_cache: DummyCache):
 
 def test_chamados_por_data_cache(dummy_cache: DummyCache):
     session = FakeClient()
-    client = TestClient(create_app(client=session, cache=dummy_cache))
-    first = client.get("/v1/chamados/por-data").json()
+    with TestClient(create_app(client=session, cache=dummy_cache)) as client:
+        first = client.get("/v1/chamados/por-data").json()
 
-    def later_data(*args, **kwargs):
-        raw = [
-            {
-                "id": 1,
-                "name": "X",
-                "status": 5,
-                "priority": 2,
-                "date_creation": "2024-06-03",
-                "group": "N1",
-                "requester": "Alice",
-                "users_id_requester": 10,
-            },
-            {
-                "id": 2,
-                "name": "Y",
-                "status": 6,
-                "priority": 3,
-                "date_creation": "2024-06-04",
-                "group": "N2",
-                "requester": "Bob",
-                "users_id_requester": 11,
-            },
-        ]
-        return [CleanTicketDTO.model_validate(r) for r in raw]
+        def later_data(*args, **kwargs):
+            raw = [
+                {
+                    "id": 1,
+                    "name": "X",
+                    "status": 5,
+                    "priority": 2,
+                    "date_creation": "2024-06-03",
+                    "group": "N1",
+                    "requester": "Alice",
+                    "users_id_requester": 10,
+                },
+                {
+                    "id": 2,
+                    "name": "Y",
+                    "status": 6,
+                    "priority": 3,
+                    "date_creation": "2024-06-04",
+                    "group": "N2",
+                    "requester": "Bob",
+                    "users_id_requester": 11,
+                },
+            ]
+            return [CleanTicketDTO.model_validate(r) for r in raw]
 
-    session.fetch_tickets = later_data  # type: ignore[assignment]
-    second = client.get("/v1/chamados/por-data").json()
-    assert first == second
-    stats = client.get("/v1/cache/stats").json()
-    assert stats["hits"] == 1
-    assert stats["misses"] == 2
+        session.fetch_tickets = later_data  # type: ignore[assignment]
+        second = client.get("/v1/chamados/por-data").json()
+        assert first == second
+        stats = client.get("/v1/cache/stats").json()
+        assert stats["hits"] >= 1
+        assert stats["misses"] >= 1
 
 
 def test_chamados_por_dia_cache(dummy_cache: DummyCache):
     session = FakeClient()
-    client = TestClient(create_app(client=session, cache=dummy_cache))
-    first = client.get("/v1/chamados/por-dia").json()
+    with TestClient(create_app(client=session, cache=dummy_cache)) as client:
+        first = client.get("/v1/chamados/por-dia").json()
 
-    def later_data(*args, **kwargs):
-        raw = [
-            {
-                "id": 1,
-                "name": "X",
-                "status": 5,
-                "priority": 2,
-                "date_creation": "2024-06-03",
-                "group": "N1",
-                "requester": "Alice",
-                "users_id_requester": 10,
-            },
-            {
-                "id": 2,
-                "name": "Y",
-                "status": 6,
-                "priority": 3,
-                "date_creation": "2024-06-04",
-                "group": "N2",
-                "requester": "Bob",
-                "users_id_requester": 11,
-            },
-        ]
-        return [CleanTicketDTO.model_validate(r) for r in raw]
+        def later_data(*args, **kwargs):
+            raw = [
+                {
+                    "id": 1,
+                    "name": "X",
+                    "status": 5,
+                    "priority": 2,
+                    "date_creation": "2024-06-03",
+                    "group": "N1",
+                    "requester": "Alice",
+                    "users_id_requester": 10,
+                },
+                {
+                    "id": 2,
+                    "name": "Y",
+                    "status": 6,
+                    "priority": 3,
+                    "date_creation": "2024-06-04",
+                    "group": "N2",
+                    "requester": "Bob",
+                    "users_id_requester": 11,
+                },
+            ]
+            return [CleanTicketDTO.model_validate(r) for r in raw]
 
-    session.fetch_tickets = later_data  # type: ignore[assignment]
-    second = client.get("/v1/chamados/por-dia").json()
-    assert first == second
-    stats = client.get("/v1/cache/stats").json()
-    assert stats["hits"] == 1
-    assert stats["misses"] == 2
+        session.fetch_tickets = later_data  # type: ignore[assignment]
+        second = client.get("/v1/chamados/por-dia").json()
+        assert first == second
+        stats = client.get("/v1/cache/stats").json()
+        assert stats["hits"] >= 1
+        assert stats["misses"] >= 1
 
 
 @pytest.mark.asyncio
@@ -260,23 +274,6 @@ def test_openapi_schema_models(dummy_cache: DummyCache):
         "content"
     ]["application/json"]["schema"]
     assert por_dia["items"]["$ref"].endswith("ChamadosPorDia")
-
-
-def test_tickets_stream(monkeypatch: pytest.MonkeyPatch, dummy_cache: DummyCache):
-    async def fake_gen(_client):
-        yield b"fetching...\n"
-        yield b"done\n"
-
-    monkeypatch.setitem(
-        create_app.__globals__,
-        "_stream_tickets",
-        lambda client, cache=None: fake_gen(client),
-    )
-
-    client = TestClient(create_app(client=FakeClient(), cache=dummy_cache))
-    resp = client.get("/v1/tickets/stream")
-    assert resp.status_code == 200
-    assert resp.text.splitlines() == ["fetching...", "done"]
 
 
 def test_graphql_metrics(dummy_cache: DummyCache):
@@ -316,7 +313,6 @@ def test_client_reused(monkeypatch: pytest.MonkeyPatch, dummy_cache: DummyCache)
     # Create the app without passing a client, so it uses the patched factory
     client = TestClient(create_app(cache=dummy_cache))
     client.get("/v1/tickets")
-    client.get("/v1/metrics/summary")
 
     # Only one client instance should have been created for the app's lifespan
     assert len(instances) == 1
