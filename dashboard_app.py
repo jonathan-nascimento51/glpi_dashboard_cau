@@ -42,7 +42,8 @@ def load_data(ticket_range: str = "0-99", **filters: str) -> list[dict[str, Any]
     if USE_MOCK_DATA:
         logging.info("Loading ticket data from mock file")
         try:
-            return pd.read_json("tests/resources/mock_tickets.json").to_dict("records")
+            with open("tests/resources/mock_tickets.json", "r", encoding="utf-8") as f:
+                return json.load(f)
         except Exception as exc:  # pragma: no cover - file errors
             logging.error("failed to load mock data: %s", exc)
             raise
