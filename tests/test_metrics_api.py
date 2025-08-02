@@ -204,4 +204,4 @@ async def test_level_specific_endpoint(test_client, monkeypatch):
 def test_level_invalid(test_client):
     client, *_ = test_client
     resp = client.get("/v1/metrics/levels/N5")
-    assert resp.status_code in {404, 422}
+    assert resp.status_code == 404
