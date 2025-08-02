@@ -14,7 +14,7 @@ interface ApiLevelMetrics {
 export function useMetricsLevels() {
   const query = useApiQuery<Record<string, ApiLevelMetrics>>(
     ['metrics-levels'],
-    '/v1/metrics/levels',
+    '/metrics/levels',
     { refetchInterval: 60000 },
   )
 
