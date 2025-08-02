@@ -10,6 +10,7 @@ from __future__ import annotations
 from typing import Any, Dict, List
 
 import pytest
+import requests
 
 import backend.services.glpi as glpi_service
 
@@ -74,3 +75,16 @@ def test_get_ticket_summary_by_group(monkeypatch: pytest.MonkeyPatch) -> None:
     assert summary["N2"] == {"solved": 2, "new": 1}
     assert summary["N3"] == {}
     assert summary["N4"] == {"new": 1}
+
+
+def test_get_ticket_summary_by_group_timeout(monkeypatch: pytest.MonkeyPatch) -> None:
+    """If the GLPI request fails, the service should return empty counts."""
+
+    def _raise(*args: Any, **kwargs: Any) -> None:
+        raise requests.exceptions.Timeout()
+
+    monkeypatch.setattr(glpi_service.requests, "get", _raise)
+    monkeypatch.setattr(glpi_service, "GLPI_BASE_URL", "http://test")
+
+    summary = glpi_service.get_ticket_summary_by_group()
+    assert summary == {level: {} for level in glpi_service.GROUP_IDS}
