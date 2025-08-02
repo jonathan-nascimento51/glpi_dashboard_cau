@@ -73,8 +73,9 @@ def build_app(base_url: str = "http://localhost:8000") -> Dash:
     """Create and configure the Dash application."""
 
     level_data = fetch_levels(base_url)
-    # Fetching aggregated metrics keeps the example aligned with the
-    # production frontend, though the result is not displayed.
+    # TODO: Fetching aggregated metrics is included to keep this example aligned with the
+    # production frontend. The result is not currently used or displayed.
+    # Remove this call if aggregated metrics are not needed in the future, or implement their use here.
     _ = fetch_aggregated(base_url)
 
     app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
