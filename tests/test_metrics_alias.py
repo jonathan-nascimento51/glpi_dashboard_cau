@@ -3,7 +3,7 @@ from fastapi.testclient import TestClient
 
 worker = pytest.importorskip("worker")
 create_app = worker.create_app
-worker_api = pytest.importorskip("src.backend.api.worker_api")
+worker_api = pytest.importorskip("app.api.worker_api")
 
 
 async def fake_get_cached_aggregated(cache, key):
