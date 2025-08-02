@@ -46,6 +46,7 @@ services:
         # A URL da API que o navegador usará para se conectar ao backend.
         # Em um ambiente de desenvolvimento local, é o localhost com a porta exposta do backend.
         VITE_API_BASE_URL: "http://localhost:8000"
+        NEXT_PUBLIC_API_BASE_URL: "http://localhost:8000"
     depends_on:
       - backend
     healthcheck:

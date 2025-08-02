@@ -18,7 +18,11 @@ from shared.utils.logging import init_logging
 
 __all__ = ["create_app", "main"]
 
-WORKER_BASE_URL = os.getenv("VITE_API_BASE_URL", "http://localhost:8000")
+WORKER_BASE_URL = (
+    os.getenv("VITE_API_BASE_URL")
+    or os.getenv("NEXT_PUBLIC_API_BASE_URL")
+    or "http://localhost:8000"
+)
 log_level_name = os.getenv("LOG_LEVEL", "INFO")
 log_level = getattr(logging, log_level_name.upper(), logging.INFO)
 init_logging(log_level)

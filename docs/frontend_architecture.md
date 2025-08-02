@@ -83,16 +83,24 @@ VITE_API_BASE_URL=http://127.0.0.1:8000
 ```
 
 If this variable is missing the application will fail to start. The API client
-verifies that `VITE_API_BASE_URL` is defined and throws an error
-otherwise. `npm run dev`, `npm test`, `npm run build` and
- `npm run preview` automatically execute `npm run check-env` to validate the
- configuration. This script imports the shared logic from `scripts/check-env.js`
- at the project root, so you can also run `npm run check-env` manually before
- launching the app or building for production.
+verifies that `VITE_API_BASE_URL` is defined (falling back to
+`NEXT_PUBLIC_API_BASE_URL` for legacy builds) and throws an error otherwise.
+`npm run dev`, `npm test`, `npm run build` and `npm run preview` automatically
+execute `npm run check-env` to validate the configuration. This script imports
+the shared logic from `scripts/check-env.js` at the project root, so you can
+also run `npm run check-env` manually before launching the app or building for
+production.
 
-The React code can read this value using `import.meta.env.VITE_API_BASE_URL` to send requests to the worker.
+The React code can read this value using `import.meta.env.VITE_API_BASE_URL` to
+send requests to the worker.
 
-> **Note**: this variable was renamed from `NEXT_PUBLIC_API_BASE_URL` to `VITE_API_BASE_URL` to match Vite conventions.
+> **Note**: this variable was renamed from `NEXT_PUBLIC_API_BASE_URL` to
+> `VITE_API_BASE_URL` to match Vite conventions. The previous name is still
+> supported for backward compatibility.
+
+Vite only exposes variables prefixed with `VITE_` by default. The project
+configures `envPrefix` in `vite.config.ts` so that `NEXT_PUBLIC_*` variables are
+also loaded.
 
 Imports reference `@/` as a shortcut to the `src/` folder. Both Vite and TypeScript resolve this alias through `resolve.alias` in `vite.config.ts` and the `paths` option in `tsconfig.app.json`.
 

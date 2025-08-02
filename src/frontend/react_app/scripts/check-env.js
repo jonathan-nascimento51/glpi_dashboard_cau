@@ -32,12 +32,20 @@ function assertEnv(keys) {
 }
 
 // 3. Checa as variáveis
+if (!process.env.VITE_API_BASE_URL && process.env.NEXT_PUBLIC_API_BASE_URL) {
+  console.warn(
+    '⚠️  Variável "VITE_API_BASE_URL" ausente. Usando valor de NEXT_PUBLIC_API_BASE_URL.',
+  );
+  process.env.VITE_API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+}
 assertEnv(['VITE_API_BASE_URL']);
 
+if (!process.env.NEXT_PUBLIC_API_BASE_URL) {
+  process.env.NEXT_PUBLIC_API_BASE_URL = process.env.VITE_API_BASE_URL;
+}
+
 // 4. Log de sucesso
-console.log(
-  `VITE_API_BASE_URL resolved to: ${process.env.VITE_API_BASE_URL}`
-);
+console.log(`VITE_API_BASE_URL resolved to: ${process.env.VITE_API_BASE_URL}`);
 if (process.env.NEXT_PUBLIC_FARO_URL) {
   console.log(
     `NEXT_PUBLIC_FARO_URL resolved to: ${process.env.NEXT_PUBLIC_FARO_URL}`

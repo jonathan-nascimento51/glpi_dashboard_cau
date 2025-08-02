@@ -187,7 +187,7 @@ The dashboard reads data produced by the worker and stored in PostgreSQL. More d
 [AGENTS.md](AGENTS.md). Structural file moves are logged in [docs/REFACTOR_LOG.md](docs/REFACTOR_LOG.md). A walkthrough of the `langgraph_workflow.py` module is
 available in [docs/langgraph_workflow.md](docs/langgraph_workflow.md).
 Instructions for running the React front-end—including npm scripts and required environment variables—are available in
-[docs/frontend_architecture.md](docs/frontend_architecture.md). That document also covers how the front-end communicates with the worker API via `VITE_API_BASE_URL` and how to run the Jest and Playwright test suites.
+[docs/frontend_architecture.md](docs/frontend_architecture.md). That document also covers how the front-end communicates with the worker API via `VITE_API_BASE_URL` (fallback to `NEXT_PUBLIC_API_BASE_URL`) and how to run the Jest and Playwright test suites.
 Create the environment file with `cp src/frontend/react_app/.env.example src/frontend/react_app/.env` before running the dashboard. Docker Compose automatically loads `.env` when present. Execute all npm commands from inside the `src/frontend/react_app` directory, e.g. `cd src/frontend/react_app && npm run dev`, or launch Docker.
 
 When running via Docker, the front-end container reaches the backend using the
@@ -196,7 +196,7 @@ service name `backend`. The `.env` file already sets
 resolve correctly. Browsers on the host can still hit the API on
 `http://localhost:8000` thanks to the published port. If you see
 `net::ERR_NAME_NOT_RESOLVED` errors in the browser console, edit
-`src/frontend/react_app/.env` and set `VITE_API_BASE_URL` to
+`src/frontend/react_app/.env` and set `VITE_API_BASE_URL` (or `NEXT_PUBLIC_API_BASE_URL` for legacy builds) to
 `http://localhost:8000` or add `backend` to your `/etc/hosts` file.
 
 ### Multi-agent pipeline (A1–A9)

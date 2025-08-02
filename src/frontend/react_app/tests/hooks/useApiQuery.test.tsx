@@ -46,7 +46,10 @@ describe('useApiQuery', () => {
 
     expect(result.current.data).toEqual(mockData)
     expect(result.current.error).toBeNull()
-    expect(fetchMock).toHaveBeenCalledWith(`${MOCK_API_URL}/v1/tickets`, expect.any(Object))
+    expect(fetchMock).toHaveBeenCalledWith(
+      `${MOCK_API_URL}/v1/tickets`,
+      expect.any(Object),
+    )
   })
 
   it('deve tratar erros de busca e atualizar o estado', async () => {
@@ -74,7 +77,7 @@ describe('useApiQuery', () => {
     await waitFor(() => expect(result.current.isLoading).toBe(false))
 
     expect((result.current.error as Error).message).toBe(
-      'URL base da API não configurada. Verifique VITE_API_BASE_URL.',
+      'URL base da API não configurada. Verifique VITE_API_BASE_URL ou NEXT_PUBLIC_API_BASE_URL.',
     )
 
     process.env.VITE_API_BASE_URL = MOCK_API_URL

@@ -4,10 +4,11 @@ FROM node:20.19.0-alpine AS builder
 WORKDIR /app
 ENV NPM_CONFIG_CACHE=/root/.npm
 
-# Argumento de build para a URL da API, que será injetado no build estático.
+# Argumentos de build para a URL da API, permitindo retrocompatibilidade
 ARG VITE_API_BASE_URL
-ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
-
+ARG NEXT_PUBLIC_API_BASE_URL
+ENV VITE_API_BASE_URL=${VITE_API_BASE_URL:-$NEXT_PUBLIC_API_BASE_URL}
+ENV NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL:-$VITE_API_BASE_URL}
 # Copia os arquivos de dependência e instala
 COPY src/frontend/react_app/package.json src/frontend/react_app/package-lock.json* ./
 RUN npm install --legacy-peer-deps

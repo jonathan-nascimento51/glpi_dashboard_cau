@@ -41,7 +41,7 @@ describe('useApiQuery', () => {
     const { result } = renderHook(() => useApiQuery(['t'], '/test'), { wrapper })
     await waitFor(() => expect(result.current.isLoading).toBe(false))
     expect((result.current.error as Error).message).toBe(
-      'URL base da API não configurada. Verifique VITE_API_BASE_URL.',
+      'URL base da API não configurada. Verifique VITE_API_BASE_URL ou NEXT_PUBLIC_API_BASE_URL.',
     )
     process.env.VITE_API_BASE_URL = MOCK_API_URL
   })
