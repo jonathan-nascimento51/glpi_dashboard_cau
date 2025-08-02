@@ -59,7 +59,8 @@ def load_data(ticket_range: str = "0-99", **filters: str) -> list[dict[str, Any]
             raise
 
     url = f"{WORKER_BASE_URL}/v1/tickets"
-    params = {"range": ticket_range, **filters}
+    filtered_filters = {k: v for k, v in filters.items() if v is not None}
+    params = {"range": ticket_range, **filtered_filters}
     logging.info("Fetching ticket data from %s with params %s", url, params)
     try:
         resp = requests.get(url, params=params, timeout=30)
