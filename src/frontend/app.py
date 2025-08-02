@@ -29,7 +29,10 @@ def fetch_levels(base_url: str) -> Dict[str, Dict[str, int]]:
         response = requests.get(endpoint, timeout=30)
         response.raise_for_status()
         return response.json()
-    except (requests.exceptions.RequestException, ValueError):  # pragma: no cover - network errors
+    except (
+        requests.exceptions.RequestException,
+        ValueError,
+    ):  # pragma: no cover - network errors
         logger.exception("Failed to fetch level metrics from %s", endpoint)
         return {}
 
@@ -42,7 +45,10 @@ def fetch_aggregated(base_url: str) -> Dict[str, int]:
         response = requests.get(endpoint, timeout=30)
         response.raise_for_status()
         return response.json()
-    except (requests.exceptions.RequestException, ValueError):  # pragma: no cover - network errors
+    except (
+        requests.exceptions.RequestException,
+        ValueError,
+    ):  # pragma: no cover - network errors
         logger.exception("Failed to fetch aggregated metrics from %s", endpoint)
         return {}
 
@@ -73,9 +79,10 @@ def build_app(base_url: str = "http://localhost:8000") -> Dash:
     """Create and configure the Dash application."""
 
     level_data = fetch_levels(base_url)
-    # TODO: Fetching aggregated metrics is included to keep this example aligned with the
-    # production frontend. The result is not currently used or displayed.
-    # Remove this call if aggregated metrics are not needed in the future, or implement their use here.
+    # TODO: Fetch aggregated metrics to keep this example aligned with
+    # the production frontend. The result is not currently used or displayed.
+    # Remove this call if aggregated metrics are not needed in the future,
+    # or implement their use here.
     _ = fetch_aggregated(base_url)
 
     app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
