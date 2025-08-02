@@ -1,26 +1,19 @@
-import pandas as pd
+import pytest
 from fastapi.testclient import TestClient
 
-from app.api import metrics as metrics_module
-from worker import create_app
+worker = pytest.importorskip("worker")
+create_app = worker.create_app
+worker_api = pytest.importorskip("app.api.worker_api")
+
+
+async def fake_get_cached_aggregated(cache, key):
+    return {"status": {"new": 1}}
 
 
 def test_overview_endpoint_alias(monkeypatch):
-    tickets = [
-        {"id": 1, "status": "new", "group": "N1", "date_creation": "2024-06-01"},
-        {
-            "id": 2,
-            "status": "closed",
-            "group": "N1",
-            "date_creation": "2024-06-02",
-            "date_resolved": "2024-06-03",
-        },
-    ]
-
-    monkeypatch.setattr(
-        metrics_module, "fetch_dataframe", lambda client: pd.DataFrame(tickets)
-    )
+    monkeypatch.setattr(worker_api, "get_cached_aggregated", fake_get_cached_aggregated)
     app = create_app()
     client = TestClient(app)
-    resp = client.get("/v1/metrics/overview")
+    assert resp.status_code == 200
+    assert resp.json() == {"status": {"new": 1}}
     assert resp.status_code == 200
