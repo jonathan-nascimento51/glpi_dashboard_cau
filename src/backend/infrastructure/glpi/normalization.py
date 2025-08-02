@@ -98,7 +98,8 @@ def process_raw(data: TicketData) -> pd.DataFrame:
         .astype(str)  # type: ignore
     ).astype("category")  # type: ignore
     df["date_creation"] = pd.to_datetime(
-        df.get("date_creation", pd.Series([pd.NaT] * len(df), index=idx))
+        df.get("date_creation", pd.Series([pd.NaT] * len(df), index=idx)),
+        utc=True,
     )
     df["date_resolved"] = pd.to_datetime(
         df.get("date_resolved", pd.Series([pd.NaT] * len(df), index=idx)),
