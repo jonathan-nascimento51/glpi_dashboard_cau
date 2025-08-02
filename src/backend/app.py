@@ -4,8 +4,8 @@ This module defines a standalone FastAPI application exposing only the
 endpoints implemented in this exercise. It is intentionally minimal
 compared to the fully fledged worker API present in the original
 repository. The purpose of this file is to allow local execution and
-testing of the new ``/api/tickets/summary-per-level`` endpoint without
-pulling in the entire service stack.
+testing of the ``/v1/metrics/levels`` endpoint without pulling in the
+entire service stack.
 
 Clients expecting to call the real worker API should use the
 ``backend/api/worker_api.py`` entrypoint instead.
@@ -21,7 +21,7 @@ from backend.routes.tickets import router as tickets_router
 def create_app() -> FastAPI:
     app = FastAPI(title="GLPI Dashboard Ticket Summary API")
     # Mount ticket summary routes without any prefix. The route itself
-    # includes ``/api/tickets/summary-per-level``.
+    # exposes ``/v1/metrics/levels``.
     app.include_router(tickets_router)
     return app
 
@@ -30,6 +30,9 @@ app = create_app()
 
 if __name__ == "__main__":  # pragma: no cover
     import os
+
     import uvicorn
 
-    uvicorn.run(app, host=os.getenv("HOST", "0.0.0.0"), port=int(os.getenv("PORT", "8000")))
+    uvicorn.run(
+        app, host=os.getenv("HOST", "0.0.0.0"), port=int(os.getenv("PORT", "8000"))
+    )

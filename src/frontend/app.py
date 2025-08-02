@@ -1,15 +1,15 @@
 """Dash application for displaying GLPI ticket status summaries.
 
-This script defines a minimal Dash app that retrieves aggregated ticket
-counts by status and by support level from a FastAPI backend and
-presents them as a series of cards. It is designed to be self‑contained
-for demonstration purposes. In a full project this code would
-integrate into the existing Dash application infrastructure.
+This script defines a minimal Dash app that retrieves ticket metrics
+from a FastAPI backend using the ``/v1/metrics/aggregated`` and
+``/v1/metrics/levels`` endpoints. The data is presented as a series of
+cards. It is designed to be self-contained for demonstration purposes.
+In a full project this code would integrate into the existing Dash
+application infrastructure.
 """
 
 from __future__ import annotations
 
-import json
 import logging
 from typing import Dict
 
@@ -21,23 +21,29 @@ from frontend.components.cards import TicketStatusCard
 logger = logging.getLogger(__name__)
 
 
-def fetch_summary(base_url: str) -> Dict[str, Dict[str, int]]:
-    """Fetch the ticket summary from the backend API.
+def fetch_levels(base_url: str) -> Dict[str, Dict[str, int]]:
+    """Fetch ticket counts grouped by support level."""
 
-    Args:
-        base_url: The base URL of the backend (e.g. ``"http://localhost:8000"``).
-
-    Returns:
-        A dictionary mapping level names to status counts. If the request
-        fails or returns invalid JSON, an empty dict is returned.
-    """
-    endpoint = f"{base_url}/api/tickets/summary-per-level"
+    endpoint = f"{base_url}/v1/metrics/levels"
     try:
         response = requests.get(endpoint, timeout=30)
         response.raise_for_status()
         return response.json()
-    except Exception:
-        logger.exception("Failed to fetch ticket summary from %s", endpoint)
+    except Exception:  # pragma: no cover - network errors
+        logger.exception("Failed to fetch level metrics from %s", endpoint)
+        return {}
+
+
+def fetch_aggregated(base_url: str) -> Dict[str, int]:
+    """Fetch overall ticket metrics such as total opened/closed."""
+
+    endpoint = f"{base_url}/v1/metrics/aggregated"
+    try:
+        response = requests.get(endpoint, timeout=30)
+        response.raise_for_status()
+        return response.json()
+    except Exception:  # pragma: no cover - network errors
+        logger.exception("Failed to fetch aggregated metrics from %s", endpoint)
         return {}
 
 
@@ -65,9 +71,14 @@ def create_layout(summary: Dict[str, Dict[str, int]]) -> html.Div:
 
 def build_app(base_url: str = "http://localhost:8000") -> Dash:
     """Create and configure the Dash application."""
-    summary_data = fetch_summary(base_url)
+
+    level_data = fetch_levels(base_url)
+    # Fetching aggregated metrics keeps the example aligned with the
+    # production frontend, though the result is not displayed.
+    _ = fetch_aggregated(base_url)
+
     app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
-    app.layout = create_layout(summary_data)
+    app.layout = create_layout(level_data)
     return app
 
 

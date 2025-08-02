@@ -1,24 +1,28 @@
 """Ticket-related API routes.
 
 This router exposes endpoints for summarising ticket information. The
-primary endpoint implemented here aggregates ticket counts by status
-for each configured support level (N1–N4). See
-``backend.services.glpi.get_ticket_summary_by_group`` for details on
-how the data is gathered.
+primary endpoint implemented here aggregates ticket counts by status for
+each configured support level (N1–N4) and exposes them at
+``/v1/metrics/levels``. See
+``backend.services.glpi.get_ticket_summary_by_group`` for details on how
+the data is gathered.
 """
 
 from __future__ import annotations
 
+import logging
+
 from fastapi import APIRouter, HTTPException
 
-from backend.services.glpi import get_ticket_summary_by_group
 from backend.models.ts_models import TicketsSummaryPerLevel
+from backend.services.glpi import get_ticket_summary_by_group
 
+logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
-@router.get("/api/tickets/summary-per-level", response_model=TicketsSummaryPerLevel)
-def tickets_summary_per_level() -> TicketsSummaryPerLevel:
+@router.get("/v1/metrics/levels", response_model=TicketsSummaryPerLevel)
+def metrics_levels() -> TicketsSummaryPerLevel:
     """Return a summary of tickets grouped by status per service level.
 
     The returned object has a top-level key for each level (e.g. ``"N1"``),

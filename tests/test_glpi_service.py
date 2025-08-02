@@ -94,6 +94,6 @@ def test_api_route_summary(monkeypatch: pytest.MonkeyPatch) -> None:
     )
     app = create_app()
     client = TestClient(app)
-    response = client.get("/api/tickets/summary-per-level")
+    response = client.get("/v1/metrics/levels")
     assert response.status_code == 200
     assert response.json() == fake_summary
