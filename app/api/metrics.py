@@ -34,15 +34,6 @@ logger = logging.getLogger(__name__)
 CACHE_KEY_AGGREGATED = "metrics:aggregated"
 
 
-def map_group_ids_to_labels(series: pd.Series) -> pd.Series:
-    """Map numeric group identifiers to their label.
-
-    Any values that do not match known group IDs are returned unchanged.
-    """
-
-    return series.map(GROUP_LABELS_BY_ID).fillna(series)
-
-
 class MetricsOverview(BaseModel):
     """Summary of key ticket metrics."""
 
@@ -193,6 +184,11 @@ async def compute_levels(
         .astype(int)
     )
     result: Dict[str, Dict[str, int]] = grouped.to_dict(orient="index")
+
+    # Ensure all support levels are present even if missing from the data
+    all_statuses = {status: 0 for status in grouped.columns}
+    for level in ["N1", "N2", "N3", "N4"]:
+        result.setdefault(level, all_statuses.copy())
 
     try:
         await cache.set(cache_key, result, ttl_seconds=ttl_seconds)

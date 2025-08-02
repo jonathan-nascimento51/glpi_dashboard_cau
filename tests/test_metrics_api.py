@@ -155,8 +155,10 @@ def test_levels_endpoint(test_client):
     resp = client.get("/v1/metrics/levels")
     assert resp.status_code == 200
     assert resp.json() == {
-        "N1": {"new": 1, "closed": 1},
-        "N2": {"pending": 1, "closed": 1},
+        "N1": {"closed": 1, "new": 1, "pending": 0},
+        "N2": {"closed": 1, "new": 0, "pending": 1},
+        "N3": {"closed": 0, "new": 0, "pending": 0},
+        "N4": {"closed": 0, "new": 0, "pending": 0},
     }
 
 
