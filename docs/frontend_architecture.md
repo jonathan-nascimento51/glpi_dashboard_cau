@@ -106,29 +106,14 @@ Imports reference `@/` as a shortcut to the `src/` folder. Both Vite and TypeScr
 
 ### API Integration
 
-Start the worker with `python worker.py` (it listens on port `8000` by default) and point the front-end to it using the `VITE_API_BASE_URL` variable. The `/v1/tickets` endpoint now returns the `priority` label and the `requester` name. Example fetching ticket metrics:
+Start the worker with `python worker.py` (it listens on port `8000` by default) and point the front-end to it using the `VITE_API_BASE_URL` variable. The `/v1/tickets` endpoint now returns the `priority` label and the `requester` name. Metrics for KPI cards can be retrieved using:
 
 ```ts
-const resp = await fetch(`${import.meta.env.VITE_API_BASE_URL}/v1/metrics/summary`);
+const resp = await fetch(`${import.meta.env.VITE_API_BASE_URL}/v1/metrics/aggregated`);
 const data = await resp.json();
 ```
 
-Use this endpoint to populate KPI cards such as total chamados or items
-abertos/fechados without downloading the full ticket list.
-
-The worker also streams progress using `/v1/tickets/stream`:
-
-```ts
-const url = `${import.meta.env.VITE_API_BASE_URL}/v1/tickets/stream`;
-const es = new EventSource(url);
-es.addEventListener('progress', (ev) => console.log('chunk', ev.data));
-es.addEventListener('tickets', (ev) => console.log(JSON.parse(ev.data)));
-```
-
-Each message follows the SSE format (`event:`/`data:`). Progress notifications
-with the `progress` event precede the final `tickets` event containing the JSON
-array of tickets. A frontend can append these lines to a log or display a
-spinner until the final event is received.
+This endpoint aggregates counts by status and technician. For status by support level, use `/v1/metrics/levels`.
 
 For aggregated statistics the worker offers `/v1/metrics/aggregated`. This endpoint
 returns cached counts grouped by status and technician, enabling dashboards to

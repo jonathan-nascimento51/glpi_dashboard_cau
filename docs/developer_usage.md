@@ -76,11 +76,13 @@ Endpoints relevantes:
 
 - `/v1/tickets` – lista completa de chamados
  - A resposta inclui os campos `priority` e `requester` em formato textual.
-- `/v1/tickets/stream` – fluxo `text/event-stream` emitindo eventos `progress` e o
-  evento final `tickets` com a lista em JSON
-- `/v1/metrics/summary` – contagem rápida de `total`, `abertos` e `fechados`
+- `/v1/metrics/aggregated` – contagens agrupadas por status e técnico
+- `/v1/metrics/levels` – status agregados por nível de suporte
 - `/v1/graphql/` – versão GraphQL
-- `/v1/cache/stats` – estatísticas de cache
+- `/v1/read-model/tickets` – leitura direta da view materializada (uso futuro)
+- `/v1/cache/stats` – estatísticas de cache para depuração
+- `/v1/knowledge-base` – conteúdo de base de conhecimento para assistentes
+- `/v1/breaker` – métricas Prometheus do circuit breaker
 
 Exemplo de retorno:
 
