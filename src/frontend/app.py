@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 def fetch_levels(base_url: str) -> Dict[str, Dict[str, int]]:
     """Fetch ticket counts grouped by support level."""
 
-    endpoint = f"{base_url}/metrics/levels"
+    endpoint = f"{base_url}/v1/metrics/levels"
     try:
         response = requests.get(endpoint, timeout=30)
         response.raise_for_status()
