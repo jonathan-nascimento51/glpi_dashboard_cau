@@ -1,5 +1,6 @@
 """Dash app using the worker API for ticket metrics."""
 
+import json
 import logging
 import os
 from typing import Any
