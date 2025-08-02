@@ -61,7 +61,7 @@ async def _fetch_dataframe(client: Optional[GlpiApiClient]) -> pd.DataFrame:
 
     data = [t.model_dump() for t in tickets]
     df = process_raw(data)
-    df["group"] = map_group_ids_to_labels(df["group"])
+    df["group"] = df["group"].map(GROUP_LABELS_BY_ID).fillna(df["group"])
     return df
 
 
@@ -280,7 +280,10 @@ class SupportLevel(str, Enum):
 async def metrics_level(level: SupportLevel) -> MetricsOverview:
     """Return ticket metrics for a specific support level."""
 
-    level_value = level.value
+    level_norm = level.upper()
+    if level_norm not in KNOWN_LEVELS:
+        raise HTTPException(status_code=404, detail="Unknown level")
+
     try:
         return await compute_level_metrics(level_value)
     except Exception as exc:  # pragma: no cover - defensive

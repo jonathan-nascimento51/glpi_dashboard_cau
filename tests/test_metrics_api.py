@@ -184,10 +184,18 @@ async def test_level_specific_endpoint(test_client, monkeypatch):
 
     resp = client.get("/v1/metrics/levels/N1")
     assert resp.status_code == 200
-    model = metrics_module.MetricsOverview.model_validate(resp.json())
-    assert model.open_tickets == {"N1": 1}
-    assert model.tickets_closed_this_month == {"N1": 1}
-    assert model.status_distribution == {"new": 1, "closed": 1}
+    data = resp.json()
+    assert set(data) == {
+        "open_tickets",
+        "tickets_closed_this_month",
+        "status_distribution",
+    }
+    assert data["open_tickets"] == {"N1": 1}
+    assert data["tickets_closed_this_month"] == {"N1": 1}
+    assert data["status_distribution"] == {"new": 1, "closed": 1}
+    for value in data.values():
+        assert isinstance(value, dict)
+        assert all(isinstance(v, int) for v in value.values())
 
     # call again should hit cache
     resp = client.get("/v1/metrics/levels/N1")
@@ -198,7 +206,7 @@ async def test_level_specific_endpoint(test_client, monkeypatch):
 def test_level_invalid(test_client):
     client, *_ = test_client
     resp = client.get("/v1/metrics/levels/N5")
-    assert resp.status_code == 422
+    assert resp.status_code == 404
 
 
 def test_level_network_failure(monkeypatch, test_client):

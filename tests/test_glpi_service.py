@@ -77,14 +77,18 @@ def test_get_ticket_summary_by_group(monkeypatch: pytest.MonkeyPatch) -> None:
     assert summary["N4"] == {"new": 1}
 
 
-def test_get_ticket_summary_by_group_timeout(monkeypatch: pytest.MonkeyPatch) -> None:
-    """If the GLPI request fails, the service should return empty counts."""
+def test_get_ticket_summary_handles_timeout(monkeypatch: pytest.MonkeyPatch) -> None:
+    """When GLPI requests time out, the service should return empty counts."""
 
-    def _raise(*args: Any, **kwargs: Any) -> None:
-        raise requests.exceptions.Timeout()
+    def _timeout_get(*args, **kwargs):  # pragma: no cover - simple helper
+        raise glpi_service.requests.exceptions.Timeout()
 
-    monkeypatch.setattr(glpi_service.requests, "get", _raise)
+    monkeypatch.setattr(glpi_service.requests, "get", _timeout_get)
     monkeypatch.setattr(glpi_service, "GLPI_BASE_URL", "http://test")
 
     summary = glpi_service.get_ticket_summary_by_group()
-    assert summary == {level: {} for level in glpi_service.GROUP_IDS}
+
+    expected: Dict[str, Dict[str, int]] = {
+        level: {} for level in glpi_service.GROUP_IDS.keys()
+    }
+    assert summary == expected
