@@ -48,7 +48,7 @@ async def _fetch_aggregated_metrics_async() -> dict[str, Any]:
                 return await resp.json()
     except aiohttp.ClientError as exc:
         logging.error("Failed to fetch metrics from %s: %s", url, exc)
-        return {}
+        raise
 
 def _fetch_aggregated_metrics() -> dict[str, Any]:
     """Synchronous wrapper for the async metrics fetcher."""
