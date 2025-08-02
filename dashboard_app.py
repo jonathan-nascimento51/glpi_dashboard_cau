@@ -37,19 +37,27 @@ def _fetch_api_data(ticket_range: str = "0-99", **filters: str) -> list[dict[str
         raise
 
 
-def _fetch_aggregated_metrics() -> dict[str, Any]:
-    """Return aggregated metrics from the worker API."""
+async def _fetch_aggregated_metrics_async() -> dict[str, Any]:
+    """Return aggregated metrics from the worker API asynchronously."""
 
     url = f"{WORKER_BASE_URL}/v1/metrics/aggregated"
     try:
-        resp = requests.get(url, timeout=30)
-        resp.raise_for_status()
-        return resp.json()
-    except requests.RequestException as exc:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, timeout=30) as resp:
+                resp.raise_for_status()
+                return await resp.json()
+    except aiohttp.ClientError as exc:
         logging.error("Failed to fetch metrics from %s: %s", url, exc)
         return {}
 
-
+def _fetch_aggregated_metrics() -> dict[str, Any]:
+    """Synchronous wrapper for the async metrics fetcher."""
+    try:
+        return asyncio.run(_fetch_aggregated_metrics_async())
+    except RuntimeError:
+        # If already in an event loop (e.g., in Jupyter), use create_task
+        loop = asyncio.get_event_loop()
+        return loop.run_until_complete(_fetch_aggregated_metrics_async())
 def _transform_df(ticket_range: str = "0-99", **filters: str) -> pd.DataFrame:
     """Transform raw ticket data into a normalized DataFrame."""
 
