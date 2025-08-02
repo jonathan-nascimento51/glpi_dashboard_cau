@@ -11,7 +11,7 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
 test('fetches tickets from API', async () => {
   global.fetch = jest.fn().mockResolvedValue({
     status: 200,
-    json: () => Promise.resolve([{ id: 1, name: 't1' }]),
+    json: () => Promise.resolve([{ id: 1, name: 't1', group: 'N1' }]),
   }) as jest.Mock
 
   const { result } = renderHook(() => useTickets(DEFAULT_FILTERS), { wrapper })
@@ -20,6 +20,7 @@ test('fetches tickets from API', async () => {
   expect(result.current.isSuccess).toBe(true)
   expect(result.current.tickets).toHaveLength(1)
   expect(result.current.tickets?.[0].name).toBe('t1')
+  expect(result.current.tickets?.[0].group).toBe('N1')
 })
 
 test('handles API error', async () => {
