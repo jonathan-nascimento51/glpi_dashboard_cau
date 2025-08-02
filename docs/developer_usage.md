@@ -217,7 +217,7 @@ Se precisar passar opções criadas inline, serializá-las ou extraia-as para um
 constante para evitar re-renderizações extras.
 
 Internamente a função usa o `fetch` nativo e monta a URL com
-`NEXT_PUBLIC_API_BASE_URL`.
+`VITE_API_BASE_URL`.
 
 ### Exemplos de novos hooks
 

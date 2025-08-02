@@ -9,7 +9,7 @@ grep -q "node:20.19.0" src/frontend/react_app/Dockerfile || {
 
 echo "🔍 Checking API_BASE_URL…"
 grep -q "backend:8000" .env || {
-  echo "ERROR: NEXT_PUBLIC_API_BASE_URL must be http://backend:8000"
+  echo "ERROR: VITE_API_BASE_URL must be http://backend:8000"
   exit 1
 }
 

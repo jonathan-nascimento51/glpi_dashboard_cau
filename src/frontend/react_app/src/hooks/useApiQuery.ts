@@ -34,14 +34,14 @@ export function useApiQuery<T, E = Error>(
       : undefined;
 
   const baseUrl =
-    metaEnv?.NEXT_PUBLIC_API_BASE_URL ??
-    process.env.NEXT_PUBLIC_API_BASE_URL ??
+    metaEnv?.VITE_API_BASE_URL ??
+    process.env.VITE_API_BASE_URL ??
     'http://localhost:8000';
 
   const fetchFromApi = async (): Promise<T> => {
     if (!baseUrl) {
       throw new Error(
-        'URL base da API não configurada. Verifique NEXT_PUBLIC_API_BASE_URL.',
+        'URL base da API não configurada. Verifique VITE_API_BASE_URL.',
       );
     }
     const response = await fetch(`${baseUrl}${endpoint}`);
