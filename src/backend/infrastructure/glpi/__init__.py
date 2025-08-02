@@ -2,7 +2,7 @@
 
 import contextlib
 
-with contextlib.suppress(Exception):
+with contextlib.suppress(ImportError):
     from .glpi_client import (
         GLPIClientAuthError,
         GLPIClientError,
