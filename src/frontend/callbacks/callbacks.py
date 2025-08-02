@@ -54,7 +54,7 @@ def register_callbacks(
         store: Optional[Dict[str, Any]], status: Optional[str]
     ) -> tuple[List[Dict[str, Any]], Dict[str, Any]]:
         rng: str = store.get("ticket_range", ticket_range) if store else ticket_range
-        data = loader(rng, status=status, **filters)
+        data = loader(rng, **({**filters, "status": status} if status else filters))
         df: pd.DataFrame = pd.DataFrame(data)
         fig: Dict[str, Any] = {
             "data": [
