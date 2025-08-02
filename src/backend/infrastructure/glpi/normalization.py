@@ -22,6 +22,7 @@ REQUIRED_FIELDS = [
     "requester",
     "date_creation",
     "priority",
+    "date_resolved",
 ]
 
 # Map alternate/underscore-prefixed field names returned by the GLPI API to the
@@ -37,6 +38,7 @@ FIELD_ALIASES = {
     "date": "date_creation",
     "_status": "status",
     "_priority": "priority",
+    "solvedate": "date_resolved",
 }
 
 
@@ -96,7 +98,12 @@ def process_raw(data: TicketData) -> pd.DataFrame:
         .astype(str)  # type: ignore
     ).astype("category")  # type: ignore
     df["date_creation"] = pd.to_datetime(
-        df.get("date_creation", pd.Series([pd.NaT] * len(df), index=idx))
+        df.get("date_creation", pd.Series([pd.NaT] * len(df), index=idx)),
+        utc=True,
+    )
+    df["date_resolved"] = pd.to_datetime(
+        df.get("date_resolved", pd.Series([pd.NaT] * len(df), index=idx)),
+        utc=True,
     )
     assigned_to = _normalize_assigned_field(df, "assigned_to", idx)
     df["assigned_to"] = (
@@ -120,6 +127,7 @@ def process_raw(data: TicketData) -> pd.DataFrame:
             "requester",
             "group",
             "date_creation",
+            "date_resolved",
         ]
     ].copy()
 

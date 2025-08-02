@@ -1,16 +1,19 @@
 """Public interface for GLPI infrastructure helpers."""
 
-from .glpi_client import (
-    GLPIClientAuthError,
-    GLPIClientError,
-    GLPIClientNotFound,
-    GLPIClientRateLimit,
-    GLPIClientServerError,
-    GLPISessionManager,
-    SearchCriteriaBuilder,
-    get_secret,
-)
-from .glpi_session import GLPISession
+import contextlib
+
+with contextlib.suppress(ImportError):
+    from .glpi_client import (
+        GLPIClientAuthError,
+        GLPIClientError,
+        GLPIClientNotFound,
+        GLPIClientRateLimit,
+        GLPIClientServerError,
+        GLPISessionManager,
+        SearchCriteriaBuilder,
+        get_secret,
+    )
+    from .glpi_session import GLPISession
 
 __all__ = [
     "GLPISessionManager",
