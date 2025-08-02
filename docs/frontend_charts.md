@@ -11,7 +11,7 @@ Two REST routes provide the aggregated data used by the charts and leverage the 
 
 Both endpoints perform the aggregation server-side so the front-end only consumes summarized values.
 
-Make sure `python worker.py` is running and set `NEXT_PUBLIC_API_BASE_URL` in
+Make sure `python worker.py` is running and set `VITE_API_BASE_URL` in
 `src/frontend/react_app/.env` to point to the worker (default `http://127.0.0.1:8000`). All
 requests in the examples below use this variable.
 
@@ -42,7 +42,7 @@ export function useChamadosPorData() {
   return { dados: data, loading: isLoading, erro: error }
 }
 
-// `useApiQuery` resolves the full URL using `NEXT_PUBLIC_API_BASE_URL`.
+// `useApiQuery` resolves the full URL using `VITE_API_BASE_URL`.
 ```
 
 ### `useChamadosPorDia`

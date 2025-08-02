@@ -1,4 +1,5 @@
-- `NEXT_PUBLIC_API_BASE_URL`: must point to `http://localhost:8000` when running under Docker Compose.
+- `VITE_API_BASE_URL`: must point to `http://localhost:8000` when running under Docker Compose.
+  The previous name `NEXT_PUBLIC_API_BASE_URL` is still accepted for legacy builds.
   You can also create `.env.local` with this setting for local scripts outside Docker.
 - `DISALLOWED_PROXIES`: comma-separated list of proxy hosts ignored by `scripts/validate_credentials.py`.
 

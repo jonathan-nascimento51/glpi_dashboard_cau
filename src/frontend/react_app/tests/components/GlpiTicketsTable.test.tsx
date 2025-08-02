@@ -7,7 +7,10 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
 )
 
 beforeEach(() => {
-  const mockImportMetaEnv: ImportMetaEnv = { NEXT_PUBLIC_API_BASE_URL: 'http://localhost' };
+  const mockImportMetaEnv: ImportMetaEnv = {
+    VITE_API_BASE_URL: 'http://localhost',
+    NEXT_PUBLIC_API_BASE_URL: 'http://localhost',
+  };
   Object.defineProperty(import.meta, 'env', { value: mockImportMetaEnv, writable: true });
 })
 

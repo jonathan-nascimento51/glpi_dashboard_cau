@@ -4,11 +4,11 @@ import { useApiQuery } from '../useApiQuery'
 
 const MOCK_API_URL = 'http://test-api.com'
 beforeAll(() => {
-  process.env.NEXT_PUBLIC_API_BASE_URL = MOCK_API_URL
+  process.env.VITE_API_BASE_URL = MOCK_API_URL
 })
 
 afterAll(() => {
-  delete process.env.NEXT_PUBLIC_API_BASE_URL
+  delete process.env.VITE_API_BASE_URL
 })
 beforeEach(() => {
   global.fetch = jest.fn() as unknown as typeof fetch
@@ -36,14 +36,14 @@ describe('useApiQuery', () => {
   })
 
   it('handles missing base URL', async () => {
-    delete process.env.NEXT_PUBLIC_API_BASE_URL
+    delete process.env.VITE_API_BASE_URL
     ;(global.fetch as jest.Mock).mockResolvedValue({ ok: true, json: async () => ({}) })
     const { result } = renderHook(() => useApiQuery(['t'], '/test'), { wrapper })
     await waitFor(() => expect(result.current.isLoading).toBe(false))
     expect((result.current.error as Error).message).toBe(
-      'URL base da API não configurada. Verifique NEXT_PUBLIC_API_BASE_URL.',
+      'URL base da API não configurada. Verifique VITE_API_BASE_URL ou NEXT_PUBLIC_API_BASE_URL.',
     )
-    process.env.NEXT_PUBLIC_API_BASE_URL = MOCK_API_URL
+    process.env.VITE_API_BASE_URL = MOCK_API_URL
   })
 
   it('updates state on error', async () => {

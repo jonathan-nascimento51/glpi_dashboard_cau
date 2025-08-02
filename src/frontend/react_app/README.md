@@ -4,7 +4,7 @@ This folder contains the React front-end of the **GLPI Dashboard CAU**. The appl
 
 ## Setup
 
-1. Copy `.env.example` to `.env` and set `NEXT_PUBLIC_API_BASE_URL` to the worker address.
+1. Copy `.env.example` to `.env` and set `VITE_API_BASE_URL` to the worker address. For legacy builds you may also set `NEXT_PUBLIC_API_BASE_URL` to the same value.
 
 2. (Optional) If you use the Grafana observability stack, set `NEXT_PUBLIC_FARO_URL` to your Faro collector (for example `http://localhost:1234/collect`). Leave this line commented if the collector isn't running to avoid browser errors.
 
