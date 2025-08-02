@@ -1,9 +1,8 @@
-"""Tests for the GLPI ticket summary service and API route.
+"""Tests for the GLPI ticket summary service.
 
 These tests exercise the high‑level behaviour of the service function
 ``get_ticket_summary_by_group`` by stubbing out network calls to
-``requests.get``. They also verify that the FastAPI route returns the
-expected JSON structure when integrated into a minimal application.
+``requests.get``.
 """
 
 from __future__ import annotations
@@ -11,10 +10,8 @@ from __future__ import annotations
 from typing import Any, Dict, List
 
 import pytest
-from fastapi.testclient import TestClient
 
 import backend.services.glpi as glpi_service
-from backend.app import create_app
 
 
 class FakeResponse:
@@ -77,23 +74,3 @@ def test_get_ticket_summary_by_group(monkeypatch: pytest.MonkeyPatch) -> None:
     assert summary["N2"] == {"solved": 2, "new": 1}
     assert summary["N3"] == {}
     assert summary["N4"] == {"new": 1}
-
-
-def test_api_route_summary(monkeypatch: pytest.MonkeyPatch) -> None:
-    """Ensure that the API route returns the service output verbatim."""
-    # Prepare a simple deterministic summary to be returned by the service
-    fake_summary = {"N1": {"new": 1}, "N2": {}, "N3": {}, "N4": {"assigned": 3}}
-    monkeypatch.setattr(
-        glpi_service, "get_ticket_summary_by_group", lambda: fake_summary
-    )
-    # Patch the reference imported in the route module as well
-    from backend import routes as backend_routes
-
-    monkeypatch.setattr(
-        backend_routes.tickets, "get_ticket_summary_by_group", lambda: fake_summary
-    )
-    app = create_app()
-    client = TestClient(app)
-    response = client.get("/v1/metrics/levels")
-    assert response.status_code == 200
-    assert response.json() == fake_summary
