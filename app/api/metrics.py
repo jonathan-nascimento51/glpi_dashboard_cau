@@ -52,9 +52,7 @@ async def _fetch_dataframe(client: Optional[GlpiApiClient]) -> pd.DataFrame:
 
     data = [t.model_dump() for t in tickets]
     df = process_raw(data)
-    original = df["group"].astype(str)
-    numeric = pd.to_numeric(original, errors="coerce")
-    df["group"] = numeric.map(GROUP_LABELS_BY_ID).fillna(original).fillna("UNKNOWN")
+    df["group"] = map_group_ids_to_labels(df["group"])
     return df
 
 
