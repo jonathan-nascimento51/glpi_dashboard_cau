@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import uuid
+from contextlib import suppress
 from typing import Any, Dict, Optional
 
 import requests
@@ -44,15 +45,13 @@ HTTP_ERROR_MAP = {
 def get_secret(name: str) -> str:
     """Return secret value from env or ``*_FILE`` path."""
 
-    file_var = os.getenv(f"{name}_FILE")
-    if file_var:
+    if file_var := os.getenv(f"{name}_FILE"):
         try:
             with open(file_var, "r", encoding="utf-8") as fh:
                 return fh.read().strip()
         except OSError as exc:  # pragma: no cover - file errors
             raise RuntimeError(f"unable to read secret file for {name}") from exc
-    value = os.getenv(name)
-    if value:
+    if value := os.getenv(name):
         return value
     raise RuntimeError(f"secret {name} not found")
 
@@ -175,20 +174,13 @@ class GLPISessionManager:
             error_text = resp.text
             content_type = resp.headers.get("Content-Type", "").lower()
             if content_type.startswith("application/json"):
-                try:
+                with suppress(ValueError):
                     payload = resp.json()
-                    if isinstance(payload, dict):
-                        error_text = (
-                            payload.get("message")
-                            or payload.get("error")
-                            or str(payload)
-                        )
-                    else:
-                        error_text = str(payload)
-                except ValueError:
-                    # If the response claims to be JSON but can't be decoded,
-                    # we fall back to using the raw response text.
-                    pass
+                    error_text = (
+                        (payload.get("message") or payload.get("error") or str(payload))
+                        if isinstance(payload, dict)
+                        else str(payload)
+                    )
             raise exc_cls(f"HTTP {resp.status_code}: {error_text}")
         if raise_for_status:
             resp.raise_for_status()
