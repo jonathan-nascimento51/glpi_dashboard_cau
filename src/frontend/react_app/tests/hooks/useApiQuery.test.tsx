@@ -6,7 +6,7 @@ const fetchMock = jest.fn()
 global.fetch = fetchMock as unknown as typeof fetch
 
 const MOCK_API_URL = 'http://test-api.com'
-process.env.NEXT_PUBLIC_API_BASE_URL = MOCK_API_URL
+process.env.VITE_API_BASE_URL = MOCK_API_URL
 
 let queryClient: QueryClient
 const wrapper = ({ children }: { children: React.ReactNode }) => (
@@ -65,7 +65,7 @@ describe('useApiQuery', () => {
 
 
   it('deve tratar erro de URL base não configurada', async () => {
-    delete process.env.NEXT_PUBLIC_API_BASE_URL
+    delete process.env.VITE_API_BASE_URL
 
     const { result } = renderHook(() => useApiQuery(['tickets'], '/v1/tickets'), {
       wrapper,
@@ -74,9 +74,9 @@ describe('useApiQuery', () => {
     await waitFor(() => expect(result.current.isLoading).toBe(false))
 
     expect((result.current.error as Error).message).toBe(
-      'URL base da API não configurada. Verifique NEXT_PUBLIC_API_BASE_URL.',
+      'URL base da API não configurada. Verifique VITE_API_BASE_URL.',
     )
 
-    process.env.NEXT_PUBLIC_API_BASE_URL = MOCK_API_URL
+    process.env.VITE_API_BASE_URL = MOCK_API_URL
   })
 });

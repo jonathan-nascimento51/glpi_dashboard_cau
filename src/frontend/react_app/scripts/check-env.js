@@ -10,7 +10,7 @@ dotenv.config({ path: path.join(__dirname, '..', '.env') })
 // 2. Função de assert
 function assertEnv(keys) {
   const defaults = {
-    NEXT_PUBLIC_API_BASE_URL: 'http://localhost:8000',
+    VITE_API_BASE_URL: 'http://localhost:8000',
   };
 
   keys.forEach(key => {
@@ -32,11 +32,11 @@ function assertEnv(keys) {
 }
 
 // 3. Checa as variáveis
-assertEnv(['NEXT_PUBLIC_API_BASE_URL']);
+assertEnv(['VITE_API_BASE_URL']);
 
 // 4. Log de sucesso
 console.log(
-  `NEXT_PUBLIC_API_BASE_URL resolved to: ${process.env.NEXT_PUBLIC_API_BASE_URL}`
+  `VITE_API_BASE_URL resolved to: ${process.env.VITE_API_BASE_URL}`
 );
 if (process.env.NEXT_PUBLIC_FARO_URL) {
   console.log(

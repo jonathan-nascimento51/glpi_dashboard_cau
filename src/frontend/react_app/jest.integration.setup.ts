@@ -14,6 +14,6 @@ export default async function globalSetup() {
   // StartedTestContainer is returned above
 
   const mappedPort = container.getMappedPort(8000)
-  process.env.NEXT_PUBLIC_API_BASE_URL = `http://localhost:${mappedPort}`
+  process.env.VITE_API_BASE_URL = `http://localhost:${mappedPort}`
   fs.writeFileSync(path.join(__dirname, 'container-id'), container.getId())
 }
