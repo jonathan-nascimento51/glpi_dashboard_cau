@@ -8,7 +8,7 @@ to keep the responses fast even when the dataset is large.
 from __future__ import annotations
 
 import logging
-from typing import Any, Awaitable, Callable, Optional
+from typing import Any, Awaitable, Callable, Dict, Optional
 
 import pandas as pd
 from fastapi import HTTPException
@@ -28,8 +28,8 @@ CLOSED_STATUSES = ["closed", "solved"]
 
 logger = logging.getLogger(__name__)
 
-# Cache key used to store the metrics overview in Redis
-CACHE_KEY_OVERVIEW = "metrics:overview"
+# Cache key used to store the aggregated metrics in Redis
+CACHE_KEY_AGGREGATED = "metrics:aggregated"
 
 
 class MetricsOverview(BaseModel):
@@ -78,14 +78,14 @@ async def get_or_set_cache(
     return result
 
 
-async def compute_overview(
+async def compute_aggregated(
     client: Optional[GlpiApiClient] = None,
     cache: Optional[RedisClient] = None,
     ttl_seconds: int = 300,
 ) -> MetricsOverview:
     """Compute metrics and cache the result."""
     cache = cache or redis_client
-    cache_key = CACHE_KEY_OVERVIEW
+    cache_key = CACHE_KEY_AGGREGATED
 
     async def compute_metrics():
         df = await _fetch_dataframe(client)
@@ -130,65 +130,59 @@ async def compute_overview(
     return result
 
 
-@router.get("/metrics/overview", response_model=MetricsOverview)
-async def metrics_overview() -> MetricsOverview:
+@router.get("/metrics/aggregated", response_model=MetricsOverview)
+async def metrics_aggregated() -> MetricsOverview:
     """Return aggregated ticket metrics for the dashboard."""
     try:
-        return await compute_overview()
+        return await compute_aggregated()
     except Exception as exc:
-        logger.exception("Error computing metrics overview")
+        logger.exception("Error computing aggregated metrics")
         raise HTTPException(
             status_code=500, detail="Failed to compute metrics"
         ) from exc
 
 
-class LevelMetrics(BaseModel):
-    """Open and closed ticket counts for a single level."""
-
-    open: int = 0
-    closed: int = 0
-
-
-async def compute_level_metrics(
-    level: str,
+async def compute_levels(
     *,
     client: Optional[GlpiApiClient] = None,
     cache: Optional[RedisClient] = None,
     ttl_seconds: int = 300,
-) -> LevelMetrics:
-    """Compute metrics for ``level`` and cache the result."""
+) -> Dict[str, Dict[str, int]]:
+    """Compute ticket status counts grouped by level and cache the result."""
 
     cache = cache or redis_client
-    cache_key = f"metrics:level:{level}"
+    cache_key = "metrics:levels"
 
-    async def compute() -> LevelMetrics:
-        df = await _fetch_dataframe(client)
-        df["status"] = df["status"].astype(str).str.lower()
-        level_df = df[df["group"] == level]
-        if level_df.empty:
-            return LevelMetrics()
+    cached = await cache.get(cache_key)
+    if cached:
+        return cached  # type: ignore[return-value]
 
-        open_mask = ~level_df["status"].isin(CLOSED_STATUSES)
-        open_count = int(open_mask.sum())
-        closed_count = int(level_df.shape[0] - open_count)
-        return LevelMetrics(open=open_count, closed=closed_count)
-
-    result = await get_or_set_cache(
-        cache, cache_key, LevelMetrics, compute, ttl_seconds
+    df = await _fetch_dataframe(client)
+    df["status"] = df["status"].astype(str).str.lower()
+    grouped = (
+        df.groupby(["group", "status"], observed=True)
+        .size()
+        .unstack(fill_value=0)
+        .astype(int)
     )
-    if not isinstance(result, LevelMetrics):
-        raise RuntimeError("Cached value is not a LevelMetrics instance")
+    result: Dict[str, Dict[str, int]] = grouped.to_dict(orient="index")
+
+    try:
+        await cache.set(cache_key, result, ttl_seconds=ttl_seconds)
+    except Exception as exc:  # pragma: no cover - cache errors
+        logger.warning("Failed to store level metrics in cache: %s", exc)
+
     return result
 
 
-@router.get("/metrics/level/{level}", response_model=LevelMetrics)
-async def metrics_level(level: str) -> LevelMetrics:
-    """Return metrics for a specific support level."""
+@router.get("/metrics/levels", response_model=Dict[str, Dict[str, int]])
+async def metrics_levels() -> Dict[str, Dict[str, int]]:
+    """Return status counts grouped by support level."""
 
     try:
-        return await compute_level_metrics(level)
+        return await compute_levels()
     except Exception as exc:  # pragma: no cover - defensive
-        logger.exception("Error computing metrics for level %s", level)
+        logger.exception("Error computing metrics by level")
         raise HTTPException(
             status_code=500, detail="Failed to compute metrics"
         ) from exc
