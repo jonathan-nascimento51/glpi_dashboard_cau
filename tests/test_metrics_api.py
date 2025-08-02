@@ -171,7 +171,8 @@ def test_levels_error(monkeypatch, test_client):
     assert resp.status_code == 500
 
 
-def test_level_specific_endpoint(test_client, monkeypatch):
+@pytest.mark.asyncio
+async def test_level_specific_endpoint(test_client, monkeypatch):
     client, api_client, cache, metrics_module = test_client
     monkeypatch.setattr(
         pd.Timestamp,
