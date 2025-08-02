@@ -84,7 +84,8 @@ def profile_startup() -> None:
     profiler.enable()
     try:
         data = load_data()
-    except Exception:
+    except Exception as exc:
+        logging.error("Failed to load data for profiling: %s", exc)
         data = []
     df = pd.DataFrame(data) if data else None
     create_app(df)
