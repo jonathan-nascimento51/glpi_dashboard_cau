@@ -52,7 +52,7 @@ async def _fetch_dataframe(client: Optional[GlpiApiClient]) -> pd.DataFrame:
 
     data = [t.model_dump() for t in tickets]
     df = process_raw(data)
-    df["group"] = map_group_ids_to_labels(df["group"])
+    df["group"] = df["group"].map(GROUP_LABELS_BY_ID).fillna(df["group"])
     return df
 
 
@@ -209,7 +209,7 @@ async def compute_level_metrics(
         if "group" not in df.columns:
             raise HTTPException(
                 status_code=500,
-                detail="Data error: 'group' column missing from ticket data"
+                detail="Data error: 'group' column missing from ticket data",
             )
         df = df[df["group"] == level]
 
@@ -256,7 +256,7 @@ async def metrics_level(level: str) -> MetricsOverview:
 
     level_norm = level.upper()
     if level_norm not in KNOWN_LEVELS:
-        raise HTTPException(status_code=400, detail="Unknown level")
+        raise HTTPException(status_code=404, detail="Unknown level")
 
     try:
         return await compute_level_metrics(level_norm)
