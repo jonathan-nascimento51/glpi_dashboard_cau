@@ -29,7 +29,7 @@ def _fetch_api_data(ticket_range: str = "0-99", **filters: str) -> list[dict[str
 
     url = f"{WORKER_BASE_URL}/v1/tickets"
     try:
-        resp = requests.get(url, params={"range": ticket_range, **filters}, timeout=30)
+        resp = requests.get(url, timeout=30)
         resp.raise_for_status()
         return resp.json()
     except requests.RequestException as exc:
@@ -37,27 +37,19 @@ def _fetch_api_data(ticket_range: str = "0-99", **filters: str) -> list[dict[str
         raise
 
 
-async def _fetch_aggregated_metrics_async() -> dict[str, Any]:
-    """Return aggregated metrics from the worker API asynchronously."""
+def _fetch_aggregated_metrics() -> dict[str, Any]:
+    """Return aggregated metrics from the worker API."""
 
     url = f"{WORKER_BASE_URL}/v1/metrics/aggregated"
     try:
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url, timeout=30) as resp:
-                resp.raise_for_status()
-                return await resp.json()
-    except aiohttp.ClientError as exc:
+        resp = requests.get(url, timeout=30)
+        resp.raise_for_status()
+        return resp.json()
+    except requests.RequestException as exc:
         logging.error("Failed to fetch metrics from %s: %s", url, exc)
-        raise
+        return {}
 
-def _fetch_aggregated_metrics() -> dict[str, Any]:
-    """Synchronous wrapper for the async metrics fetcher."""
-    try:
-        return asyncio.run(_fetch_aggregated_metrics_async())
-    except RuntimeError:
-        # If already in an event loop (e.g., in Jupyter), use create_task
-        loop = asyncio.get_event_loop()
-        return loop.run_until_complete(_fetch_aggregated_metrics_async())
+
 def _transform_df(ticket_range: str = "0-99", **filters: str) -> pd.DataFrame:
     """Transform raw ticket data into a normalized DataFrame."""
 
@@ -77,9 +69,10 @@ def load_data(ticket_range: str = "0-99", **filters: str) -> pd.DataFrame | None
 
     logging.info("Fetching ticket data from worker API")
     try:
-        logging.info("Aggregated metrics: %s", _fetch_aggregated_metrics())
+        metrics = _fetch_aggregated_metrics()
+        logging.info("Aggregated metrics: %s", metrics)
         return _transform_df(ticket_range, **filters)
-    except requests.RequestException as exc:
+    except Exception as exc:
         logging.error("Error contacting worker API: %s", exc)
         return None
 
