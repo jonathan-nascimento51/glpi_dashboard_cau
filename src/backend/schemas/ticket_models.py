@@ -101,8 +101,9 @@ class CleanTicketDTO(BaseModel):
     created_at: Optional[datetime] = Field(default=None, alias="date_creation")
     assigned_to: str = "Unassigned"
     requester: Optional[str] = None
+    group: str | None = None
 
-    model_config = ConfigDict(populate_by_name=True)
+    model_config = ConfigDict(populate_by_name=True, extra="allow")
 
     @model_validator(mode="before")
     @classmethod
