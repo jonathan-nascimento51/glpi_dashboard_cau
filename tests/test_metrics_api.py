@@ -197,3 +197,14 @@ def test_level_invalid(test_client):
     client, *_ = test_client
     resp = client.get("/v1/metrics/levels/N5")
     assert resp.status_code == 422
+
+
+def test_level_network_failure(monkeypatch, test_client):
+    client, _, _, metrics_module = test_client
+
+    async def fail(*args, **kwargs):
+        raise RuntimeError("boom")
+
+    monkeypatch.setattr(metrics_module, "_fetch_dataframe", fail)
+    resp = client.get("/v1/metrics/levels/N1")
+    assert resp.status_code == 500
