@@ -203,6 +203,11 @@ async def compute_level_metrics(
     async def compute_metrics() -> MetricsOverview:
         df = await _fetch_dataframe(client)
         df["status"] = df["status"].astype(str).str.lower()
+        if "group" not in df.columns:
+            raise HTTPException(
+                status_code=500,
+                detail="Data error: 'group' column missing from ticket data"
+            )
         df = df[df["group"] == level]
 
         open_mask = ~df["status"].isin(CLOSED_STATUSES)
