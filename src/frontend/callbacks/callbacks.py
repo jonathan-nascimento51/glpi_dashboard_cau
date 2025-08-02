@@ -15,12 +15,15 @@ def _get_filtered(df: pd.DataFrame, status: str | None) -> pd.DataFrame:
 
 def register_callbacks(
     app: Dash,
-    loader: Callable[..., pd.DataFrame],
+    loader: Callable[..., List[Dict[str, Any]]],
     *,
     ticket_range: str = "0-99",
     **filters: Any,
 ) -> None:
     """Register Dash callbacks using ``loader`` to fetch data.
+
+    The loader must return a list of ticket dictionaries which will be
+    converted into pandas DataFrames inside each callback.
 
     Example
     -------
@@ -35,7 +38,8 @@ def register_callbacks(
         Input("init-load", "n_intervals"),
     )
     def load_data(_: int) -> tuple[dict[str, str], dict[str, Any], list[Any]]:
-        df: pd.DataFrame = loader(ticket_range, **filters)
+        data = loader(ticket_range, **filters)
+        df: pd.DataFrame = pd.DataFrame(data)
         fig = _status_fig(df)
         stats = compute_ticket_stats(df)
         # Convert fig to dict if it's a plotly.graph_objs.Figure
@@ -55,7 +59,8 @@ def register_callbacks(
         store: Optional[Dict[str, Any]], status: Optional[str]
     ) -> tuple[List[Dict[str, Any]], Dict[str, Any]]:
         rng: str = store.get("ticket_range", ticket_range) if store else ticket_range
-        df: pd.DataFrame = loader(rng, **filters)
+        data = loader(rng, **filters)
+        df: pd.DataFrame = pd.DataFrame(data)
         filtered: pd.DataFrame = _get_filtered(df, status)
         fig: Dict[str, Any] = {
             "data": [
@@ -78,8 +83,8 @@ def register_callbacks(
             loader(ticket_range, **filters)
         except Exception as exc:  # pragma: no cover - network/logic errors
             return dbc.Alert(
-                f"Erro ao conectar ao GLPI: {exc}", color="danger", dismissable=True
+                f"Erro ao conectar à API: {exc}", color="danger", dismissable=True
             )
         return dbc.Alert(
-            "Conex\u00e3o com GLPI estabelecida", color="success", dismissable=True
+            "Conexão com a API estabelecida", color="success", dismissable=True
         )

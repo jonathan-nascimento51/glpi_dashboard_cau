@@ -53,7 +53,7 @@ def build_layout(df: pd.DataFrame | None) -> html.Div | dbc.Alert:
     """Return dashboard layout or an error message."""
     if df is None:
         return dbc.Alert(
-            "Erro na conexão com o GLPI. Verifique suas credenciais.",
+            "Erro na conexão com a API. Verifique o serviço.",
             color="danger",
         )
     return render_dashboard(df)
