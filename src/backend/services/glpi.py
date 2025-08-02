@@ -31,6 +31,8 @@ from typing import Any, Dict
 
 import requests
 
+from backend.constants import GROUP_IDS
+
 logger = logging.getLogger(__name__)
 
 # Load configuration from environment once at import time. This avoids
@@ -39,17 +41,6 @@ logger = logging.getLogger(__name__)
 GLPI_BASE_URL: str = os.getenv("GLPI_BASE_URL", "").rstrip("/")
 GLPI_APP_TOKEN: str = os.getenv("GLPI_APP_TOKEN", "")
 GLPI_SESSION_TOKEN: str = os.getenv("GLPI_SESSION_TOKEN", "")
-
-# Mapping of human friendly service level names to GLPI group IDs. These
-# group IDs correspond to the different levels of support (N1–N4). If
-# the project grows to support additional levels the dictionary can be
-# extended without modifying the service logic.
-GROUP_IDS: Dict[str, int] = {
-    "N1": 89,
-    "N2": 90,
-    "N3": 91,
-    "N4": 92,
-}
 
 
 def _build_headers() -> Dict[str, str]:

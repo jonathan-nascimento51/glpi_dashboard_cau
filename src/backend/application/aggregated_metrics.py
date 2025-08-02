@@ -7,6 +7,7 @@ from typing import Any, Dict, Optional
 import pandas as pd
 
 from backend.adapters.normalization import aggregate_by_user
+from backend.constants import GROUP_LABELS_BY_ID
 from shared.utils.redis_client import RedisClient, redis_client
 
 
@@ -56,6 +57,12 @@ def status_by_group(df: pd.DataFrame) -> Dict[str, Dict[str, int]]:
         return {}
 
     filtered_df = df[["group", "status"]].copy()
+    filtered_df["group"] = (
+        pd.to_numeric(filtered_df["group"], errors="coerce")
+        .map(GROUP_LABELS_BY_ID)
+        .fillna(filtered_df["group"].astype(str))
+        .fillna("UNKNOWN")
+    )
     # ``status`` may be a ``Categorical`` column. Converting to ``object``
     # ensures ``fillna`` does not fail when the placeholder value is not part
     # of the categories.
