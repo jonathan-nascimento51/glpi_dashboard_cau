@@ -12,7 +12,25 @@ from shared.utils.redis_client import RedisClient, redis_client
 
 
 def map_group_ids_to_labels(series: pd.Series) -> pd.Series:
-    """Map numeric group IDs to human-readable labels if available."""
+    """
+    Map numeric group IDs in a pandas Series to human-readable labels using GROUP_LABELS_BY_ID.
+
+    Parameters
+    ----------
+    series : pd.Series
+        Series containing group IDs (typically numeric).
+
+    Returns
+    -------
+    pd.Series
+        Series with group IDs replaced by their corresponding human-readable labels
+        from GROUP_LABELS_BY_ID. If a group ID is not found in the mapping,
+        the original value is retained.
+
+    Notes
+    -----
+    The mapping source is the GROUP_LABELS_BY_ID constant imported from backend.constants.
+    """
     return series.map(GROUP_LABELS_BY_ID).fillna(series)
 
 
