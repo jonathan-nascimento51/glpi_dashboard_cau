@@ -80,7 +80,7 @@ def load_data(ticket_range: str = "0-99", **filters: str) -> pd.DataFrame | None
         metrics = _fetch_aggregated_metrics()
         logging.info("Aggregated metrics: %s", metrics)
         return _transform_df(ticket_range, **filters)
-    except Exception as exc:
+    except requests.RequestException as exc:
         logging.error("Error contacting worker API: %s", exc)
         return None
 
