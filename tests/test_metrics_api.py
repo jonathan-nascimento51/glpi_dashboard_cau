@@ -183,8 +183,8 @@ async def test_level_specific_endpoint(test_client, monkeypatch):
     resp = client.get("/v1/metrics/levels/N1")
     assert resp.status_code == 200
     data = resp.json()
-    assert data["open_tickets"] == {"N1": 1}
-    assert data["tickets_closed_this_month"] == {"N1": 1}
+    assert data["open_tickets"] == 1
+    assert data["tickets_closed_this_month"] == 1
     assert data["status_distribution"] == {"new": 1, "closed": 1}
 
     # call again should hit cache
@@ -197,3 +197,14 @@ def test_level_invalid(test_client):
     client, *_ = test_client
     resp = client.get("/v1/metrics/levels/N5")
     assert resp.status_code == 400
+
+
+def test_level_network_failure(monkeypatch, test_client):
+    client, _, _, metrics_module = test_client
+
+    async def fail(*args, **kwargs):
+        raise RuntimeError("boom")
+
+    monkeypatch.setattr(metrics_module, "_fetch_dataframe", fail)
+    resp = client.get("/v1/metrics/levels/N1")
+    assert resp.status_code == 500

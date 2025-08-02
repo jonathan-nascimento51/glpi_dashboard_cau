@@ -33,11 +33,28 @@ logger = logging.getLogger(__name__)
 CACHE_KEY_AGGREGATED = "metrics:aggregated"
 
 
+def map_group_ids_to_labels(series: pd.Series) -> pd.Series:
+    """Map numeric group identifiers to their label.
+
+    Any values that do not match known group IDs are returned unchanged.
+    """
+
+    return series.map(GROUP_LABELS_BY_ID).fillna(series)
+
+
 class MetricsOverview(BaseModel):
     """Summary of key ticket metrics."""
 
     open_tickets: dict[str, int] = Field(default_factory=dict)
     tickets_closed_this_month: dict[str, int] = Field(default_factory=dict)
+    status_distribution: dict[str, int] = Field(default_factory=dict)
+
+
+class LevelMetrics(BaseModel):
+    """Metrics for a single support level."""
+
+    open_tickets: int = 0
+    tickets_closed_this_month: int = 0
     status_distribution: dict[str, int] = Field(default_factory=dict)
 
 
@@ -197,19 +214,19 @@ async def compute_level_metrics(
     client: Optional[GlpiApiClient] = None,
     cache: Optional[RedisClient] = None,
     ttl_seconds: int = 300,
-) -> MetricsOverview:
+) -> LevelMetrics:
     """Compute metrics for a single support level and cache the result."""
 
     cache = cache or redis_client
     cache_key = f"metrics:levels:{level}"
 
-    async def compute_metrics() -> MetricsOverview:
+    async def compute_metrics() -> LevelMetrics:
         df = await _fetch_dataframe(client)
         df["status"] = df["status"].astype(str).str.lower()
         if "group" not in df.columns:
             raise HTTPException(
                 status_code=500,
-                detail="Data error: 'group' column missing from ticket data"
+                detail="Data error: 'group' column missing from ticket data",
             )
         df = df[df["group"] == level]
 
@@ -233,25 +250,25 @@ async def compute_level_metrics(
 
         status_counts = df["status"].value_counts().astype(int).to_dict()
 
-        return MetricsOverview(
-            open_tickets={level: open_count},
-            tickets_closed_this_month={level: closed_count},
+        return LevelMetrics(
+            open_tickets=open_count,
+            tickets_closed_this_month=closed_count,
             status_distribution=status_counts,
         )
 
     result = await get_or_set_cache(
-        cache, cache_key, MetricsOverview, compute_metrics, ttl_seconds
+        cache, cache_key, LevelMetrics, compute_metrics, ttl_seconds
     )
-    if not isinstance(result, MetricsOverview):
-        raise RuntimeError("Cached value is not a MetricsOverview instance")
+    if not isinstance(result, LevelMetrics):
+        raise RuntimeError("Cached value is not a LevelMetrics instance")
     return result
 
 
 KNOWN_LEVELS = set(GROUP_IDS.keys())
 
 
-@router.get("/metrics/levels/{level}", response_model=MetricsOverview)
-async def metrics_level(level: str) -> MetricsOverview:
+@router.get("/metrics/levels/{level}", response_model=LevelMetrics)
+async def metrics_level(level: str) -> LevelMetrics:
     """Return ticket metrics for a specific support level."""
 
     level_norm = level.upper()
