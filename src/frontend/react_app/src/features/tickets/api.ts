@@ -7,7 +7,12 @@ export function useTicketMetrics() {
     '/v1/metrics/aggregated',
     {
       transformResponse: (data: unknown): MetricsOverview => {
-        if (typeof data === 'object' && data !== null) {
+        if (
+          typeof data === 'object' &&
+          data !== null &&
+          'metric1' in data &&
+          'metric2' in data
+        ) {
           return data as MetricsOverview;
         } else {
           throw new Error('Invalid response structure for MetricsOverview');
