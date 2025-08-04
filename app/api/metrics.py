@@ -20,6 +20,7 @@ from backend.application.glpi_api_client import (
     create_glpi_api_client,
 )
 from backend.constants import GROUP_IDS, GROUP_LABELS_BY_ID, STATUS_ALIAS
+from backend.core.settings import REDIS_TTL_SECONDS
 from backend.infrastructure.glpi.normalization import process_raw
 from shared.utils.redis_client import RedisClient, redis_client
 
@@ -99,7 +100,7 @@ async def get_or_set_cache(
 async def compute_aggregated(
     client: Optional[GlpiApiClient] = None,
     cache: Optional[RedisClient] = None,
-    ttl_seconds: int = 300,
+    ttl_seconds: int = REDIS_TTL_SECONDS,
 ) -> MetricsOverview:
     """Compute metrics and cache the result."""
     cache = cache or redis_client
@@ -118,6 +119,9 @@ async def compute_aggregated(
     result = await get_or_set_cache(
         cache, cache_key, MetricsOverview, compute_metrics, ttl_seconds
     )
+    remaining_ttl = await cache.get_ttl(cache_key)
+    logger.debug("TTL restante para %s: %s", cache_key, remaining_ttl)
+
     # Ensure the result is a MetricsOverview instance
     if not isinstance(result, MetricsOverview):
         raise RuntimeError("Cached value is not a MetricsOverview instance")
