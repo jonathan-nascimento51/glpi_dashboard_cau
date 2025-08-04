@@ -344,15 +344,16 @@ class GlpiApiClient:
                                 "invalid Content-Range header: %s", content_range
                             )
 
-                key = (
-                    "new"
-                    if status_id == 1
-                    else "progress"
-                    if status_id in (2, 3)
-                    else "pending"
-                    if status_id == 4
-                    else "resolved"
-                )
+                status_key_map = {
+                    1: "new",
+                    2: "progress",
+                    3: "progress",
+                    4: "pending",
+                }
+                key = status_key_map.get(status_id)
+                if key is None:
+                    logger.warning("Unknown status_id %s encountered; skipping.", status_id)
+                    continue
                 summary[level][key] += total
 
         return summary
