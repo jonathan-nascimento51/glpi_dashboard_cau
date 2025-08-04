@@ -6,9 +6,9 @@ interface ApiLevelMetrics {
   new?: number
   pending?: number
   progress?: number
-  solved?: number
   resolved?: number
-  closed?: number
+  // Support legacy field names (e.g. "solved" or "closed") via index signature
+  [status: string]: number | undefined
 }
 
 export function useMetricsLevels() {
@@ -47,7 +47,7 @@ export function useMetricsLevels() {
           progress: metrics.progress ?? 0,
           pending: metrics.pending ?? 0,
           resolved:
-            metrics.resolved ?? metrics.solved ?? metrics.closed ?? 0,
+            metrics.resolved ?? metrics['solved'] ?? metrics['closed'] ?? 0,
         },
       }));
   }, [query.data])
