@@ -42,6 +42,14 @@ class FakeClient:
         self.calls += 1
         return [FakeTicket(**i) for i in self._items]
 
+    async def count_status_by_group(self, level_ids):
+        return {
+            "N1": {"new": 1, "progress": 0, "pending": 0, "resolved": 1},
+            "N2": {"new": 0, "progress": 0, "pending": 1, "resolved": 1},
+            "N3": {"new": 0, "progress": 0, "pending": 0, "resolved": 0},
+            "N4": {"new": 0, "progress": 0, "pending": 0, "resolved": 0},
+        }
+
 
 sample_tickets = [
     {
@@ -53,7 +61,7 @@ sample_tickets = [
     },
     {
         "id": 2,
-        "status": "closed",
+        "status": "resolved",
         "group": "N1",
         "date_creation": "2024-06-05",
         "date_resolved": "2024-06-12",
@@ -67,7 +75,7 @@ sample_tickets = [
     },
     {
         "id": 4,
-        "status": "closed",
+        "status": "resolved",
         "group": "N2",
         "date_creation": "2024-06-02",
         "date_resolved": "2024-06-08",
@@ -132,7 +140,7 @@ def test_aggregated_endpoint(test_client, monkeypatch):
     data = resp.json()
     assert data["open_tickets"] == {"N1": 1, "N2": 1}
     assert data["tickets_closed_this_month"] == {"N1": 1, "N2": 1}
-    assert data["status_distribution"] == {"new": 1, "closed": 2, "pending": 1}
+    assert data["status_distribution"] == {"new": 1, "resolved": 2, "pending": 1}
     # call again should hit cache
     resp = client.get("/v1/metrics/aggregated")
     assert resp.status_code == 200
@@ -155,10 +163,10 @@ def test_levels_endpoint(test_client):
     resp = client.get("/v1/metrics/levels")
     assert resp.status_code == 200
     assert resp.json() == {
-        "N1": {"closed": 1, "new": 1, "pending": 0},
-        "N2": {"closed": 1, "new": 0, "pending": 1},
-        "N3": {"closed": 0, "new": 0, "pending": 0},
-        "N4": {"closed": 0, "new": 0, "pending": 0},
+        "N1": {"new": 1, "progress": 0, "pending": 0, "resolved": 1},
+        "N2": {"new": 0, "progress": 0, "pending": 1, "resolved": 1},
+        "N3": {"new": 0, "progress": 0, "pending": 0, "resolved": 0},
+        "N4": {"new": 0, "progress": 0, "pending": 0, "resolved": 0},
     }
 
 
@@ -187,7 +195,7 @@ async def test_level_specific_endpoint(test_client, monkeypatch):
     model = metrics_module.MetricsOverview.model_validate(resp.json())
     assert model.open_tickets == {"N1": 1}
     assert model.tickets_closed_this_month == {"N1": 1}
-    assert model.status_distribution == {"new": 1, "closed": 1}
+    assert model.status_distribution == {"new": 1, "resolved": 1}
 
     # call again should hit cache
     resp = client.get("/v1/metrics/levels/N1")
