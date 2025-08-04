@@ -55,7 +55,7 @@ const mockTickets = [
   {
     id: 1,
     name: 'Problema na impressora',
-    status: 'New',
+    status: 'new',
     priority: 'High',
     date_creation: new Date().toISOString(),
   },

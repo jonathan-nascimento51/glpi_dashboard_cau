@@ -80,7 +80,7 @@ async def test_dashboard_flows(dash_duo, mock_glpi_server, monkeypatch):
     dash_duo.wait_for_text_to_equal("h1", "GLPI Dashboard", timeout=10)
     dash_duo.percy_snapshot("login")
 
-    dash_duo.select_dcc_dropdown("#status-filter", "Solved")
+    dash_duo.select_dcc_dropdown("#status-filter", "solved")
     dash_duo.wait_for_text_to_equal("#stats div:nth-child(3)", "Fechados: 1")
     dash_duo.percy_snapshot("search")
 

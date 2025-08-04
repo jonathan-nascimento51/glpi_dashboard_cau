@@ -33,7 +33,7 @@ async def test_translate_ticket_success(mock_mapping_service: AsyncMock) -> None
     assert isinstance(translated_ticket, CleanTicketDTO)
     assert translated_ticket.id == 1
     assert translated_ticket.title == "Test Ticket"
-    assert translated_ticket.status == "New"
+    assert translated_ticket.status == "new"
     assert translated_ticket.priority == "Medium"
     assert translated_ticket.created_at == datetime.fromisoformat(
         "2024-01-01T12:00:00+00:00"

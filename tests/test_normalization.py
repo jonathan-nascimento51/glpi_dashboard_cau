@@ -13,9 +13,9 @@ pytest.importorskip("pandas")
 @pytest.fixture()
 def ticket_list():
     return [
-        {"id": "1", "status": "New", "assigned_to": "alice", "group": "N1"},
+        {"id": "1", "status": "new", "assigned_to": "alice", "group": "N1"},
         {"id": None, "status": None, "group": "N2"},
-        {"status": "PENDING", "assigned_to": None, "group": None},
+        {"status": "pending", "assigned_to": None, "group": None},
     ]
 
 
@@ -33,11 +33,11 @@ def test_to_dataframe_converts_and_sets_defaults(ticket_df):
     assert ticket_df["id"].tolist() == [1, 0, 0]
     assert ticket_df["assigned_to"].tolist() == ["alice", "", ""]
     assert ticket_df["group"].tolist() == ["N1", "N2", ""]
-    assert ticket_df["status"].tolist() == ["New", "", "PENDING"]
+    assert ticket_df["status"].tolist() == ["new", "", "pending"]
 
 
 def test_filter_by_status(ticket_df):
-    closed = filter_by_status(ticket_df, "New")
+    closed = filter_by_status(ticket_df, "new")
     assert closed["id"].tolist() == [1]
 
 

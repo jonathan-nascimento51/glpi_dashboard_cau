@@ -14,16 +14,16 @@ if TYPE_CHECKING:  # Avoid runtime import cycle
 
 # Static mappings from numeric codes returned by the GLPI API
 STATUS_MAP = {
-    1: "New",
-    2: "Processing (assigned)",
-    3: "Processing (planned)",
-    4: "Pending",
-    5: "Solved",
-    6: "Closed",
+    1: "new",
+    2: "processing (assigned)",
+    3: "processing (planned)",
+    4: "pending",
+    5: "solved",
+    6: "closed",
 }
 
 # Map textual statuses (e.g., "closed") to the same canonical labels
-TEXT_STATUS_MAP = {label.lower(): label for label in STATUS_MAP.values()}
+TEXT_STATUS_MAP = {label: label for label in STATUS_MAP.values()}
 
 # Priority labels in English (legacy) and Portuguese used in the dashboard.
 PRIORITY_MAP = {

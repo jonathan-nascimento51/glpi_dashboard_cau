@@ -67,15 +67,15 @@ class RawTicketDTO(BaseModel):
 
 
 STATUS_MAP = {
-    1: "New",
-    2: "Processing (assigned)",
-    3: "Processing (planned)",
-    4: "Pending",
-    5: "Solved",
-    6: "Closed",
+    1: "new",
+    2: "processing (assigned)",
+    3: "processing (planned)",
+    4: "pending",
+    5: "solved",
+    6: "closed",
 }
 
-TEXT_STATUS_MAP = {label.lower(): label for label in STATUS_MAP.values()}
+TEXT_STATUS_SET = set(STATUS_MAP.values())
 
 PRIORITY_MAP_PT = {
     1: "Muito Baixa",

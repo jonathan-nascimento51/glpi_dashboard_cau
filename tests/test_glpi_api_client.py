@@ -124,18 +124,18 @@ async def test_get_ticket_summary_by_group(monkeypatch):
 
     fake_data: Dict[str, list[dict]] = {
         "89": [
-            {"status": {"name": "New"}},
-            {"status": {"name": "New"}},
-            {"status": {"name": "Processing (assigned)"}},
+            {"status": {"name": "new"}},
+            {"status": {"name": "new"}},
+            {"status": {"name": "processing (assigned)"}},
         ],
         "90": [
-            {"status": {"name": "Solved"}},
-            {"status": {"name": "Solved"}},
-            {"status": {"name": "New"}},
+            {"status": {"name": "solved"}},
+            {"status": {"name": "solved"}},
+            {"status": {"name": "new"}},
         ],
         "91": [],
         "92": [
-            {"status": {"name": "Pending"}},
+            {"status": {"name": "pending"}},
         ],
     }
 

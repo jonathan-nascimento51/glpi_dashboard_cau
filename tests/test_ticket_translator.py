@@ -26,7 +26,7 @@ async def test_translate_ticket_maps_values(mocker):
 
     assert isinstance(ticket, CleanTicketDTO)
     assert ticket.title == "Printer issue"
-    assert ticket.status == "Processing (assigned)"
+    assert ticket.status == "processing (assigned)"
     assert ticket.priority == "High"
     assert ticket.assigned_to == "Alice"
     assert ticket.requester == "Alice"
