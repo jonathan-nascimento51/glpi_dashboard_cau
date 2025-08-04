@@ -24,7 +24,7 @@ from backend.schemas.auth import Credentials
 
 log = logging.getLogger(__name__)
 
-STATUS = {1: "New", 2: "Processing", 3: "Assigned", 5: "Solved", 6: "Closed"}
+STATUS = {1: "new", 2: "processing", 3: "assigned", 5: "solved", 6: "closed"}
 
 
 async def collect_tickets_with_groups(

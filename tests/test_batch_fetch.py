@@ -39,7 +39,7 @@ class DummyClient:
     async def fetch_tickets_by_ids(self, ids: list[int]):
         self.calls.append(ids)
         await asyncio.sleep(self.delay)
-        return [CleanTicketDTO(id=i, status="New") for i in ids]
+        return [CleanTicketDTO(id=i, status="new") for i in ids]
 
 
 @pytest.mark.asyncio

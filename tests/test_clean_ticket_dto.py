@@ -22,7 +22,7 @@ def test_clean_ticket_dto_valid_creation():
 
     assert ticket.id == 1
     assert ticket.title == "Printer issue"
-    assert ticket.status == "New"
+    assert ticket.status == "new"
     assert ticket.priority == "Low"
     assert ticket.assigned_to == "Alice"
     assert ticket.requester == "Alice"
@@ -100,7 +100,7 @@ def test_clean_ticket_dto_text_status():
 
     ticket = CleanTicketDTO.model_validate(data)
 
-    assert ticket.status == "Closed"
+    assert ticket.status == "closed"
 
 
 @pytest.mark.unit

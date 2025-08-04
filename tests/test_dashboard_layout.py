@@ -25,7 +25,7 @@ except OSError:
 @pytest.mark.skipif(not _chrome_ok, reason="chromedriver not installed")
 def test_build_layout_contains_dropdown(dash_duo):
     """build_layout should render dropdown with options from df."""
-    df = pd.DataFrame({"status": ["New", "Solved"]})
+    df = pd.DataFrame({"status": ["new", "solved"]})
     app = Dash(__name__)
     app.layout = build_layout(df)
 
@@ -36,8 +36,8 @@ def test_build_layout_contains_dropdown(dash_duo):
     labels = [o.text for o in options]
     values = [o.get_attribute("value") for o in options]
 
-    assert labels == ["All", "New", "Solved"]
-    assert values == ["", "New", "Solved"]
+    assert labels == ["All", "new", "solved"]
+    assert values == ["", "new", "solved"]
 
 
 def test_build_layout_none_returns_alert():

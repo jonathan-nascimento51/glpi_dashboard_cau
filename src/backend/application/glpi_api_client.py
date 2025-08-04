@@ -22,13 +22,16 @@ __all__ = [
     "GlpiApiClient",
     "create_glpi_api_client",
     "get_status_counts_by_levels",
+    "discover_field_ids",
+    "fetch_status_totals",
+    "get_status_totals_by_levels",
 ]
 
 from backend.adapters.factory import create_glpi_session
 from backend.adapters.mapping_service import MappingService
 from backend.constants import GROUP_IDS
 from backend.infrastructure.glpi.glpi_session import GLPISession
-from backend.schemas.ticket_models import TEXT_STATUS_MAP, CleanTicketDTO
+from backend.schemas.ticket_models import STATUS_MAP, TEXT_STATUS_MAP, CleanTicketDTO
 from backend.utils import paginate_items
 from shared.dto import TicketTranslator
 
@@ -274,6 +277,85 @@ class GlpiApiClient:
                 continue
 
         return summary
+
+
+async def discover_field_ids(session: GLPISession) -> Dict[str, int]:
+    """Return numeric IDs for ``Grupo técnico`` and ``Status`` search fields."""
+    options = await session.list_search_options("Ticket")
+    group_field_id: Optional[int] = None
+    status_field_id: Optional[int] = None
+    for fid, info in options.items():
+        if not isinstance(info, dict):
+            continue
+        name = str(info.get("name") or info.get("field") or "").strip().lower()
+        if name in {"grupo técnico", "grupo tecnico"}:
+            group_field_id = int(fid)
+        elif name == "status":
+            status_field_id = int(fid)
+    if group_field_id is None or status_field_id is None:
+        raise KeyError("required field IDs not found")
+    return {"group": group_field_id, "status": status_field_id}
+
+
+async def fetch_status_totals(
+    session: GLPISession,
+    group_field_id: int,
+    status_field_id: int,
+    group_id: int,
+    status_id: int,
+) -> int:
+    """Return total tickets for ``group_id`` with ``status_id``."""
+    params = {
+        "criteria": [
+            {"field": group_field_id, "searchtype": "equals", "value": str(group_id)},
+            {"field": status_field_id, "searchtype": "equals", "value": str(status_id)},
+        ],
+        "range": "0-0",
+    }
+    _, headers = await session.get("search/Ticket", params=params, return_headers=True)
+    total = 0
+    if headers:
+        content_range = headers.get("Content-Range") or headers.get("content-range")
+        if content_range and "/" in content_range:
+            try:
+                total = int(content_range.split("/")[-1])
+            except ValueError:
+                logger.warning("invalid Content-Range header: %s", content_range)
+    return total
+
+
+async def get_status_totals_by_levels(
+    levels: Dict[str, int],
+) -> Dict[str, Dict[str, int]]:
+    """Return ``{level: {status: total}}`` for each level and status."""
+    try:
+        async with create_glpi_session() as session:
+            field_ids = await discover_field_ids(session)
+            group_field = field_ids["group"]
+            status_field = field_ids["status"]
+            summary: Dict[str, Dict[str, int]] = {}
+            for level, group_val in levels.items():
+                counts: Dict[str, int] = {}
+                for status_code, status_name in STATUS_MAP.items():
+                    try:
+                        total = await fetch_status_totals(
+                            session, group_field, status_field, group_val, status_code
+                        )
+                    except Exception:  # pragma: no cover - best effort
+                        logger.exception(
+                            "failed to fetch totals for level %s status %s",
+                            level,
+                            status_name,
+                        )
+                        total = 0
+                    counts[status_name] = total
+                summary[level] = counts
+            return summary
+    except Exception:  # pragma: no cover - best effort
+        logger.exception("failed to compute status totals")
+        return {
+            level: {status: 0 for status in STATUS_MAP.values()} for level in levels
+        }
 
 
 async def get_status_counts_by_levels(
