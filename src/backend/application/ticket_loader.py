@@ -13,11 +13,14 @@ from backend.adapters.factory import create_glpi_session
 from backend.application.aggregated_metrics import (
     cache_aggregated_metrics,
     compute_aggregated,
-    status_by_group,
     tickets_by_date,
     tickets_daily_totals,
 )
-from backend.application.glpi_api_client import GlpiApiClient
+from backend.application.glpi_api_client import (
+    GlpiApiClient,
+    get_status_totals_by_levels,
+)
+from backend.constants import GROUP_IDS
 from backend.core.settings import MOCK_TICKETS_FILE, USE_MOCK_DATA
 from backend.infrastructure.glpi.normalization import process_raw
 from backend.schemas.ticket_models import CleanTicketDTO
@@ -45,7 +48,8 @@ async def _process_and_cache_df(
 
     metrics = compute_aggregated(df)
     await cache_aggregated_metrics(cache, "metrics_aggregated", metrics)
-    await cache.set("metrics_levels", status_by_group(df))
+    levels = await get_status_totals_by_levels(GROUP_IDS)
+    await cache.set("metrics:levels:all", levels)
     await cache.set("chamados_por_data", tickets_by_date(df).to_dict(orient="records"))
     await cache.set(
         "chamados_por_dia", tickets_daily_totals(df).to_dict(orient="records")

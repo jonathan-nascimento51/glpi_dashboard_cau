@@ -32,11 +32,11 @@ from backend.api.request_id_middleware import RequestIdMiddleware
 from backend.application.aggregated_metrics import (
     compute_aggregated,
     get_cached_aggregated,
-    status_by_group,
 )
 from backend.application.glpi_api_client import (
     GlpiApiClient,
     create_glpi_api_client,
+    get_status_totals_by_levels,
 )
 from backend.application.read_model import query_ticket_summary
 from backend.application.ticket_loader import (
@@ -45,6 +45,7 @@ from backend.application.ticket_loader import (
     load_tickets,
     stream_tickets,
 )
+from backend.constants import GROUP_IDS
 from backend.core.settings import KNOWLEDGE_BASE_FILE
 from backend.schemas.metrics import MetricsSummary
 from backend.schemas.ticket import ChamadoPorData, ChamadosPorDia, TicketSummaryOut
@@ -239,11 +240,11 @@ def create_app(client: Optional[GlpiApiClient] = None, cache=None) -> FastAPI:
     @router.get("/metrics/levels")
     async def metrics_levels() -> Dict[str, Dict[str, int]]:  # noqa: F401
         """Return status counts grouped by ticket level (group)."""
-        data = await cache.get("metrics_levels")
+        cache_key = "metrics:levels:all"
+        data = await cache.get(cache_key)
         if data is None:
-            df = await load_tickets(client=client, cache=cache)
-            data = status_by_group(df)
-            await cache.set("metrics_levels", data)
+            data = await get_status_totals_by_levels(GROUP_IDS)
+            await cache.set(cache_key, data)
         return cast(Dict[str, Dict[str, int]], data)
 
     @router.get(
