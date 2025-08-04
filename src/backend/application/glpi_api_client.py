@@ -278,6 +278,86 @@ class GlpiApiClient:
 
         return summary
 
+    async def count_status_by_group(
+        self, level_ids: Dict[str, int]
+    ) -> Dict[str, Dict[str, int]]:
+        """Count tickets per status for the given support groups.
+
+        Args:
+            level_ids: Mapping of level name to GLPI group ID.
+
+        Returns:
+            A dictionary mapping each level name to another dictionary with
+            normalised status keys (``new``, ``progress``, ``pending`` and
+            ``resolved``) and their respective counts.
+        """
+
+        field_ids = await self._mapper.get_ticket_field_ids(["groups_id", "status"])
+        if len(field_ids) < 2:
+            raise KeyError("required field IDs not found")
+        group_field_id, status_field_id = field_ids
+
+        summary: Dict[str, Dict[str, int]] = {
+            level: {k: 0 for k in ("new", "progress", "pending", "resolved")}
+            for level in level_ids
+        }
+
+        for level, group_id in level_ids.items():
+            for status_id in STATUS_MAP:
+                params = {
+                    "criteria": [
+                        {
+                            "field": group_field_id,
+                            "searchtype": "equals",
+                            "value": str(group_id),
+                        },
+                        {
+                            "field": status_field_id,
+                            "searchtype": "equals",
+                            "value": str(status_id),
+                        },
+                    ],
+                    "range": "0-0",
+                }
+                try:
+                    _, headers = await self._session.get(
+                        "search/Ticket", params=params, return_headers=True
+                    )
+                except (aiohttp.ClientError, asyncio.TimeoutError):  # pragma: no cover - best effort
+                    logger.exception(
+                        "failed to count tickets for group %s status %s",
+                        group_id,
+                        status_id,
+                    )
+                    continue
+
+                total = 0
+                if headers:
+                    content_range = headers.get("Content-Range") or headers.get(
+                        "content-range"
+                    )
+                    if content_range and "/" in content_range:
+                        try:
+                            total = int(content_range.split("/")[-1])
+                        except ValueError:
+                            logger.warning(
+                                "invalid Content-Range header: %s", content_range
+                            )
+
+                status_key_map = {
+                    1: "new",
+                    2: "progress",
+                    3: "progress",
+                    4: "pending",
+                }
+                key = status_key_map.get(status_id)
+                if key is None:
+                    logger.warning("Unknown status_id %s encountered; skipping.", status_id)
+                    continue
+                summary[level][key] += total
+
+        return summary
+
 
 async def discover_field_ids(session: GLPISession) -> Dict[str, int]:
     """Return numeric IDs for ``Grupo técnico`` and ``Status`` search fields."""
