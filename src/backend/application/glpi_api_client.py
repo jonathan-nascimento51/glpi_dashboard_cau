@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Type
 
 import aiohttp
@@ -354,6 +355,104 @@ class GlpiApiClient:
                 summary[level][key] += total
 
         return summary
+
+    async def count_aggregated_metrics(self) -> Dict[str, Dict[str, int]]:
+        """Return aggregated ticket counts without fetching full datasets."""
+
+        field_ids = await self._mapper.get_ticket_field_ids(
+            ["groups_id", "status", "closedate"]
+        )
+        if len(field_ids) < 3:
+            raise KeyError("required field IDs not found")
+        group_field, status_field, close_field = field_ids
+
+        now = datetime.now(tz=timezone.utc)
+        month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+
+        async def _count(params: Dict[str, Any]) -> int:
+            try:
+                _, headers = await self._session.get(
+                    "search/Ticket", params=params, return_headers=True
+                )
+            except (aiohttp.ClientError, asyncio.TimeoutError):
+                logger.exception("failed to count tickets with params %s", params)
+                return 0
+            total = 0
+            if headers:
+                content_range = headers.get("Content-Range") or headers.get(
+                    "content-range"
+                )
+                if content_range and "/" in content_range:
+                    try:
+                        total = int(content_range.split("/")[-1])
+                    except ValueError:
+                        logger.warning(
+                            "invalid Content-Range header: %s", content_range
+                        )
+            return total
+
+        open_by_level: Dict[str, int] = {}
+        closed_this_month: Dict[str, int] = {}
+        status_counts: Dict[str, int] = {}
+
+        for level, group_id in GROUP_IDS.items():
+            open_total = 0
+            closed_total = 0
+            for status_id, raw_name in STATUS_MAP.items():
+                params = {
+                    "criteria": [
+                        {
+                            "field": group_field,
+                            "searchtype": "equals",
+                            "value": str(group_id),
+                        },
+                        {
+                            "field": status_field,
+                            "searchtype": "equals",
+                            "value": str(status_id),
+                        },
+                    ],
+                    "range": "0-0",
+                }
+                total = await _count(params)
+                key = STATUS_ALIAS.get(raw_name.lower(), raw_name.lower())
+                status_counts[key] = status_counts.get(key, 0) + total
+                if key != "resolved":
+                    open_total += total
+                else:
+                    month_params = {
+                        "criteria": [
+                            {
+                                "field": group_field,
+                                "searchtype": "equals",
+                                "value": str(group_id),
+                            },
+                            {
+                                "field": status_field,
+                                "searchtype": "equals",
+                                "value": str(status_id),
+                            },
+                            {
+                                "field": close_field,
+                                "searchtype": "morethan",
+                                "value": month_start.strftime("%Y-%m-%d"),
+                            },
+                        ],
+                        "range": "0-0",
+                    }
+                    closed_total += await _count(month_params)
+            if open_total:
+                open_by_level[level] = open_total
+            if closed_total:
+                closed_this_month[level] = closed_total
+
+        status_distribution = {k: v for k, v in status_counts.items() if v > 0}
+
+        return {
+            "open_tickets": open_by_level,
+            "tickets_closed_this_month": closed_this_month,
+            "status_distribution": status_distribution,
+        }
 
 
 async def discover_field_ids(session: GLPISession) -> Dict[str, int]:
