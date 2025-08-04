@@ -186,7 +186,7 @@ async def compute_levels(
         normalized: Dict[str, int] = {}
         for status, total in status_counts.items():
             key = str(status).lower()
-            if key in {"processing", "assigned", "planned"}:
+            if key in {"processing (assigned)", "processing (planned)"}:
                 key = "progress"
             elif key in {"solved", "closed"}:
                 key = "resolved"
