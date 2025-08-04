@@ -323,7 +323,7 @@ class GlpiApiClient:
                     _, headers = await self._session.get(
                         "search/Ticket", params=params, return_headers=True
                     )
-                except Exception:  # pragma: no cover - best effort
+                except (aiohttp.ClientError, asyncio.TimeoutError):  # pragma: no cover - best effort
                     logger.exception(
                         "failed to count tickets for group %s status %s",
                         group_id,
