@@ -4,7 +4,7 @@ import inspect
 import json
 import logging
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any, Dict, Optional
 
 import pandas as pd
@@ -58,6 +58,7 @@ class RedisClient:
         self._client: Optional[redis.Redis] = None
         self._prefix = prefix
         self.metrics = CacheMetrics()
+        self._memory_cache: Dict[str, tuple[Any, datetime]] = {}
 
     async def _connect(self) -> redis.Redis:
         """Establish a connection to Redis if not already connected."""
@@ -94,28 +95,37 @@ class RedisClient:
                 self.metrics.hits += 1
                 logger.debug("Cache HIT for key: %s", key)
                 return json.loads(cached_data)
-            self.metrics.misses += 1
-            logger.debug("Cache MISS for key: %s", key)
-            return None
         except redis_exceptions.ConnectionError as e:
-            logger.error("Redis connection error during GET: %s", e)
+            logger.warning("Redis indisponível, usando cache em memória: %s", e)
             self._client = None
-            return None
         except json.JSONDecodeError as e:
             logger.error("Error decoding JSON for key %s: %s", key, e)
             await self.delete(key)
             return None
         except Exception as e:
             logger.error("Unexpected error during Redis GET for key %s: %s", key, e)
-            return None
+
+        # Fallback: in-memory cache
+        value = self._memory_cache.get(key)
+        if value:
+            data, expires = value
+            if expires > datetime.utcnow():
+                self.metrics.hits += 1
+                logger.debug("Memory cache HIT for key: %s", key)
+                return data
+            del self._memory_cache[key]
+        self.metrics.misses += 1
+        logger.debug("Memory cache MISS for key: %s", key)
+        return None
 
     async def set(self, key: str, data: Any, ttl_seconds: Optional[int] = None) -> None:
         """Store JSON-serializable ``data`` in Redis with an optional TTL."""
+        ttl = ttl_seconds or REDIS_TTL_SECONDS
+        expires = datetime.utcnow() + timedelta(seconds=ttl)
+        self._memory_cache[key] = (data, expires)
         try:
             client = await self._connect()
-            ttl = ttl_seconds or REDIS_TTL_SECONDS
             redis_key = self._format_key(key)
-            # data should be JSON serializable
             await _maybe_await(
                 client.setex(
                     redis_key,
@@ -125,7 +135,9 @@ class RedisClient:
             )
             logger.debug("Cache SET for key %s with TTL %s", redis_key, ttl)
         except redis_exceptions.ConnectionError as e:
-            logger.error("Redis connection error during SET: %s", e)
+            logger.warning(
+                "Redis indisponível durante SET, mantendo cache em memória: %s", e
+            )
             self._client = None
         except Exception as e:
             logger.error("Unexpected error during Redis SET for key %s: %s", key, e)
@@ -141,7 +153,7 @@ class RedisClient:
             redis_exceptions.AuthenticationError,
             redis_exceptions.ConnectionError,
         ) as e:
-            logger.error("Redis connection error during DELETE: %s", e)
+            logger.warning("Redis indisponível durante DELETE: %s", e)
             self._client = None
         except Exception as e:
             logger.error("Unexpected error during Redis DELETE for key %s: %s", key, e)
@@ -152,13 +164,22 @@ class RedisClient:
             client = await self._connect()
             redis_key = self._format_key(key)
             ttl = await _maybe_await(client.ttl(redis_key))
+            if ttl is None or int(ttl) < 0:
+                value = self._memory_cache.get(key)
+                if value:
+                    _, expires = value
+                    return max(int((expires - datetime.utcnow()).total_seconds()), -2)
             return int(ttl)
         except (
             redis_exceptions.AuthenticationError,
             redis_exceptions.ConnectionError,
         ) as e:
-            logger.error("Redis connection error during TTL: %s", e)
+            logger.warning("Redis indisponível durante TTL: %s", e)
             self._client = None
+            value = self._memory_cache.get(key)
+            if value:
+                _, expires = value
+                return max(int((expires - datetime.utcnow()).total_seconds()), -2)
             return -2
         except Exception as e:
             logger.error("Unexpected error during Redis TTL for key %s: %s", key, e)
