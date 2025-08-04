@@ -278,6 +278,23 @@ class GlpiApiClient:
 
         return summary
 
+    async def count_status_by_group(
+        self, group_ids: Dict[str, int]
+    ) -> Dict[str, Dict[str, int]]:
+        """Return status counts for the provided support groups.
+
+        This is a thin wrapper around :func:`get_status_counts_by_levels` that
+        reuses the current client session.
+
+        Args:
+            group_ids: Mapping of group names to their GLPI numeric IDs.
+
+        Returns:
+            A mapping of group name to a dictionary of status counts.
+        """
+
+        return await get_status_counts_by_levels(group_ids, client=self)
+
 
 async def discover_field_ids(session: GLPISession) -> Dict[str, int]:
     """Return numeric IDs for ``Grupo técnico`` and ``Status`` search fields."""
