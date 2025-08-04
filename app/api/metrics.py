@@ -19,7 +19,7 @@ from backend.application.glpi_api_client import (
     GlpiApiClient,
     create_glpi_api_client,
 )
-from backend.constants import GROUP_IDS, GROUP_LABELS_BY_ID
+from backend.constants import GROUP_IDS, GROUP_LABELS_BY_ID, STATUS_ALIAS
 from backend.infrastructure.glpi.normalization import process_raw
 from shared.utils.redis_client import RedisClient, redis_client
 
@@ -185,11 +185,7 @@ async def compute_levels(
     for level, status_counts in raw_counts.items():
         normalized: Dict[str, int] = {}
         for status, total in status_counts.items():
-            key = str(status).lower()
-            if key in {"processing (assigned)", "processing (planned)"}:
-                key = "progress"
-            elif key in {"solved", "closed"}:
-                key = "resolved"
+            key = STATUS_ALIAS.get(str(status).lower(), str(status).lower())
             normalized[key] = normalized.get(key, 0) + int(total)
         result[level] = normalized
 

@@ -15,8 +15,11 @@ status keys normalised to lower case.
 
 from __future__ import annotations
 
+import asyncio
 import logging
 from typing import Any, Dict, List, Optional, Type
+
+import aiohttp
 
 __all__ = [
     "GlpiApiClient",
@@ -29,7 +32,7 @@ __all__ = [
 
 from backend.adapters.factory import create_glpi_session
 from backend.adapters.mapping_service import MappingService
-from backend.constants import GROUP_IDS
+from backend.constants import GROUP_IDS, STATUS_ALIAS
 from backend.infrastructure.glpi.glpi_session import GLPISession
 from backend.schemas.ticket_models import STATUS_MAP, TEXT_STATUS_MAP, CleanTicketDTO
 from backend.utils import paginate_items
@@ -303,7 +306,7 @@ class GlpiApiClient:
         }
 
         for level, group_id in level_ids.items():
-            for status_id in STATUS_MAP:
+            for status_id, raw_name in STATUS_MAP.items():
                 params = {
                     "criteria": [
                         {
@@ -323,7 +326,10 @@ class GlpiApiClient:
                     _, headers = await self._session.get(
                         "search/Ticket", params=params, return_headers=True
                     )
-                except (aiohttp.ClientError, asyncio.TimeoutError):  # pragma: no cover - best effort
+                except (
+                    aiohttp.ClientError,
+                    asyncio.TimeoutError,
+                ):  # pragma: no cover - best effort
                     logger.exception(
                         "failed to count tickets for group %s status %s",
                         group_id,
@@ -344,16 +350,7 @@ class GlpiApiClient:
                                 "invalid Content-Range header: %s", content_range
                             )
 
-                status_key_map = {
-                    1: "new",
-                    2: "progress",
-                    3: "progress",
-                    4: "pending",
-                }
-                key = status_key_map.get(status_id)
-                if key is None:
-                    logger.warning("Unknown status_id %s encountered; skipping.", status_id)
-                    continue
+                key = STATUS_ALIAS.get(raw_name.lower(), raw_name.lower())
                 summary[level][key] += total
 
         return summary
