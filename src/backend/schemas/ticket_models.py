@@ -75,7 +75,7 @@ STATUS_MAP = {
     6: "closed",
 }
 
-TEXT_STATUS_MAP = {label: label for label in STATUS_MAP.values()}
+TEXT_STATUS_SET = set(STATUS_MAP.values())
 
 PRIORITY_MAP_PT = {
     1: "Muito Baixa",
