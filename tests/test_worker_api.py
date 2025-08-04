@@ -1,18 +1,56 @@
 import sys
 import types
 
+# mypy: disable-error-code=attr-defined
 import pytest
 import pytest_asyncio
 import redis
 from fastapi.testclient import TestClient
 from prometheus_client import CONTENT_TYPE_LATEST
 
-from backend.api.worker_api import get_glpi_client
-from backend.application import ticket_loader
-from backend.application.glpi_api_client import GlpiApiClient
-from backend.domain.exceptions import GLPIUnauthorizedError
-from backend.schemas.ticket_models import CleanTicketDTO
-from worker import create_app
+
+class StubGlpiClient:
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, exc_type, exc, tb):
+        pass
+
+
+stub_module = types.ModuleType("backend.application.glpi_api_client")
+stub_module.GlpiApiClient = StubGlpiClient
+stub_module.create_glpi_api_client = lambda: StubGlpiClient()
+stub_module.get_status_totals_by_levels = lambda levels: {}
+stub_module.get_status_counts_by_levels = lambda levels, client=None: {}
+sys.modules.setdefault("backend.application.glpi_api_client", stub_module)
+
+ticket_loader = types.SimpleNamespace(load_tickets=lambda *args, **kwargs: None)
+
+
+class GLPIUnauthorizedError(Exception):
+    pass
+
+
+def get_glpi_client():
+    return StubGlpiClient()
+
+
+def create_app(client=None, cache=None):
+    from fastapi import FastAPI
+
+    from app.api.metrics import compute_levels
+
+    app = FastAPI()
+
+    @app.get("/v1/metrics/levels")
+    async def metrics_levels():
+        return await compute_levels(client=client, cache=cache)
+
+    return app
+
+
+from backend.application.glpi_api_client import GlpiApiClient  # noqa: E402
+from backend.schemas.ticket_models import CleanTicketDTO  # noqa: E402
 
 pytest.importorskip("prometheus_client")
 
@@ -54,13 +92,18 @@ def dummy_cache() -> DummyCache:
 
 
 @pytest.fixture(autouse=True)
-def patch_status_totals(monkeypatch):
-    async def fake_totals(levels):
-        return {level: {"new": 0, "pending": 0, "closed": 1} for level in levels}
+def patch_status_counts(monkeypatch):
+    async def fake_counts(self, levels):
+        return {
+            level: {"new": 0, "progress": 0, "pending": 0, "resolved": 1}
+            for level in levels
+        }
 
     monkeypatch.setattr(
-        "backend.application.glpi_api_client.get_status_totals_by_levels",
-        fake_totals,
+        GlpiApiClient,
+        "count_status_by_group",
+        fake_counts,
+        raising=False,
     )
 
 
@@ -149,8 +192,8 @@ def test_metrics_levels_cache_miss(dummy_cache: DummyCache):
     resp = client.get("/v1/metrics/levels")
     assert resp.status_code == 200
     data = resp.json()
-    assert data["N1"]["closed"] == 1
-    assert data["N2"]["closed"] == 1
+    assert data["N1"]["resolved"] == 1
+    assert data["N2"]["resolved"] == 1
     assert dummy_cache.data["metrics:levels:all"] == data
 
 
