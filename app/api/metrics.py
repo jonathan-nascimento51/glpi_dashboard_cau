@@ -178,7 +178,7 @@ async def compute_levels(
     try:
         result: Dict[str, Dict[str, int]] = await get_status_totals_by_levels(GROUP_IDS)
     except Exception:
-        logger.exception("failed to fetch status totals; falling back to DataFrame")
+        logger.exception("Failed to fetch status totals from GLPI API; falling back to DataFrame aggregation")
         df = await _fetch_dataframe(client)
         df["status"] = df["status"].astype(str).str.lower()
         grouped = (
