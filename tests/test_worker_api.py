@@ -53,6 +53,17 @@ def dummy_cache() -> DummyCache:
     return DummyCache()
 
 
+@pytest.fixture(autouse=True)
+def patch_status_totals(monkeypatch):
+    async def fake_totals(levels):
+        return {level: {"new": 0, "pending": 0, "closed": 1} for level in levels}
+
+    monkeypatch.setattr(
+        "backend.application.glpi_api_client.get_status_totals_by_levels",
+        fake_totals,
+    )
+
+
 class FakeClient(GlpiApiClient):
     def __init__(self) -> None:
         """Fake client that conforms to the GlpiApiClient interface for tests."""
@@ -140,7 +151,7 @@ def test_metrics_levels_cache_miss(dummy_cache: DummyCache):
     data = resp.json()
     assert data["N1"]["closed"] == 1
     assert data["N2"]["closed"] == 1
-    assert dummy_cache.data["metrics_levels"] == data
+    assert dummy_cache.data["metrics:levels:all"] == data
 
 
 def test_chamados_por_data(dummy_cache: DummyCache):
