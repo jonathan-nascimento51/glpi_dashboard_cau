@@ -42,6 +42,45 @@ class FakeClient:
         self.calls += 1
         return [FakeTicket(**i) for i in self._items]
 
+    async def count_aggregated_metrics(self):
+        self.calls += 1
+        df = pd.DataFrame(self._items)
+        if "date_creation" in df.columns:
+            df["date_creation"] = pd.to_datetime(df["date_creation"])
+        if "date_resolved" in df.columns:
+            df["date_resolved"] = pd.to_datetime(df["date_resolved"])
+
+        df["status"] = df["status"].astype(str).str.lower()
+        open_mask = ~df["status"].isin(["closed", "solved", "resolved"])
+        open_by_level = df[open_mask].groupby("group").size().astype(int).to_dict()
+
+        now = pd.Timestamp.utcnow()
+        if now.tzinfo is None:
+            now = now.tz_localize("UTC")
+        else:
+            now = now.tz_convert("UTC")
+        month_start = pd.Timestamp(year=now.year, month=now.month, day=1, tz="UTC")
+        if not pd.api.types.is_datetime64_any_dtype(df["date_resolved"]):
+            df["date_resolved"] = pd.to_datetime(df["date_resolved"], errors="coerce")
+        if df["date_resolved"].dt.tz is None:
+            df["date_resolved"] = df["date_resolved"].dt.tz_localize("UTC")
+        else:
+            df["date_resolved"] = df["date_resolved"].dt.tz_convert("UTC")
+        closed_mask = df["status"].isin(["closed", "solved", "resolved"]) & (
+            df["date_resolved"] >= month_start
+        )
+        closed_this_month = (
+            df[closed_mask].groupby("group").size().astype(int).to_dict()
+        )
+
+        status_counts = df["status"].value_counts().astype(int).to_dict()
+
+        return {
+            "open_tickets": open_by_level,
+            "tickets_closed_this_month": closed_this_month,
+            "status_distribution": status_counts,
+        }
+
     async def count_status_by_group(self, level_ids):
         return {
             "N1": {"new": 1, "progress": 0, "pending": 0, "resolved": 1},
@@ -153,7 +192,7 @@ def test_error_handling(monkeypatch, test_client):
     async def fail(*args, **kwargs):
         raise RuntimeError("boom")
 
-    monkeypatch.setattr(metrics_module, "_fetch_dataframe", fail)
+    monkeypatch.setattr(api_client, "count_aggregated_metrics", fail)
     resp = client.get("/v1/metrics/aggregated")
     assert resp.status_code == 500
 

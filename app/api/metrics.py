@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import logging
 from enum import Enum
-from typing import Any, Awaitable, Callable, Dict, Optional
+from typing import Awaitable, Callable, Dict, Optional
 
 import pandas as pd
 from fastapi import HTTPException
@@ -106,38 +106,14 @@ async def compute_aggregated(
     cache_key = CACHE_KEY_AGGREGATED
 
     async def compute_metrics():
-        df = await _fetch_dataframe(client)
-        df["status"] = df["status"].astype(str).str.lower()
+        active_client = client or create_glpi_api_client()
+        if active_client is None:
+            raise RuntimeError("GLPI client unavailable")
 
-        open_mask = ~df["status"].isin(CLOSED_STATUSES)
-        open_by_level: dict[Any, int] = (
-            df[open_mask].groupby("group", observed=True).size().astype(int).to_dict()
-        )
+        async with active_client:
+            totals = await active_client.count_aggregated_metrics()
 
-        now = pd.Timestamp.utcnow().tz_localize("UTC")
-        month_start = pd.Timestamp(year=now.year, month=now.month, day=1, tz="UTC")
-        # Ensure all entries in 'date_resolved' are localized to UTC
-        if not pd.api.types.is_datetime64_any_dtype(df["date_resolved"]):
-            df["date_resolved"] = pd.to_datetime(df["date_resolved"], errors="coerce")
-        if df["date_resolved"].dt.tz is None:
-            df["date_resolved"] = df["date_resolved"].dt.tz_localize("UTC")
-        else:
-            df["date_resolved"] = df["date_resolved"].dt.tz_convert("UTC")
-        closed_mask = df["status"].isin(CLOSED_STATUSES) & (
-            df["date_resolved"] >= month_start
-        )
-
-        closed_this_month_by_level = (
-            df[closed_mask].groupby("group", observed=True).size().astype(int).to_dict()
-        )
-
-        status_counts = df["status"].value_counts().astype(int).to_dict()
-
-        return MetricsOverview(
-            open_tickets=open_by_level,
-            tickets_closed_this_month=closed_this_month_by_level,
-            status_distribution=status_counts,
-        )
+        return MetricsOverview(**totals)
 
     result = await get_or_set_cache(
         cache, cache_key, MetricsOverview, compute_metrics, ttl_seconds
