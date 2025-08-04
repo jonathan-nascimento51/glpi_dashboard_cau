@@ -18,8 +18,9 @@ from pydantic import BaseModel, Field, ValidationError
 from backend.application.glpi_api_client import (
     GlpiApiClient,
     create_glpi_api_client,
+    get_status_totals_by_levels,
 )
-from backend.constants import GROUP_LABELS_BY_ID
+from backend.constants import GROUP_IDS, GROUP_LABELS_BY_ID
 from backend.infrastructure.glpi.normalization import process_raw
 from shared.utils.redis_client import RedisClient, redis_client
 
@@ -174,21 +175,23 @@ async def compute_levels(
     cached = await cache.get(cache_key)
     if isinstance(cached, dict):
         return cached
-
-    df = await _fetch_dataframe(client)
-    df["status"] = df["status"].astype(str).str.lower()
-    grouped = (
-        df.groupby(["group", "status"], observed=True)
-        .size()
-        .unstack(fill_value=0)
-        .astype(int)
-    )
-    result: Dict[str, Dict[str, int]] = grouped.to_dict(orient="index")
-
-    # Ensure all support levels are present even if missing from the data
-    all_statuses = {status: 0 for status in grouped.columns}
-    for level in ["N1", "N2", "N3", "N4"]:
-        result.setdefault(level, all_statuses.copy())
+    try:
+        result: Dict[str, Dict[str, int]] = await get_status_totals_by_levels(GROUP_IDS)
+    except Exception:
+        logger.exception("failed to fetch status totals; falling back to DataFrame")
+        df = await _fetch_dataframe(client)
+        df["status"] = df["status"].astype(str).str.lower()
+        grouped = (
+            df.groupby(["group", "status"], observed=True)
+            .size()
+            .unstack(fill_value=0)
+            .astype(int)
+        )
+        result = grouped.to_dict(orient="index")
+        # Ensure all support levels are present even if missing from the data
+        all_statuses = {status: 0 for status in grouped.columns}
+        for level in GROUP_IDS.keys():
+            result.setdefault(level, all_statuses.copy())
 
     try:
         await cache.set(cache_key, result, ttl_seconds=ttl_seconds)
