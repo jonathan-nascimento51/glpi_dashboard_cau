@@ -18,7 +18,6 @@ from pydantic import BaseModel, Field, ValidationError
 from backend.application.glpi_api_client import (
     GlpiApiClient,
     create_glpi_api_client,
-    get_status_totals_by_levels,
 )
 from backend.constants import GROUP_IDS, GROUP_LABELS_BY_ID
 from backend.infrastructure.glpi.normalization import process_raw
@@ -175,24 +174,24 @@ async def compute_levels(
     cached = await cache.get(cache_key)
     if isinstance(cached, dict):
         return cached
-    try:
-        result: Dict[str, Dict[str, int]] = await get_status_totals_by_levels(GROUP_IDS)
-    except (HTTPException, ConnectionError, socket.timeout) as exc:
-        # Catch expected network/API errors; let programming errors propagate
-        logger.exception("Failed to fetch status totals from GLPI API; falling back to DataFrame aggregation")
-        df = await _fetch_dataframe(client)
-        df["status"] = df["status"].astype(str).str.lower()
-        grouped = (
-            df.groupby(["group", "status"], observed=True)
-            .size()
-            .unstack(fill_value=0)
-            .astype(int)
-        )
-        result = grouped.to_dict(orient="index")
-        # Ensure all support levels are present even if missing from the data
-        all_statuses = {status: 0 for status in grouped.columns}
-        for level in GROUP_IDS.keys():
-            result.setdefault(level, all_statuses.copy())
+    client = client or create_glpi_api_client()
+    if client is None:
+        raise RuntimeError("GLPI client unavailable")
+
+    async with client:
+        raw_counts = await client.count_status_by_group(GROUP_IDS)
+
+    result: Dict[str, Dict[str, int]] = {}
+    for level, status_counts in raw_counts.items():
+        normalized: Dict[str, int] = {}
+        for status, total in status_counts.items():
+            key = str(status).lower()
+            if key in {"processing (assigned)", "processing (planned)"}:
+                key = "progress"
+            elif key in {"solved", "closed"}:
+                key = "resolved"
+            normalized[key] = normalized.get(key, 0) + int(total)
+        result[level] = normalized
 
     try:
         await cache.set(cache_key, result, ttl_seconds=ttl_seconds)
